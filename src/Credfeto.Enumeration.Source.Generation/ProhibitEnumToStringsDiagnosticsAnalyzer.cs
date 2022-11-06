@@ -117,16 +117,10 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
     {
         foreach (InterpolationSyntax part in interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>())
         {
-            if (syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(part.Expression)
-                                         .Type is not INamedTypeSymbol typeInfo)
-            {
-                return;
-            }
-
-            if (typeInfo.EnumUnderlyingType == null)
+            if (!IsEnum(syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(part.Expression)))
             {
                 // not an enum
-                return;
+                continue;
             }
 
             ReportDiagnostic(expressionSyntax: interpolatedStringExpressionSyntax, context: syntaxNodeAnalysisContext);
