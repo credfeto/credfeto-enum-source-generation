@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <DebuggerSupport>true</DebuggerSupport>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
@@ -12,17 +12,17 @@
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
     <LangVersion>latest</LangVersion>
-    <NoWarn/>
+    <NoWarn />
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
     <RunAOTCompilation>false</RunAOTCompilation>
     <TargetFramework>net7.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
     <TieredPGO>true</TieredPGO>
-    <TreatSpecificWarningsAsErrors/>
+    <TreatSpecificWarningsAsErrors />
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
-    <WarningsAsErrors/>
+    <WarningsAsErrors />
   </PropertyGroup>
   <PropertyGroup>
     <Company>Mark Ridgwell</Company>
@@ -41,22 +41,22 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NonBlocking" Version="2.1.0"/>
+    <PackageReference Include="NonBlocking" Version="2.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All"/>
-    <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="All"/>
-    <PackageReference Include="FunFair.CodeAnalysis" Version="5.9.0.1493" PrivateAssets="All"/>
-    <PackageReference Include="Meziantou.Analyzer" Version="1.0.744" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.48" PrivateAssets="All"/>
-    <PackageReference Include="Nullable.Extended.Analyzer" Version="1.10.4539" PrivateAssets="All"/>
-    <PackageReference Include="Philips.CodeAnalysis.DuplicateCodeAnalyzer" Version="1.1.7" PrivateAssets="All"/>
-    <PackageReference Include="Philips.CodeAnalysis.MaintainabilityAnalyzers" Version="1.2.29" PrivateAssets="All"/>
-    <PackageReference Include="Roslynator.Analyzers" Version="4.1.2" PrivateAssets="All"/>
-    <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7" PrivateAssets="All"/>
-    <PackageReference Include="SmartAnalyzers.CSharpExtensions.Annotations" Version="4.2.7" PrivateAssets="All"/>
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.47.0.55603" PrivateAssets="All"/>
-    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All"/>
-    <PackageReference Include="ToStringWithoutOverrideAnalyzer" Version="0.6.0" PrivateAssets="All"/>
+    <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All" />
+    <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="All" />
+    <PackageReference Include="FunFair.CodeAnalysis" Version="5.9.0.1493" PrivateAssets="All" />
+    <PackageReference Include="Meziantou.Analyzer" Version="1.0.745" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.48" PrivateAssets="All" />
+    <PackageReference Include="Nullable.Extended.Analyzer" Version="1.10.4539" PrivateAssets="All" />
+    <PackageReference Include="Philips.CodeAnalysis.DuplicateCodeAnalyzer" Version="1.1.7" PrivateAssets="All" />
+    <PackageReference Include="Philips.CodeAnalysis.MaintainabilityAnalyzers" Version="1.2.29" PrivateAssets="All" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.1.2" PrivateAssets="All" />
+    <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7" PrivateAssets="All" />
+    <PackageReference Include="SmartAnalyzers.CSharpExtensions.Annotations" Version="4.2.7" PrivateAssets="All" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.47.0.55603" PrivateAssets="All" />
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All" />
+    <PackageReference Include="ToStringWithoutOverrideAnalyzer" Version="0.6.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>
