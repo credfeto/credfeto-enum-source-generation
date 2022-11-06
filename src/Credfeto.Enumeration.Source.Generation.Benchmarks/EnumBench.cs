@@ -9,6 +9,12 @@ namespace Credfeto.Enumeration.Source.Generation.Benchmarks;
 public abstract class EnumBench : BenchBase
 {
     [Benchmark]
+    public void GetNameToString()
+    {
+        this.Test(ExampleEnumValues.ONE.GetNameToString());
+    }
+
+    [Benchmark]
     public void GetNameReflection()
     {
         this.Test(ExampleEnumValues.ONE.GetNameReflection());

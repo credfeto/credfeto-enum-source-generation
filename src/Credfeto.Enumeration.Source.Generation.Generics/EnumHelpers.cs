@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using NonBlocking;
@@ -11,6 +12,14 @@ public static class EnumHelpers
     private static readonly ConcurrentDictionary<Enum, string> CachedNames = new();
 
     private static readonly ConcurrentDictionary<Enum, string> CachedDescriptions = new();
+
+    [SuppressMessage(category: "Credfeto.Enumeration.Source.Generation", checkId: "ENUM001: Use GetName", Justification = "Enum is a value type")]
+    [SuppressMessage(category: "ToStringWithoutOverrideAnalyzer", checkId: "ExplicitToStringWithoutOverrideAnalyzer: Use GetName", Justification = "Enum is a value type")]
+    public static string GetNameToString<T>(this T value)
+        where T : Enum
+    {
+        return value.ToString();
+    }
 
     public static string GetNameReflection<T>(this T value)
         where T : Enum
