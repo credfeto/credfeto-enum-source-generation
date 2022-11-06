@@ -114,8 +114,8 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
         return this.VerifyCSharpDiagnosticAsync(source: test, expected);
     }
 
-    [Fact(Skip = "Not yet implemented")]
-    public Task EnumToStringIsBannedInFormatStringAsync()
+    [Fact]
+    public Task EnumToStringIsBannedInInterpolatedStringAsync()
     {
         const string test = @"
     namespace ConsoleApplication1
@@ -148,7 +148,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
     }
 
     [Fact(Skip = "Not yet implemented")]
-    public Task EnumToStringIsBannedInFormatString2Async()
+    public Task EnumToStringIsBannedInFormatStringAsync()
     {
         const string test = @"
     namespace ConsoleApplication1

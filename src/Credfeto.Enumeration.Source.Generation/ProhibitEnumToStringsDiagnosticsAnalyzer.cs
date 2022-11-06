@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -33,10 +34,19 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static void PerformCheck(CompilationStartAnalysisContext compilationStartContext)
     {
-        compilationStartContext.RegisterSyntaxNodeAction(action: LookForBannedMethods, SyntaxKind.PointerMemberAccessExpression, SyntaxKind.SimpleMemberAccessExpression);
+        compilationStartContext.RegisterSyntaxNodeAction(action: LookForBannedMethods,
+                                                         SyntaxKind.PointerMemberAccessExpression,
+                                                         SyntaxKind.SimpleMemberAccessExpression,
+                                                         SyntaxKind.InterpolatedStringExpression);
     }
 
     private static void LookForBannedMethods(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    {
+        LookForExplicitBannedMethods(syntaxNodeAnalysisContext);
+        LookForImplicitBannedMethods(syntaxNodeAnalysisContext);
+    }
+
+    private static void LookForExplicitBannedMethods(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         if (syntaxNodeAnalysisContext.Node is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
         {
@@ -91,5 +101,34 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         }
 
         return typeInfo;
+    }
+
+    private static void LookForImplicitBannedMethods(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    {
+        if (syntaxNodeAnalysisContext.Node is InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax)
+        {
+            LookForImplicitBannedMethods(interpolatedStringExpressionSyntax: interpolatedStringExpressionSyntax, syntaxNodeAnalysisContext: syntaxNodeAnalysisContext);
+        }
+    }
+
+    private static void LookForImplicitBannedMethods(InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax, SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    {
+        foreach (InterpolationSyntax part in interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>())
+        {
+            if (syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(part.Expression)
+                                         .Type is not INamedTypeSymbol typeInfo)
+            {
+                return;
+            }
+
+            if (typeInfo.EnumUnderlyingType == null)
+            {
+                // not an enum
+                return;
+            }
+
+            //if (interpolatedStringExpressionSyntax.Name.Identifier.ToString() == nameof(ToString))
+            syntaxNodeAnalysisContext.ReportDiagnostic(Diagnostic.Create(descriptor: Rule, interpolatedStringExpressionSyntax.GetLocation()));
+        }
     }
 }
