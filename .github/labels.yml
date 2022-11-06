@@ -1,0 +1,116 @@
+ - name: "C#"
+   color: "db6baa"
+   description: "C# Source Files"
+
+ - name: "C# Project"
+   color: "db6baa"
+   description: "C# Project Files"
+
+ - name: "C# Solution"
+   color: "db6baa"
+   description: "C# Solutions"
+
+ - name: "Powershell"
+   color: "23bc12"
+   description: "Powershell Source Files"
+
+ - name: "SQL"
+   color: "413cd1"
+   description: "SQL Source Files"
+
+ - name: "Solidity"
+   color: "413cd1"
+   description: "Solidity Source Files"
+
+ - name: "unit-tests"
+   color: "0e8a16"
+   description: "Unit test and integration test projects"
+
+ - name: ".NET update"
+   color: "a870c9"
+   description: "Update to .net global.json"
+
+ - name: "Config Change"
+   color: "d8bb50"
+   description: "Configuration files changes"
+
+ - name: "Static Code Analysis Rules"
+   color: "00dead"
+   description: "Ruleset for static code analysis files"
+
+ - name: "Migration Script"
+   color: "b680e5"
+   description: "SQL Migration scripts"
+
+ - name: "Legal Text"
+   color: "facef0"
+   description: "Legal text files"
+
+ - name: "Change Log"
+   color: "53fcd4"
+   description: "Changelog tracking file"
+
+ - name: "Read Me"
+   color: "5319e7"
+   description: "Repository readme file"
+
+ - name: "Setup"
+   color: "5319e7"
+   description: "Setup instructions"
+
+ - name: "Markdown"
+   color: "5319e7"
+   description: "Markdown files"
+
+ - name: "github-actions"
+   color: "e09cf4"
+   description: "Github actions workflow files"
+
+ - name: "Tech Debt"
+   color: "30027a"
+   description: "Technical debt"
+
+ - name: "auto-pr"
+   color: "0000aa"
+   description: "Pull request created automatically"
+
+ - name: "no-pr-activity"
+   color: "ffff00"
+   description: "Pull Request has had no activity for a long time"
+
+ - name: "!!! WAITING FOR CLIENT PR"
+   color: "ffff00"
+   description: "Pull request needs a client pull request to be merged at the same time"
+
+ - name: "!!! WAITING FOR WALLET PR"
+   color: "ffff00"
+   description: "Pull request needs a wallet pull request to be merged at the same time"
+
+ - name: "!!! WAITING FOR SERVER PR"
+   color: "ffff00"
+   description: "Pull request needs a server pull request to be merged at the same time"
+
+ - name: "!!! WAITING FOR QA SIGNOFF"
+   color: "ffff00"
+   description: "Pull request needs a QA Signoff before it can be merged"
+
+ - name: "!!! WAITING FOR ETHEREUM PR"
+   color: "ffff00"
+   description: "Pull request needs a server ethereum pull request to be merged at the same time"
+
+ - name: "dependencies"
+   color: "0366d6"
+   description: "Updates to dependencies"
+
+ - name: "dotnet"
+   color: "db6baa"
+   description: "Dotnet package updates"
+
+ - name: "npm"
+   color: "e99695"
+   description: "npm package upate"
+
+ - name: "DO NOT MERGE"
+   color: "ff0000"
+   description: "This pull request should not be merged yey"
+

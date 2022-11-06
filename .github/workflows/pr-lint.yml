@@ -1,0 +1,210 @@
+name: PR Lint
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review, unlocked]
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  info:
+    if: ${{ endsWith(github.repository , '-template') }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - run: |
+          echo "Branch: ${{ github.head_ref }}"
+          echo "Base Branch: ${{ github.base_ref }}"
+          echo "Repo: ${{ github.repository }}"
+          echo "Owner: ${{ github.repository_owner }}"
+
+  include-JIRA-ticket:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - if: ${{ !endsWith(github.repository , '-template') && !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'hotfix/') }}
+        uses: seferov/pr-lint-action@v1.2.0
+        with:
+          title-regex: '^\[FF\-\d*?\](:)?(\ )'
+          error-message: 'Add Jira Ticket ID to your title'
+
+  include-changelog-entry:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - if: ${{ github.actor != 'dependabot[bot]' || endsWith(github.repository , '-template') }}
+        uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - if: ${{ github.actor != 'dependabot[bot]' || endsWith(github.repository , '-template') }}
+        run: |
+           [[ $(git diff --exit-code origin/main CHANGELOG.md) == 0 ]] && (echo "Error: Changelog unchanged" && exit -1)
+           [[ $(git diff --quiet origin/main CHANGELOG.md) != 0 ]] && echo "OK: Changelog updated"
+
+  change-log-entry-is-in-unreleased:
+    if: github.event.pull_request.draft == false
+    # As LibGit2Sharp doesn't work on 20.04
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - uses: credfeto/action-dotnet-version-detect@v1.3.0
+        with:
+          file: src/global.json
+          fallback: 6.0.*
+      - uses: actions/setup-dotnet@v3.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: false
+          DOTNET_MULTILEVEL_LOOKUP: false
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Enable dotnet tools
+        run: dotnet new tool-manifest
+        env:
+          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: false
+          DOTNET_MULTILEVEL_LOOKUP: false
+      - name: Install Changelog tool
+        run: dotnet tool install --local Credfeto.ChangeLog.Cmd
+        env:
+          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: false
+          DOTNET_MULTILEVEL_LOOKUP: false
+      - name: Check Changelog
+        run: dotnet changelog --changelog CHANGELOG.md --check-insert "origin/${{ github.base_ref }}"
+        env:
+          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: false
+          DOTNET_MULTILEVEL_LOOKUP: false
+
+  does-not-contain-secrets:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - uses: DariuszPorowski/github-action-gitleaks@v2.0.4
+        id: gitleaks
+        with:
+          config: .gitleaks.toml
+          report_format: "sarif"
+          fail: true
+          redact: true
+          verbose: true
+          log_level: info
+
+  has-no-merge-conflicts:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - uses: olivernybroe/action-conflict-finder@v4.0
+
+  has-no-file-or-folder-case-sensitivity-issues:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - uses: credfeto/action-case-checker@v1.3.0
+
+  no-ignored-files:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - uses: credfeto/action-no-ignored-files@v1.1.0
+
+  dependency-review:
+    # Check that there are no dependencies with security problems in the PR
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - uses: credfeto/action-repo-visibility@v1.1.0
+        id: visibility
+        with:
+          # optional parameter defaults to the current repo
+          repository: ${{ github.repository }}
+          # optional parameter defaults to the current user
+          token: ${{ github.token }}
+      - if: ${{ steps.visibility.outputs.is_public == 'true' }}
+        name: 'Checkout Repository'
+        uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - if: ${{ steps.visibility.outputs.is_public == 'true' }}
+        name: 'Dependency Review'
+        uses: actions/dependency-review-action@v2.5.1
+
+  lint-code:
+    if: ${{ github.event.pull_request.draft == false && ( !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'hotfix/') ) }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - uses: github/super-linter@v4.9.7
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
+          MULTI_STATUS: true
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_ANSIBLE: true
+          VALIDATE_BASH: true
+          VALIDATE_CSS: true
+          VALIDATE_ENV: true
+          VALIDATE_DOCKERFILE: true
+          VALIDATE_DOCKERFILE_HADOLINT: true
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_JSON: true
+          VALIDATE_MD: true
+          VALIDATE_POWERSHELL: true
+          VALIDATE_PYTHON: true
+          VALIDATE_PYTHON_PYLINT: true
+          VALIDATE_SHELL_SHFMT: true
+          VALIDATE_SQL: true
+          VALIDATE_TYPESCRIPT_ES: true
+          VALIDATE_XML: true
+          VALIDATE_YAML: true
+

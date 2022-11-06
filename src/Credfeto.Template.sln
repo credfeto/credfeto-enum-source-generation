@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{6BDAE5C1-D308-42EF-8B1C-60964D58A384}"
+ProjectSection(SolutionItems) = preProject
+	CodeAnalysis.ruleset = CodeAnalysis.ruleset
+	global.json = global.json
+	..\CHANGELOG.md = ..\CHANGELOG.md
+	..\README.md = ..\README.md
+	FunFair.props = FunFair.props
+EndProjectSection
+EndProject
+Global
+EndGlobal
