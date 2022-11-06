@@ -56,7 +56,7 @@ run below.
 | GetDescriptionCachedReflection |    31.9541 ns |  0.3890 ns |  0.3249 ns |      24 B |
 |    GetDescriptionCodeGenerated |     0.0000 ns |  0.0000 ns |  0.0000 ns |         - |
 
-``
+```
 // * Warnings *
 ZeroMeasurement
 EnumBench.GetNameCodeGenerated: Default -> The method duration is indistinguishable from the empty method duration
