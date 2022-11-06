@@ -25,4 +25,22 @@ public abstract class EnumBench : BenchBase
     {
         this.Test(ExampleEnumValues.ONE.GetName());
     }
+
+    [Benchmark]
+    public void GetDescriptionReflection()
+    {
+        this.Test(ExampleEnumValues.ONE.GetDescriptionReflection());
+    }
+
+    [Benchmark]
+    public void GetDescriptionCachedReflection()
+    {
+        this.Test(ExampleEnumValues.ONE.GetDescriptionReflectionCached());
+    }
+
+    [Benchmark]
+    public void GetDescriptionCodeGenerated()
+    {
+        this.Test(ExampleEnumValues.ONE.GetDescription());
+    }
 }

@@ -14,4 +14,12 @@ internal static class EnumWrappers
     {
         return EnumHelpers.GetName(value);
     }
+
+    [SuppressMessage(category: "ReSharper", checkId: "InvokeAsExtensionMethod", Justification = "This is a benchmark.")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string GetDescriptionReflectionCached<T>(this T value)
+        where T : Enum
+    {
+        return EnumHelpers.GetDescription(value);
+    }
 }
