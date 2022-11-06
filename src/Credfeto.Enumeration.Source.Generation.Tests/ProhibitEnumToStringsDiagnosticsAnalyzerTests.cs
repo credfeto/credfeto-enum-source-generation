@@ -36,12 +36,45 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
     }";
         DiagnosticResult expected = new()
                                     {
-                                        Id = "FFS0001",
-                                        Message = @"Call IDateTimeSource.UtcNow() rather than DateTime.Now",
+                                        Id = "ENUM001",
+                                        Message = @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
                                         Severity = DiagnosticSeverity.Error,
                                         Locations = new[]
                                                     {
-                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 12, column: 25)
+                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 15, column: 26)
+                                                    }
+                                    };
+
+        return this.VerifyCSharpDiagnosticAsync(source: test, expected);
+    }
+
+    [Fact]
+    public Task EnumToStringIsBannedInMethodsAsync()
+    {
+        const string test = @"
+    namespace ConsoleApplication1
+    {
+        public enum ExampleEnum
+        {
+            HELLO
+        }
+
+        public static class TypeName
+        {
+            public static string Format(ExampleEnum value)
+            {
+                return value.ToString();
+            }
+        }
+    }";
+        DiagnosticResult expected = new()
+                                    {
+                                        Id = "ENUM001",
+                                        Message = @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Severity = DiagnosticSeverity.Error,
+                                        Locations = new[]
+                                                    {
+                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 13, column: 24)
                                                     }
                                     };
 

@@ -53,6 +53,12 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
             return;
         }
 
+        if (typeInfo.EnumUnderlyingType == null)
+        {
+            // not an enum
+            return;
+        }
+
         if (memberAccessExpressionSyntax.Name.Identifier.ToString() == nameof(ToString))
         {
             syntaxNodeAnalysisContext.ReportDiagnostic(Diagnostic.Create(descriptor: Rule, memberAccessExpressionSyntax.GetLocation()));

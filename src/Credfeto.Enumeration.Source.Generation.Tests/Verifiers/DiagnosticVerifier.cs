@@ -265,7 +265,7 @@ public abstract partial class DiagnosticVerifier : TestBase
             if (actualLinePosition.Line + 1 != expected.Line)
             {
                 Assert.True(condition: false,
-                            $"Expected diagnostic to be on line \"{expected.Line}\" was actually on line \"{actualLinePosition.Line + 10}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, diagnostic)}\r\n");
+                            $"Expected diagnostic to be on line \"{expected.Line}\" was actually on line \"{actualLinePosition.Line + 1}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, diagnostic)}\r\n");
             }
         }
 
