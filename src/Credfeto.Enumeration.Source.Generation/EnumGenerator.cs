@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Builders;
+using Credfeto.Enumeration.Source.Generation.Helpers;
 using Credfeto.Enumeration.Source.Generation.Models;
 using Credfeto.Enumeration.Source.Generation.Receivers;
 using Microsoft.CodeAnalysis;
@@ -14,8 +15,6 @@ namespace Credfeto.Enumeration.Source.Generation;
 [Generator]
 public sealed class EnumGenerator : ISourceGenerator
 {
-    private const string VERSION = "development";
-
     public void Execute(GeneratorExecutionContext context)
     {
         if (context.SyntaxContextReceiver is not EnumSyntaxReceiver receiver)
@@ -48,7 +47,7 @@ public sealed class EnumGenerator : ISourceGenerator
                      .AppendBlankLine()
                      .AppendLine("namespace " + enumDeclaration.Namespace + ";")
                      .AppendBlankLine()
-                     .AppendLine($"[GeneratedCode(tool: \"{nameof(EnumGenerator)}\", version: \"{VERSION}\")]")
+                     .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{ExecutableVersionInformation.ProgramVersion()}\")]")
                      .StartBlock(ConvertAccessType(enumDeclaration.AccessType) + " static class " + className))
         {
             GenerateGetName(source: source, enumDeclaration: enumDeclaration);
