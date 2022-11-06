@@ -7,6 +7,8 @@ Please ADD ALL Changes to the UNRELASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Added
+- Generator for GetName(this Enum value)
+- Generator for GetDescription(this Enum value)
 ### Fixed
 ### Changed
 - FF-3881 - Updated DotNet SDK to 6.0.402
