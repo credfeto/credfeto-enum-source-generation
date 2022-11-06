@@ -17,7 +17,7 @@ Releases that have at least been deployed to staging, BUT NOT necessarily releas
 -->
 ## [0.0.2] - 2022-11-06
 ### Added
-- Unit tests on the code geneated result
+- Unit tests on the code generated result
 - Benchmarks to prove the code generated code executes faster
 ### Changed
 - FF-1429 - Updated Meziantou.Analyzer to 1.0.745
