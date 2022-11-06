@@ -16,7 +16,7 @@
     <IsPublishable>false</IsPublishable>
     <IsTrimmable>true</IsTrimmable>
     <LangVersion>latest</LangVersion>
-    <NoWarn>NU5128</NoWarn>
+    <NoWarn/>
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
     <PackAsTool>false</PackAsTool>
@@ -37,6 +37,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <Description>Source code generator for Enums.</Description>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageTags>C# Source code generator Enum</PackageTags>
     <RepositoryUrl>https://github.com/credfeto/credfeto-enum-source-generation</RepositoryUrl>
