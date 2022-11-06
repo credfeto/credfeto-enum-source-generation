@@ -113,4 +113,70 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
 
         return this.VerifyCSharpDiagnosticAsync(source: test, expected);
     }
+
+    [Fact(Skip = "Not yet implemented")]
+    public Task EnumToStringIsBannedInFormatStringAsync()
+    {
+        const string test = @"
+    namespace ConsoleApplication1
+    {
+        public enum ExampleEnum
+        {
+            HELLO
+        }
+
+        public class TypeName
+        {
+            public ExampleEnum Value {get;set;}
+
+            public string Formatted => $""{this.Value} World!"";
+
+        }
+    }";
+        DiagnosticResult expected = new()
+                                    {
+                                        Id = "ENUM001",
+                                        Message = @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Severity = DiagnosticSeverity.Error,
+                                        Locations = new[]
+                                                    {
+                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 13, column: 40)
+                                                    }
+                                    };
+
+        return this.VerifyCSharpDiagnosticAsync(source: test, expected);
+    }
+
+    [Fact(Skip = "Not yet implemented")]
+    public Task EnumToStringIsBannedInFormatString2Async()
+    {
+        const string test = @"
+    namespace ConsoleApplication1
+    {
+        public enum ExampleEnum
+        {
+            HELLO
+        }
+
+        public class TypeName
+        {
+            public ExampleEnum Value {get;set;}
+
+            public string Formatted => string.Format(""{0} World!"", this.Value);
+
+        }
+    }";
+        DiagnosticResult expected = new()
+                                    {
+                                        Id = "ENUM001",
+                                        Message = @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Severity = DiagnosticSeverity.Error,
+                                        Locations = new[]
+                                                    {
+                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 13, column: 40)
+                                                    }
+                                    };
+
+        return this.VerifyCSharpDiagnosticAsync(source: test, expected);
+    }
 }
