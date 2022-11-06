@@ -180,7 +180,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
         return this.VerifyCSharpDiagnosticAsync(source: test, expected);
     }
 
-    [Fact(Skip = "Not yet implemented")]
+    [Fact]
     public Task EnumToStringIsBannedInStringConcatenationAsync()
     {
         const string test = @"
