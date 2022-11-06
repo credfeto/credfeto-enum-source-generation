@@ -16,7 +16,6 @@ public sealed class EnumGetNameTests : TestBase
     [Fact]
     public void GetNameForUnAliased()
     {
-        Assert.Equal(expected: "TWO", ExampleEnumValues.ZERO.ToString());
         Assert.Equal(expected: "ZERO", ExampleEnumValues.ZERO.GetName());
         Assert.Equal(expected: "THREE", ExampleEnumValues.THREE.GetName());
     }
