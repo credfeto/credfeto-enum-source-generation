@@ -59,7 +59,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
         INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax)!;
 
-        AccessType accessType = GetAccessType(classDeclarationSyntax);
+        AccessType accessType = classDeclarationSyntax.GetAccessType();
 
         this.Classes.Add(item: new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), attributes: attributesForGeneration));
     }
@@ -102,7 +102,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
     {
         INamedTypeSymbol enumSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax)!;
 
-        AccessType accessType = GetAccessType(enumDeclarationSyntax);
+        AccessType accessType = enumDeclarationSyntax.GetAccessType();
 
         if (accessType == AccessType.PRIVATE)
         {
@@ -113,45 +113,5 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
         SeparatedSyntaxList<EnumMemberDeclarationSyntax> members = enumDeclarationSyntax.Members;
 
         this.Enums.Add(new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members));
-    }
-
-    private static AccessType GetAccessType(EnumDeclarationSyntax generatorSyntaxContext)
-    {
-        return GetAccessType(generatorSyntaxContext.Modifiers);
-    }
-
-    private static AccessType GetAccessType(ClassDeclarationSyntax generatorSyntaxContext)
-    {
-        return GetAccessType(generatorSyntaxContext.Modifiers);
-    }
-
-    private static AccessType GetAccessType(in SyntaxTokenList modifiers)
-    {
-        bool isPublic = modifiers.Any(SyntaxKind.PublicKeyword);
-
-        if (isPublic)
-        {
-            return AccessType.PUBLIC;
-        }
-
-        bool isPrivate = modifiers.Any(SyntaxKind.PrivateKeyword);
-
-        if (isPrivate)
-        {
-            return AccessType.PRIVATE;
-        }
-
-        bool isInternal = modifiers.Any(SyntaxKind.InternalKeyword);
-
-        bool isProtected = modifiers.Any(SyntaxKind.ProtectedKeyword);
-
-        if (isProtected)
-        {
-            return isInternal
-                ? AccessType.PROTECTED_INTERNAL
-                : AccessType.PROTECTED;
-        }
-
-        return AccessType.INTERNAL;
     }
 }
