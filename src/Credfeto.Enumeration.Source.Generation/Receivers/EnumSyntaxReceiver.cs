@@ -17,7 +17,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
         this.Classes = new();
     }
 
-    public List<EnumGeneration> Enums { get; }
+    public List<EnumGeneration2> Enums { get; }
 
     public List<ClassEnumGeneration> Classes { get; }
 
@@ -120,7 +120,14 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
             return;
         }
 
-        SeparatedSyntaxList<EnumMemberDeclarationSyntax> members = enumDeclarationSyntax.Members;
+        List<IFieldSymbol> members = new();
+
+        foreach (EnumMemberDeclarationSyntax member in enumDeclarationSyntax.Members)
+        {
+            IFieldSymbol fieldSymbol = (IFieldSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: member)!;
+
+            members.Add(item: fieldSymbol);
+        }
 
         this.Enums.Add(new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members));
     }
