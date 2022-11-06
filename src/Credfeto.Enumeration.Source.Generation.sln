@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credfeto.Enumeration.Source
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credfeto.Enumeration.Source.Generation.Generics", "Credfeto.Enumeration.Source.Generation.Generics\Credfeto.Enumeration.Source.Generation.Generics.csproj", "{3AB18FC1-8DFC-4F23-9934-F2674C9BBB24}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credfeto.Enumeration.Source.Generation.Attributes", "Credfeto.Enumeration.Source.Generation.Attributes\Credfeto.Enumeration.Source.Generation.Attributes.csproj", "{E7D245CE-8484-40AA-BDF7-D13EB26B9BDB}"
+EndProject
 Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1C26D824-FFBD-4F64-A7DF-593BAD653219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{3AB18FC1-8DFC-4F23-9934-F2674C9BBB24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AB18FC1-8DFC-4F23-9934-F2674C9BBB24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3AB18FC1-8DFC-4F23-9934-F2674C9BBB24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7D245CE-8484-40AA-BDF7-D13EB26B9BDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7D245CE-8484-40AA-BDF7-D13EB26B9BDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7D245CE-8484-40AA-BDF7-D13EB26B9BDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7D245CE-8484-40AA-BDF7-D13EB26B9BDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
