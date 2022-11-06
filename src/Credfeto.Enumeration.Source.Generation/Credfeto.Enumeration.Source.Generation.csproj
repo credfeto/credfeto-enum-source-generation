@@ -31,7 +31,6 @@
   <PropertyGroup>
     <Company>Mark Ridgwell</Company>
     <Copyright>Mark Ridgwell</Copyright>
-    <NeutralLanguage>en-GB</NeutralLanguage>
     <PackageLicense>https://raw.githubusercontent.com/credfeto/credfeto-enum-source-generation/main/LICENSE</PackageLicense>
     <PackageReleaseNotes>$(ReleaseNotes)</PackageReleaseNotes>
     <Product>Source Generation</Product>
