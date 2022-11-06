@@ -26,6 +26,11 @@ public sealed class EnumGenerator : ISourceGenerator
         {
             GenerateClassForEnum(context: context, enumDeclaration: enumDeclaration);
         }
+
+        foreach (ClassEnumGeneration classDeclaration in receiver.Classes)
+        {
+            GenerateClassForClass(context: context, classDeclaration: classDeclaration);
+        }
     }
 
     public void Initialize(GeneratorInitializationContext context)
@@ -55,6 +60,45 @@ public sealed class EnumGenerator : ISourceGenerator
         }
 
         context.AddSource(enumDeclaration.Namespace + "." + className, sourceText: source.Text);
+    }
+
+    private static void GenerateClassForClass(in GeneratorExecutionContext context, ClassEnumGeneration classDeclaration)
+    {
+        string className = classDeclaration.Name + "GeneratedExtensions";
+
+        CodeBuilder source = new();
+
+        source.AppendLine("using System;")
+              .AppendLine("using System.CodeDom.Compiler;")
+              .AppendLine("using System.Diagnostics.CodeAnalysis;")
+              .AppendLine("using System.Runtime.CompilerServices;");
+
+        HashSet<string> namespaces = new(StringComparer.Ordinal);
+        namespaces.Add(classDeclaration.Namespace);
+
+        foreach (INamedTypeSymbol attribute in classDeclaration.Attributes)
+        {
+            source.AppendLine($"// {attribute.ContainingNamespace.ToDisplayString()}.{attribute.Name};");
+
+            if (namespaces.Add(attribute.ContainingNamespace.ToDisplayString()))
+            {
+                source.AppendLine("using " + attribute.ContainingNamespace.ToDisplayString() + ";");
+            }
+        }
+
+        using (source.AppendBlankLine()
+                     .AppendLine("namespace " + classDeclaration.Namespace + ";")
+                     .AppendBlankLine()
+                     .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{ExecutableVersionInformation.ProgramVersion()}\")]")
+                     .StartBlock(ConvertAccessType(classDeclaration.AccessType) + " static partial class " + className))
+        {
+            foreach (INamedTypeSymbol attribute in classDeclaration.Attributes)
+            {
+                source.AppendLine($"// {attribute.ContainingNamespace.ToDisplayString()}.{attribute.Name};");
+            }
+        }
+
+        context.AddSource(classDeclaration.Namespace + "." + className, sourceText: source.Text);
     }
 
     private static void GenerateGetName(CodeBuilder source, EnumGeneration enumDeclaration)

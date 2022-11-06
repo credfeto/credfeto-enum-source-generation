@@ -52,10 +52,10 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
         IReadOnlyList<INamedTypeSymbol> attributesForGeneration = GetEnumsToGenerateForClass(context: context, classDeclarationSyntax: classDeclarationSyntax);
 
-        if (attributesForGeneration.Count == 0)
-        {
-            return;
-        }
+        // if (attributesForGeneration.Count == 0)
+        // {
+        //     return;
+        // }
 
         INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax)!;
 
