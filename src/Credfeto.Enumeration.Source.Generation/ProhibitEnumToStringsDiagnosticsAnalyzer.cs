@@ -137,9 +137,34 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         return node.Kind() == SyntaxKind.AddExpression;
     }
 
+    private static bool IsAttributeArgument(BinaryExpressionSyntax node)
+    {
+        SyntaxNode checkNode = node;
+
+        do
+        {
+            SyntaxNode? parent = checkNode.Parent;
+
+            if (parent == null)
+            {
+                return false;
+            }
+
+            if (parent is AttributeArgumentSyntax)
+            {
+                return true;
+            }
+
+            checkNode = parent;
+        } while (checkNode is BinaryExpressionSyntax);
+
+        return false;
+    }
+
     private static void LookForBannedInStringConcatenation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        if (syntaxNodeAnalysisContext.Node is BinaryExpressionSyntax binaryExpressionSyntax && IsAddExpression(binaryExpressionSyntax))
+        if (syntaxNodeAnalysisContext.Node is BinaryExpressionSyntax binaryExpressionSyntax && IsAddExpression(binaryExpressionSyntax) && !IsAttributeArgument(binaryExpressionSyntax))
+
         {
             LookForBannedInStringConcatenation(binaryExpressionSyntax: binaryExpressionSyntax, syntaxNodeAnalysisContext: syntaxNodeAnalysisContext);
         }

@@ -212,4 +212,24 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
 
         return this.VerifyCSharpDiagnosticAsync(source: test, expected);
     }
+
+    [Fact]
+    public Task EnumToStringIsNotBandedBannedInConstantStringConcatenationAsync()
+    {
+        const string test = @"
+    using System;
+
+    namespace ConsoleApplication1
+    {
+        public enum ExampleEnum
+        {
+            HELLO,
+
+            [Obsolete(""This value is deprecated, use "" + nameof(ExampleEnum.HELLO) + "" instead."")]
+            WORLD
+        }
+    }";
+
+        return this.VerifyCSharpDiagnosticAsync(source: test);
+    }
 }
