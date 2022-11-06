@@ -32,3 +32,5 @@
  - any: [ './**/*.md' ]
 "github-actions":
  - any: [ '.github/workflows/*.yml' ]
+"Credfeto.Enumeration.Source.Generation":
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation/**/*' ]
