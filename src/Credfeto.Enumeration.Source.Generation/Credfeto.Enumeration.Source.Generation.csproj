@@ -3,24 +3,28 @@
     <DebuggerSupport>true</DebuggerSupport>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <EnablePackageValidation>true</EnablePackageValidation>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <Features>strict;flow-analysis</Features>
     <GenerateNeutralResourcesLanguageAttribute>true</GenerateNeutralResourcesLanguageAttribute>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
     <ImplicitUsings>disable</ImplicitUsings>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
     <IsPublishable>false</IsPublishable>
+    <IsTrimmable>true</IsTrimmable>
     <LangVersion>latest</LangVersion>
     <NoWarn />
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
+    <PackAsTool>false</PackAsTool>
     <RunAOTCompilation>false</RunAOTCompilation>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
     <TieredPGO>true</TieredPGO>
-    <TreatSpecificWarningsAsErrors />
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
     <WarningsAsErrors />
   </PropertyGroup>
