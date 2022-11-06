@@ -7,7 +7,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Added
-- Version of program to generated code attribute
 ### Fixed
 ### Changed
 ### Removed
@@ -20,5 +19,6 @@ Releases that have at least been deployed to staging, BUT NOT necessarily releas
 ### Added
 - Generator for GetName(this Enum value)
 - Generator for GetDescription(this Enum value)
+- Version of program to generated code attribute
 
 ## [0.0.0] - Project created
