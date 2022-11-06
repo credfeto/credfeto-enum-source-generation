@@ -28,9 +28,9 @@
     <Company>Mark Ridgwell</Company>
     <Copyright>Mark Ridgwell</Copyright>
     <NeutralLanguage>en-GB</NeutralLanguage>
-    <PackageLicense>https://raw.githubusercontent.com/credfeto/scratch/master/LICENSE</PackageLicense>
+    <PackageLicense>https://raw.githubusercontent.com/credfeto/credfeto-enum-source-generation/main/LICENSE</PackageLicense>
     <PackageReleaseNotes>$(ReleaseNotes)</PackageReleaseNotes>
-    <Product>Scratch repo for experiments</Product>
+    <Product>Source Generation</Product>
   </PropertyGroup>
   <PropertyGroup>
     <AnalysisLevel>latest</AnalysisLevel>
