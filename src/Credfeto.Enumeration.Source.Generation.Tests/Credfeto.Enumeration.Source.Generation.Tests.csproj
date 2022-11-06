@@ -43,6 +43,7 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="3.2.0"/>
     <PackageReference Include="FunFair.Test.Common" Version="6.0.5.2217"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.1"/>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2"/>
     <PackageReference Include="xunit" Version="2.4.2"/>
@@ -67,5 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation.Models\Credfeto.Enumeration.Source.Generation.Models.csproj"/>
+    <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation\Credfeto.Enumeration.Source.Generation.csproj"/>
   </ItemGroup>
+
 </Project>
