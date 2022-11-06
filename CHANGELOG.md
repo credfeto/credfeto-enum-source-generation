@@ -7,6 +7,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Added
+- Unit tests on the code geneated result
+- Benchmarks to prove the code generated code executes faster
 ### Fixed
 ### Changed
 - FF-1429 - Updated Meziantou.Analyzer to 1.0.745
