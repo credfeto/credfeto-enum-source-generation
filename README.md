@@ -41,6 +41,20 @@ To get the name and value of the enum values. In release mode this can be practi
  string description = ExampleEnumValues.ONE.GetDescription(); // One "1"
 ```
 
+## Enums in other assemblies
+
+Coming soon
+
+```csharp
+[EnumText(typeof(System.Net.HttpStatusCode))]
+[EnumText(typeof(ThirdParty.ExampleEnu,))]
+public static partial class EnumExtensions
+{
+}
+```
+
+Will generate the same extension methods, but for the types nominated in the attributes.
+
 ## Benchmarks
 
 Benchmarks are in the Benchmark.net project ``Credfeto.Enumeration.Source.Generation.Benchmarks``, with a summary of a
@@ -65,7 +79,7 @@ duration
 
 ```
 
-### Viewing Compiler Generated files
+## Viewing Compiler Generated files
 
 Add the following to the csproj file:
 
