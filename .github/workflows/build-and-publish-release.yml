@@ -131,7 +131,7 @@ jobs:
     - if: ${{ steps.check_files.outputs.FILES_EXIST == 'true' && env.NUGET_API_KEY != '' }}
       name: Pack tool
       working-directory: ./src
-      run: dotnet pack --configuration Release /p:Version=${{ env.BUILD_VERSION }} --no-restore -p:NoWarn=NU5104 --output ../dist
+      run: dotnet pack --configuration Release /p:Version=${{ env.BUILD_VERSION }} --no-restore --output ../dist
       env:
         ReleaseNotes: ${{ steps.release-notes.outputs.content }}
     - if: ${{ steps.check_files.outputs.FILES_EXIST == 'true' && env.NUGET_API_KEY != '' }}
