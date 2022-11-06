@@ -1,11 +1,13 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 
 namespace Credfeto.Enumeration.Source.Generation.Models;
 
-public sealed class EnumGeneration2
+[DebuggerDisplay("{AccessType} {Namespace}.{Name}")]
+public sealed class EnumGeneration
 {
-    public EnumGeneration2(AccessType accessType, string name, string @namespace, IReadOnlyList<IFieldSymbol> members)
+    public EnumGeneration(AccessType accessType, string name, string @namespace, IReadOnlyList<IFieldSymbol> members)
     {
         this.AccessType = accessType;
         this.Name = name;

@@ -6,7 +6,7 @@ namespace Credfeto.Enumeration.Source.Generation.Models;
 [DebuggerDisplay("{AccessType} {Namespace}.{Name}")]
 public sealed class ClassEnumGeneration
 {
-    public ClassEnumGeneration(AccessType accessType, string name, string @namespace, in IReadOnlyList<EnumGeneration2> enums)
+    public ClassEnumGeneration(AccessType accessType, string name, string @namespace, in IReadOnlyList<EnumGeneration> enums)
     {
         this.AccessType = accessType;
         this.Name = name;
@@ -20,5 +20,5 @@ public sealed class ClassEnumGeneration
 
     public string Namespace { get; }
 
-    public IReadOnlyList<EnumGeneration2> Enums { get; }
+    public IReadOnlyList<EnumGeneration> Enums { get; }
 }

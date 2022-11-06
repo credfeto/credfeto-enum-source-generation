@@ -21,7 +21,7 @@ public sealed class EnumGenerator : ISourceGenerator
             return;
         }
 
-        foreach (EnumGeneration2 enumDeclaration in receiver.Enums)
+        foreach (EnumGeneration enumDeclaration in receiver.Enums)
         {
             GenerateClassForEnum(context: context, enumDeclaration: enumDeclaration);
         }
@@ -38,7 +38,7 @@ public sealed class EnumGenerator : ISourceGenerator
         context.RegisterForSyntaxNotifications(() => new EnumSyntaxReceiver());
     }
 
-    private static void GenerateClassForEnum(in GeneratorExecutionContext context, EnumGeneration2 enumDeclaration)
+    private static void GenerateClassForEnum(in GeneratorExecutionContext context, EnumGeneration enumDeclaration)
     {
         string className = enumDeclaration.Name + "GeneratedExtensions";
 
@@ -61,12 +61,12 @@ public sealed class EnumGenerator : ISourceGenerator
         context.AddSource(enumDeclaration.Namespace + "." + className, sourceText: source.Text);
     }
 
-    private static string ClassNameOnlyFormatter(EnumGeneration2 d)
+    private static string ClassNameOnlyFormatter(EnumGeneration d)
     {
         return d.Name;
     }
 
-    private static string ClassWithNamespaceFormatter(EnumGeneration2 d)
+    private static string ClassWithNamespaceFormatter(EnumGeneration d)
     {
         return string.Join(separator: ".", d.Namespace, d.Name);
     }
@@ -87,7 +87,7 @@ public sealed class EnumGenerator : ISourceGenerator
                      .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{ExecutableVersionInformation.ProgramVersion()}\")]")
                      .StartBlock(ConvertAccessType(classDeclaration.AccessType) + " static partial class " + className))
         {
-            foreach (EnumGeneration2 attribute in classDeclaration.Enums)
+            foreach (EnumGeneration attribute in classDeclaration.Enums)
             {
                 source.AppendLine($"// {attribute.Namespace}.{attribute.Name}");
 
@@ -99,7 +99,7 @@ public sealed class EnumGenerator : ISourceGenerator
         context.AddSource(classDeclaration.Namespace + "." + className, sourceText: source.Text);
     }
 
-    private static void GenerateGetName(CodeBuilder source, EnumGeneration2 enumDeclaration, Func<EnumGeneration2, string> classNameFormatter)
+    private static void GenerateGetName(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
         string className = classNameFormatter(enumDeclaration);
 
@@ -126,7 +126,7 @@ public sealed class EnumGenerator : ISourceGenerator
         }
     }
 
-    private static void GenerateGetDescription(CodeBuilder source, EnumGeneration2 enumDeclaration, Func<EnumGeneration2, string> classNameFormatter)
+    private static void GenerateGetDescription(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
         string className = classNameFormatter(enumDeclaration);
 
@@ -154,7 +154,7 @@ public sealed class EnumGenerator : ISourceGenerator
         }
     }
 
-    private static IReadOnlyList<string> GetDescriptionCaseOptions(EnumGeneration2 enumDeclaration, Func<EnumGeneration2, string> classNameFormatter)
+    private static IReadOnlyList<string> GetDescriptionCaseOptions(EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
         List<string> items = new();
 
@@ -258,7 +258,7 @@ public sealed class EnumGenerator : ISourceGenerator
         return isObsolete;
     }
 
-    private static HashSet<string> UniqueEnumMemberNames(EnumGeneration2 enumDeclaration)
+    private static HashSet<string> UniqueEnumMemberNames(EnumGeneration enumDeclaration)
     {
         return new(enumDeclaration.Members.Select(m => m.Name)
                                   .Distinct(StringComparer.Ordinal),

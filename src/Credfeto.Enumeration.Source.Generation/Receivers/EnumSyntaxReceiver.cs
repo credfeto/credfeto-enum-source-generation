@@ -17,7 +17,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
         this.Classes = new();
     }
 
-    public List<EnumGeneration2> Enums { get; }
+    public List<EnumGeneration> Enums { get; }
 
     public List<ClassEnumGeneration> Classes { get; }
 
@@ -59,7 +59,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
             return;
         }
 
-        IReadOnlyList<EnumGeneration2> attributesForGeneration = GetEnumsToGenerateForClass(context: context, classDeclarationSyntax: classDeclarationSyntax);
+        IReadOnlyList<EnumGeneration> attributesForGeneration = GetEnumsToGenerateForClass(context: context, classDeclarationSyntax: classDeclarationSyntax);
 
         if (attributesForGeneration.Count == 0)
         {
@@ -71,9 +71,9 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
         this.Classes.Add(item: new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration));
     }
 
-    private static IReadOnlyList<EnumGeneration2> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax)
+    private static IReadOnlyList<EnumGeneration> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax)
     {
-        List<EnumGeneration2> attributesForGeneration = new();
+        List<EnumGeneration> attributesForGeneration = new();
 
         INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax)!;
 
@@ -94,7 +94,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
                                                           .OfType<IFieldSymbol>()
                                                           .ToArray();
 
-                EnumGeneration2 enumGen = new(accessType: AccessType.PUBLIC, name: type.Name, type.ContainingNamespace.ToDisplayString(), members: members);
+                EnumGeneration enumGen = new(accessType: AccessType.PUBLIC, name: type.Name, type.ContainingNamespace.ToDisplayString(), members: members);
 
                 attributesForGeneration.Add(item: enumGen);
             }
