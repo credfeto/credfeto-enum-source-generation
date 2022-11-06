@@ -177,11 +177,11 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         TypeInfo left = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(binaryExpressionSyntax.Left);
         TypeInfo right = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(binaryExpressionSyntax.Right);
 
-        if (left.IsString() && left.IsEnum())
+        if (left.IsString() && right.IsEnum())
         {
             ReportDiagnostic(expressionSyntax: binaryExpressionSyntax.Left, context: syntaxNodeAnalysisContext);
         }
-        else if (right.IsString() && right.IsEnum())
+        else if (right.IsString() && left.IsEnum())
         {
             ReportDiagnostic(expressionSyntax: binaryExpressionSyntax.Right, context: syntaxNodeAnalysisContext);
         }
