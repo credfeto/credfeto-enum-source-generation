@@ -1,6 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
-namespace Credfeto.Enumeration.Source.Generation.Generics;
+namespace Credfeto.Enumeration.Source.Generation.Models;
 
 public enum ExampleEnumValues
 {
