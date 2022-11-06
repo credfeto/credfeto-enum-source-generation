@@ -2,7 +2,7 @@ using System;
 
 namespace Credfeto.Enumeration.Source.Generation.Attributes;
 
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
 public sealed class EnumTextAttribute : Attribute
 {
     public EnumTextAttribute(Type @enum)

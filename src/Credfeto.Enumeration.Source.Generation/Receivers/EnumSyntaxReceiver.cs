@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Extensions;
 using Credfeto.Enumeration.Source.Generation.Models;
 using Microsoft.CodeAnalysis;
@@ -50,52 +52,60 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
             return;
         }
 
-        IReadOnlyList<INamedTypeSymbol> attributesForGeneration = GetEnumsToGenerateForClass(context: context, classDeclarationSyntax: classDeclarationSyntax);
+        AccessType accessType = classDeclarationSyntax.GetAccessType();
 
-        // if (attributesForGeneration.Count == 0)
-        // {
-        //     return;
-        // }
+        if (accessType == AccessType.PRIVATE)
+        {
+            return;
+        }
+
+        IReadOnlyList<EnumGeneration2> attributesForGeneration = GetEnumsToGenerateForClass(context: context, classDeclarationSyntax: classDeclarationSyntax);
+
+        if (attributesForGeneration.Count == 0)
+        {
+            return;
+        }
 
         INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax)!;
 
-        AccessType accessType = classDeclarationSyntax.GetAccessType();
-
-        this.Classes.Add(item: new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), attributes: attributesForGeneration));
+        this.Classes.Add(item: new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration));
     }
 
-    private static IReadOnlyList<INamedTypeSymbol> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax)
+    private static IReadOnlyList<EnumGeneration2> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax)
     {
-        List<INamedTypeSymbol> attributesForGeneration = new();
+        List<EnumGeneration2> attributesForGeneration = new();
 
-        foreach (AttributeListSyntax attributeList in classDeclarationSyntax.AttributeLists)
+        INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax)!;
+
+        ImmutableArray<AttributeData> attributes = classSymbol.GetAttributes();
+
+        foreach (AttributeData? item in attributes)
         {
-            foreach (AttributeSyntax attribute in attributeList.Attributes)
+            if (!IsCodeGenerationAttribute(item))
             {
-                INamedTypeSymbol attributeSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax)!;
+                continue;
+            }
 
-                if (attributeSymbol.Name == "EnumTextAttribute" && attributeSymbol.ContainingNamespace.Name == "Credfeto.Enumeration.Source.Generation.Attributes")
-                {
-                    AttributeArgumentSyntax? arg = attribute.ArgumentList?.Arguments.FirstOrDefault();
+            TypedConstant constructorArguments = item.ConstructorArguments[0];
 
-                    if (arg != null)
-                    {
-                        TypeInfo attributeType = context.SemanticModel.GetTypeInfo(arg.Expression);
+            if (constructorArguments.Kind == TypedConstantKind.Type && constructorArguments.Value is INamedTypeSymbol type)
+            {
+                IReadOnlyList<IFieldSymbol> members = type.GetMembers()
+                                                          .OfType<IFieldSymbol>()
+                                                          .ToArray();
 
-                        if (!attributeType.IsEnum())
-                        {
-                            continue;
-                        }
+                EnumGeneration2 enumGen = new(accessType: AccessType.PUBLIC, name: type.Name, type.ContainingNamespace.ToDisplayString(), members: members);
 
-                        INamedTypeSymbol enumType = (INamedTypeSymbol)attributeType.Type!;
-
-                        attributesForGeneration.Add(item: enumType);
-                    }
-                }
+                attributesForGeneration.Add(item: enumGen);
             }
         }
 
         return attributesForGeneration;
+    }
+
+    private static bool IsCodeGenerationAttribute(AttributeData item)
+    {
+        return item.AttributeClass?.Name == "EnumTextAttribute" && item.AttributeClass?.ContainingNamespace.ToDisplayString() == "Credfeto.Enumeration.Source.Generation.Attributes";
     }
 
     private void AddDefinedEnums(in GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax)
