@@ -1,3 +1,80 @@
 version: 2
 updates:
 
+
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "03:00"
+    timezone: "Europe/London"
+  open-pull-requests-limit: 99
+  reviewers:
+  - credfeto
+  assignees:
+  - credfeto
+  allow:
+  - dependency-type: all
+  ignore:
+  - dependency-name: "AWSSDK.*"
+  - dependency-name: "codecracker.CSharp"
+  - dependency-name: "Coverlet.*"
+  - dependency-name: "FunFair.*"
+  - dependency-name: "Microsoft.AspNetCore.*"
+  - dependency-name: "Microsoft.CodeAnalysis.*"
+  - dependency-name: "Microsoft.Extensions.*"
+  - dependency-name: "NuGet.*"
+  - dependency-name: "Swashbuckle.*"
+  - dependency-name: "AsyncFixer"
+  - dependency-name: "Castle.Core"
+  - dependency-name: "Cryptography.ECDSA.Secp256K1"
+  - dependency-name: "Dapper"
+  - dependency-name: "DisableDateTimeNow"
+  - dependency-name: "Discord.Net"
+  - dependency-name: "dotnetstandard-bip39"
+  - dependency-name: "FluentValidation.AspNetCore"
+  - dependency-name: "HexMate"
+  - dependency-name: "HtmlAgilityPack"
+  - dependency-name: "IPAddressRange"
+  - dependency-name: "Jetbrains.Annotations"
+  - dependency-name: "LibGit2Sharp"
+  - dependency-name: "Meziantou.Analyzer"
+  - dependency-name: "MaxMind.GeoIP2"
+  - dependency-name: "MaxMind.MinFraud"
+  - dependency-name: "Microsoft.ApplicationInsights.AspNetCore"
+  - dependency-name: "Microsoft.NET.Test.Sdk"
+  - dependency-name: "Microsoft.VisualStudio.Threading.Analyzers"
+  - dependency-name: "NBitcoin"
+  - dependency-name: "Newtonsoft.Json"
+  - dependency-name: "NonBlocking"
+  - dependency-name: "Npgsql"
+  - dependency-name: "NSubstitute"
+  - dependency-name: "NSubstitute.Analyzers.CSharp"
+  - dependency-name: "Nullable.Extended.Analyzer"
+  - dependency-name: "Octopus.Client"
+  - dependency-name: "Philips.CodeAnalysis.DuplicateCodeAnalyzer"
+  - dependency-name: "Philips.CodeAnalysis.MaintainabilityAnalyzers"
+  - dependency-name: "Portable.BouncyCastle"
+  - dependency-name: "Profanity.Detector"
+  - dependency-name: "Roslynator.Analyzers"
+  - dependency-name: "ScottPlot"
+  - dependency-name: "SecurityCodeScan.*"
+  - dependency-name: "SmartAnalyzers.CSharpExtensions.Annotations"
+  - dependency-name: "SonarAnalyzer.CSharp"
+  - dependency-name: "SourceLink.Create.CommandLine"
+  - dependency-name: "TeamCity.VSTest.TestAdapter"
+  - dependency-name: "ToStringWithoutOverrideAnalyzer"
+  - dependency-name: "TwitchLib.Api"
+  - dependency-name: "UAParser"
+  - dependency-name: "xunit"
+  - dependency-name: "xunit.analyzers"
+  - dependency-name: "xunit.runner.visualstudio"
+  - dependency-name: "Yoti"
+  commit-message:
+    prefix: "[FF-1429]"
+  rebase-strategy: "auto"
+  labels:
+  - "dotnet"
+  - "dependencies"
+  - "Changelog Not Required"
+
