@@ -34,6 +34,8 @@
  - any: [ '.github/workflows/*.yml' ]
 "Credfeto.Enumeration.Source.Generation":
  - any: [ 'src/Credfeto.Enumeration.Source.Generation/**/*' ]
+"Attributes":
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation.Attributes/**/*' ]
 "Benchmarks":
  - any: [ 'src/Credfeto.Enumeration.Source.Generation.Benchmarks/**/*' ]
 "Generics":
