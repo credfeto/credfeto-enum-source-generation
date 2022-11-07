@@ -169,7 +169,7 @@ public sealed class EnumGenerator : ISourceGenerator
             }
 
             AttributeData? description = member.GetAttributes()
-                                               .FirstOrDefault(IsDescriptionAttribute);
+                                               .FirstOrDefault(SymbolExtensions.IsDescriptionAttribute);
 
             if (description == null)
             {
@@ -241,11 +241,6 @@ public sealed class EnumGenerator : ISourceGenerator
         }
 
         return syntax;
-    }
-
-    private static bool IsDescriptionAttribute(AttributeData attribute)
-    {
-        return StringComparer.Ordinal.Equals(x: attribute.AttributeClass?.Name, y: "Description") || StringComparer.Ordinal.Equals(x: attribute.AttributeClass?.Name, y: "DescriptionAttribute");
     }
 
     private static HashSet<string> UniqueEnumMemberNames(EnumGeneration enumDeclaration)
