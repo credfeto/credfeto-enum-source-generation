@@ -118,6 +118,10 @@
    color: "96f7d2"
    description: "Changes in Credfeto.Enumeration.Source.Generation project"
 
+ - name: "Attributes"
+   color: "96f7d2"
+   description: "Changes in Credfeto.Enumeration.Source.Generation.Attributes project"
+
  - name: "Benchmarks"
    color: "96f7d2"
    description: "Changes in Credfeto.Enumeration.Source.Generation.Benchmarks project"
