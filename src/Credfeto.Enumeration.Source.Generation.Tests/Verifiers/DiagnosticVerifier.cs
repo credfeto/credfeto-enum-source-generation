@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FunFair.Test.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
@@ -17,7 +15,7 @@ namespace Credfeto.Enumeration.Source.Generation.Tests.Verifiers;
 /// <summary>
 ///     Superclass of all Unit Tests for DiagnosticAnalyzers
 /// </summary>
-public abstract partial class DiagnosticVerifier : TestBase
+public abstract partial class DiagnosticVerifier
 {
     #region To be implemented by Test classes
 
@@ -51,7 +49,7 @@ public abstract partial class DiagnosticVerifier : TestBase
             Type analyzerType = analyzer.GetType();
             ImmutableArray<DiagnosticDescriptor> rules = analyzer.SupportedDiagnostics;
 
-            DiagnosticDescriptor? rule = rules.FirstOrDefault(rule => rule.Id == diagnostic.Id);
+            DiagnosticDescriptor? rule = ImmutableArrayExtensions.FirstOrDefault(immutableArray: rules, predicate: rule => rule.Id == diagnostic.Id);
 
             if (rule == null)
             {
@@ -62,7 +60,7 @@ public abstract partial class DiagnosticVerifier : TestBase
 
             if (location == Location.None)
             {
-                builder = builder.Append(provider: CultureInfo.InvariantCulture, $"GetGlobalResult({analyzerType.Name}.{rule.Id})");
+                builder = builder.Append($"GetGlobalResult({analyzerType.Name}.{rule.Id})");
             }
             else
             {
@@ -72,7 +70,7 @@ public abstract partial class DiagnosticVerifier : TestBase
                 LinePosition linePosition = diagnostic.Location.GetLineSpan()
                                                       .StartLinePosition;
 
-                builder = builder.Append(provider: CultureInfo.InvariantCulture, $"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
+                builder = builder.Append($"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
             }
 
             builder = builder.Append(value: ',')
@@ -86,7 +84,7 @@ public abstract partial class DiagnosticVerifier : TestBase
 
     private static string GetResultMethodName(Diagnostic diagnostic)
     {
-        return diagnostic.Location.SourceTree!.FilePath.EndsWith(value: ".cs", comparisonType: StringComparison.OrdinalIgnoreCase)
+        return diagnostic.Location.SourceTree!.FilePath.EndsWith(value: ".cs")
             ? "GetCSharpResultAt"
             : "GetBasicResultAt";
     }
@@ -115,7 +113,8 @@ public abstract partial class DiagnosticVerifier : TestBase
     /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source</param>
     protected Task VerifyCSharpDiagnosticAsync(string source, MetadataReference[] references, params DiagnosticResult[] expected)
     {
-        DiagnosticAnalyzer diagnostic = AssertReallyNotNull(this.GetCSharpDiagnosticAnalyzer());
+        DiagnosticAnalyzer? diagnostic = this.GetCSharpDiagnosticAnalyzer();
+        Assert.NotNull(diagnostic);
 
         return VerifyDiagnosticsAsync(new[]
                                       {
@@ -148,7 +147,8 @@ public abstract partial class DiagnosticVerifier : TestBase
     /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
     private Task VerifyCSharpDiagnosticAsync(string[] sources, MetadataReference[] references, params DiagnosticResult[] expected)
     {
-        DiagnosticAnalyzer diagnostic = AssertReallyNotNull(this.GetCSharpDiagnosticAnalyzer());
+        DiagnosticAnalyzer? diagnostic = this.GetCSharpDiagnosticAnalyzer();
+        Assert.NotNull(diagnostic);
 
         return VerifyDiagnosticsAsync(sources: sources, references: references, language: LanguageNames.CSharp, analyzer: diagnostic, expected: expected);
     }
@@ -182,14 +182,14 @@ public abstract partial class DiagnosticVerifier : TestBase
     /// <param name="expectedResults">Diagnostic Results that should have appeared in the code</param>
     private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
     {
-        Diagnostic[] results = actualResults.ToArray();
+        Diagnostic[] results = Enumerable.ToArray(actualResults);
         int expectedCount = expectedResults.Length;
         int actualCount = results.Length;
 
         if (expectedCount != actualCount)
         {
             string diagnosticsOutput = results.Length != 0
-                ? FormatDiagnostics(analyzer: analyzer, results.ToArray())
+                ? FormatDiagnostics(analyzer: analyzer, Enumerable.ToArray(results))
                 : "    NONE.";
 
             Assert.True(condition: false, $"Mismatch between number of diagnostics returned, expected \"{expectedCount}\" actual \"{actualCount}\"\r\n\r\nDiagnostics:\r\n{diagnosticsOutput}\r\n");
@@ -227,7 +227,7 @@ public abstract partial class DiagnosticVerifier : TestBase
 
     private static void VerifyAdditionalDiagnosticLocations(DiagnosticAnalyzer analyzer, Diagnostic actual, in DiagnosticResult expected)
     {
-        Location[] additionalLocations = actual.AdditionalLocations.ToArray();
+        Location[] additionalLocations = Enumerable.ToArray(actual.AdditionalLocations);
 
         if (additionalLocations.Length != expected.Locations.Length - 1)
         {
@@ -252,10 +252,8 @@ public abstract partial class DiagnosticVerifier : TestBase
     {
         FileLinePositionSpan actualSpan = actual.GetLineSpan();
 
-        Assert.True(
-            actualSpan.Path == expected.Path || actualSpan.Path.Contains(value: "Test0.", comparisonType: StringComparison.Ordinal) &&
-            expected.Path.Contains(value: "Test.", comparisonType: StringComparison.Ordinal),
-            $"Expected diagnostic to be in file \"{expected.Path}\" was actually in file \"{actualSpan.Path}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, diagnostic)}\r\n");
+        Assert.True(actualSpan.Path == expected.Path || actualSpan.Path.Contains(value: "Test0.") && expected.Path.Contains(value: "Test."),
+                    $"Expected diagnostic to be in file \"{expected.Path}\" was actually in file \"{actualSpan.Path}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, diagnostic)}\r\n");
 
         LinePosition actualLinePosition = actualSpan.StartLinePosition;
 

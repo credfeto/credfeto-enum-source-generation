@@ -1,10 +1,9 @@
 ﻿using Credfeto.Enumeration.Source.Generation.Models;
-using FunFair.Test.Common;
 using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Tests;
 
-public sealed class EnumGetNameTests : TestBase
+public sealed class EnumGetNameTests
 {
     [Fact]
     public void GetNameForAliased()

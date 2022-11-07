@@ -7,15 +7,15 @@ namespace Credfeto.Enumeration.Source.Generation.Tests.Verifiers;
 ///     Struct that stores information about a Diagnostic appearing in a source
 /// </summary>
 [SuppressMessage(category: "Microsoft.Performance", checkId: "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes", Justification = "Test code")]
-public readonly struct DiagnosticResult
+public sealed class DiagnosticResult
 {
-    public DiagnosticResultLocation[] Locations { get; init; }
+    public DiagnosticResultLocation[] Locations { get; set; } = null!;
 
-    public DiagnosticSeverity Severity { get; init; }
+    public DiagnosticSeverity Severity { get; set; }
 
-    public string Id { get; init; }
+    public string Id { get; set; } = null!;
 
-    public string Message { get; init; }
+    public string Message { get; set; } = null!;
 
     public int Line =>
         this.Locations.Length > 0

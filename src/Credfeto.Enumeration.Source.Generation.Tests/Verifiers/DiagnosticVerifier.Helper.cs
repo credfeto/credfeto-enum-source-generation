@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Tests.Verifiers;
 
@@ -152,11 +153,10 @@ public abstract partial class DiagnosticVerifier
     private static bool IsReportableCSharpError(Diagnostic compilerError)
     {
         return !compilerError.ToString()
-                             .Contains(value: "netstandard", comparisonType: StringComparison.Ordinal) && !compilerError.ToString()
-                                                                                                                        .Contains(value: "static 'Main' method",
-                                                                                                                                  comparisonType: StringComparison.Ordinal) && !compilerError.ToString()
-            .Contains(value: "CS1002", comparisonType: StringComparison.Ordinal) && !compilerError.ToString()
-                                                                                                  .Contains(value: "CS1702", comparisonType: StringComparison.Ordinal);
+                             .Contains(value: "netstandard") && !compilerError.ToString()
+                                                                              .Contains(value: "static 'Main' method") && !compilerError.ToString()
+            .Contains(value: "CS1002") && !compilerError.ToString()
+                                                        .Contains(value: "CS1702");
     }
 
     /// <summary>
@@ -228,7 +228,10 @@ public abstract partial class DiagnosticVerifier
             count++;
         }
 
-        return AssertReallyNotNull(solution.GetProject(projectId));
+        Project? proj = solution.GetProject(projectId);
+        Assert.NotNull(proj);
+
+        return proj;
     }
 
     [SuppressMessage(category: "codecracker.CSharp", checkId: "CC0022:DisposeObjectsBeforeLosingScope", Justification = "Test code")]
