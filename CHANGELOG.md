@@ -9,15 +9,18 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- FF-1429 - Updated FunFair.Test.Common to 6.0.6.2271
-- FF-1429 - Updated Microsoft.NET.Test.Sdk to 17.4.0
-- Added CopyLocalLockFileAssemblies to project file to make it generate the correct package
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [0.0.5] - 2022-11-07
+### Changed
+- FF-1429 - Updated FunFair.Test.Common to 6.0.6.2271
+- FF-1429 - Updated Microsoft.NET.Test.Sdk to 17.4.0
+- Added CopyLocalLockFileAssemblies to project file to make it generate the correct package
+
 ## [0.0.4] - 2022-11-07
 ### Added
 - Ability to generate extension methods for third party enums
