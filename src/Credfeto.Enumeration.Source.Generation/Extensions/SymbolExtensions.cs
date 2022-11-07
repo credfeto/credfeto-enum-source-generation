@@ -10,7 +10,7 @@ public static class SymbolExtensions
     private static readonly Type ObsoleteType = typeof(ObsoleteAttribute);
     private static readonly Type DescriptionType = typeof(DescriptionAttribute);
 
-    public static bool IsObsolete(this ISymbol symbol)
+    public static bool HasObsoleteAttribute(this ISymbol symbol)
     {
         return symbol.GetAttributes()
                      .Any(IsObsoleteAttribute);

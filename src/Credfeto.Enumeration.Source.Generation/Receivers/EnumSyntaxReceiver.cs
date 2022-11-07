@@ -112,7 +112,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
     {
         INamedTypeSymbol enumSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax)!;
 
-        if (enumSymbol.IsObsolete())
+        if (enumSymbol.HasObsoleteAttribute())
         {
             // no point in generating code for obsolete enums
             return;

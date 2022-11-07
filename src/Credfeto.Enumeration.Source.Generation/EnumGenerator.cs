@@ -113,7 +113,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
                 foreach (IFieldSymbol member in enumDeclaration.Members)
                 {
-                    if (IsSkipEnumValue(member: member, names: names) || member.IsObsolete())
+                    if (IsSkipEnumValue(member: member, names: names) || member.HasObsoleteAttribute())
                     {
                         continue;
                     }
@@ -163,7 +163,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
         foreach (IFieldSymbol? member in enumDeclaration.Members)
         {
-            if (IsSkipEnumValue(member: member, names: names) || member.IsObsolete())
+            if (IsSkipEnumValue(member: member, names: names) || member.HasObsoleteAttribute())
             {
                 continue;
             }
