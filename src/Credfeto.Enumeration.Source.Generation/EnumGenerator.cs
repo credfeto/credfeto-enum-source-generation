@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Builders;
 using Credfeto.Enumeration.Source.Generation.Helpers;
@@ -26,6 +25,11 @@ public sealed class EnumGenerator : ISourceGenerator
         {
             GenerateClassForEnum(context: context, enumDeclaration: enumDeclaration);
         }
+
+        foreach (ClassEnumGeneration classDeclaration in receiver.Classes)
+        {
+            GenerateClassForClass(context: context, classDeclaration: classDeclaration);
+        }
     }
 
     public void Initialize(GeneratorInitializationContext context)
@@ -50,30 +54,71 @@ public sealed class EnumGenerator : ISourceGenerator
                      .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{ExecutableVersionInformation.ProgramVersion()}\")]")
                      .StartBlock(ConvertAccessType(enumDeclaration.AccessType) + " static class " + className))
         {
-            GenerateGetName(source: source, enumDeclaration: enumDeclaration);
-            GenerateGetDescription(source: source, enumDeclaration: enumDeclaration);
+            GenerateGetName(source: source, enumDeclaration: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
+            GenerateGetDescription(source: source, enumDeclaration: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
         }
 
         context.AddSource(enumDeclaration.Namespace + "." + className, sourceText: source.Text);
     }
 
-    private static void GenerateGetName(CodeBuilder source, EnumGeneration enumDeclaration)
+    private static string ClassNameOnlyFormatter(EnumGeneration d)
     {
+        return d.Name;
+    }
+
+    private static string ClassWithNamespaceFormatter(EnumGeneration d)
+    {
+        return string.Join(separator: ".", d.Namespace, d.Name);
+    }
+
+    private static void GenerateClassForClass(in GeneratorExecutionContext context, ClassEnumGeneration classDeclaration)
+    {
+        string className = classDeclaration.Name + "GeneratedExtensions";
+
+        CodeBuilder source = new();
+
+        using (source.AppendLine("using System;")
+                     .AppendLine("using System.CodeDom.Compiler;")
+                     .AppendLine("using System.Diagnostics.CodeAnalysis;")
+                     .AppendLine("using System.Runtime.CompilerServices;")
+                     .AppendBlankLine()
+                     .AppendLine("namespace " + classDeclaration.Namespace + ";")
+                     .AppendBlankLine()
+                     .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{ExecutableVersionInformation.ProgramVersion()}\")]")
+                     .StartBlock(ConvertAccessType(classDeclaration.AccessType) + " static partial class " + className))
+        {
+            foreach (EnumGeneration attribute in classDeclaration.Enums)
+            {
+                source.AppendLine($"// {attribute.Namespace}.{attribute.Name}");
+
+                GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: ClassWithNamespaceFormatter);
+                GenerateGetDescription(source: source, enumDeclaration: attribute, classNameFormatter: ClassWithNamespaceFormatter);
+            }
+        }
+
+        context.AddSource(classDeclaration.Namespace + "." + className, sourceText: source.Text);
+    }
+
+    private static void GenerateGetName(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    {
+        string className = classNameFormatter(enumDeclaration);
+
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                     .StartBlock("public static string GetName(this " + enumDeclaration.Name + " value)"))
+                     .StartBlock("public static string GetName(this " + className + " value)"))
         {
             using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
             {
-                ImmutableHashSet<string> names = UniqueEnumMemberNames(enumDeclaration);
+                HashSet<string> names = UniqueEnumMemberNames(enumDeclaration);
 
-                foreach (EnumMemberDeclarationSyntax member in enumDeclaration.Members)
+                foreach (IFieldSymbol member in enumDeclaration.Members)
                 {
                     if (IsSkipEnumValue(member: member, names: names) || IsObsolete(member))
                     {
                         continue;
                     }
 
-                    source.AppendLine(enumDeclaration.Name + "." + member.Identifier.Text + " => \"" + member.Identifier.Text + "\",");
+                    source.AppendLine("// " + className + "." + member.Name + " => " + member.ConstantValue);
+                    source.AppendLine(className + "." + member.Name + " => \"" + member.Name + "\",");
                 }
 
                 source.AppendLine("_ => throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: \"Unknown enum member\")");
@@ -81,12 +126,14 @@ public sealed class EnumGenerator : ISourceGenerator
         }
     }
 
-    private static void GenerateGetDescription(CodeBuilder source, EnumGeneration enumDeclaration)
+    private static void GenerateGetDescription(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
+        string className = classNameFormatter(enumDeclaration);
+
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                     .StartBlock("public static string GetDescription(this " + enumDeclaration.Name + " value)"))
+                     .StartBlock("public static string GetDescription(this " + className + " value)"))
         {
-            IReadOnlyList<string> items = GetDescriptionCaseOptions(enumDeclaration);
+            IReadOnlyList<string> items = GetDescriptionCaseOptions(enumDeclaration: enumDeclaration, classNameFormatter: classNameFormatter);
 
             if (items.Count == 0)
             {
@@ -107,66 +154,115 @@ public sealed class EnumGenerator : ISourceGenerator
         }
     }
 
-    private static IReadOnlyList<string> GetDescriptionCaseOptions(EnumGeneration enumDeclaration)
+    private static IReadOnlyList<string> GetDescriptionCaseOptions(EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
         List<string> items = new();
 
-        ImmutableHashSet<string> names = UniqueEnumMemberNames(enumDeclaration);
+        HashSet<string> names = UniqueEnumMemberNames(enumDeclaration);
 
-        foreach (EnumMemberDeclarationSyntax member in enumDeclaration.Members)
+        foreach (IFieldSymbol? member in enumDeclaration.Members)
         {
             if (IsSkipEnumValue(member: member, names: names) || IsObsolete(member))
             {
                 continue;
             }
 
-            AttributeSyntax? description = member.AttributeLists.SelectMany(x => x.Attributes)
-                                                 .FirstOrDefault(IsDescriptionAttribute);
+            AttributeData? description = member.GetAttributes()
+                                               .FirstOrDefault(IsDescriptionAttribute);
 
             if (description == null)
             {
                 continue;
             }
 
-            string? attributeText = description.ArgumentList?.Arguments.FirstOrDefault()
-                                               ?.Expression.ToString();
+            TypedConstant? tc = description.ConstructorArguments.FirstOrDefault();
+
+            string attributeText = tc.Value.ToCSharpString();
 
             if (string.IsNullOrWhiteSpace(attributeText))
             {
                 continue;
             }
 
-            items.Add(enumDeclaration.Name + "." + member.Identifier.Text + " => " + attributeText + ",");
+            items.Add(classNameFormatter(enumDeclaration) + "." + member.Name + " => " + attributeText + ",");
         }
 
         return items;
     }
 
-    private static bool IsSkipEnumValue(EnumMemberDeclarationSyntax member, ImmutableHashSet<string> names)
+    private static bool IsSkipEnumValue(IFieldSymbol member, HashSet<string> names)
     {
-        return member.EqualsValue?.Value.Kind() == SyntaxKind.IdentifierName && names.Contains(member.EqualsValue.Value.ToString());
+        EnumMemberDeclarationSyntax? syntax = FindEnumMemberDeclarationSyntax(member);
+
+        if (syntax?.EqualsValue != null)
+        {
+            if (syntax.EqualsValue.Value.Kind() == SyntaxKind.IdentifierName)
+            {
+                bool found = names.Contains(syntax.EqualsValue.Value.ToString());
+
+                if (found)
+                {
+                    // note deliberately ignoring the return value here as we need to record the integer value as being skipped too
+                    IsSkipConstantValue(member: member, names: names);
+
+                    return true;
+                }
+            }
+        }
+
+        return IsSkipConstantValue(member: member, names: names);
     }
 
-    private static bool IsDescriptionAttribute(AttributeSyntax attribute)
+    private static bool IsSkipConstantValue(IFieldSymbol member, HashSet<string> names)
     {
-        return StringComparer.Ordinal.Equals(attribute.Name.ToString(), y: "Description") || StringComparer.Ordinal.Equals(attribute.Name.ToString(), y: "DescriptionAttribute");
+        object? cv = member.ConstantValue;
+
+        if (cv == null)
+        {
+            return false;
+        }
+
+        return !names.Add(cv.ToString());
     }
 
-    private static bool IsObsolete(EnumMemberDeclarationSyntax member)
+    private static EnumMemberDeclarationSyntax? FindEnumMemberDeclarationSyntax(ISymbol member)
     {
-        List<string> a = member.AttributeLists.SelectMany(x => x.Attributes)
-                               .Select(x => x.Name.ToString())
+        EnumMemberDeclarationSyntax? syntax = null;
+
+        foreach (SyntaxReference dsr in member.DeclaringSyntaxReferences)
+        {
+            syntax = dsr.GetSyntax() as EnumMemberDeclarationSyntax;
+
+            if (syntax != null)
+            {
+                break;
+            }
+        }
+
+        return syntax;
+    }
+
+    private static bool IsDescriptionAttribute(AttributeData attribute)
+    {
+        return StringComparer.Ordinal.Equals(x: attribute.AttributeClass?.Name, y: "Description") || StringComparer.Ordinal.Equals(x: attribute.AttributeClass?.Name, y: "DescriptionAttribute");
+    }
+
+    private static bool IsObsolete(ISymbol member)
+    {
+        List<string> a = member.GetAttributes()
+                               .Select(x => x.AttributeClass!.Name)
                                .ToList();
+
         bool isObsolete = a.Contains(value: "Obsolete", comparer: StringComparer.Ordinal) || a.Contains(value: "ObsoleteAttribute", comparer: StringComparer.Ordinal);
 
         return isObsolete;
     }
 
-    private static ImmutableHashSet<string> UniqueEnumMemberNames(EnumGeneration enumDeclaration)
+    private static HashSet<string> UniqueEnumMemberNames(EnumGeneration enumDeclaration)
     {
-        return enumDeclaration.Members.Select(m => m.Identifier.Text)
-                              .Distinct(StringComparer.Ordinal)
-                              .ToImmutableHashSet(StringComparer.Ordinal);
+        return new(enumDeclaration.Members.Select(m => m.Name)
+                                  .Distinct(StringComparer.Ordinal),
+                   comparer: StringComparer.Ordinal);
     }
 
     private static string ConvertAccessType(AccessType accessType)

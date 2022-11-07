@@ -7,6 +7,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Added
+- Ability to generate extension methods for third party enums
 ### Fixed
 ### Changed
 ### Removed

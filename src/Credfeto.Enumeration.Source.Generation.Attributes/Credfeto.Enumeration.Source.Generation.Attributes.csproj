@@ -1,0 +1,72 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <Features>strict;flow-analysis</Features>
+    <GenerateNeutralResourcesLanguageAttribute>true</GenerateNeutralResourcesLanguageAttribute>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+    <IsPackable>true</IsPackable>
+    <IsPublishable>false</IsPublishable>
+    <IsTrimmable>true</IsTrimmable>
+    <LangVersion>latest</LangVersion>
+    <NoWarn>1591</NoWarn>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <RunAOTCompilation>false</RunAOTCompilation>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TieredCompilation>true</TieredCompilation>
+    <TreatSpecificWarningsAsErrors/>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors/>
+    <IsTrimmable>true</IsTrimmable>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <!-- Dotnet 7 features -->
+    <TieredPGO>true</TieredPGO>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    <DebuggerSupport>true</DebuggerSupport>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Company>Mark Ridgwell</Company>
+    <Copyright>Mark Ridgwell</Copyright>
+    <PackageLicense>https://raw.githubusercontent.com/credfeto/credfeto-enum-source-generation/main/LICENSE</PackageLicense>
+    <PackageReleaseNotes>$(ReleaseNotes)</PackageReleaseNotes>
+    <Product>Source Generation</Product>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Description>Source code generator for Enums.</Description>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageTags>C# Source code generator Enum</PackageTags>
+    <RepositoryUrl>https://github.com/credfeto/credfeto-enum-source-generation</RepositoryUrl>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <CodeAnalysisRuleSet>$(SolutionDir)\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All"/>
+    <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="All"/>
+    <PackageReference Include="FunFair.CodeAnalysis" Version="5.9.0.1493" PrivateAssets="All"/>
+    <PackageReference Include="Meziantou.Analyzer" Version="1.0.745" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.48" PrivateAssets="All"/>
+    <PackageReference Include="Nullable.Extended.Analyzer" Version="1.10.4539" PrivateAssets="All"/>
+    <PackageReference Include="Philips.CodeAnalysis.DuplicateCodeAnalyzer" Version="1.1.7" PrivateAssets="All"/>
+    <PackageReference Include="Philips.CodeAnalysis.MaintainabilityAnalyzers" Version="1.2.29" PrivateAssets="All"/>
+    <PackageReference Include="Roslynator.Analyzers" Version="4.1.2" PrivateAssets="All"/>
+    <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7" PrivateAssets="All"/>
+    <PackageReference Include="SmartAnalyzers.CSharpExtensions.Annotations" Version="4.2.7" PrivateAssets="All"/>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.47.0.55603" PrivateAssets="All"/>
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All"/>
+    <PackageReference Include="ToStringWithoutOverrideAnalyzer" Version="0.6.0" PrivateAssets="All"/>
+  </ItemGroup>
+</Project>

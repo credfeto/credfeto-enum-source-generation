@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Linq;
+using Credfeto.Enumeration.Source.Generation.Extensions;
 using Credfeto.Enumeration.Source.Generation.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -117,7 +118,8 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
     {
         foreach (InterpolationSyntax part in interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>())
         {
-            if (!IsEnum(syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(part.Expression)))
+            if (!syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(part.Expression)
+                                          .IsEnum())
             {
                 // not an enum
                 continue;
@@ -175,28 +177,13 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         TypeInfo left = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(binaryExpressionSyntax.Left);
         TypeInfo right = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(binaryExpressionSyntax.Right);
 
-        if (IsString(left) && IsEnum(right))
+        if (left.IsString() && right.IsEnum())
         {
             ReportDiagnostic(expressionSyntax: binaryExpressionSyntax.Left, context: syntaxNodeAnalysisContext);
         }
-        else if (IsString(right))
+        else if (right.IsString() && left.IsEnum())
         {
             ReportDiagnostic(expressionSyntax: binaryExpressionSyntax.Right, context: syntaxNodeAnalysisContext);
         }
-    }
-
-    private static bool IsString(in TypeInfo typeInfo)
-    {
-        return typeInfo.Type?.SpecialType == SpecialType.System_String;
-    }
-
-    private static bool IsEnum(in TypeInfo typeInfo)
-    {
-        if (typeInfo.Type is not INamedTypeSymbol type)
-        {
-            return false;
-        }
-
-        return type.EnumUnderlyingType != null;
     }
 }

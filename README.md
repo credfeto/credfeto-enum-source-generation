@@ -43,11 +43,22 @@ To get the name and value of the enum values. In release mode this can be practi
 
 ## Enums in other assemblies
 
-Coming soon
+Reference the following package in the project that contains the enum extensions class to generate.
+
+```xml
+<ItemGroup>
+    <PackageReference
+            Include="Credfeto.Enumeration.Source.Generation.Attributes"
+            Version="0.0.2.3"
+            PrivateAssets="All" />
+</ItemGroup>
+```
+
+Add an ``EnumText`` attribute to a partial static extension class for each enum you want to expose.
 
 ```csharp
 [EnumText(typeof(System.Net.HttpStatusCode))]
-[EnumText(typeof(ThirdParty.ExampleEnu,))]
+[EnumText(typeof(ThirdParty.ExampleEnum))]
 public static partial class EnumExtensions
 {
 }
