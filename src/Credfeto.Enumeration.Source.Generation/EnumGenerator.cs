@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Builders;
+using Credfeto.Enumeration.Source.Generation.Extensions;
 using Credfeto.Enumeration.Source.Generation.Helpers;
 using Credfeto.Enumeration.Source.Generation.Models;
 using Credfeto.Enumeration.Source.Generation.Receivers;
@@ -112,7 +113,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
                 foreach (IFieldSymbol member in enumDeclaration.Members)
                 {
-                    if (IsSkipEnumValue(member: member, names: names) || IsObsolete(member))
+                    if (IsSkipEnumValue(member: member, names: names) || member.IsObsolete())
                     {
                         continue;
                     }
@@ -162,7 +163,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
         foreach (IFieldSymbol? member in enumDeclaration.Members)
         {
-            if (IsSkipEnumValue(member: member, names: names) || IsObsolete(member))
+            if (IsSkipEnumValue(member: member, names: names) || member.IsObsolete())
             {
                 continue;
             }
@@ -245,17 +246,6 @@ public sealed class EnumGenerator : ISourceGenerator
     private static bool IsDescriptionAttribute(AttributeData attribute)
     {
         return StringComparer.Ordinal.Equals(x: attribute.AttributeClass?.Name, y: "Description") || StringComparer.Ordinal.Equals(x: attribute.AttributeClass?.Name, y: "DescriptionAttribute");
-    }
-
-    private static bool IsObsolete(ISymbol member)
-    {
-        List<string> a = member.GetAttributes()
-                               .Select(x => x.AttributeClass!.Name)
-                               .ToList();
-
-        bool isObsolete = a.Contains(value: "Obsolete", comparer: StringComparer.Ordinal) || a.Contains(value: "ObsoleteAttribute", comparer: StringComparer.Ordinal);
-
-        return isObsolete;
     }
 
     private static HashSet<string> UniqueEnumMemberNames(EnumGeneration enumDeclaration)
