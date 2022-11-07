@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - FF-1429 - Updated FunFair.Test.Common to 6.0.6.2271
 - FF-1429 - Updated Microsoft.NET.Test.Sdk to 17.4.0
+- Added CopyLocalLockFileAssemblies to project file to make it generate the correct package
 ### Removed
 ### Deployment Changes
 
