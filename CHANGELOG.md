@@ -8,15 +8,19 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Added
 ### Fixed
-- File not found issues when publishing on windows
 ### Changed
-- FF-1429 - Updated Microsoft.Extensions to 7.0.0
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [0.0.6] - 2022-11-08
+### Fixed
+- File not found issues when publishing on windows
+### Changed
+- FF-1429 - Updated Microsoft.Extensions to 7.0.0
+
 ## [0.0.5] - 2022-11-07
 ### Changed
 - FF-1429 - Updated FunFair.Test.Common to 6.0.6.2271
