@@ -353,3 +353,6 @@ src/Data
 
 # Dotnet 
 .dotnet/
+
+# Jetbrains
+.idea
