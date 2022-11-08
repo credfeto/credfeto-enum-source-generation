@@ -63,6 +63,7 @@ updates:
   - dependency-name: "SmartAnalyzers.CSharpExtensions.Annotations"
   - dependency-name: "SonarAnalyzer.CSharp"
   - dependency-name: "SourceLink.Create.CommandLine"
+  - dependency-name: "System.Data.SqlClient"
   - dependency-name: "TeamCity.VSTest.TestAdapter"
   - dependency-name: "ToStringWithoutOverrideAnalyzer"
   - dependency-name: "TwitchLib.Api"
