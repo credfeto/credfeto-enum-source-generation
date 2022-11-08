@@ -11,7 +11,7 @@ Add a reference to the Credfeto.Enumeration.Source.Generation package in each pr
   <PackageReference 
             Include="Credfeto.Enumeration.Source.Generation" 
             Version="0.0.2.3" 
-            PrivateAssets="All" />
+            PrivateAssets="All" ExcludeAssets="runtime" />
 </ItemGroup>
 ```
 
@@ -50,7 +50,7 @@ Reference the following package in the project that contains the enum extensions
     <PackageReference
             Include="Credfeto.Enumeration.Source.Generation.Attributes"
             Version="0.0.2.3"
-            PrivateAssets="All" />
+            PrivateAssets="All" ExcludeAssets="runtime" />
 </ItemGroup>
 ```
 
