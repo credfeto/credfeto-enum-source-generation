@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FunFair.Test.Common;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
@@ -14,7 +16,7 @@ namespace Credfeto.Enumeration.Source.Generation.Tests.Verifiers;
 /// <summary>
 ///     Superclass of all Unit Tests for DiagnosticAnalyzers
 /// </summary>
-public abstract partial class DiagnosticVerifier
+public abstract partial class DiagnosticVerifier : TestBase
 {
     #region To be implemented by Test classes
 
@@ -59,7 +61,7 @@ public abstract partial class DiagnosticVerifier
 
             if (location == Location.None)
             {
-                builder = builder.Append($"GetGlobalResult({analyzerType.Name}.{rule.Id})");
+                builder = builder.Append(provider: CultureInfo.InvariantCulture, $"GetGlobalResult({analyzerType.Name}.{rule.Id})");
             }
             else
             {
@@ -69,7 +71,7 @@ public abstract partial class DiagnosticVerifier
                 LinePosition linePosition = diagnostic.Location.GetLineSpan()
                                                       .StartLinePosition;
 
-                builder = builder.Append($"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
+                builder = builder.Append(provider: CultureInfo.InvariantCulture, $"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
             }
 
             builder = builder.Append(value: ',')
@@ -83,7 +85,7 @@ public abstract partial class DiagnosticVerifier
 
     private static string GetResultMethodName(Diagnostic diagnostic)
     {
-        return diagnostic.Location.SourceTree!.FilePath.EndsWith(value: ".cs")
+        return diagnostic.Location.SourceTree!.FilePath.EndsWith(value: ".cs", comparisonType: StringComparison.Ordinal)
             ? "GetCSharpResultAt"
             : "GetBasicResultAt";
     }
@@ -251,8 +253,10 @@ public abstract partial class DiagnosticVerifier
     {
         FileLinePositionSpan actualSpan = actual.GetLineSpan();
 
-        Assert.True(actualSpan.Path == expected.Path || actualSpan.Path.Contains(value: "Test0.") && expected.Path.Contains(value: "Test."),
-                    $"Expected diagnostic to be in file \"{expected.Path}\" was actually in file \"{actualSpan.Path}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, diagnostic)}\r\n");
+        Assert.True(
+            actualSpan.Path == expected.Path || actualSpan.Path.Contains(value: "Test0.", comparisonType: StringComparison.Ordinal) &&
+            expected.Path.Contains(value: "Test.", comparisonType: StringComparison.Ordinal),
+            $"Expected diagnostic to be in file \"{expected.Path}\" was actually in file \"{actualSpan.Path}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, diagnostic)}\r\n");
 
         LinePosition actualLinePosition = actualSpan.StartLinePosition;
 
