@@ -512,7 +512,7 @@
         <!-- CSE005 - Use the return value or discard it explicitly -->
         <Rule Id="CSE005" Action="Info"/>
         <!-- CSE006 - Expression too complex -->
-        <Rule Id="CSE006" Action="Error" />
+        <Rule Id="CSE006" Action="Info" />
         <!-- CSE007 - Return disposable value unused -->
         <Rule Id="CSE007" Action="Error" />
         <!-- CSE008 - Return async result unused -->
