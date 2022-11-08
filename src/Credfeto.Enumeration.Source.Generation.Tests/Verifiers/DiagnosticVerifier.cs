@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -47,9 +46,9 @@ public abstract partial class DiagnosticVerifier
                              .AppendLine(diagnostic.ToString());
 
             Type analyzerType = analyzer.GetType();
-            ImmutableArray<DiagnosticDescriptor> rules = analyzer.SupportedDiagnostics;
+            IReadOnlyList<DiagnosticDescriptor> rules = analyzer.SupportedDiagnostics;
 
-            DiagnosticDescriptor? rule = ImmutableArrayExtensions.FirstOrDefault(immutableArray: rules, predicate: rule => rule.Id == diagnostic.Id);
+            DiagnosticDescriptor? rule = rules.FirstOrDefault(predicate: rule => rule.Id == diagnostic.Id);
 
             if (rule == null)
             {
@@ -182,14 +181,14 @@ public abstract partial class DiagnosticVerifier
     /// <param name="expectedResults">Diagnostic Results that should have appeared in the code</param>
     private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
     {
-        Diagnostic[] results = Enumerable.ToArray(actualResults);
+        Diagnostic[] results = actualResults.ToArray();
         int expectedCount = expectedResults.Length;
         int actualCount = results.Length;
 
         if (expectedCount != actualCount)
         {
             string diagnosticsOutput = results.Length != 0
-                ? FormatDiagnostics(analyzer: analyzer, Enumerable.ToArray(results))
+                ? FormatDiagnostics(analyzer: analyzer, results.ToArray())
                 : "    NONE.";
 
             Assert.True(condition: false, $"Mismatch between number of diagnostics returned, expected \"{expectedCount}\" actual \"{actualCount}\"\r\n\r\nDiagnostics:\r\n{diagnosticsOutput}\r\n");
@@ -227,7 +226,7 @@ public abstract partial class DiagnosticVerifier
 
     private static void VerifyAdditionalDiagnosticLocations(DiagnosticAnalyzer analyzer, Diagnostic actual, in DiagnosticResult expected)
     {
-        Location[] additionalLocations = Enumerable.ToArray(actual.AdditionalLocations);
+        Location[] additionalLocations = actual.AdditionalLocations.ToArray();
 
         if (additionalLocations.Length != expected.Locations.Length - 1)
         {

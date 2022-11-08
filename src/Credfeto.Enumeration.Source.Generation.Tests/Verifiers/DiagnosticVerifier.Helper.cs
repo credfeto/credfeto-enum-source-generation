@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -80,7 +79,9 @@ public abstract partial class DiagnosticVerifier
 
             EnsureNoCompilationErrors(compilation);
 
-            CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create(analyzer));
+#pragma warning disable 433 // Cannot work out which ImmutableArray to use
+            CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers(IaHelper.For(analyzer));
+#pragma warning restore 433 // Cannot work out which ImmutableArray to use
             diagnostics = await CollectDiagnosticsAsync(documents: documents, compilationWithAnalyzers: compilationWithAnalyzers);
         }
 
@@ -89,7 +90,7 @@ public abstract partial class DiagnosticVerifier
 
     private static async Task<IReadOnlyList<Diagnostic>> CollectDiagnosticsAsync(IReadOnlyList<Document> documents, CompilationWithAnalyzers compilationWithAnalyzers)
     {
-        ImmutableArray<Diagnostic> diags = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
+        IReadOnlyList<Diagnostic> diags = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
 
         return await ExtractDiagnosticsAsync(documents: documents, diags: diags);
     }
@@ -136,9 +137,9 @@ public abstract partial class DiagnosticVerifier
 
     private static void EnsureNoCompilationErrors(Compilation compilation)
     {
-        ImmutableArray<Diagnostic> compilerErrors = compilation.GetDiagnostics();
+        IReadOnlyList<Diagnostic> compilerErrors = compilation.GetDiagnostics();
 
-        if (compilerErrors.Length != 0)
+        if (compilerErrors.Count != 0)
         {
             StringBuilder errors = compilerErrors.Where(IsReportableCSharpError)
                                                  .Aggregate(new StringBuilder(), func: (current, compilerError) => current.Append(compilerError));

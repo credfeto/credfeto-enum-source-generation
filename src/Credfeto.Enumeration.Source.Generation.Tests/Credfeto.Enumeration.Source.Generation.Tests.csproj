@@ -16,7 +16,7 @@
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
     <RunAOTCompilation>false</RunAOTCompilation>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
     <TieredPGO>true</TieredPGO>
     <TreatSpecificWarningsAsErrors />
@@ -41,30 +41,30 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <ItemGroup>
-<!--    <PackageReference Include="coverlet.collector" Version="3.2.0"/>-->
-    <!--    <PackageReference Include="FunFair.Test.Common" Version="6.0.6.2271" />-->
+    <PackageReference Include="coverlet.collector" Version="3.2.0"/>
+    <PackageReference Include="FunFair.Test.Common" Version="6.0.6.2271"/>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.1"/>
-    <!--    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />-->
-    <!--    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />-->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0"/>
     <PackageReference Include="xunit" Version="2.4.2"/>
-    <!--    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" />-->
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5"/>
   </ItemGroup>
   <ItemGroup>
-    <!--    <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All"/>-->
-    <!--    <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="All"/>-->
-    <!--    &lt;!&ndash;    <PackageReference Include="FunFair.CodeAnalysis" Version="5.9.0.1493" PrivateAssets="All" />&ndash;&gt;-->
-    <!--    &lt;!&ndash;    <PackageReference Include="Meziantou.Analyzer" Version="1.0.745" PrivateAssets="All" />&ndash;&gt;-->
-    <!--    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.48" PrivateAssets="All"/>-->
-    <!--    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.15" PrivateAssets="All"/>-->
-    <!--    <PackageReference Include="Nullable.Extended.Analyzer" Version="1.10.4539" PrivateAssets="All"/>-->
-    <!--    <PackageReference Include="Philips.CodeAnalysis.DuplicateCodeAnalyzer" Version="1.1.7" PrivateAssets="All"/>-->
-    <!--    &lt;!&ndash;    <PackageReference Include="Philips.CodeAnalysis.MaintainabilityAnalyzers" Version="1.2.29" PrivateAssets="All" />&ndash;&gt;-->
-    <!--    &lt;!&ndash;    <PackageReference Include="Roslynator.Analyzers" Version="4.1.2" PrivateAssets="All" />&ndash;&gt;-->
-    <!--    <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7" PrivateAssets="All"/>-->
-    <!--    <PackageReference Include="SmartAnalyzers.CSharpExtensions.Annotations" Version="4.2.7" PrivateAssets="All"/>-->
-    <!--    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.47.0.55603" PrivateAssets="All"/>-->
-    <!--    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All"/>-->
-    <!--    <PackageReference Include="ToStringWithoutOverrideAnalyzer" Version="0.6.0" PrivateAssets="All"/>-->
+    <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All"/>
+    <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="All"/>
+    <!--    <PackageReference Include="FunFair.CodeAnalysis" Version="5.9.0.1493" PrivateAssets="All" />-->
+    <!--    <PackageReference Include="Meziantou.Analyzer" Version="1.0.745" PrivateAssets="All" />-->
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.48" PrivateAssets="All"/>
+    <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.15" PrivateAssets="All"/>
+    <PackageReference Include="Nullable.Extended.Analyzer" Version="1.10.4539" PrivateAssets="All"/>
+    <PackageReference Include="Philips.CodeAnalysis.DuplicateCodeAnalyzer" Version="1.1.7" PrivateAssets="All"/>
+    <!--    <PackageReference Include="Philips.CodeAnalysis.MaintainabilityAnalyzers" Version="1.2.29" PrivateAssets="All" />-->
+    <!--    <PackageReference Include="Roslynator.Analyzers" Version="4.1.2" PrivateAssets="All" />-->
+    <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7" PrivateAssets="All"/>
+    <PackageReference Include="SmartAnalyzers.CSharpExtensions.Annotations" Version="4.2.7" PrivateAssets="All"/>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.47.0.55603" PrivateAssets="All"/>
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All"/>
+    <PackageReference Include="ToStringWithoutOverrideAnalyzer" Version="0.6.0" PrivateAssets="All"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation.Models\Credfeto.Enumeration.Source.Generation.Models.csproj" />
