@@ -79,9 +79,7 @@ public abstract partial class DiagnosticVerifier
 
             EnsureNoCompilationErrors(compilation);
 
-#pragma warning disable 433 // Cannot work out which ImmutableArray to use
             CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers(IaHelper.For(analyzer));
-#pragma warning restore 433 // Cannot work out which ImmutableArray to use
             diagnostics = await CollectDiagnosticsAsync(documents: documents, compilationWithAnalyzers: compilationWithAnalyzers);
         }
 
