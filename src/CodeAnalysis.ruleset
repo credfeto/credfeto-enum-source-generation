@@ -501,8 +501,24 @@
     <Rules AnalyzerId="SmartAnalyzers.CSharpExtensions.Annotations"
            RuleNamespace="SmartAnalyzers.CSharpExtensions.Annotations">
         <!-- See https://github.com/cezarypiatek/CSharpExtensions -->
+        <!-- CSE001 - Required properties initialization -->
+        <Rule Id="CSE001" Action="Error" />
+        <!-- CSE002 - InitOnly member modification -->
+        <Rule Id="CSE002" Action="Error" />
+        <!-- CSE003 - Type should have the same fields as twin type -->
+        <Rule Id="CSE003" Action="Error" />
+        <!-- CSE004 - Member with InitOnlyOptional requires default value -->
+        <Rule Id="CSE004" Action="Error" />
         <!-- CSE005 - Use the return value or discard it explicitly -->
         <Rule Id="CSE005" Action="Info"/>
+        <!-- CSE006 - Expression too complex -->
+        <Rule Id="CSE006" Action="Error" />
+        <!-- CSE007 - Return disposable value unused -->
+        <Rule Id="CSE007" Action="Error" />
+        <!-- CSE008 - Return async result unused -->
+        <Rule Id="CSE008" Action="Error" />
+        <!-- CSE009 - Task variable not awaited -->
+        <Rule Id="CSE009" Action="Error" />
     </Rules>
     <Rules AnalyzerId="Meziantou.Analyzer" RuleNamespace="Meziantou.Analyzer">
         <!-- See https://github.com/meziantou/Meziantou.Analyzer/tree/main/docs -->
