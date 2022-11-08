@@ -8,6 +8,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Added
 ### Fixed
+- File not found issues when publishing on windows
 ### Changed
 - FF-1429 - Updated Microsoft.Extensions to 7.0.0
 ### Removed
