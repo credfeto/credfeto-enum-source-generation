@@ -13,12 +13,12 @@ public static class ExampleEnumValuesGeneratedExtensions
     {
         return value switch
         {
-            // ExampleEnumValues.ZERO => 0
-            ExampleEnumValues.ZERO => "ZERO",
-            // ExampleEnumValues.ONE => 1
-            ExampleEnumValues.ONE => "ONE",
-            // ExampleEnumValues.THREE => 3
-            ExampleEnumValues.THREE => "THREE",
+            // ExampleEnumValues.ZERO => nameof(ExampleEnumValues.ZERO)
+            ExampleEnumValues.ZERO => nameof(ExampleEnumValues.ZERO),
+            // ExampleEnumValues.ONE => nameof(ExampleEnumValues.ONE)
+            ExampleEnumValues.ONE => nameof(ExampleEnumValues.ONE),
+            // ExampleEnumValues.THREE => nameof(ExampleEnumValues.THREE)
+            ExampleEnumValues.THREE => nameof(ExampleEnumValues.THREE),
             _ => throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: "Unknown enum member")
         };
         

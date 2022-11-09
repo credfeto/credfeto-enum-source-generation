@@ -118,8 +118,8 @@ public sealed class EnumGenerator : ISourceGenerator
                         continue;
                     }
 
-                    source.AppendLine("// " + className + "." + member.Name + " => " + member.ConstantValue);
-                    source.AppendLine(className + "." + member.Name + " => \"" + member.Name + "\",");
+                    source.AppendLine("// " + className + "." + member.Name + " => nameof(" + className + "." + member.Name + ")");
+                    source.AppendLine(className + "." + member.Name + " => nameof(" + className + "." + member.Name + "),");
                 }
 
                 source.AppendLine("_ => throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: \"Unknown enum member\")");
