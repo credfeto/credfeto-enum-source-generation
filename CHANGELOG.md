@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - FF-1429 - Updated Microsoft.VisualStudio.Threading.Analyzers to 17.4.27
 - FF-1429 - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.2.30
 - FF-1429 - Updated SonarAnalyzer.CSharp to 8.48.0.56517
+- FF-1429 - Updated FunFair.Test.Common to 6.0.7.2278
 ### Removed
 ### Deployment Changes
 
