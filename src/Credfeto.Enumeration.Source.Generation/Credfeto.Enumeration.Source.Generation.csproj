@@ -27,7 +27,7 @@
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
     <WarningsAsErrors />
-    <!--    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>-->
+    <SkipEnumCodeGeneration>true</SkipEnumCodeGeneration>
   </PropertyGroup>
   <PropertyGroup>
     <Company>Mark Ridgwell</Company>
