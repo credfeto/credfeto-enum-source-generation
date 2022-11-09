@@ -588,7 +588,7 @@
         <!-- PH2069	- Avoid unnecessary string.Format -->
         <Rule Id="PH2069" Action="Error"/>
         <!-- PH2070	- Avoid protected fields -->
-        <Rule Id="PH2070" Action="Error"/>
+        <Rule Id="PH2070" Action="None"/>
         <!-- PH2072	- Require local editorconfig -->
         <Rule Id="PH2072" Action="None"/>
         <!-- PH2073	- Call extension method as instance -->
