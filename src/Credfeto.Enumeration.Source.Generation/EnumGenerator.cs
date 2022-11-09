@@ -22,14 +22,16 @@ public sealed class EnumGenerator : ISourceGenerator
             return;
         }
 
+        bool hasDoesNotReturn = receiver.HasDoesNotReturnAttribute;
+
         foreach (EnumGeneration enumDeclaration in receiver.Enums)
         {
-            GenerateClassForEnum(context: context, enumDeclaration: enumDeclaration);
+            GenerateClassForEnum(context: context, enumDeclaration: enumDeclaration, hasDoesNotReturn: hasDoesNotReturn);
         }
 
         foreach (ClassEnumGeneration classDeclaration in receiver.Classes)
         {
-            GenerateClassForClass(context: context, classDeclaration: classDeclaration);
+            GenerateClassForClass(context: context, classDeclaration: classDeclaration, hasDoesNotReturn: hasDoesNotReturn);
         }
     }
 
@@ -39,24 +41,18 @@ public sealed class EnumGenerator : ISourceGenerator
         context.RegisterForSyntaxNotifications(() => new EnumSyntaxReceiver());
     }
 
-    private static void GenerateClassForEnum(in GeneratorExecutionContext context, EnumGeneration enumDeclaration)
+    private static void GenerateClassForEnum(in GeneratorExecutionContext context, EnumGeneration enumDeclaration, bool hasDoesNotReturn)
     {
         string className = enumDeclaration.Name + "GeneratedExtensions";
 
-        CodeBuilder source = new();
+        CodeBuilder source = AddUsingDeclarations(new());
 
-        using (source.AppendLine("using System;")
-                     .AppendLine("using System.CodeDom.Compiler;")
-                     .AppendLine("using System.Diagnostics.CodeAnalysis;")
-                     .AppendLine("using System.Runtime.CompilerServices;")
-                     .AppendBlankLine()
-                     .AppendLine("namespace " + enumDeclaration.Namespace + ";")
+        using (source.AppendLine("namespace " + enumDeclaration.Namespace + ";")
                      .AppendBlankLine()
                      .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{ExecutableVersionInformation.ProgramVersion()}\")]")
                      .StartBlock(ConvertAccessType(enumDeclaration.AccessType) + " static class " + className))
         {
-            GenerateGetName(source: source, enumDeclaration: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
-            GenerateGetDescription(source: source, enumDeclaration: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
+            GenerateMethods(hasDoesNotReturn: hasDoesNotReturn, source: source, attribute: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
         }
 
         context.AddSource(enumDeclaration.Namespace + "." + className, sourceText: source.Text);
@@ -72,32 +68,59 @@ public sealed class EnumGenerator : ISourceGenerator
         return string.Join(separator: ".", d.Namespace, d.Name);
     }
 
-    private static void GenerateClassForClass(in GeneratorExecutionContext context, ClassEnumGeneration classDeclaration)
+    private static CodeBuilder AddUsingDeclarations(CodeBuilder source)
     {
-        string className = classDeclaration.Name + "GeneratedExtensions";
-
-        CodeBuilder source = new();
-
-        using (source.AppendLine("using System;")
+        return source.AppendLine("using System;")
                      .AppendLine("using System.CodeDom.Compiler;")
                      .AppendLine("using System.Diagnostics.CodeAnalysis;")
                      .AppendLine("using System.Runtime.CompilerServices;")
-                     .AppendBlankLine()
-                     .AppendLine("namespace " + classDeclaration.Namespace + ";")
+                     .AppendBlankLine();
+    }
+
+    private static void GenerateClassForClass(in GeneratorExecutionContext context, ClassEnumGeneration classDeclaration, bool hasDoesNotReturn)
+    {
+        string className = classDeclaration.Name + "GeneratedExtensions";
+
+        CodeBuilder source = AddUsingDeclarations(new());
+
+        using (source.AppendLine("namespace " + classDeclaration.Namespace + ";")
                      .AppendBlankLine()
                      .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{ExecutableVersionInformation.ProgramVersion()}\")]")
                      .StartBlock(ConvertAccessType(classDeclaration.AccessType) + " static partial class " + className))
         {
+            Func<EnumGeneration, string> classNameFormatter = ClassWithNamespaceFormatter;
+
             foreach (EnumGeneration attribute in classDeclaration.Enums)
             {
                 source.AppendLine($"// {attribute.Namespace}.{attribute.Name}");
 
-                GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: ClassWithNamespaceFormatter);
-                GenerateGetDescription(source: source, enumDeclaration: attribute, classNameFormatter: ClassWithNamespaceFormatter);
+                GenerateMethods(hasDoesNotReturn: hasDoesNotReturn, source: source, attribute: attribute, classNameFormatter: classNameFormatter);
             }
         }
 
         context.AddSource(classDeclaration.Namespace + "." + className, sourceText: source.Text);
+    }
+
+    private static void GenerateMethods(bool hasDoesNotReturn, CodeBuilder source, EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
+    {
+        GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
+        GenerateGetDescription(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
+        GenerateThrowNotFound(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter, hasDoesNotReturn: hasDoesNotReturn);
+    }
+
+    private static void GenerateThrowNotFound(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter, bool hasDoesNotReturn)
+    {
+        string className = classNameFormatter(enumDeclaration);
+
+        if (hasDoesNotReturn)
+        {
+            source.AppendLine("[DoesNotReturn]");
+        }
+
+        using (source.StartBlock("public static string ThrowArgumentOutOfRangeException(this " + className + " value)"))
+        {
+            source.AppendLine("throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: \"Unknown enum member\");");
+        }
     }
 
     private static void GenerateGetName(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
@@ -122,7 +145,7 @@ public sealed class EnumGenerator : ISourceGenerator
                     source.AppendLine(className + "." + member.Name + " => nameof(" + className + "." + member.Name + "),");
                 }
 
-                source.AppendLine("_ => throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: \"Unknown enum member\")");
+                source.AppendLine("_ => ThrowArgumentOutOfRangeException(value: value)");
             }
         }
     }

@@ -11,6 +11,8 @@ namespace Credfeto.Enumeration.Source.Generation.Receivers;
 
 public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 {
+    private bool? _hasDoesNotReturnAttribute;
+
     public EnumSyntaxReceiver()
     {
         this.Enums = new();
@@ -21,8 +23,16 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
     public List<ClassEnumGeneration> Classes { get; }
 
+    public bool HasDoesNotReturnAttribute => this._hasDoesNotReturnAttribute.GetValueOrDefault(false);
+
     public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
     {
+        if (!this._hasDoesNotReturnAttribute.HasValue)
+        {
+            this._hasDoesNotReturnAttribute = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
+                                                      .IsEmpty;
+        }
+
         if (context.Node is EnumDeclarationSyntax enumDeclarationSyntax)
         {
             this.AddDefinedEnums(context: context, enumDeclarationSyntax: enumDeclarationSyntax);

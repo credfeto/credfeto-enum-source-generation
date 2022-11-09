@@ -9,6 +9,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+- Use nameof(enum field) rather than the string
+- Extracted throwing exceptions to a separate method
 ### Removed
 ### Deployment Changes
 

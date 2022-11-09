@@ -19,7 +19,7 @@ public static class ExampleEnumValuesGeneratedExtensions
             ExampleEnumValues.ONE => nameof(ExampleEnumValues.ONE),
             // ExampleEnumValues.THREE => nameof(ExampleEnumValues.THREE)
             ExampleEnumValues.THREE => nameof(ExampleEnumValues.THREE),
-            _ => throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: "Unknown enum member")
+            _ => ThrowArgumentOutOfRangeException(value: value)
         };
         
     }
@@ -34,6 +34,11 @@ public static class ExampleEnumValuesGeneratedExtensions
             _ => GetName(value)
         };
         
+    }
+    
+    public static string ThrowArgumentOutOfRangeException(this ExampleEnumValues value)
+    {
+        throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: "Unknown enum member");
     }
     
 }
