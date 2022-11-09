@@ -12,6 +12,7 @@ ProjectSection(SolutionItems) = preProject
 	..\.github\workflows\build-and-publish-pre-release.yml = ..\.github\workflows\build-and-publish-pre-release.yml
 	..\.github\workflows\build-and-publish-release.yml = ..\.github\workflows\build-and-publish-release.yml
 	SourceGenerator.props = SourceGenerator.props
+	KeepGeneratedFiles.props = KeepGeneratedFiles.props
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credfeto.Enumeration.Source.Generation", "Credfeto.Enumeration.Source.Generation\Credfeto.Enumeration.Source.Generation.csproj", "{1C26D824-FFBD-4F64-A7DF-593BAD653219}"
