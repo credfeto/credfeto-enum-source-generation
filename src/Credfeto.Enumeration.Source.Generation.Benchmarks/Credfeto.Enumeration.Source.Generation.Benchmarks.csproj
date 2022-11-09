@@ -11,7 +11,7 @@
     <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
     <IsPackable>false</IsPackable>
     <IsPublishable>false</IsPublishable>
-    <LangVersion>11</LangVersion>
+    <LangVersion>latest</LangVersion>
     <NoWarn />
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
