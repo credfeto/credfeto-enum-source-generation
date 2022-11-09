@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Use nameof(enum field) rather than the string
 - Extracted throwing exceptions to a separate method
+- FF-1429 - Updated Meziantou.Analyzer to 1.0.746
 ### Removed
 ### Deployment Changes
 
