@@ -535,7 +535,7 @@
         <!-- See https://github.com/philips-software/roslyn-analyzers/blob/master/Philips.CodeAnalysis.DuplicateCodeAnalyzer/Philips.CodeAnalysis.DuplicateCodeAnalyzer.md -->
         <!-- TODO -->
     </Rules>
-    <Rules AnalyzerId="Philips.CodeAnalysis.MaintainabilityAnalyzers" RuleNamespace="SecurityCodeScan.VS2019">
+    <Rules AnalyzerId="Philips.CodeAnalysis.MaintainabilityAnalyzers" RuleNamespace="Philips.CodeAnalysis.MaintainabilityAnalyzers">
         <!-- See https://github.com/philips-software/roslyn-analyzers/blob/master/Philips.CodeAnalysis.MaintainabilityAnalyzers/Philips.CodeAnalysis.MaintainabilityAnalyzers.md -->
         <!-- PH2001	- Avoid empty XML Summary comments -->
         <Rule Id="PH2001" Action="Error"/>
@@ -643,6 +643,10 @@
         <Rule Id="PH2099" Action="None"/>
         <!-- PH2101	- Detect Null Dereference after "as" -->
         <Rule Id="PH2101" Action="Error"/>
+    </Rules>
+    <Rules AnalyzerId="SecurityCodeScan.VS2019" RuleNamespace="SecurityCodeScan.VS2019">
+        <!-- SCS0019 - Controller method is potentionally Vulnerable to Cross Site Request Forgery CSRF -->
+        <Rule Id="SCS0019" Action="Error"/>
     </Rules>
     <Rules AnalyzerId="FunFair.CodeAnalysis" RuleNamespace="FunFair.CodeAnalysis">
         <!-- See https://github.com/funfair-tech/funfair-server-code-analysis -->
