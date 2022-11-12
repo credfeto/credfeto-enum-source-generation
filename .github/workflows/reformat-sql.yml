@@ -3,14 +3,14 @@ name: Standardise MSSQL Format [FF-2107]
 on:
   push:
     branches-ignore:
-    - "release/*"
-    - "hotfix/*"
+      - "release/*"
+      - "hotfix/*"
     paths:
-    - '**.sql'
+      - '**.sql'
 
 concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -18,29 +18,27 @@ permissions:
 jobs:
   standardise-tsql-files:
 
-    if: ${{ github.event.pull_request.draft == false && ( !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'hotfix/') ) && github.actor != 'dependabot[bot]' }}
+    if: |-
+        ${{ github.event.pull_request.draft == false
+        && ( !startsWith(github.head_ref, 'release/')
+        && !startsWith(github.head_ref, 'hotfix/') )
+        && github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
 
     steps:
-    - run: |
-        sudo chown -R $USER:$USER $GITHUB_WORKSPACE
-    - uses: actions/checkout@v3.1.0
-      with:
-        fetch-depth: 0
-        ref: ${{ github.head_ref }}
-        repository: ${{ github.repository }}
-        # token: ${{ secrets.SOURCE_PUSH_TOKEN }}
-    - run: |
-        echo Current Branch ${GITHUB_REF#refs/heads/}
-        echo GIT_BRANCH=$(echo ${GITHUB_REF#refs/heads/}) >> $GITHUB_ENV
-    - name: Reformat
-      uses: credfeto/action-sql-format@v1.3.1
-    - uses: stefanzweifel/git-auto-commit-action@v4.15.4
-      with:
-        commit_message: "[FF-2107] Reformat SQL Files to common format"
-        file_pattern: "*.sql"
-        commit_user_name: "fun-sqlfmt[bot]"
-        commit_user_email: "credfeto@users.noreply.github.com"
-        commit_author: "fun-sqlfmt[bot] <credfeto@users.noreply.github.com>"
-        skip_dirty_check: false
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SOURCE_PUSH_TOKEN }}
+      - name: Reformat
+        uses: credfeto/action-sql-format@v1.3.1
+      - uses: stefanzweifel/git-auto-commit-action@v4.15.4
+        with:
+          commit_message: "[FF-2107] Reformat SQL Files to common format"
+          file_pattern: "*.sql"
+          commit_user_name: "fun-sqlfmt[bot]"
+          commit_user_email: "credfeto@users.noreply.github.com"
+          commit_author: "fun-sqlfmt[bot] <credfeto@users.noreply.github.com>"
+          skip_dirty_check: false
 
