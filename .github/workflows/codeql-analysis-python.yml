@@ -24,10 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'python' ]
-        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python' ]
-        # Learn more:
-        # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
+        language: python
 
     steps:
       - name: Checkout repository
@@ -37,8 +34,8 @@ jobs:
         id: check_files
         run: |
           echo "Hash: ${{hashfiles('**/*.py')}}"
-          if [[ '${{ hashfiles('**/*.py') }}' != '' ]]; then echo 'FILES_EXIST=true' >> $GITHUB_OUTPUT; else echo 'FILES_EXIST=false' >> $GITHUB_OUTPUT; fi
-          if [[ '${{ hashfiles('**/*.py') }}' != '' ]]; then echo 'Exists: true'; else echo 'Exists: false'; fi
+          [[ '${{ hashfiles('**/*.py') }}' != '' ]] && echo 'FILES_EXIST=true' >> $GITHUB_OUTPUT || echo 'FILES_EXIST=false' >> $GITHUB_OUTPUT
+          [[ '${{ hashfiles('**/*.py') }}' != '' ]] && echo 'Exists: true' || echo 'Exists: false'
 
       # Initializes the CodeQL tools for scanning.
       - if: ${{ steps.check_files.outputs.FILES_EXIST == 'true' }}
