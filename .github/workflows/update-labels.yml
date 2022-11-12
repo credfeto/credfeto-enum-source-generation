@@ -3,14 +3,14 @@ name: Update Labels
 on:
   push:
     branches:
-    - main
+      - main
     paths:
-    - '.github/labels.yml'
-    - '.github/workflows/update-labels.yml'
+      - '.github/labels.yml'
+      - '.github/workflows/update-labels.yml'
 
 concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   update-labels-config:
@@ -18,20 +18,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - run: |
-        sudo chown -R $USER:$USER $GITHUB_WORKSPACE
-    - uses: actions/checkout@v3.1.0
-      with:
-        fetch-depth: 0
-        token: ${{ secrets.SOURCE_PUSH_TOKEN }}
-    - if: success()
-      uses: crazy-max/ghaction-github-labeler@v4.1.0
-      with:
-        github-token: ${{ secrets.SOURCE_PUSH_TOKEN }}
-        yaml-file: .github/labels.yml
-        skip-delete: true
-        dry-run: false
-        exclude: |
-          help*
-          *issue
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SOURCE_PUSH_TOKEN }}
+      - if: success()
+        uses: crazy-max/ghaction-github-labeler@v4.1.0
+        with:
+          github-token: ${{ secrets.SOURCE_PUSH_TOKEN }}
+          yaml-file: .github/labels.yml
+          skip-delete: true
+          dry-run: false
+          exclude: |
+            help*
+            *issue
 
