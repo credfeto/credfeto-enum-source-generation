@@ -9,19 +9,21 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
+env:
+  HEAD_REF: ${{ github.head_ref }}
+  BASE_REF: ${{ github.base_ref }}
 jobs:
   info:
     if: ${{ endsWith(github.repository , '-template') }}
     runs-on: ubuntu-latest
     steps:
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
-      - run: |
-          echo "Branch: ${{ github.head_ref }}"
-          echo "Base Branch: ${{ github.base_ref }}"
+          echo "Branch: ${{ env.HEAD_REF }}"
+          echo "Base Branch: ${{ env.BASE_REF }}"
           echo "Repo: ${{ github.repository }}"
           echo "Owner: ${{ github.repository_owner }}"
 
@@ -29,12 +31,14 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
-      - if: ${{ !endsWith(github.repository , '-template') && !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'hotfix/') }}
+      - if: |-
+          ${{ !endsWith(github.repository , '-template')
+          && !startsWith(github.head_ref, 'release/')
+          && !startsWith(github.head_ref, 'hotfix/') }}
         uses: seferov/pr-lint-action@v1.2.0
         with:
           title-regex: '^\[FF\-\d*?\](:)?(\ )'
@@ -44,24 +48,28 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - if: ${{ github.actor != 'dependabot[bot]' || endsWith(github.repository , '-template') }}
         uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
       - if: ${{ github.actor != 'dependabot[bot]' || endsWith(github.repository , '-template') }}
-        run: |
-           [[ $(git diff --exit-code origin/main CHANGELOG.md) == 0 ]] && (echo "Error: Changelog unchanged" && exit -1)
-           [[ $(git diff --quiet origin/main CHANGELOG.md) != 0 ]] && echo "OK: Changelog updated"
+        run: echo "CHANGES=$(git diff --exit-code origin/main CHANGELOG.md)" >> "$GITHUB_ENV"
+#        run: |
+#           [[ $(git diff --exit-code origin/main CHANGELOG.md) == 0 ]] && echo "CHANGELOG=Unchanged" >> $GITHUB_ENV
+#           [[ $(git diff --quiet origin/main CHANGELOG.md) != 0 ]] && echo "CHANGELOG=Updated" >> $GITHUB_ENV
+      - if: ${{ env.CHANGES == '0' }}
+        uses: actions/github-script@v6.3.3
+        with:
+          script: |
+            core.setFailed('Changelog has not changed')
 
   change-log-entry-is-in-unreleased:
     if: github.event.pull_request.draft == false
     # As LibGit2Sharp doesn't work on 20.04
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
@@ -104,8 +112,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
@@ -123,8 +130,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
@@ -134,8 +140,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
@@ -145,8 +150,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
@@ -157,8 +161,7 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: credfeto/action-repo-visibility@v1.1.0
         id: visibility
         with:
@@ -179,8 +182,7 @@ jobs:
     if: ${{ github.event.pull_request.draft == false && ( !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'hotfix/') ) }}
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          sudo chown -R $USER:$USER $GITHUB_WORKSPACE
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
