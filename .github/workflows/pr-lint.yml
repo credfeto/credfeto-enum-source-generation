@@ -76,7 +76,7 @@ jobs:
           fallback: 6.0.*
       - uses: actions/setup-dotnet@v3.0.3
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
           DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
           DOTNET_NOLOGO: true
           DOTNET_CLI_TELEMETRY_OPTOUT: false
@@ -174,6 +174,17 @@ jobs:
       - if: ${{ steps.visibility.outputs.is_public == 'true' }}
         name: 'Dependency Review'
         uses: actions/dependency-review-action@v3.0.0
+
+  no-merge-commits:
+    # Check that there are no merge commits in the PR
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+      - uses: greenled/no-merge-commits-check@v1.0.1
 
   lint-code:
     if: ${{ github.event.pull_request.draft == false && ( !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'hotfix/') ) }}
