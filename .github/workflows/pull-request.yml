@@ -58,7 +58,7 @@ jobs:
           pr_draft: true                        # Creates pull request as draft
           pr_title: ${{env.COMMIT_MSG}}
           pr_body: ${{ steps.pr-template.outputs.content }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.SOURCE_PUSH_TOKEN }}
 
       - if: ${{ steps.findPr.outputs.number == '' }}
         name: New PR Details
@@ -71,7 +71,7 @@ jobs:
       - if: ${{ steps.findPr.outputs.number == '' }}
         uses: credfeto/labeler@feature/pass-in-pull-request-or-issue
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          repo-token: ${{ secrets.SOURCE_PUSH_TOKEN }}
           configuration-path: .github/labeler.yml
           sync-labels: true
           pr-number: ${{steps.open-pr.outputs.pr_number}}
