@@ -1,4 +1,4 @@
-name: Create issues from todos
+name: TODO
 
 on:
   push:
@@ -15,8 +15,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: todo-actions
-        uses: dtinth/todo-actions@v0.2.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TODO_ACTIONS_MONGO_URL: ${{ secrets.TODO_ACTIONS_MONGO_URL }}
+      - uses: jamminroot/todo-2-gh-issue@1.2.1
+        with:
+          TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
+          TODO_PATTERN: "(?<=\\/\\/ ?TODO[ :]).+"
+          GH_LABEL: "TODO"
+          TRIM: ",: \""
+          TIMEOUT: 1000
+          LINES_BEFORE: 2
+          LINES_AFTER: 5
+          LABELS_PATTERN: "(?<=\\[).+?(?=\\])"
+          LABELS_REPLACE_PATTERN: "\\[(.+?)\\]"
+          IGNORED_LINES_LENGTH: 255
+          FILE_PATTERN: ".*cs"
+        id: "todo"
