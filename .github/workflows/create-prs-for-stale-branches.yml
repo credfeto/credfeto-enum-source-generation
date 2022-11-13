@@ -9,6 +9,10 @@ on:
   schedule:
     - cron: "0 1 * * *"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-matrix:
     runs-on: ubuntu-latest
@@ -132,7 +136,7 @@ jobs:
           pr_draft: true                        # Creates pull request as draft
           pr_title: "${{ steps.aheadbehind.outputs.COMMIT_MSG }} [No commits for ${{steps.aheadbehind.outputs.dayssinceupdate}} days]"
           pr_body: "${{ steps.pr-template.outputs.content }}"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.SOURCE_PUSH_TOKEN }}
 
       - if: |-
           ${{ steps.detection.outputs.defaultbranch != matrix.branch
@@ -149,7 +153,7 @@ jobs:
       - if: ${{ steps.open-pr.outputs.pr_number != '' }}
         uses: credfeto/labeler@feature/pass-in-pull-request-or-issue
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          repo-token: ${{ secrets.SOURCE_PUSH_TOKEN }}
           configuration-path: .github/labeler.yml
           sync-labels: true
           pr-number: ${{steps.open-pr.outputs.pr_number}}
@@ -171,7 +175,7 @@ jobs:
         name: Delete Branch
         uses: dawidd6/action-delete-branch@v3.1.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.SOURCE_PUSH_TOKEN }}
           branches: ${{ matrix.branch }}
 
       - if: |-
