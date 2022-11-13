@@ -9,23 +9,27 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  issues: write
+  repository-projects: read
+  contents: read
+
 jobs:
   todos:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-      - uses: jamminroot/todo-2-gh-issue@1.2.1
+      - uses: derjuulsn/todo-issue@main
         with:
-          TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
-          TODO_PATTERN: "(?<=\\/\\/ ?TODO[ :]).+"
-          GH_LABEL: "TODO"
-          TRIM: ",: \""
-          TIMEOUT: 1000
-          LINES_BEFORE: 2
-          LINES_AFTER: 5
-          LABELS_PATTERN: "(?<=\\[).+?(?=\\])"
-          LABELS_REPLACE_PATTERN: "\\[(.+?)\\]"
-          IGNORED_LINES_LENGTH: 255
-          FILE_PATTERN: ".*cs"
-        id: "todo"
+          excludePattern: '(node_modules/)'
+          autoAssign: 'true'
+          keywords: 'TODO'
+          blobLines: 7
+          blobLinesBefore: 2
+          caseSensitive: false
+          label: true
+          reopenClosed: true
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
