@@ -6,7 +6,7 @@ on:
       - main
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
 permissions:
@@ -32,4 +32,4 @@ jobs:
           reopenClosed: true
 
         env:
-          GITHUB_TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
+          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
