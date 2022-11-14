@@ -9,23 +9,23 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
 env:
-  HEAD_REF: ${{ github.head_ref }}
-  BASE_REF: ${{ github.base_ref }}
+  HEAD_REF: ${{github.head_ref}}
+  BASE_REF: ${{github.base_ref}}
 jobs:
   info:
-    if: ${{ endsWith(github.repository , '-template') }}
+    if: ${{endsWith(github.repository , '-template')}}
     runs-on: ubuntu-latest
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - run: |
-          echo "Branch: ${{ env.HEAD_REF }}"
-          echo "Base Branch: ${{ env.BASE_REF }}"
-          echo "Repo: ${{ github.repository }}"
-          echo "Owner: ${{ github.repository_owner }}"
+          echo "Branch: ${{env.HEAD_REF}}"
+          echo "Base Branch: ${{env.BASE_REF}}"
+          echo "Repo: ${{github.repository}}"
+          echo "Owner: ${{github.repository_owner}}"
 
   include-JIRA-ticket:
     if: github.event.pull_request.draft == false
@@ -36,9 +36,9 @@ jobs:
         with:
           fetch-depth: 0
       - if: |-
-          ${{ !endsWith(github.repository , '-template')
+          ${{!endsWith(github.repository , '-template')
           && !startsWith(github.head_ref, 'release/')
-          && !startsWith(github.head_ref, 'hotfix/') }}
+          && !startsWith(github.head_ref, 'hotfix/')}}
         uses: seferov/pr-lint-action@v1.2.0
         with:
           title-regex: '^\[FF\-\d*?\](:)?(\ )'
@@ -49,13 +49,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - if: ${{ github.actor != 'dependabot[bot]' || endsWith(github.repository , '-template') }}
+      - if: ${{github.actor != 'dependabot[bot]' || endsWith(github.repository , '-template')}}
         uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
-      - if: ${{ github.actor != 'dependabot[bot]' || endsWith(github.repository , '-template') }}
-        run: echo "CHANGES=$(git diff --exit-code origin/main CHANGELOG.md)" >> "$GITHUB_ENV"
-      - if: ${{ env.CHANGES == '0' }}
+      - if: ${{github.actor != 'dependabot[bot]' || endsWith(github.repository , '-template')}}
+        run: echo "CHANGES=$(git diff --exit-code --no-patch --merge-base origin/main CHANGELOG.md 2> /dev/null && echo 0 || echo $?)" >> "$GITHUB_ENV"
+      - if: ${{(github.actor != 'dependabot[bot]' || endsWith(github.repository , '-template')) && env.CHANGES == '0'}}
         uses: actions/github-script@v6.3.3
         with:
           script: |
@@ -76,31 +76,31 @@ jobs:
           fallback: 6.0.*
       - uses: actions/setup-dotnet@v3.0.3
         env:
-          GITHUB_TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
-          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
+          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
+          DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
           DOTNET_NOLOGO: true
           DOTNET_CLI_TELEMETRY_OPTOUT: false
           DOTNET_MULTILEVEL_LOOKUP: false
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{env.DOTNET_VERSION}}
       - name: Enable dotnet tools
         run: dotnet new tool-manifest
         env:
-          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
+          DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
           DOTNET_NOLOGO: true
           DOTNET_CLI_TELEMETRY_OPTOUT: false
           DOTNET_MULTILEVEL_LOOKUP: false
       - name: Install Changelog tool
         run: dotnet tool install --local Credfeto.ChangeLog.Cmd
         env:
-          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
+          DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
           DOTNET_NOLOGO: true
           DOTNET_CLI_TELEMETRY_OPTOUT: false
           DOTNET_MULTILEVEL_LOOKUP: false
       - name: Check Changelog
-        run: dotnet changelog --changelog CHANGELOG.md --check-insert "origin/${{ github.base_ref }}"
+        run: dotnet changelog --changelog CHANGELOG.md --check-insert "origin/${{github.base_ref}}"
         env:
-          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
+          DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
           DOTNET_NOLOGO: true
           DOTNET_CLI_TELEMETRY_OPTOUT: false
           DOTNET_MULTILEVEL_LOOKUP: false
@@ -163,15 +163,15 @@ jobs:
         id: visibility
         with:
           # optional parameter defaults to the current repo
-          repository: ${{ github.repository }}
+          repository: ${{github.repository}}
           # optional parameter defaults to the current user
-          token: ${{ github.token }}
-      - if: ${{ steps.visibility.outputs.is_public == 'true' }}
+          token: ${{github.token}}
+      - if: ${{steps.visibility.outputs.is_public == 'true'}}
         name: 'Checkout Repository'
         uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
-      - if: ${{ steps.visibility.outputs.is_public == 'true' }}
+      - if: ${{steps.visibility.outputs.is_public == 'true'}}
         name: 'Dependency Review'
         uses: actions/dependency-review-action@v3.0.0
 
@@ -187,7 +187,7 @@ jobs:
       - uses: greenled/no-merge-commits-check@v1.0.1
 
   lint-code:
-    if: ${{ github.event.pull_request.draft == false && ( !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'hotfix/') ) }}
+    if: ${{github.event.pull_request.draft == false && ( !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'hotfix/') )}}
     runs-on: ubuntu-latest
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
@@ -197,7 +197,7 @@ jobs:
       - uses: github/super-linter@v4.9.7
         env:
           DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
+          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
           MULTI_STATUS: true
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_ANSIBLE: true
