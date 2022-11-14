@@ -5,7 +5,7 @@ on:
     types: [published]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
 jobs:
@@ -18,4 +18,4 @@ jobs:
       - name: rebase
         uses: bbeesley/gha-auto-dependabot-rebase@v1.1.2
         env:
-          GITHUB_TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
+          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
