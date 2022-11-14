@@ -71,7 +71,8 @@ jobs:
       - if: ${{steps.findPr.outputs.number == ''}}
         uses: credfeto/labeler@feature/pass-in-pull-request-or-issue
         with:
-          repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          repo-token: ${{github.token}}
           configuration-path: .github/labeler.yml
           sync-labels: true
           pr-number: ${{steps.open-pr.outputs.pr_number}}
+
