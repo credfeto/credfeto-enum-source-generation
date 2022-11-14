@@ -1,6 +1,8 @@
 name: rebase pull requests
 on:
   push:
+    branches:
+      - main
   release:
     types: [published]
 
