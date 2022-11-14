@@ -9,51 +9,50 @@ on:
       - main
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: false
 
 env:
-  HEAD_REF: ${{ github.head_ref }}
-  BASE_REF: ${{ github.base_ref }}
+  HEAD_REF: ${{github.head_ref}}
+  BASE_REF: ${{github.base_ref}}
 jobs:
   info:
-    if: ${{ endsWith(github.repository , '-template') }}
+    if: ${{endsWith(github.repository , '-template')}}
     runs-on: ubuntu-latest
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - run: |
-          echo "Branch: ${{ env.HEAD_REF }}"
-          echo "Base Branch: ${{ env.BASE_REF }}"
-          echo "Repo: ${{ github.repository }}"
-          echo "Owner: ${{ github.repository_owner }}"
-          echo "Assigned: ${{ github.event.pull_request.assignee.login }}"
-          echo "Assigned: ${{ github.event.pull_request.assignees[0].login }}"
-          echo "Last Modified By: ${{ github.event.pull_request.head.user.login }}"
-          echo "PR Creator: ${{ github.event.pull_request.creator.login }}"
-          echo "PR Owner: ${{ github.event.pull_request.owner}}"
-          echo "Actor: ${{ github.actor }}"
+          echo "Branch: ${{env.HEAD_REF}}"
+          echo "Base Branch: ${{env.BASE_REF}}"
+          echo "Repo: ${{github.repository}}"
+          echo "Owner: ${{github.repository_owner}}"
+          echo "Assigned: ${{github.event.pull_request.assignee.login}}"
+          echo "Assigned: ${{github.event.pull_request.assignees[0].login}}"
+          echo "Last Modified By: ${{github.event.pull_request.head.user.login}}"
+          echo "PR Creator: ${{github.event.pull_request.creator.login}}"
+          echo "PR Owner: ${{github.event.pull_request.owner}}"
+          echo "Actor: ${{github.actor}}"
 
   add-pr-label:
-    if: ${{ github.actor != 'dependabot[bot]' }}
+    if: ${{github.actor != 'dependabot[bot]'}}
     runs-on: ubuntu-latest
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/labeler@v4
         with:
-          repo-token: ${{ secrets.SOURCE_PUSH_TOKEN }}
+          repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           configuration-path: .github/labeler.yml
           sync-labels: true
 
   assign-to-creator:
     if: |-
-      ${{ !github.event.pull_request.assignee.login
+      ${{!github.event.pull_request.assignee.login
       && github.event_name == 'pull_request'
       && ( github.event.action == 'opened' || github.event.action == 'reopened')
-      && github.actor != 'dependabot[bot]' }}
+      && github.actor != 'dependabot[bot]'}}
     runs-on: ubuntu-latest
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: thomaseizinger/assign-pr-creator-action@v1.0.0
         with:
-          repo-token: ${{ secrets.SOURCE_PUSH_TOKEN }}
-
+          repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
