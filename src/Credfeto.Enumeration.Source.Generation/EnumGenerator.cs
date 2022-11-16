@@ -49,7 +49,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
         using (source.AppendLine("namespace " + enumDeclaration.Namespace + ";")
                      .AppendBlankLine()
-                     .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{ExecutableVersionInformation.ProgramVersion()}\")]")
+                     .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{VersionInformation.Version()}\")]")
                      .StartBlock(ConvertAccessType(enumDeclaration.AccessType) + " static class " + className))
         {
             GenerateMethods(hasDoesNotReturn: hasDoesNotReturn, source: source, attribute: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
@@ -85,26 +85,39 @@ public sealed class EnumGenerator : ISourceGenerator
 
         using (source.AppendLine("namespace " + classDeclaration.Namespace + ";")
                      .AppendBlankLine()
-                     .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{ExecutableVersionInformation.ProgramVersion()}\")]")
+                     .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{VersionInformation.Version()}\")]")
                      .StartBlock(ConvertAccessType(classDeclaration.AccessType) + " static partial class " + className))
         {
             Func<EnumGeneration, string> classNameFormatter = ClassWithNamespaceFormatter;
 
+            bool isFirst = true;
+
             foreach (EnumGeneration attribute in classDeclaration.Enums)
             {
+                if (isFirst)
+                {
+                    isFirst = false;
+                }
+                else
+                {
+                    source.AppendBlankLine();
+                }
+
                 source.AppendLine($"// {attribute.Namespace}.{attribute.Name}");
 
                 GenerateMethods(hasDoesNotReturn: hasDoesNotReturn, source: source, attribute: attribute, classNameFormatter: classNameFormatter);
             }
         }
 
-        context.AddSource(classDeclaration.Namespace + "." + className, sourceText: source.Text);
+        context.AddSource(classDeclaration.Namespace + "." + className + ".cs", sourceText: source.Text);
     }
 
     private static void GenerateMethods(bool hasDoesNotReturn, CodeBuilder source, EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
     {
         GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
+        source.AppendBlankLine();
         GenerateGetDescription(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
+        source.AppendBlankLine();
         GenerateThrowNotFound(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter, hasDoesNotReturn: hasDoesNotReturn);
     }
 
@@ -141,7 +154,6 @@ public sealed class EnumGenerator : ISourceGenerator
                         continue;
                     }
 
-                    source.AppendLine("// " + className + "." + member.Name + " => nameof(" + className + "." + member.Name + ")");
                     source.AppendLine(className + "." + member.Name + " => nameof(" + className + "." + member.Name + "),");
                 }
 

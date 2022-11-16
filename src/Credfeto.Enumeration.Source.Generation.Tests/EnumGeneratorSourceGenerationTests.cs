@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Credfeto.Enumeration.Source.Generation.Helpers;
 using Credfeto.Enumeration.Source.Generation.Tests.Verifiers;
 using Xunit;
 
@@ -36,14 +37,14 @@ public sealed class EnumGeneratorSourceGenerationTests : GeneratorVerifierTestsB
 
         (string filename, string generated)[] expected =
         {
-            (filename: "ExampleEnumGenerated", generated: @"using System;
+            (filename: "ConsoleApplication1.ExampleEnumGeneratedExtensions.cs", generated: @"using System;
 using System.CodeDom.Compiler;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace ConsoleApplication1;
 
-[GeneratedCode(tool: ""Credfeto.Enumeration.Source.Generation.EnumGenerator"", version: ""1.0.0"")]
+[GeneratedCode(tool: ""Credfeto.Enumeration.Source.Generation.EnumGenerator"", version: """ + VersionInformation.Version() + @""")]
 public static class ExampleEnumGeneratedExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -51,18 +52,18 @@ public static class ExampleEnumGeneratedExtensions
     {
         return value switch
         {
-            // ExampleEnum.HELLO => nameof(ExampleEnum.HELLO)
             ExampleEnum.HELLO => nameof(ExampleEnum.HELLO),
-            // ExampleEnum.WORLD => nameof(ExampleEnum.WORLD)
             ExampleEnum.WORLD => nameof(ExampleEnum.WORLD),
             _ => ThrowArgumentOutOfRangeException(value: value)
         };
     }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string GetDescription(this ExampleEnum value)
     {
         return GetName(value);
     }
+
     public static string ThrowArgumentOutOfRangeException(this ExampleEnum value)
     {
         throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: ""Unknown enum member"");

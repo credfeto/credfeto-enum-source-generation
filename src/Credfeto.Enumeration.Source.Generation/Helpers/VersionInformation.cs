@@ -5,11 +5,11 @@ using System.Reflection;
 
 namespace Credfeto.Enumeration.Source.Generation.Helpers;
 
-internal static class ExecutableVersionInformation
+public static class VersionInformation
 {
-    public static string ProgramVersion()
+    public static string Version()
     {
-        return CommonVersion(typeof(ExecutableVersionInformation));
+        return CommonVersion(typeof(VersionInformation));
     }
 
     private static string CommonVersion(Type type)

@@ -10,7 +10,7 @@ public sealed class CodeBuilder
 
     private int _indent;
 
-    public SourceText Text => SourceText.From(this._stringBuilder.ToString(), encoding: Encoding.UTF8);
+    public SourceText Text => SourceText.From(this._stringBuilder.ToString(), encoding: Encoding.UTF8, checksumAlgorithm: SourceHashAlgorithm.Sha256);
 
     public CodeBuilder AppendBlankLine()
     {

@@ -21,9 +21,8 @@ public static class ExampleEnumValuesGeneratedExtensions
             ExampleEnumValues.THREE => nameof(ExampleEnumValues.THREE),
             _ => ThrowArgumentOutOfRangeException(value: value)
         };
-        
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string GetDescription(this ExampleEnumValues value)
     {
@@ -33,13 +32,10 @@ public static class ExampleEnumValuesGeneratedExtensions
             ExampleEnumValues.THREE => "Two but one better!",
             _ => GetName(value)
         };
-        
     }
-    
+
     public static string ThrowArgumentOutOfRangeException(this ExampleEnumValues value)
     {
         throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: "Unknown enum member");
     }
-    
 }
-

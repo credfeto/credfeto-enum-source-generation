@@ -18,7 +18,7 @@ public abstract class GeneratorVerifierTestsBase<TSourceGenerator> : TestBase
         foreach ((string filename, string generated) in expected)
         {
             (Type sourceGeneratorType, string filename, SourceText content) item = (sourceGeneratorType: typeof(TSourceGenerator), filename,
-                content: SourceText.From(text: generated, encoding: Encoding.UTF8, checksumAlgorithm: SourceHashAlgorithm.Sha256));
+                content: SourceText.From(generated.ReplaceLineEndings(), encoding: Encoding.UTF8, checksumAlgorithm: SourceHashAlgorithm.Sha256));
 
             t.TestState.GeneratedSources.Add(item);
         }
