@@ -1,3 +1,4 @@
+using System.Net;
 using FunFair.Test.Common;
 using Xunit;
 
@@ -17,5 +18,12 @@ public sealed class EnumGetDescriptionTests : TestBase
     {
         Assert.Equal(expected: "ZERO", ExampleEnumValues.ZERO.GetDescription());
         Assert.Equal(expected: "Two but one better!", ExampleEnumValues.THREE.GetDescription());
+    }
+
+    [Fact]
+    public void GetDescriptionForExternalUnAliased()
+    {
+        Assert.Equal(expected: "OK", HttpStatusCode.OK.GetDescription());
+        Assert.Equal(expected: "Accepted", HttpStatusCode.Accepted.GetDescription());
     }
 }
