@@ -6,6 +6,17 @@ namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
 
 public sealed class EnumGetNameTests : TestBase
 {
+    [Theory]
+    [InlineData(ExampleEnumValues.ZERO)]
+    [InlineData(ExampleEnumValues.ONE)]
+    [InlineData(ExampleEnumValues.THREE)]
+    public void IsNameNameAsToString(ExampleEnumValues value)
+    {
+        string name = value.GetName();
+
+        Assert.Equal(value.ToString(), actual: name);
+    }
+
     [Fact]
     public void GetNameForAliased()
     {
