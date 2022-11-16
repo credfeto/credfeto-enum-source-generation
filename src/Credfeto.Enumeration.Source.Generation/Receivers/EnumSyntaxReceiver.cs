@@ -115,7 +115,22 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
     private static bool IsCodeGenerationAttribute(AttributeData item)
     {
-        return item.AttributeClass?.Name == "EnumTextAttribute" && item.AttributeClass?.ContainingNamespace.ToDisplayString() == "Credfeto.Enumeration.Source.Generation.Attributes";
+        if (item.AttributeClass == null)
+        {
+            return false;
+        }
+
+        if (item.AttributeClass.ContainingNamespace.ToDisplayString() != "Credfeto.Enumeration.Source.Generation.Attributes")
+        {
+            return false;
+        }
+
+        if (item.AttributeClass.Name != "EnumTextAttribute")
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private void AddDefinedEnums(in GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax)
