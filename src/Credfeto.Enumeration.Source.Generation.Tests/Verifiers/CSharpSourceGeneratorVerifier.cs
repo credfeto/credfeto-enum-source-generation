@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
@@ -18,20 +17,14 @@ public static class CSharpSourceGeneratorVerifier<TSourceGenerator>
         {
             CompilationOptions compilationOptions = base.CreateCompilationOptions();
 
-            return compilationOptions.WithSpecificDiagnosticOptions(compilationOptions.SpecificDiagnosticOptions.SetItems(GetNullableWarningsFromCompiler()));
-        }
-
-        private static ImmutableDictionary<string, ReportDiagnostic> GetNullableWarningsFromCompiler()
-        {
             string[] args =
             {
                 "/warnaserror:nullable"
             };
             CSharpCommandLineArguments commandLineArguments =
                 CSharpCommandLineParser.Default.Parse(args: args, baseDirectory: Environment.CurrentDirectory, sdkDirectory: Environment.CurrentDirectory);
-            ImmutableDictionary<string, ReportDiagnostic> nullableWarnings = commandLineArguments.CompilationOptions.SpecificDiagnosticOptions;
 
-            return nullableWarnings;
+            return compilationOptions.WithSpecificDiagnosticOptions(compilationOptions.SpecificDiagnosticOptions.SetItems(commandLineArguments.CompilationOptions.SpecificDiagnosticOptions));
         }
 
         protected override ParseOptions CreateParseOptions()
