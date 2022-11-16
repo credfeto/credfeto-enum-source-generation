@@ -1,8 +1,7 @@
-using Credfeto.Enumeration.Source.Generation.Models;
 using FunFair.Test.Common;
 using Xunit;
 
-namespace Credfeto.Enumeration.Source.Generation.Tests;
+namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
 
 public sealed class EnumGetDescriptionTests : TestBase
 {
