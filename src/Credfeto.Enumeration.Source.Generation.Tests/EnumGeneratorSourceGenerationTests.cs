@@ -5,12 +5,20 @@ using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Tests;
 
-public sealed class GenerationTests : GeneratorVerifierTestsBase<EnumGenerator>
+public sealed class EnumGeneratorSourceGenerationTests : GeneratorVerifierTestsBase<EnumGenerator>
 {
     [Fact]
     public Task NoEnumsGeneratesNothingAsync()
     {
-        return VerifyAsync(code: @"", Array.Empty<(string filename, string generated)>());
+        const string test = @"
+    namespace ConsoleApplication1
+    {
+        public static class EmptyClass
+        {
+        }
+    }";
+
+        return VerifyAsync(code: test, Array.Empty<(string filename, string generated)>());
     }
 
     [Fact]
