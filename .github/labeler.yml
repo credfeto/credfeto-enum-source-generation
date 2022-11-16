@@ -42,5 +42,7 @@
  - any: [ 'src/Credfeto.Enumeration.Source.Generation.Generics/**/*' ]
 "Models":
  - any: [ 'src/Credfeto.Enumeration.Source.Generation.Models/**/*' ]
+"Models.Tests":
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation.Models.Tests/**/*' ]
 "Tests":
  - any: [ 'src/Credfeto.Enumeration.Source.Generation.Tests/**/*' ]
