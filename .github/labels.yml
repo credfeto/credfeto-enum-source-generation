@@ -134,6 +134,10 @@
    color: "96f7d2"
    description: "Changes in Credfeto.Enumeration.Source.Generation.Models project"
 
+ - name: "Models.Tests"
+   color: "0e8a16"
+   description: "Changes in Credfeto.Enumeration.Source.Generation.Models.Tests project"
+
  - name: "Tests"
    color: "0e8a16"
    description: "Changes in Credfeto.Enumeration.Source.Generation.Tests project"
