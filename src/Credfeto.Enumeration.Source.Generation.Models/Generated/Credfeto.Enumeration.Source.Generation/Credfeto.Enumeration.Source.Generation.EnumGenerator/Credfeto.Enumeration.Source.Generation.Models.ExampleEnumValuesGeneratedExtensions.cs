@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Credfeto.Enumeration.Source.Generation.Models;
 
-[GeneratedCode(tool: "Credfeto.Enumeration.Source.Generation.EnumGenerator", version: "0.0.0.1-do-not-distribute")]
+[GeneratedCode(tool: "Credfeto.Enumeration.Source.Generation.EnumGenerator", version: "1.0.0")]
 public static class ExampleEnumValuesGeneratedExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
