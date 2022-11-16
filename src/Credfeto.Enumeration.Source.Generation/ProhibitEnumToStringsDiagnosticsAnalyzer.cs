@@ -49,7 +49,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         LookForBannedInStringConcatenation(syntaxNodeAnalysisContext);
     }
 
-    private static void LookForExplicitBannedMethods(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    private static void LookForExplicitBannedMethods(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         if (syntaxNodeAnalysisContext.Node is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
         {
@@ -57,7 +57,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         }
     }
 
-    private static void LookForBannedMethod(MemberAccessExpressionSyntax memberAccessExpressionSyntax, SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    private static void LookForBannedMethod(MemberAccessExpressionSyntax memberAccessExpressionSyntax, in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         INamedTypeSymbol? typeInfo = ExtractExpressionSyntax(invocation: memberAccessExpressionSyntax, syntaxNodeAnalysisContext: syntaxNodeAnalysisContext);
 
@@ -78,7 +78,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         }
     }
 
-    private static INamedTypeSymbol? ExtractExpressionSyntax(MemberAccessExpressionSyntax invocation, SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    private static INamedTypeSymbol? ExtractExpressionSyntax(MemberAccessExpressionSyntax invocation, in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         ExpressionSyntax e;
 
@@ -106,7 +106,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         return typeInfo;
     }
 
-    private static void LookForBannedInInterpolatedStrings(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    private static void LookForBannedInInterpolatedStrings(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         if (syntaxNodeAnalysisContext.Node is InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax)
         {
@@ -114,7 +114,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         }
     }
 
-    private static void LookForBannedInInterpolatedStrings(InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax, SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    private static void LookForBannedInInterpolatedStrings(InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax, in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         foreach (InterpolationSyntax part in interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>())
         {
@@ -129,7 +129,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         }
     }
 
-    private static void ReportDiagnostic(ExpressionSyntax expressionSyntax, SyntaxNodeAnalysisContext context)
+    private static void ReportDiagnostic(ExpressionSyntax expressionSyntax, in SyntaxNodeAnalysisContext context)
     {
         context.ReportDiagnostic(Diagnostic.Create(descriptor: Rule, expressionSyntax.GetLocation()));
     }
@@ -163,7 +163,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         return false;
     }
 
-    private static void LookForBannedInStringConcatenation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    private static void LookForBannedInStringConcatenation(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         if (syntaxNodeAnalysisContext.Node is BinaryExpressionSyntax binaryExpressionSyntax && IsAddExpression(binaryExpressionSyntax) && !IsAttributeArgument(binaryExpressionSyntax))
 
@@ -172,7 +172,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         }
     }
 
-    private static void LookForBannedInStringConcatenation(BinaryExpressionSyntax binaryExpressionSyntax, SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    private static void LookForBannedInStringConcatenation(BinaryExpressionSyntax binaryExpressionSyntax, in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         TypeInfo left = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(binaryExpressionSyntax.Left);
         TypeInfo right = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(binaryExpressionSyntax.Right);
