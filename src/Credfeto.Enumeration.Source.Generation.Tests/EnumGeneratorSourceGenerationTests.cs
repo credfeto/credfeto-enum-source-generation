@@ -58,19 +58,16 @@ public static class ExampleEnumGeneratedExtensions
             _ => ThrowArgumentOutOfRangeException(value: value)
         };
     }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string GetDescription(this ExampleEnum value)
     {
         return GetName(value);
     }
-
     public static string ThrowArgumentOutOfRangeException(this ExampleEnum value)
     {
         throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: ""Unknown enum member"");
     }
 }
-
 ")
         };
 

@@ -21,6 +21,11 @@ public sealed class CodeBuilder
 
     public CodeBuilder AppendLine(string text)
     {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return this.AppendBlankLine();
+        }
+
         this._stringBuilder.Append(this.IndentCharacters())
             .AppendLine(text);
 
@@ -64,7 +69,6 @@ public sealed class CodeBuilder
         {
             --this._builder._indent;
             this._builder.AppendLine(this._end);
-            this._builder.AppendLine(string.Empty);
         }
     }
 }
