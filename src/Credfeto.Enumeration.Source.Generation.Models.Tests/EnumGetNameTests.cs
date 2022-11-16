@@ -1,4 +1,5 @@
-﻿using FunFair.Test.Common;
+﻿using System.Net;
+using FunFair.Test.Common;
 using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
@@ -17,5 +18,12 @@ public sealed class EnumGetNameTests : TestBase
     {
         Assert.Equal(expected: "ZERO", ExampleEnumValues.ZERO.GetName());
         Assert.Equal(expected: "THREE", ExampleEnumValues.THREE.GetName());
+    }
+
+    [Fact]
+    public void GetNameForExternalUnAliased()
+    {
+        Assert.Equal(expected: "OK", HttpStatusCode.OK.GetName());
+        Assert.Equal(expected: "Accepted", HttpStatusCode.Accepted.GetName());
     }
 }
