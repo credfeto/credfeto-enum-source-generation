@@ -7,6 +7,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Added
+- Additional tests for code coverage of the generator and generated code
 ### Fixed
 ### Changed
 - FF-1429 - Updated FunFair.Test.Common to 6.0.8.2334
