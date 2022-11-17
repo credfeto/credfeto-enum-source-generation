@@ -128,4 +128,60 @@ public static class ExampleEnumGeneratedExtensions
 
         return VerifyAsync(code: test, expected: expected);
     }
+
+    [Fact]
+    [Obsolete("This is a test of the old way of doing things, it should be removed when the old way is removed")]
+    public Task ExampleEnumGeneratesCodeSkippingObsoleteAsync()
+    {
+        const string test = @"
+    namespace ConsoleApplication1
+    {
+        public enum ExampleEnum
+        {
+            HELLO,
+            WORLD,
+            [Obsolete(""This is a test of the old way of doing things, it should be removed when the old way is removed"")]
+            EVERYONE
+        }
+    }";
+
+        (string filename, string generated)[] expected =
+        {
+            (filename: "ConsoleApplication1.ExampleEnumGeneratedExtensions.cs", generated: @"using System;
+using System.CodeDom.Compiler;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+
+namespace ConsoleApplication1;
+
+[GeneratedCode(tool: ""Credfeto.Enumeration.Source.Generation.EnumGenerator"", version: """ + VersionInformation.Version() + @""")]
+public static class ExampleEnumGeneratedExtensions
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string GetName(this ExampleEnum value)
+    {
+        return value switch
+        {
+            ExampleEnum.HELLO => nameof(ExampleEnum.HELLO),
+            ExampleEnum.WORLD => nameof(ExampleEnum.WORLD),
+            _ => ThrowArgumentOutOfRangeException(value: value)
+        };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string GetDescription(this ExampleEnum value)
+    {
+        return GetName(value);
+    }
+
+    public static string ThrowArgumentOutOfRangeException(this ExampleEnum value)
+    {
+        throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: ""Unknown enum member"");
+    }
+}
+")
+        };
+
+        return VerifyAsync(code: test, expected: expected);
+    }
 }
