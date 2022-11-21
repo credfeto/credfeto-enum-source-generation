@@ -54,7 +54,7 @@ public static class ExampleEnumGeneratedExtensions
         {
             ExampleEnum.HELLO => nameof(ExampleEnum.HELLO),
             ExampleEnum.WORLD => nameof(ExampleEnum.WORLD),
-            _ => ThrowArgumentOutOfRangeException(value: value)
+            _ => ThrowInvalidEnumMemberException(value: value)
         };
     }
 
@@ -64,9 +64,13 @@ public static class ExampleEnumGeneratedExtensions
         return GetName(value);
     }
 
-    public static string ThrowArgumentOutOfRangeException(this ExampleEnum value)
+    public static string ThrowInvalidEnumMemberException(this ExampleEnum value)
     {
+        #if NET7_0_OR_GREATER
+        throw new UnreachableException(message: ""ExampleEnum: Unknown enum member"");
+        #else
         throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: ""Unknown enum member"");
+        #endif
     }
 }
 ")
@@ -108,7 +112,7 @@ public static class ExampleEnumGeneratedExtensions
         {
             ExampleEnum.HELLO => nameof(ExampleEnum.HELLO),
             ExampleEnum.WORLD => nameof(ExampleEnum.WORLD),
-            _ => ThrowArgumentOutOfRangeException(value: value)
+            _ => ThrowInvalidEnumMemberException(value: value)
         };
     }
 
@@ -118,9 +122,13 @@ public static class ExampleEnumGeneratedExtensions
         return GetName(value);
     }
 
-    public static string ThrowArgumentOutOfRangeException(this ExampleEnum value)
+    public static string ThrowInvalidEnumMemberException(this ExampleEnum value)
     {
+        #if NET7_0_OR_GREATER
+        throw new UnreachableException(message: ""ExampleEnum: Unknown enum member"");
+        #else
         throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: ""Unknown enum member"");
+        #endif
     }
 }
 ")
@@ -164,7 +172,7 @@ public static class ExampleEnumGeneratedExtensions
         {
             ExampleEnum.HELLO => nameof(ExampleEnum.HELLO),
             ExampleEnum.WORLD => nameof(ExampleEnum.WORLD),
-            _ => ThrowArgumentOutOfRangeException(value: value)
+            _ => ThrowInvalidEnumMemberException(value: value)
         };
     }
 
@@ -174,9 +182,13 @@ public static class ExampleEnumGeneratedExtensions
         return GetName(value);
     }
 
-    public static string ThrowArgumentOutOfRangeException(this ExampleEnum value)
+    public static string ThrowInvalidEnumMemberException(this ExampleEnum value)
     {
+        #if NET7_0_OR_GREATER
+        throw new UnreachableException(message: ""ExampleEnum: Unknown enum member"");
+        #else
         throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: ""Unknown enum member"");
+        #endif
     }
 }
 ")

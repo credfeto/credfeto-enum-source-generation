@@ -17,7 +17,7 @@ public sealed class EnumGenerator : ISourceGenerator
 {
     private const string GET_NAME_METHOD_NAME = "GetName";
     private const string GET_DESCRIPTION_METHOD_NAME = "GetDescription";
-    private const string INVALID_ENUM_MEMBER_METHOD_NAME = "ThrowInvalidEnumExceptionException";
+    private const string INVALID_ENUM_MEMBER_METHOD_NAME = "ThrowInvalidEnumMemberException";
 
     public void Execute(GeneratorExecutionContext context)
     {
@@ -79,12 +79,14 @@ public sealed class EnumGenerator : ISourceGenerator
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source)
     {
-        return source.AppendLine("using System;")
-                     .AppendLine("using System.CodeDom.Compiler;")
-                     .AppendLine("using System.Diagnostics;")
-                     .AppendLine("using System.Diagnostics.CodeAnalysis;")
-                     .AppendLine("using System.Runtime.CompilerServices;")
-                     .AppendBlankLine();
+        return AddUsingDeclarations(source: source, "System", "System.CodeDom.Compiler", "System.Diagnostics.CodeAnalysis", "System.Runtime.CompilerServices");
+    }
+
+    private static CodeBuilder AddUsingDeclarations(CodeBuilder source, params string[] namespaces)
+    {
+        return namespaces.OrderBy(n => n.ToLowerInvariant())
+                         .Aggregate(seed: source, func: (current, ns) => current.AppendLine($"using {ns};"))
+                         .AppendBlankLine();
     }
 
     private static void GenerateClassForClass(in GeneratorExecutionContext context, ClassEnumGeneration classDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
@@ -154,16 +156,14 @@ public sealed class EnumGenerator : ISourceGenerator
 
         using (source.StartBlock("public static string " + INVALID_ENUM_MEMBER_METHOD_NAME + "(this " + className + " value)"))
         {
-            source.AppendLine("Debug.Fail(message: $\"" + className + ": Unknown enum member of {(int)value}\");");
-
             if (supportsUnreachableException)
             {
-                IssueUnreachableException(source);
+                IssueUnreachableException(source: source, enumDeclaration: enumDeclaration);
             }
             else
             {
                 source.AppendLine("#if NET7_0_OR_GREATER");
-                IssueUnreachableException(source);
+                IssueUnreachableException(source: source, enumDeclaration: enumDeclaration);
                 source.AppendLine("#else");
                 IssueArgumentOutOfRangeException(source);
                 source.AppendLine("#endif");
@@ -176,9 +176,9 @@ public sealed class EnumGenerator : ISourceGenerator
         source.AppendLine("throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: \"Unknown enum member\");");
     }
 
-    private static void IssueUnreachableException(CodeBuilder source)
+    private static void IssueUnreachableException(CodeBuilder source, EnumGeneration enumDeclaration)
     {
-        source.AppendLine("throw new UnreachableException(message: \"This should never be called\");");
+        source.AppendLine("throw new UnreachableException(message: \"" + enumDeclaration.Name + ": Unknown enum member\");");
     }
 
     private static void GenerateGetName(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)

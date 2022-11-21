@@ -28,6 +28,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
     public bool SupportsUnreachableException => this._hasUnreachableException.GetValueOrDefault(false);
 
+
     public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
     {
         if (!this._hasDoesNotReturnAttribute.HasValue)
