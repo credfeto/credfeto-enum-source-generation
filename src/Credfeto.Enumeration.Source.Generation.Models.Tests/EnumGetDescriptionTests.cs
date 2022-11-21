@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using FunFair.Test.Common;
 using Xunit;
@@ -18,6 +19,14 @@ public sealed class EnumGetDescriptionTests : TestBase
     {
         Assert.Equal(expected: "ZERO", ExampleEnumValues.ZERO.GetDescription());
         Assert.Equal(expected: "Two but one better!", ExampleEnumValues.THREE.GetDescription());
+    }
+
+    [Fact]
+    public void GetDescriptionForUnknown()
+    {
+        const ExampleEnumValues unknown = (ExampleEnumValues)72;
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => unknown.GetDescription());
     }
 
     [Fact]

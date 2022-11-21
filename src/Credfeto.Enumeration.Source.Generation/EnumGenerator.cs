@@ -15,6 +15,10 @@ namespace Credfeto.Enumeration.Source.Generation;
 [Generator]
 public sealed class EnumGenerator : ISourceGenerator
 {
+    private const string GET_NAME_METHOD_NAME = "GetName";
+    private const string GET_DESCRIPTION_METHOD_NAME = "GetDescription";
+    private const string INVALID_ENUM_MEMBER_METHOD_NAME = "ThrowInvalidEnumExceptionException";
+
     public void Execute(GeneratorExecutionContext context)
     {
         if (context.SyntaxContextReceiver is not EnumSyntaxReceiver receiver)
@@ -23,15 +27,16 @@ public sealed class EnumGenerator : ISourceGenerator
         }
 
         bool hasDoesNotReturn = receiver.HasDoesNotReturnAttribute;
+        bool supportsUnreachableException = receiver.SupportsUnreachableException;
 
         foreach (EnumGeneration enumDeclaration in receiver.Enums)
         {
-            GenerateClassForEnum(context: context, enumDeclaration: enumDeclaration, hasDoesNotReturn: hasDoesNotReturn);
+            GenerateClassForEnum(context: context, enumDeclaration: enumDeclaration, hasDoesNotReturn: hasDoesNotReturn, supportsUnreachableException: supportsUnreachableException);
         }
 
         foreach (ClassEnumGeneration classDeclaration in receiver.Classes)
         {
-            GenerateClassForClass(context: context, classDeclaration: classDeclaration, hasDoesNotReturn: hasDoesNotReturn);
+            GenerateClassForClass(context: context, classDeclaration: classDeclaration, hasDoesNotReturn: hasDoesNotReturn, supportsUnreachableException: supportsUnreachableException);
         }
     }
 
@@ -41,7 +46,7 @@ public sealed class EnumGenerator : ISourceGenerator
         context.RegisterForSyntaxNotifications(() => new EnumSyntaxReceiver());
     }
 
-    private static void GenerateClassForEnum(in GeneratorExecutionContext context, EnumGeneration enumDeclaration, bool hasDoesNotReturn)
+    private static void GenerateClassForEnum(in GeneratorExecutionContext context, EnumGeneration enumDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
     {
         string className = enumDeclaration.Name + "GeneratedExtensions";
 
@@ -52,7 +57,11 @@ public sealed class EnumGenerator : ISourceGenerator
                      .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{VersionInformation.Version()}\")]")
                      .StartBlock(ConvertAccessType(enumDeclaration.AccessType) + " static class " + className))
         {
-            GenerateMethods(hasDoesNotReturn: hasDoesNotReturn, source: source, attribute: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
+            GenerateMethods(hasDoesNotReturn: hasDoesNotReturn,
+                            supportsUnreachableException: supportsUnreachableException,
+                            source: source,
+                            attribute: enumDeclaration,
+                            classNameFormatter: ClassNameOnlyFormatter);
         }
 
         context.AddSource(enumDeclaration.Namespace + "." + className, sourceText: source.Text);
@@ -72,12 +81,13 @@ public sealed class EnumGenerator : ISourceGenerator
     {
         return source.AppendLine("using System;")
                      .AppendLine("using System.CodeDom.Compiler;")
+                     .AppendLine("using System.Diagnostics;")
                      .AppendLine("using System.Diagnostics.CodeAnalysis;")
                      .AppendLine("using System.Runtime.CompilerServices;")
                      .AppendBlankLine();
     }
 
-    private static void GenerateClassForClass(in GeneratorExecutionContext context, ClassEnumGeneration classDeclaration, bool hasDoesNotReturn)
+    private static void GenerateClassForClass(in GeneratorExecutionContext context, ClassEnumGeneration classDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
     {
         string className = classDeclaration.Name + "GeneratedExtensions";
 
@@ -105,23 +115,35 @@ public sealed class EnumGenerator : ISourceGenerator
 
                 source.AppendLine($"// {attribute.Namespace}.{attribute.Name}");
 
-                GenerateMethods(hasDoesNotReturn: hasDoesNotReturn, source: source, attribute: attribute, classNameFormatter: classNameFormatter);
+                GenerateMethods(hasDoesNotReturn: hasDoesNotReturn,
+                                supportsUnreachableException: supportsUnreachableException,
+                                source: source,
+                                attribute: attribute,
+                                classNameFormatter: classNameFormatter);
             }
         }
 
         context.AddSource(classDeclaration.Namespace + "." + className + ".cs", sourceText: source.Text);
     }
 
-    private static void GenerateMethods(bool hasDoesNotReturn, CodeBuilder source, EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
+    private static void GenerateMethods(bool hasDoesNotReturn, bool supportsUnreachableException, CodeBuilder source, EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
     {
         GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
         GenerateGetDescription(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
-        GenerateThrowNotFound(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter, hasDoesNotReturn: hasDoesNotReturn);
+        GenerateThrowNotFound(source: source,
+                              enumDeclaration: attribute,
+                              classNameFormatter: classNameFormatter,
+                              hasDoesNotReturn: hasDoesNotReturn,
+                              supportsUnreachableException: supportsUnreachableException);
     }
 
-    private static void GenerateThrowNotFound(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter, bool hasDoesNotReturn)
+    private static void GenerateThrowNotFound(CodeBuilder source,
+                                              EnumGeneration enumDeclaration,
+                                              bool supportsUnreachableException,
+                                              Func<EnumGeneration, string> classNameFormatter,
+                                              bool hasDoesNotReturn)
     {
         string className = classNameFormatter(enumDeclaration);
 
@@ -130,10 +152,33 @@ public sealed class EnumGenerator : ISourceGenerator
             source.AppendLine("[DoesNotReturn]");
         }
 
-        using (source.StartBlock("public static string ThrowArgumentOutOfRangeException(this " + className + " value)"))
+        using (source.StartBlock("public static string " + INVALID_ENUM_MEMBER_METHOD_NAME + "(this " + className + " value)"))
         {
-            source.AppendLine("throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: \"Unknown enum member\");");
+            source.AppendLine("Debug.Fail(message: $\"" + className + ": Unknown enum member of {(int)value}\");");
+
+            if (supportsUnreachableException)
+            {
+                IssueUnreachableException(source);
+            }
+            else
+            {
+                source.AppendLine("#if NET7_0_OR_GREATER");
+                IssueUnreachableException(source);
+                source.AppendLine("#else");
+                IssueArgumentOutOfRangeException(source);
+                source.AppendLine("#endif");
+            }
         }
+    }
+
+    private static void IssueArgumentOutOfRangeException(CodeBuilder source)
+    {
+        source.AppendLine("throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: \"Unknown enum member\");");
+    }
+
+    private static void IssueUnreachableException(CodeBuilder source)
+    {
+        source.AppendLine("throw new UnreachableException(message: \"This should never be called\");");
     }
 
     private static void GenerateGetName(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
@@ -141,7 +186,7 @@ public sealed class EnumGenerator : ISourceGenerator
         string className = classNameFormatter(enumDeclaration);
 
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                     .StartBlock("public static string GetName(this " + className + " value)"))
+                     .StartBlock("public static string " + GET_NAME_METHOD_NAME + "(this " + className + " value)"))
         {
             using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
             {
@@ -157,7 +202,7 @@ public sealed class EnumGenerator : ISourceGenerator
                     source.AppendLine(className + "." + member.Name + " => nameof(" + className + "." + member.Name + "),");
                 }
 
-                source.AppendLine("_ => ThrowArgumentOutOfRangeException(value: value)");
+                source.AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
             }
         }
     }
@@ -167,7 +212,7 @@ public sealed class EnumGenerator : ISourceGenerator
         string className = classNameFormatter(enumDeclaration);
 
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                     .StartBlock("public static string GetDescription(this " + className + " value)"))
+                     .StartBlock("public static string " + GET_DESCRIPTION_METHOD_NAME + "(this " + className + " value)"))
         {
             IReadOnlyList<string> items = GetDescriptionCaseOptions(enumDeclaration: enumDeclaration, classNameFormatter: classNameFormatter);
 
@@ -184,7 +229,7 @@ public sealed class EnumGenerator : ISourceGenerator
                         source.AppendLine(line);
                     }
 
-                    source.AppendLine("_ => GetName(value)");
+                    source.AppendLine("_ => " + GET_NAME_METHOD_NAME + "(value)");
                 }
             }
         }
