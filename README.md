@@ -4,7 +4,7 @@ C# Source generator for enums
 
 ## Using
 
-Add a reference to the Credfeto.Enumeration.Source.Generation package in each project.
+Add a reference to the ``Credfeto.Enumeration.Source.Generation`` package in each project you need the code generation to run.
 
 ```xml
 <ItemGroup>
