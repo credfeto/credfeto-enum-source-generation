@@ -7,18 +7,22 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Added
-- Additional tests for code coverage of the generator and generated code
 ### Fixed
 ### Changed
-- FF-1429 - Updated FunFair.Test.Common to 6.0.8.2334
-- FF-1429 - Updated Microsoft.CodeAnalysis.CSharp.Workspaces to 4.4.0
-- FF-1429 - Updated Meziantou.Analyzer to 1.0.750
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.0.0] - 2022-11-22
+### Added
+- Additional tests for code coverage of the generator and generated code
+### Changed
+- FF-1429 - Updated FunFair.Test.Common to 6.0.8.2334
+- FF-1429 - Updated Microsoft.CodeAnalysis.CSharp.Workspaces to 4.4.0
+- FF-1429 - Updated Meziantou.Analyzer to 1.0.750
+
 ## [0.0.8] - 2022-11-09
 ### Changed
 - Use nameof(enum field) rather than the string
