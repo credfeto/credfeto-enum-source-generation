@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Credfeto.Enumeration.Source.Generation.Helpers;
 using Credfeto.Enumeration.Source.Generation.Tests.Verifiers;
@@ -138,7 +139,6 @@ public static class ExampleEnumGeneratedExtensions
     }
 
     [Fact]
-    [Obsolete("This is a test of the old way of doing things, it should be removed when the old way is removed")]
     public Task ExampleEnumGeneratesCodeSkippingObsoleteAsync()
     {
         const string test = @"
@@ -188,6 +188,82 @@ public static class ExampleEnumGeneratedExtensions
     {
         #if NET7_0_OR_GREATER
         throw new UnreachableException(message: ""ExampleEnum: Unknown enum member"");
+        #else
+        throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: ""Unknown enum member"");
+        #endif
+    }
+}
+")
+        };
+
+        return VerifyAsync(code: test, expected: expected);
+    }
+
+    [Fact]
+    [SuppressMessage(category: "Meziantou.Analyzer", checkId: "MA0051:Method too long", Justification = "Test")]
+    public Task ExternalEnumAsync()
+    {
+        const string test = @"
+    using System;
+    using System.Runtime;
+
+    namespace Credfeto.Enumeration.Source.Generation.Attributes
+    {
+        [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+        public sealed class EnumTextAttribute : Attribute
+        {
+            public EnumTextAttribute(Type enumType)
+            {
+                this.Enum = enumType;
+            }
+
+            public Type Enum { get; }
+        }
+    }
+
+    namespace ConsoleApplication1
+    {
+        [Credfeto.Enumeration.Source.Generation.Attributes.EnumText(typeof(System.DateTimeKind))]
+        public static partial class EnumExtensions
+        {
+        }
+    }";
+
+        (string filename, string generated)[] expected =
+        {
+            (filename: "ConsoleApplication1.ExampleEnumGeneratedExtensions.cs", generated: @"using System;
+using System.CodeDom.Compiler;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime;
+using System.Runtime.CompilerServices;
+
+namespace ConsoleApplication1;
+
+[GeneratedCode(tool: ""Credfeto.Enumeration.Source.Generation.EnumGenerator"", version: """ + VersionInformation.Version() + @""")]
+public static partial class EnumExtensions
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string GetName(this System.DateTimeKind value)
+    {
+        return value switch
+        {
+            System.DateTimeKind.Unspecified => nameof(System.DateTimeKind.Unspecified),
+            System.DateTimeKind.Utc => nameof(System.DateTimeKind.Utc),
+            System.DateTimeKind.Local => nameof(System.DateTimeKind.Local),
+            _ => ThrowInvalidEnumMemberException(value: value)
+        };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string GetDescription(this System.DateTimeKind value)
+    {
+        return GetName(value);
+    }
+
+    public static string ThrowInvalidEnumMemberException(this System.DateTimeKind value)
+    {
+        #if NET7_0_OR_GREATER
+        throw new UnreachableException(message: ""DateTimeKind: Unknown enum member"");
         #else
         throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: ""Unknown enum member"");
         #endif
