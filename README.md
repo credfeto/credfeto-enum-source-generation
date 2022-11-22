@@ -10,7 +10,7 @@ Add a reference to the Credfeto.Enumeration.Source.Generation package in each pr
 <ItemGroup>
   <PackageReference 
             Include="Credfeto.Enumeration.Source.Generation" 
-            Version="0.0.2.3" 
+            Version="1.0.0.11" 
             PrivateAssets="All" ExcludeAssets="runtime" />
 </ItemGroup>
 ```
