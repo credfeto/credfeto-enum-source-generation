@@ -231,10 +231,9 @@ public static class ExampleEnumGeneratedExtensions
 
         (string filename, string generated)[] expected =
         {
-            (filename: "ConsoleApplication1.ExampleEnumGeneratedExtensions.cs", generated: @"using System;
+            (filename: "ConsoleApplication1.EnumExtensions.cs", generated: @"using System;
 using System.CodeDom.Compiler;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime;
 using System.Runtime.CompilerServices;
 
 namespace ConsoleApplication1;

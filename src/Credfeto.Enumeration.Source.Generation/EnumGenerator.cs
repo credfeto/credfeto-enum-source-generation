@@ -91,7 +91,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
     private static void GenerateClassForClass(in GeneratorExecutionContext context, ClassEnumGeneration classDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
     {
-        string className = classDeclaration.Name + "GeneratedExtensions";
+        string className = classDeclaration.Name;
 
         CodeBuilder source = AddUsingDeclarations(new());
 
@@ -114,8 +114,6 @@ public sealed class EnumGenerator : ISourceGenerator
                 {
                     source.AppendBlankLine();
                 }
-
-                source.AppendLine($"// {attribute.Namespace}.{attribute.Name}");
 
                 GenerateMethods(hasDoesNotReturn: hasDoesNotReturn,
                                 supportsUnreachableException: supportsUnreachableException,
