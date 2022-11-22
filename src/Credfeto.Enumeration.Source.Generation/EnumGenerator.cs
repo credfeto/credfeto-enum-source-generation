@@ -79,7 +79,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source)
     {
-        return AddUsingDeclarations(source: source, "System", "System.CodeDom.Compiler", "System.Diagnostics.CodeAnalysis", "System.Runtime.CompilerServices");
+        return AddUsingDeclarations(source: source, "System", "System.CodeDom.Compiler", "System.Diagnostics", "System.Diagnostics.CodeAnalysis", "System.Runtime.CompilerServices");
     }
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source, params string[] namespaces)
