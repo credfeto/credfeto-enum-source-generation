@@ -12,6 +12,7 @@ namespace Credfeto.Enumeration.Source.Generation.Receivers;
 public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 {
     private bool? _hasDoesNotReturnAttribute;
+    private bool? _hasUnreachableException;
 
     public EnumSyntaxReceiver()
     {
@@ -25,12 +26,21 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
     public bool HasDoesNotReturnAttribute => this._hasDoesNotReturnAttribute.GetValueOrDefault(false);
 
+    public bool SupportsUnreachableException => this._hasUnreachableException.GetValueOrDefault(false);
+
+
     public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
     {
         if (!this._hasDoesNotReturnAttribute.HasValue)
         {
             this._hasDoesNotReturnAttribute = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
                                                       .IsEmpty;
+        }
+
+        if (!this._hasUnreachableException.HasValue)
+        {
+            this._hasUnreachableException = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.UnreachableException")
+                                                    .IsEmpty;
         }
 
         if (context.Node is EnumDeclarationSyntax enumDeclarationSyntax)
