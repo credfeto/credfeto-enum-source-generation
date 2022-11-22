@@ -530,8 +530,6 @@
         <Rule Id="MA0016" Action="Info"/>
         <!-- MA0026 - Don't leave TODO's scattered around -->
         <Rule Id="MA0026" Action="Info"/>
-        <!-- MA0048 - Naming -->
-        <Rule Id="MA0048" Action="Error"/>
     </Rules>
     <Rules AnalyzerId="Philips.CodeAnalysis.DuplicateCodeAnalyzer" RuleNamespace="Philips.CodeAnalysis.DuplicateCodeAnalyzer">
         <!-- See https://github.com/philips-software/roslyn-analyzers/blob/master/Philips.CodeAnalysis.DuplicateCodeAnalyzer/Philips.CodeAnalysis.DuplicateCodeAnalyzer.md -->
