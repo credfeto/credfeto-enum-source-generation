@@ -142,6 +142,8 @@ public static class ExampleEnumGeneratedExtensions
     public Task ExampleEnumGeneratesCodeSkippingObsoleteAsync()
     {
         const string test = @"
+    using System;
+
     namespace ConsoleApplication1
     {
         public enum ExampleEnum
