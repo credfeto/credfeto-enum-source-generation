@@ -40,6 +40,7 @@ public sealed class EnumGeneratorSourceGenerationTests : GeneratorVerifierTestsB
         {
             (filename: "ConsoleApplication1.ExampleEnumGeneratedExtensions.generated.cs", generated: @"using System;
 using System.CodeDom.Compiler;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -98,6 +99,7 @@ public static class ExampleEnumGeneratedExtensions
         {
             (filename: "ConsoleApplication1.ExampleEnumGeneratedExtensions.generated.cs", generated: @"using System;
 using System.CodeDom.Compiler;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -159,6 +161,7 @@ public static class ExampleEnumGeneratedExtensions
         {
             (filename: "ConsoleApplication1.ExampleEnumGeneratedExtensions.generated.cs", generated: @"using System;
 using System.CodeDom.Compiler;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -233,6 +236,7 @@ public static class ExampleEnumGeneratedExtensions
         {
             (filename: "ConsoleApplication1.EnumExtensions.generated.cs", generated: @"using System;
 using System.CodeDom.Compiler;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -309,6 +313,7 @@ public static partial class EnumExtensions
         {
             (filename: "ConsoleApplication1.EnumExtensions.generated.cs", generated: @"using System;
 using System.CodeDom.Compiler;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
