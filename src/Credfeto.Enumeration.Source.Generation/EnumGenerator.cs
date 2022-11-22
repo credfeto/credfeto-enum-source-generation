@@ -64,7 +64,7 @@ public sealed class EnumGenerator : ISourceGenerator
                             classNameFormatter: ClassNameOnlyFormatter);
         }
 
-        context.AddSource(enumDeclaration.Namespace + "." + className, sourceText: source.Text);
+        context.AddSource(enumDeclaration.Namespace + "." + className + ".generated.cs", sourceText: source.Text);
     }
 
     private static string ClassNameOnlyFormatter(EnumGeneration d)
@@ -123,7 +123,7 @@ public sealed class EnumGenerator : ISourceGenerator
             }
         }
 
-        context.AddSource(classDeclaration.Namespace + "." + className + ".cs", sourceText: source.Text);
+        context.AddSource(classDeclaration.Namespace + "." + className + ".generated.cs", sourceText: source.Text);
     }
 
     private static void GenerateMethods(bool hasDoesNotReturn, bool supportsUnreachableException, CodeBuilder source, EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
