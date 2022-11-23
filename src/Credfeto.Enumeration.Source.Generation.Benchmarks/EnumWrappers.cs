@@ -22,4 +22,15 @@ internal static class EnumWrappers
     {
         return EnumHelpers.GetDescription(value);
     }
+
+
+    [SuppressMessage(category: "ReSharper", checkId: "InvokeAsExtensionMethod", Justification = "This is a benchmark.")]
+    [SuppressMessage(category: "Philips.CodeAnalysis.MaintainabilityAnalyzers", checkId: "PH2073: Call as instance", Justification = "This is a benchmark.")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsDefinedReflectionCached<T>(this T value)
+        where T : Enum
+    {
+        return EnumHelpers.IsDefined(value);
+    }
+
 }

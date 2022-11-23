@@ -49,4 +49,22 @@ public abstract class EnumBench : BenchBase
     {
         this.Test(ExampleEnumValues.ONE.GetDescription());
     }
+
+    [Benchmark]
+    public void IsDefinedCodeReflection()
+    {
+        this.Test(ExampleEnumValues.ONE.IsDefinedReflection());
+    }
+
+    [Benchmark]
+    public void IsDefinedCodeReflectionCached()
+    {
+        this.Test(ExampleEnumValues.ONE.IsDefinedReflectionCached());
+    }
+
+    // [Benchmark]
+    // public void IsDefinedCodeGenerated()
+    // {
+    //     this.Test(ExampleEnumValues.ONE.IsDefined());
+    // }
 }
