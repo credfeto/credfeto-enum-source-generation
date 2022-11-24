@@ -37,8 +37,11 @@ public enum ExampleEnumValues
 To get the name and value of the enum values. In release mode this can be practically instant.
 
 ```csharp
- string name = ExampleEnumValues.ONE.GetName(); // ONE
- string description = ExampleEnumValues.ONE.GetDescription(); // One "1"
+ExampleEnumValues value = ExampleEnumValues.ONE;
+ string name = value.GetName(); // ONE
+ string description = value.GetDescription(); // One "1"
+ bool isDefined = value.IsDefine(); // true
+ bool isNotDefined = ((ExampleEnumValues)42).IsDefine(); // false
 ```
 
 ## Enums in other assemblies
@@ -71,23 +74,34 @@ Will generate the same extension methods, but for the types nominated in the att
 Benchmarks are in the Benchmark.net project ``Credfeto.Enumeration.Source.Generation.Benchmarks``, with a summary of a
 run below.
 
-|                         Method |          Mean |      Error |     StdDev | Allocated |
-|------------------------------- |--------------:|-----------:|-----------:|----------:|
-|                GetNameToString |    24.4628 ns |  0.3071 ns |  0.2723 ns |      24 B |
-|              GetNameReflection |    42.8955 ns |  0.2418 ns |  0.2144 ns |      24 B |
-|        GetNameCachedReflection |    32.1275 ns |  0.2462 ns |  0.2056 ns |      24 B |
-|           GetNameCodeGenerated |     0.0000 ns |  0.0000 ns |  0.0000 ns |         - |
-|       GetDescriptionReflection | 1,439.7767 ns | 28.2353 ns | 27.7308 ns |     264 B |
-| GetDescriptionCachedReflection |    31.9541 ns |  0.3890 ns |  0.3249 ns |      24 B |
-|    GetDescriptionCodeGenerated |     0.0000 ns |  0.0000 ns |  0.0000 ns |         - |
+|                         Method |          Mean |      Error |     StdDev |        Median | Allocated |
+|------------------------------- |--------------:|-----------:|-----------:|--------------:|----------:|
+|                GetNameToString |    25.5162 ns |  0.4146 ns |  0.3675 ns |    25.5322 ns |      24 B |
+|              GetNameReflection |    37.8875 ns |  0.3971 ns |  0.3520 ns |    37.8542 ns |      24 B |
+|        GetNameCachedReflection |    21.6571 ns |  0.4514 ns |  0.3770 ns |    21.6841 ns |      24 B |
+|           GetNameCodeGenerated |     0.0009 ns |  0.0039 ns |  0.0036 ns |     0.0000 ns |         - |
+|       GetDescriptionReflection | 1,380.4979 ns | 15.1089 ns | 13.3937 ns | 1,382.9476 ns |     264 B |
+| GetDescriptionCachedReflection |    22.8844 ns |  0.3856 ns |  0.3607 ns |    22.8364 ns |      24 B |
+|    GetDescriptionCodeGenerated |     0.0035 ns |  0.0057 ns |  0.0053 ns |     0.0000 ns |         - |
+|        IsDefinedCodeReflection |    48.7961 ns |  0.9675 ns |  1.0352 ns |    48.5573 ns |      24 B |
+|  IsDefinedCodeReflectionCached |    21.4452 ns |  0.3169 ns |  0.2965 ns |    21.3938 ns |      24 B |
+|         IsDefinedCodeGenerated |     0.0012 ns |  0.0041 ns |  0.0037 ns |     0.0000 ns |         - |
+
 
 ```
 // * Warnings *
 ZeroMeasurement
-EnumBench.GetNameCodeGenerated: Default -> The method duration is indistinguishable from the empty method duration
-EnumBench.GetDescriptionCodeGenerated: Default -> The method duration is indistinguishable from the empty method
-duration
+  EnumBench.GetNameCodeGenerated: Default        -> The method duration is indistinguishable from the empty method duration
+  EnumBench.GetDescriptionCodeGenerated: Default -> The method duration is indistinguishable from the empty method duration
+  EnumBench.IsDefinedCodeGenerated: Default      -> The method duration is indistinguishable from the empty method duration
 
+// * Legends *
+  Mean      : Arithmetic mean of all measurements
+  Error     : Half of 99.9% confidence interval
+  StdDev    : Standard deviation of all measurements
+  Median    : Value separating the higher half of all measurements (50th percentile)
+  Allocated : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  1 ns      : 1 Nanosecond (0.000000001 sec)
 ```
 
 ## Viewing Compiler Generated files

@@ -62,9 +62,9 @@ public abstract class EnumBench : BenchBase
         this.Test(ExampleEnumValues.ONE.IsDefinedReflectionCached());
     }
 
-    // [Benchmark]
-    // public void IsDefinedCodeGenerated()
-    // {
-    //     this.Test(ExampleEnumValues.ONE.IsDefined());
-    // }
+    [Benchmark]
+    public void IsDefinedCodeGenerated()
+    {
+        this.Test(ExampleEnumValues.ONE.IsDefined());
+    }
 }

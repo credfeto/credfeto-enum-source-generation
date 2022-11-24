@@ -15,6 +15,7 @@ namespace Credfeto.Enumeration.Source.Generation;
 [Generator]
 public sealed class EnumGenerator : ISourceGenerator
 {
+    private const string IS_DEFINED_METHOD_NAME = nameof(Enum.IsDefined);
     private const string GET_NAME_METHOD_NAME = "GetName";
     private const string GET_DESCRIPTION_METHOD_NAME = "GetDescription";
     private const string INVALID_ENUM_MEMBER_METHOD_NAME = "ThrowInvalidEnumMemberException";
@@ -132,6 +133,8 @@ public sealed class EnumGenerator : ISourceGenerator
         source.AppendBlankLine();
         GenerateGetDescription(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
+        GenerateIsDefined(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
+        source.AppendBlankLine();
         GenerateThrowNotFound(source: source,
                               enumDeclaration: attribute,
                               classNameFormatter: classNameFormatter,
@@ -188,20 +191,57 @@ public sealed class EnumGenerator : ISourceGenerator
         {
             using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
             {
-                HashSet<string> names = UniqueEnumMemberNames(enumDeclaration);
-
-                foreach (IFieldSymbol member in enumDeclaration.Members)
-                {
-                    if (IsSkipEnumValue(member: member, names: names) || member.HasObsoleteAttribute())
-                    {
-                        continue;
-                    }
-
-                    source.AppendLine(className + "." + member.Name + " => nameof(" + className + "." + member.Name + "),");
-                }
-
-                source.AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
+                UniqueMembers(enumDeclaration)
+                    .Select(member => member.Name)
+                    .Aggregate(seed: source, func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
+                    .AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
             }
+        }
+    }
+
+    private static void GenerateIsDefined(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    {
+        string className = classNameFormatter(enumDeclaration);
+
+        using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+                     .StartBlock("public static bool " + IS_DEFINED_METHOD_NAME + "(this " + className + " value)"))
+        {
+            IReadOnlyList<string> members = UniqueMembers(enumDeclaration)
+                                            .Select(member => className + "." + member.Name)
+                                            .ToArray();
+
+            switch (members.Count)
+            {
+                case 0:
+                    source.AppendLine("return false;");
+
+                    break;
+                case 1:
+                    source.AppendLine("return value == " + members[0] + ";");
+
+                    break;
+                default:
+                {
+                    source.AppendLine("return value is " + string.Join(separator: " or ", values: members) + ";");
+
+                    break;
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<IFieldSymbol> UniqueMembers(EnumGeneration enumDeclaration)
+    {
+        HashSet<string> names = UniqueEnumMemberNames(enumDeclaration);
+
+        foreach (IFieldSymbol member in enumDeclaration.Members)
+        {
+            if (IsSkipEnumValue(member: member, names: names) || member.HasObsoleteAttribute())
+            {
+                continue;
+            }
+
+            yield return member;
         }
     }
 
