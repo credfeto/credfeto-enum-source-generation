@@ -89,6 +89,63 @@ public static class ExampleEnumGeneratedExtensions
     }
 
     [Fact]
+    public Task ExampleEnumWithNoMembersGeneratesSaneCodeAsync()
+    {
+        const string test = @"
+    namespace ConsoleApplication1
+    {
+        public enum ExampleEnum
+        {
+        }
+    }";
+
+        (string filename, string generated)[] expected =
+        {
+            (filename: "ConsoleApplication1.ExampleEnumGeneratedExtensions.generated.cs", generated: @"using System;
+using System.CodeDom.Compiler;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+
+namespace ConsoleApplication1;
+
+[GeneratedCode(tool: ""Credfeto.Enumeration.Source.Generation.EnumGenerator"", version: """ + VersionInformation.Version() + @""")]
+public static class ExampleEnumGeneratedExtensions
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string GetName(this ExampleEnum value)
+    {
+        return ThrowInvalidEnumMemberException(value: value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string GetDescription(this ExampleEnum value)
+    {
+        return GetName(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsDefined(this ExampleEnum value)
+    {
+        return false;
+    }
+
+    public static string ThrowInvalidEnumMemberException(this ExampleEnum value)
+    {
+        #if NET7_0_OR_GREATER
+        throw new UnreachableException(message: ""ExampleEnum: Unknown enum member"");
+        #else
+        throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: ""Unknown enum member"");
+        #endif
+    }
+}
+")
+        };
+
+        return VerifyAsync(code: test, expected: expected);
+    }
+
+    [Fact]
     public Task ExampleEnumGeneratesCodeWithAliasAsync()
     {
         const string test = @"

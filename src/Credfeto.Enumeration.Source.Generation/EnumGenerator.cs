@@ -189,12 +189,21 @@ public sealed class EnumGenerator : ISourceGenerator
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                      .StartBlock("public static string " + GET_NAME_METHOD_NAME + "(this " + className + " value)"))
         {
-            using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
+            IReadOnlyList<string> members = UniqueMembers(enumDeclaration)
+                                            .Select(member => member.Name)
+                                            .ToArray();
+
+            if (members.Count == 0)
             {
-                UniqueMembers(enumDeclaration)
-                    .Select(member => member.Name)
-                    .Aggregate(seed: source, func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
-                    .AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
+                source.AppendLine("return " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value);");
+            }
+            else
+            {
+                using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
+                {
+                    members.Aggregate(seed: source, func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
+                           .AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
+                }
             }
         }
     }
