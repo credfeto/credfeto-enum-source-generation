@@ -7,6 +7,7 @@ using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Tests;
 
+[SuppressMessage(category: "Meziantou.Analyzer", checkId: "MA0051:Method too long", Justification = "Test")]
 public sealed class EnumGeneratorSourceGenerationTests : GeneratorVerifierTestsBase<EnumGenerator>
 {
     [Fact]
@@ -66,6 +67,12 @@ public static class ExampleEnumGeneratedExtensions
         return GetName(value);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsDefined(this ExampleEnum value)
+    {
+        return value is ExampleEnum.HELLO or ExampleEnum.WORLD;
+    }
+
     public static string ThrowInvalidEnumMemberException(this ExampleEnum value)
     {
         #if NET7_0_OR_GREATER
@@ -123,6 +130,12 @@ public static class ExampleEnumGeneratedExtensions
     public static string GetDescription(this ExampleEnum value)
     {
         return GetName(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsDefined(this ExampleEnum value)
+    {
+        return value is ExampleEnum.HELLO or ExampleEnum.WORLD;
     }
 
     public static string ThrowInvalidEnumMemberException(this ExampleEnum value)
@@ -187,6 +200,12 @@ public static class ExampleEnumGeneratedExtensions
         return GetName(value);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsDefined(this ExampleEnum value)
+    {
+        return value is ExampleEnum.HELLO or ExampleEnum.WORLD;
+    }
+
     public static string ThrowInvalidEnumMemberException(this ExampleEnum value)
     {
         #if NET7_0_OR_GREATER
@@ -203,7 +222,6 @@ public static class ExampleEnumGeneratedExtensions
     }
 
     [Fact]
-    [SuppressMessage(category: "Meziantou.Analyzer", checkId: "MA0051:Method too long", Justification = "Test")]
     public Task ExternalSingleEnumAsync()
     {
         const string test = @"
@@ -261,6 +279,12 @@ public static partial class EnumExtensions
     public static string GetDescription(this System.DateTimeKind value)
     {
         return GetName(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsDefined(this System.DateTimeKind value)
+    {
+        return value is System.DateTimeKind.Unspecified or System.DateTimeKind.Utc or System.DateTimeKind.Local;
     }
 
     public static string ThrowInvalidEnumMemberException(this System.DateTimeKind value)
@@ -340,6 +364,12 @@ public static partial class EnumExtensions
         return GetName(value);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsDefined(this System.DateTimeKind value)
+    {
+        return value is System.DateTimeKind.Unspecified or System.DateTimeKind.Utc or System.DateTimeKind.Local;
+    }
+
     public static string ThrowInvalidEnumMemberException(this System.DateTimeKind value)
     {
         #if NET7_0_OR_GREATER
@@ -368,6 +398,12 @@ public static partial class EnumExtensions
     public static string GetDescription(this System.StringComparison value)
     {
         return GetName(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsDefined(this System.StringComparison value)
+    {
+        return value is System.StringComparison.CurrentCulture or System.StringComparison.CurrentCultureIgnoreCase or System.StringComparison.InvariantCulture or System.StringComparison.InvariantCultureIgnoreCase or System.StringComparison.Ordinal or System.StringComparison.OrdinalIgnoreCase;
     }
 
     public static string ThrowInvalidEnumMemberException(this System.StringComparison value)
