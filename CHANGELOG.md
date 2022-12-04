@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - FF-1429 - Updated FunFair.Test.Common to 6.0.9.2379
 - FF-1429 - Updated Meziantou.Analyzer to 1.0.756
 - FF-1429 - Updated Roslynator.Analyzers to 4.2.0
+- FF-1429 - Updated xunit.analyzers to 1.1.0
 ### Removed
 ### Deployment Changes
 
