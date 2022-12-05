@@ -10,11 +10,11 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - IsDefined extension method as an optimised Enum.IsDefined alternative
 ### Fixed
 ### Changed
-- FF-1429 - Updated SonarAnalyzer.CSharp to 8.49.0.57237
 - FF-1429 - Updated FunFair.Test.Common to 6.0.9.2379
 - FF-1429 - Updated Meziantou.Analyzer to 1.0.756
 - FF-1429 - Updated Roslynator.Analyzers to 4.2.0
 - FF-1429 - Updated xunit.analyzers to 1.1.0
+- FF-1429 - Updated SonarAnalyzer.CSharp to 8.50.0.58025
 ### Removed
 ### Deployment Changes
 
