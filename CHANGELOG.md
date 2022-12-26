@@ -9,15 +9,18 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- FF-1429 - Updated FunFair.Test.Common to 6.0.12.2443
-- FF-1429 - Updated SonarAnalyzer.CSharp to 8.51.0.59060
-- FF-1429 - Updated BenchmarkDotNet to 0.13.3
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.0.3] - 2022-12-26
+### Changed
+- FF-1429 - Updated FunFair.Test.Common to 6.0.12.2443
+- FF-1429 - Updated SonarAnalyzer.CSharp to 8.51.0.59060
+- FF-1429 - Updated BenchmarkDotNet to 0.13.3
+
 ## [1.0.2] - 2022-12-16
 ### Changed
 - FF-1429 - Updated FunFair.Test.Common to 6.0.11.2429
