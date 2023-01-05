@@ -64,7 +64,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.4.33" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Nullable.Extended.Analyzer" Version="1.10.4539" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Philips.CodeAnalysis.DuplicateCodeAnalyzer" Version="1.1.7" PrivateAssets="All" ExcludeAssets="runtime" />
-    <PackageReference Include="Philips.CodeAnalysis.MaintainabilityAnalyzers" Version="1.2.30" PrivateAssets="All" ExcludeAssets="runtime" />
+    <PackageReference Include="Philips.CodeAnalysis.MaintainabilityAnalyzers" Version="1.2.32" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.2.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="SmartAnalyzers.CSharpExtensions.Annotations" Version="4.2.7" PrivateAssets="All" ExcludeAssets="runtime" />
