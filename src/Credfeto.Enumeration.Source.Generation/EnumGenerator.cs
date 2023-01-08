@@ -85,7 +85,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source, params string[] namespaces)
     {
-        return namespaces.OrderBy(n => n.ToLowerInvariant())
+        return namespaces.OrderBy(keySelector: n => n, comparer: StringComparer.OrdinalIgnoreCase)
                          .Aggregate(seed: source, func: (current, ns) => current.AppendLine($"using {ns};"))
                          .AppendBlankLine();
     }
