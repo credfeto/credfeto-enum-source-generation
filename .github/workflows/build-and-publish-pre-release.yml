@@ -150,11 +150,11 @@ jobs:
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Zip Packages for Octopus (x64)
         working-directory: ./src/server-dist/x64
-        run: zip -9r "../../../${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64.${{env.BUILD_VERSION}}.zip" . -x *.pdb
+        run: zip -9r "../../../${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64.${{env.BUILD_VERSION}}.zip" . -x -- *.pdb
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Zip Packages for Octopus (arm64)
         working-directory: ./src/server-dist/arm64
-        run: zip -9r "../../../${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64.${{env.BUILD_VERSION}}.zip" . -x *.pdb
+        run: zip -9r "../../../${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64.${{env.BUILD_VERSION}}.zip" . -x -- *.pdb
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Push package to Octopus
         run: octo push --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64.${{env.BUILD_VERSION}}.zip" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64.${{env.BUILD_VERSION}}.zip" --server="${{env.OCTOPUS_SERVER}}" --apiKey="${{env.OCTOPUS_API_KEY}}" --enableServiceMessages --debug --overwrite-mode=IgnoreIfExists
