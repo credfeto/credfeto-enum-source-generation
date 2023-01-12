@@ -9,10 +9,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- FF-1429 - Updated FunFair.Test.Common to 6.0.14.2474
 - FF-1429 - Updated Microsoft.VisualStudio.Threading.Analyzers to 17.4.33
 - FF-1429 - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.2.32
 - FF-1429 - Updated Meziantou.Analyzer to 2.0.5
+- FF-1429 - Updated FunFair.Test.Common to 6.0.15.2520
 ### Removed
 ### Deployment Changes
 
