@@ -27,6 +27,7 @@ jobs:
       OCTOPUS_API_KEY: ${{secrets.OCTOPUS_API_KEY}}
       NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
       NUGET_FEED: ${{secrets.NUGET_FEED}}
+      NUGET_ADDITIONAL_RESTORE_FEED: ${{secrets.NUGET_ADDITIONAL_RESTORE_FEED}}
       DOTNET_NOLOGO: true
       DOTNET_PRINT_TELEMETRY_MESSAGE: false
       DOTNET_ReadyToRun: 0
@@ -95,6 +96,9 @@ jobs:
           path: RELEASE_NOTES.md
 
       # BUILD DOTNET
+      - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.NUGET_ADDITIONAL_RESTORE_FEED != ''}}
+        name: Add optional nuget feed
+        run: dotnet nuget add source --name Additional1 "${{env.NUGET_ADDITIONAL_RESTORE_FEED}}"
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true'}}
         uses: actions/cache@v3
         with:
