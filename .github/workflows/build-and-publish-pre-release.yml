@@ -167,9 +167,6 @@ jobs:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
-        #run: octo push --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64.${{env.BUILD_VERSION}}.zip" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64.${{env.BUILD_VERSION}}.zip" --server="${{env.OCTOPUS_SERVER}}" --apiKey="${{env.OCTOPUS_API_KEY}}" --enableServiceMessages --debug --overwrite-mode=IgnoreIfExists
-
-
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
         name: Create Octopus Release
         run: octopus release create --no-prompt --project "${{env.OCTOPUS_PROJECT}}" --version "${{env.BUILD_VERSION}}" --channel "${{env.OCTOPUS_CHANNEL}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64:${{env.BUILD_VERSION}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
@@ -177,14 +174,10 @@ jobs:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
-        #env --server="${{secrets.OCTOPUS_SERVER}}" --apiKey="${{secrets.OCTOPUS_API_KEY}}"
-        #run: octo create-release --project"${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64:${{env.BUILD_VERSION}}" --deployTo="${{env.OCTOPUS_DEPLOY_TO}}" --server="${{secrets.OCTOPUS_SERVER}}" --apiKey="${{secrets.OCTOPUS_API_KEY}}" --enableServiceMessages --debug --releaseNotesFile="RELEASE_NOTES.md"
-
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
-        name: Create Octopus Release
+        name: Deploy Octopus Release
         run: octopus release deploy --no-prompt --project "${{env.OCTOPUS_PROJECT}}" --version "${{env.BUILD_VERSION}}" --environment "${{env.OCTOPUS_DEPLOY_TO}}"
         env:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
-        # ??  --deployTo="${{env.OCTOPUS_DEPLOY_TO}}"
