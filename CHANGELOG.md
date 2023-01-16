@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - FF-1429 - Updated Microsoft.VisualStudio.Threading.Analyzers to 17.4.33
 - FF-1429 - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.2.32
+- FF-3881 - Updated DotNet SDK to 7.0.102
 - FF-1429 - Updated FunFair.Test.Common to 6.0.15.2520
 - FF-1429 - Updated BenchmarkDotNet to 0.13.4
 - FF-1429 - Updated Meziantou.Analyzer to 2.0.7
