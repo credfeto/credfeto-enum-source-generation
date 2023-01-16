@@ -13,7 +13,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - FF-1429 - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.2.32
 - FF-1429 - Updated FunFair.Test.Common to 6.0.15.2520
 - FF-1429 - Updated BenchmarkDotNet to 0.13.4
-- FF-1429 - Updated Meziantou.Analyzer to 2.0.6
+- FF-1429 - Updated Meziantou.Analyzer to 2.0.7
 ### Removed
 ### Deployment Changes
 
