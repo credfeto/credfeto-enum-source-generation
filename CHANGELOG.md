@@ -14,7 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - FF-3881 - Updated DotNet SDK to 7.0.102
 - FF-1429 - Updated FunFair.Test.Common to 6.0.15.2520
 - FF-1429 - Updated BenchmarkDotNet to 0.13.4
-- FF-1429 - Updated Meziantou.Analyzer to 2.0.7
+- FF-1429 - Updated Meziantou.Analyzer to 2.0.8
 ### Removed
 ### Deployment Changes
 
