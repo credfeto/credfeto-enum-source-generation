@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - FF-1429 - Updated FunFair.Test.Common to 6.0.16.2535
+- FF-1429 - Updated Microsoft.CodeAnalysis.Analyzers to 3.3.4
 ### Removed
 ### Deployment Changes
 
