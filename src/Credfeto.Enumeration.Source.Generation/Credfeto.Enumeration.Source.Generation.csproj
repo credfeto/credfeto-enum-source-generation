@@ -4,6 +4,7 @@
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <EnablePackageValidation>true</EnablePackageValidation>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <Features>strict;flow-analysis</Features>
     <GenerateNeutralResourcesLanguageAttribute>true</GenerateNeutralResourcesLanguageAttribute>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
