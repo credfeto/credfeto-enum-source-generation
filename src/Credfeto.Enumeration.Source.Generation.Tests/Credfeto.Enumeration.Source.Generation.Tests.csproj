@@ -41,7 +41,7 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FunFair.Test.Common" Version="6.0.16.2535" />
+    <PackageReference Include="FunFair.Test.Common" Version="6.0.17.2561" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
     <PackageReference Include="NSubstitute" Version="4.4.0" />
