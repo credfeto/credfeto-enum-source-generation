@@ -10,8 +10,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - FF-1429 - Updated Microsoft.CodeAnalysis.Analyzers to 3.3.4
-- FF-1429 - Updated Meziantou.Analyzer to 2.0.9
 - FF-1429 - Updated FunFair.Test.Common to 6.0.17.2561
+- FF-1429 - Updated Meziantou.Analyzer to 2.0.10
 ### Removed
 ### Deployment Changes
 
