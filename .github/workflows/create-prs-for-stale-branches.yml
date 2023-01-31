@@ -74,7 +74,7 @@ jobs:
         run: echo "On non-default branch"
 
       - if: ${{steps.detection.outputs.defaultbranch != matrix.branch}}
-        uses: juliangruber/find-pull-request-action@v1.7.2
+        uses: juliangruber/find-pull-request-action@v1.8.0
         id: find-pull-request
         with:
           branch: "${{env.BRANCH}}"
