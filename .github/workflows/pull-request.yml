@@ -28,7 +28,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - uses: juliangruber/find-pull-request-action@v1.7.2
+      - uses: juliangruber/find-pull-request-action@v1.8.0
         id: findPr
         with:
           branch: ${{github.ref_name}}
