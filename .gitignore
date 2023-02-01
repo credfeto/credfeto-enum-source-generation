@@ -356,3 +356,6 @@ src/Data
 
 # Jetbrains
 /.idea/
+
+# Lock files
+*.lock
