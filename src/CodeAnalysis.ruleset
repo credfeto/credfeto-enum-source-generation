@@ -527,7 +527,7 @@
         <!-- MA0002 - IEqualityComparer<string> or IComparer<string> is missing	warning	-->
         <Rule Id="MA0002" Action="Error"/>
         <!-- MA0003	-Add parameter name to improve readability -->
-        <Rule Id="MA0003" Action="Error"/>
+        <Rule Id="MA0003" Action="None"/>
         <!-- MA0004 - Use ConfigureAwait(false) as the current SynchronizationContext is not needed -->
         <Rule Id="MA0004" Action="None"/>
         <!-- MA0005 - Use Array.Empty<T>() -->
@@ -595,7 +595,7 @@
         <!-- MA0037 - Remove empty statement -->
         <Rule Id="MA0037" Action="Error"/>
         <!-- MA0038 - Make method static -->
-        <Rule Id="MA0038" Action="Error"/>
+        <Rule Id="MA0038" Action="None"/>
         <!-- MA0039 - Do not write your own certificate validation method -->
         <Rule Id="MA0039" Action="Error"/>
         <!-- MA0040 - Forward the CancellationToken parameter to methods that take one -->
@@ -733,7 +733,7 @@
         <!-- MA0106 - Avoid closure by using an overload with the 'factoryArgument' parameter -->
         <Rule Id="MA0106" Action="Error"/>
         <!-- MA0107 - Do not use culture-sensitive object.ToString -->
-        <Rule Id="MA0107" Action="Error"/>
+        <Rule Id="MA0107" Action="None"/>
         <!-- MA0108 - Remove redundant argument value -->
         <Rule Id="MA0108" Action="Error"/>
         <!-- MA0109 - Consider adding an overload with a Span<T> or Memory<T> -->
