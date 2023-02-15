@@ -601,7 +601,7 @@
         <!-- MA0040 - Forward the CancellationToken parameter to methods that take one -->
         <Rule Id="MA0040" Action="Error"/>
         <!-- MA0041 - Make property static -->
-        <Rule Id="MA0041" Action="Error"/>
+        <Rule Id="MA0041" Action="None"/>
         <!-- MA0042 - Do not use blocking calls in an async method -->
         <Rule Id="MA0042" Action="Error"/>
         <!-- MA0043 - Use nameof operator in ArgumentException -->
