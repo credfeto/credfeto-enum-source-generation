@@ -17,7 +17,7 @@ env:
   BASE_REF: ${{github.base_ref}}
 jobs:
   info:
-    if: ${{endsWith(github.repository , '-template')}}
+    if: ${{endsWith(github.repository, '-template')}}
     runs-on: ubuntu-latest
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
@@ -36,7 +36,7 @@ jobs:
         with:
           fetch-depth: 0
       - if: |-
-          ${{!endsWith(github.repository , '-template')
+          ${{!endsWith(github.repository, '-template')
           && !startsWith(github.head_ref, 'release/')
           && !startsWith(github.head_ref, 'hotfix/')}}
         uses: seferov/pr-lint-action@v1.2.0
