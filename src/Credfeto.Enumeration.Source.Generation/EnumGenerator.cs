@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using Credfeto.Enumeration.Source.Generation.Builders;
@@ -360,7 +361,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
         foreach (SyntaxReference dsr in member.DeclaringSyntaxReferences)
         {
-            syntax = dsr.GetSyntax(CancellationToken.None) as EnumMemberDeclarationSyntax;
+            syntax = GetSyntax(dsr);
 
             if (syntax != null)
             {
@@ -369,6 +370,12 @@ public sealed class EnumGenerator : ISourceGenerator
         }
 
         return syntax;
+    }
+
+    [SuppressMessage(category: "Meziantou.Analyzer", checkId: "MA0045:Use async override", Justification = "Calling code is not async")]
+    private static EnumMemberDeclarationSyntax? GetSyntax(SyntaxReference dsr)
+    {
+        return dsr.GetSyntax(CancellationToken.None) as EnumMemberDeclarationSyntax;
     }
 
     private static HashSet<string> UniqueEnumMemberNames(EnumGeneration enumDeclaration)
