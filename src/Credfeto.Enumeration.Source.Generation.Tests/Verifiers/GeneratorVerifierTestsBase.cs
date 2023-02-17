@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FunFair.Test.Common;
 using Microsoft.CodeAnalysis;
@@ -23,6 +24,6 @@ public abstract class GeneratorVerifierTestsBase<TSourceGenerator> : TestBase
             t.TestState.GeneratedSources.Add(item);
         }
 
-        return t.RunAsync();
+        return t.RunAsync(CancellationToken.None);
     }
 }

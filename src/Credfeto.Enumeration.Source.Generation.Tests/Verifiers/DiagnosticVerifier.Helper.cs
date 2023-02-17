@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Credfeto.Enumeration.Source.Generation.Tests.Exceptions;
 using Microsoft.CodeAnalysis;
@@ -70,7 +72,7 @@ public abstract partial class DiagnosticVerifier
 
         foreach (Project project in projects)
         {
-            Compilation? compilation = await project.GetCompilationAsync();
+            Compilation? compilation = await project.GetCompilationAsync(CancellationToken.None);
 
             if (compilation == null)
             {
@@ -79,7 +81,7 @@ public abstract partial class DiagnosticVerifier
 
             EnsureNoCompilationErrors(compilation);
 
-            CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers(IaHelper.For(analyzer));
+            CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers(IaHelper.For(analyzer), options: null, cancellationToken: CancellationToken.None);
             diagnostics = await CollectDiagnosticsAsync(documents: documents, compilationWithAnalyzers: compilationWithAnalyzers);
         }
 
@@ -88,7 +90,7 @@ public abstract partial class DiagnosticVerifier
 
     private static async Task<IReadOnlyList<Diagnostic>> CollectDiagnosticsAsync(IReadOnlyList<Document> documents, CompilationWithAnalyzers compilationWithAnalyzers)
     {
-        IReadOnlyList<Diagnostic> diags = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
+        IReadOnlyList<Diagnostic> diags = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync(CancellationToken.None);
 
         return await ExtractDiagnosticsAsync(documents: documents, diags: diags);
     }
@@ -127,7 +129,7 @@ public abstract partial class DiagnosticVerifier
 
     private static async Task<bool> ShouldAddDiagnosticAsync(Document document, Diagnostic diag)
     {
-        SyntaxTree? tree = await document.GetSyntaxTreeAsync();
+        SyntaxTree? tree = await document.GetSyntaxTreeAsync(CancellationToken.None);
         bool add = tree != null && tree == diag.Location.SourceTree;
 
         return add;
@@ -135,7 +137,7 @@ public abstract partial class DiagnosticVerifier
 
     private static void EnsureNoCompilationErrors(Compilation compilation)
     {
-        IReadOnlyList<Diagnostic> compilerErrors = compilation.GetDiagnostics();
+        IReadOnlyList<Diagnostic> compilerErrors = compilation.GetDiagnostics(CancellationToken.None);
 
         if (compilerErrors.Count != 0)
         {
@@ -222,7 +224,7 @@ public abstract partial class DiagnosticVerifier
 
         foreach (string source in sources)
         {
-            string newFileName = fileNamePrefix + count + "." + fileExt;
+            string newFileName = fileNamePrefix + count.ToString(CultureInfo.InvariantCulture) + "." + fileExt;
             DocumentId documentId = DocumentId.CreateNewId(projectId: projectId, debugName: newFileName);
             solution = solution.AddDocument(documentId: documentId, name: newFileName, SourceText.From(source));
             count++;

@@ -45,7 +45,8 @@ public abstract partial class DiagnosticVerifier : TestBase
         foreach (Diagnostic diagnostic in diagnostics)
         {
             builder = builder.Append("// ")
-                             .AppendLine(diagnostic.ToString());
+                             .Append(diagnostic)
+                             .AppendLine();
 
             Type analyzerType = analyzer.GetType();
             IReadOnlyList<DiagnosticDescriptor> rules = analyzer.SupportedDiagnostics;
@@ -112,6 +113,7 @@ public abstract partial class DiagnosticVerifier : TestBase
     /// <param name="source">A class in the form of a string to run the analyzer on</param>
     /// <param name="references">The project/assemblies that are referenced by the code.</param>
     /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source</param>
+    [SuppressMessage(category: "Meziantou.Analyzer", checkId: "MA0109:Use span", Justification = "doesn't need to be")]
     protected Task VerifyCSharpDiagnosticAsync(string source, MetadataReference[] references, params DiagnosticResult[] expected)
     {
         DiagnosticAnalyzer? diagnostic = this.GetCSharpDiagnosticAnalyzer();
@@ -134,6 +136,7 @@ public abstract partial class DiagnosticVerifier : TestBase
     /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
     /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
     [SuppressMessage(category: "ReSharper", checkId: "UnusedMember.Global", Justification = "May be needed in future")]
+    [SuppressMessage(category: "Meziantou.Analyzer", checkId: "MA0109:Use span", Justification = "doesn't need to be")]
     protected Task VerifyCSharpDiagnosticAsync(string[] sources, params DiagnosticResult[] expected)
     {
         return this.VerifyCSharpDiagnosticAsync(sources: sources, Array.Empty<MetadataReference>(), expected: expected);
