@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using Credfeto.Enumeration.Source.Generation.Extensions;
 using Credfeto.Enumeration.Source.Generation.Models;
 using Microsoft.CodeAnalysis;
@@ -27,7 +28,6 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
     public bool HasDoesNotReturnAttribute => this._hasDoesNotReturnAttribute.GetValueOrDefault(false);
 
     public bool SupportsUnreachableException => this._hasUnreachableException.GetValueOrDefault(false);
-
 
     public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
     {
@@ -86,7 +86,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
             return;
         }
 
-        INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax)!;
+        INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None)!;
 
         this.Classes.Add(item: new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration));
     }
@@ -95,7 +95,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
     {
         List<EnumGeneration> attributesForGeneration = new();
 
-        INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax)!;
+        INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None)!;
 
         ImmutableArray<AttributeData> attributes = classSymbol.GetAttributes();
 
@@ -145,7 +145,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
     private void AddDefinedEnums(in GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax)
     {
-        INamedTypeSymbol enumSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax)!;
+        INamedTypeSymbol enumSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax, cancellationToken: CancellationToken.None)!;
 
         if (enumSymbol.HasObsoleteAttribute())
         {
@@ -165,7 +165,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
         foreach (EnumMemberDeclarationSyntax member in enumDeclarationSyntax.Members)
         {
-            IFieldSymbol fieldSymbol = (IFieldSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: member)!;
+            IFieldSymbol fieldSymbol = (IFieldSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: CancellationToken.None)!;
 
             members.Add(item: fieldSymbol);
         }

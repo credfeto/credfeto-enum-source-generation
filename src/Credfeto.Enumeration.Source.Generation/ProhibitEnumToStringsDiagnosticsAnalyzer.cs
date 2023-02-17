@@ -95,7 +95,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
             return null;
         }
 
-        INamedTypeSymbol? typeInfo = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(e)
+        INamedTypeSymbol? typeInfo = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: e, cancellationToken: syntaxNodeAnalysisContext.CancellationToken)
                                                               .Type as INamedTypeSymbol;
 
         if (typeInfo?.ConstructedFrom == null)
@@ -118,7 +118,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
     {
         foreach (InterpolationSyntax part in interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>())
         {
-            if (!syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(part.Expression)
+            if (!syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: part.Expression, cancellationToken: syntaxNodeAnalysisContext.CancellationToken)
                                           .IsEnum())
             {
                 // not an enum
@@ -174,8 +174,8 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static void LookForBannedInStringConcatenation(BinaryExpressionSyntax binaryExpressionSyntax, in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        TypeInfo left = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(binaryExpressionSyntax.Left);
-        TypeInfo right = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(binaryExpressionSyntax.Right);
+        TypeInfo left = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: binaryExpressionSyntax.Left, cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
+        TypeInfo right = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: binaryExpressionSyntax.Right, cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
 
         if (left.IsString() && right.IsEnum())
         {

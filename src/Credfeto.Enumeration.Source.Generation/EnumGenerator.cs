@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Credfeto.Enumeration.Source.Generation.Builders;
 using Credfeto.Enumeration.Source.Generation.Extensions;
 using Credfeto.Enumeration.Source.Generation.Helpers;
@@ -359,7 +360,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
         foreach (SyntaxReference dsr in member.DeclaringSyntaxReferences)
         {
-            syntax = dsr.GetSyntax() as EnumMemberDeclarationSyntax;
+            syntax = dsr.GetSyntax(CancellationToken.None) as EnumMemberDeclarationSyntax;
 
             if (syntax != null)
             {
