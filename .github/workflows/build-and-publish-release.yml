@@ -130,9 +130,16 @@ jobs:
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.NUGET_API_KEY != ''}}
         name: Pack tool
         working-directory: ./src
-        run: dotnet pack --configuration Release "/p:Version=${{env.BUILD_VERSION}}" --no-restore --output ../dist
+        run: dotnet pack --configuration Release "/p:Version=${{env.BUILD_VERSION}}" --no-restore
         env:
           ReleaseNotes: ${{steps.release-notes.outputs.content}}
+      - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.NUGET_API_KEY != ''}}
+        name: Copy packed to dist
+        run:  |
+          shopt -s globstar
+          cp **/*.nupkg .../dest
+        working-directory: ./src
+        shell: bash
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.NUGET_API_KEY != ''}}
         name: Publish Packages to Nuget
         run: dotnet pushpackages -folder dist --api-key "${{env.NUGET_API_KEY}}" --source "${{env.NUGET_FEED}}"
