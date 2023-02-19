@@ -143,7 +143,8 @@ jobs:
         name: Copy packed to dist
         run:  |
           shopt -s globstar
-          cp **/*.nupkg .../dest
+          cp **/*.nupkg ../dest
+          cp **/*.snupkg ../dest
         working-directory: ./src
         shell: bash
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.NUGET_API_KEY != ''}}
