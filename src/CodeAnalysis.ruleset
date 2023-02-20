@@ -381,6 +381,8 @@
         <Rule Id="S2583" Action="Error"/>
         <!-- S2699 - Tests should include assertion -->
         <Rule Id="S2699" Action="None"/>
+        <!-- S3063 - Remove this "StringBuilder"; ".ToString()" is never called. -->
+        <Rule Id="S3063" Action="Error"/>
         <!-- S3218 - Inner class members should not shadow outer class "static" or type members -->
         <Rule Id="S3218" Action="None"/>
         <!-- S3442 - "abstract" classes should not have "public" constructors -->
