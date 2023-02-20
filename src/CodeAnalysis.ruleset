@@ -351,6 +351,8 @@
         <Rule Id="S1075" Action="None"/>
         <!-- S1118 - Utility classes should not have public constructors -->
         <Rule Id="S1118" Action="None"/>
+        <!-- S1133 - Remove deprecated code -->
+        <Rule Id="S1133" Action="Error"/>
         <!-- S1135 - Track uses of "TODO" tags -->
         <Rule Id="S1135" Action="Info"/>
         <!-- S1168 - Returning <code>null</code> instead of an actual array or collection forces callers of the method to explicitly test for nullity, making them more complex and less readable. -->
