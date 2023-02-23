@@ -138,7 +138,7 @@ jobs:
         run:  |
           shopt -s globstar
           [ ! -d ../dist ] && mkdir ../dist
-          cp **/*.nupkg ../dest
+          cp **/*.nupkg ../dist
         working-directory: ./src
         shell: bash
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true' && env.NUGET_API_KEY != ''}}
