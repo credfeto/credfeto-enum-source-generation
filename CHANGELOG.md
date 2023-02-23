@@ -12,13 +12,13 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - FF-1429 - Updated Microsoft.CodeAnalysis.Analyzers to 3.3.4
 - FF-1429 - Updated NSubstitute.Analyzers.CSharp to 1.0.16
 - FF-1429 - Updated SmartAnalyzers.CSharpExtensions.Annotations to 4.2.8
-- FF-1429 - Updated SonarAnalyzer.CSharp to 8.52.0.60960
 - FF-1429 - Updated Microsoft.VisualStudio.Threading.Analyzers to 17.5.22
 - FF-1429 - Updated NSubstitute to 5.0.0
 - FF-3881 - Updated DotNet SDK to 7.0.200
 - FF-1429 - Updated FunFair.Test.Common to 6.0.23.2715
 - FF-1429 - Updated Microsoft.NET.Test.Sdk to 17.5.0
 - FF-1429 - Updated Meziantou.Analyzer to 2.0.18
+- FF-1429 - Updated SonarAnalyzer.CSharp to 8.53.0.62665
 ### Removed
 ### Deployment Changes
 
