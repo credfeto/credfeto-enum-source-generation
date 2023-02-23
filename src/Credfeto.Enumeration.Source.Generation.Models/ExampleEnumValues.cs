@@ -13,6 +13,7 @@ public enum ExampleEnumValues
 
     SAME_AS_ONE = ONE,
 
+    [SuppressMessage(category: "SonarAnalyzer.CSharp", checkId: "S1133: Remove deprecated code", Justification = "Used in tests")]
     [Obsolete("This value is deprecated, use " + nameof(THREE) + " instead.")]
     [SuppressMessage(category: "ReSharper", checkId: "UnusedMember.Global", Justification = "Used in tests")]
     TWO = 2,
