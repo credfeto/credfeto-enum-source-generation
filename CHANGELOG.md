@@ -9,6 +9,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+### Removed
+### Deployment Changes
+
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+## [1.0.6] - 2023-02-24
+### Changed
 - FF-1429 - Updated Microsoft.CodeAnalysis.Analyzers to 3.3.4
 - FF-1429 - Updated NSubstitute.Analyzers.CSharp to 1.0.16
 - FF-1429 - Updated SmartAnalyzers.CSharpExtensions.Annotations to 4.2.8
@@ -19,12 +27,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - FF-1429 - Updated Microsoft.NET.Test.Sdk to 17.5.0
 - FF-1429 - Updated Meziantou.Analyzer to 2.0.18
 - FF-1429 - Updated SonarAnalyzer.CSharp to 8.53.0.62665
-### Removed
-### Deployment Changes
 
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
 ## [1.0.5] - 2023-01-17
 ### Changed
 - FF-1429 - Updated Microsoft.VisualStudio.Threading.Analyzers to 17.4.33
