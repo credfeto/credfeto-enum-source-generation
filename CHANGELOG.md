@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - FF-1429 - Updated FunFair.Test.Common to 6.0.24.2725
+- FF-1429 - Updated Microsoft.CodeAnalysis.CSharp.Workspaces to 4.5.0
 ### Removed
 ### Deployment Changes
 
