@@ -9,14 +9,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- FF-1429 - Updated FunFair.Test.Common to 6.0.24.2725
-- FF-1429 - Updated Microsoft.CodeAnalysis.CSharp.Workspaces to 4.5.0
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.0.7] - 2023-02-25
+### Changed
+- FF-1429 - Updated FunFair.Test.Common to 6.0.24.2725
+- FF-1429 - Updated Microsoft.CodeAnalysis.CSharp.Workspaces to 4.5.0
+
 ## [1.0.6] - 2023-02-24
 ### Changed
 - FF-1429 - Updated Microsoft.CodeAnalysis.Analyzers to 3.3.4
