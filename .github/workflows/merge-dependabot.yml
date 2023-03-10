@@ -1,4 +1,4 @@
-name: Merge actions updates in template repos
+name: "Dependabot: Merge actions updates in template repos"
 on:
   # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
   # could and should work, at least for public repos;
