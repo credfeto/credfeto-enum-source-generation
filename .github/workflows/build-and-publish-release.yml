@@ -36,6 +36,7 @@ jobs:
       DOTNET_TieredPGO: 1
 
     steps:
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
