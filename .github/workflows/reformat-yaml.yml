@@ -1,4 +1,4 @@
-name: Standardise YAML format
+name: "Standardise: YAML format"
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
       - uses: credfeto/action-yaml-format@v1.3.2
       - uses: stefanzweifel/git-auto-commit-action@v4.16.0
         with:
-          commit_message: "[FF-2107] Reformat YAML Files to common format"
+          commit_message: "[Reformat] YAML Files to common format"
           file_pattern: "*.yml"
           commit_user_name: "fun-ymlfmt[bot]"
           commit_user_email: "credfeto@users.noreply.github.com"
