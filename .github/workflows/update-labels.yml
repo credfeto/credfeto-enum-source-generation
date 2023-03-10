@@ -1,4 +1,4 @@
-name: Update Labels
+name: "Repo: Update Labels"
 
 on:
   push:
