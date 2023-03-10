@@ -1,4 +1,4 @@
-name: PR Update
+name: "PR: Update"
 on:
   pull_request:
     types:
@@ -56,3 +56,4 @@ jobs:
       - uses: thomaseizinger/assign-pr-creator-action@v1.0.0
         with:
           repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+
