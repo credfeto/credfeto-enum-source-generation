@@ -1,4 +1,4 @@
-name: "Build .NET Release"
+name: "Build: .NET Release"
 
 on:
   push:
