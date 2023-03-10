@@ -45,6 +45,28 @@ jobs:
 
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - run: |
+          echo "OCTOPUS_DEPLOY_PACKAGE: ${{secrets.OCTOPUS_DEPLOY_PACKAGE}}
+          echo "OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{secrets.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
+          echo "OCTOPUS_PROJECT: ${{secrets.OCTOPUS_PROJECT}}
+          echo "OCTOPUS_CHANNEL: ${{secrets.OCTOPUS_PRERELEASE_CHANNEL}}
+          echo "OCTOPUS_DEPLOY_TO: ${{secrets.OCTOPUS_DEPLOYTO_PRERELEASE}}
+          echo "OCTOPUS_SERVER: ${{secrets.OCTOPUS_SERVER}}
+          echo "OCTOPUS_API_KEY: ${{secrets.OCTOPUS_API_KEY}}
+          echo "OCTOPUS_SPACE_NAME: ${{secrets.OCTOPUS_SPACE}}
+          echo "NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
+          echo "NUGET_FEED: ${{secrets.NUGET_FEED}}
+          echo "NUGET_ADDITIONAL_RESTORE_FEED: ${{secrets.NUGET_ADDITIONAL_RESTORE_FEED}}
+          echo "DOTNET_NOLOGO: true
+          echo "DOTNET_PRINT_TELEMETRY_MESSAGE: false
+          echo "DOTNET_MULTILEVEL_LOOKUP: false
+          echo "DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
+          echo "DOTNET_ReadyToRun: 0
+          echo "DOTNET_TC_QuickJitForLoops: 1
+          echo "DOTNET_TieredPGO: 1
+          echo "DB_PACKAGE_PUSH: ""      
+          echo "DB_PACKAGE_DEPLOY: ""
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -136,25 +158,6 @@ jobs:
         env:
           ReleaseNotes: ${{steps.release-notes.outputs.content}}
 
-      ## NUGET PACKAGES
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != ''}}
-        name: Pack tool
-        working-directory: ./src
-        run: dotnet pack --configuration Release "/p:Version=${{env.BUILD_VERSION}}" --no-restore
-        env:
-          ReleaseNotes: ${{steps.release-notes.outputs.content}}
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != ''}}
-        name: Copy packed to dist
-        run:  |
-          shopt -s globstar
-          [ ! -d ../dist ] && mkdir ../dist
-          cp **/*.nupkg ../dist
-        working-directory: ./src
-        shell: bash
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != ''}}
-        name: Publish Packages to Nuget
-        run: dotnet pushpackages -folder dist --api-key "${{env.NUGET_API_KEY}}" --source "${{env.NUGET_FEED}}"
-
       ## DATABASE SUPPORT
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
         run: dotnet tool install --local TSQLLint
@@ -176,6 +179,25 @@ jobs:
           DB_LOG: ${{github.workspace}}/update.log
           DB_REPORT: ${{github.workspace}}/update.xml
           DB_FILTER: ${{github.workspace}}/db/Filter.scpf
+
+      ## NUGET PACKAGES
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != ''}}
+        name: Pack tool
+        working-directory: ./src
+        run: dotnet pack --configuration Release "/p:Version=${{env.BUILD_VERSION}}" --no-restore
+        env:
+          ReleaseNotes: ${{steps.release-notes.outputs.content}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != ''}}
+        name: Copy packed to dist
+        run:  |
+          shopt -s globstar
+          [ ! -d ../dist ] && mkdir ../dist
+          cp **/*.nupkg ../dist
+        working-directory: ./src
+        shell: bash
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != ''}}
+        name: Publish Packages to Nuget
+        run: dotnet pushpackages -folder dist --api-key "${{env.NUGET_API_KEY}}" --source "${{env.NUGET_FEED}}"
 
       ## OCTOPUS PACKAGES
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
