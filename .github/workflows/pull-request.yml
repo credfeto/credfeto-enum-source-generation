@@ -1,4 +1,4 @@
-name: Auto PR Creation
+name: "PR: Create"
 on:
   push:
     branches-ignore:
