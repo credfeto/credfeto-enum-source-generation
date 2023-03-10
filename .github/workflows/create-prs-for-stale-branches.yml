@@ -1,4 +1,4 @@
-name: Find branches without PR's
+name: "PR: Find branches without PR's"
 
 on:
   push:
