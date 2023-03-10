@@ -34,6 +34,8 @@ jobs:
       DOTNET_ReadyToRun: 0
       DOTNET_TC_QuickJitForLoops: 1
       DOTNET_TieredPGO: 1
+      DB_PACKAGE_PUSH: ""      
+      DB_PACKAGE_DEPLOY: ""
 
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
@@ -127,6 +129,28 @@ jobs:
         env:
           ReleaseNotes: ${{steps.release-notes.outputs.content}}
 
+      ## DATABASE SUPPORT
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
+        run: dotnet tool install --local TSQLLint
+          
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
+        name: run TSQL Lint
+        run: dotnet tsqllint "${{github.workspace}}/db"
+
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
+        name: Get SQL Compare
+        run: docker pull redgate/sqlcompare:latest
+
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
+        name: Build SQL change
+        run: docker run "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" --net=host --rm redgate/sqlcompare:latest /IAgreeToTheEULA /filter:"$DB_FILTER" /options:ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel /transactionIsolationLevel:SERIALIZABLE /include:staticData /scriptFile:"$DB_OUTPUT" /scripts1:"$DB_SOURCE" /showWarnings /include:Identical /report:"$DB_REPORT" /reportType:Xml /force /OutputWidth:1024 /out:"$DB_LOG" /empty2
+        env:
+          DB_SOURCE: ${{github.workspace}}/db
+          DB_OUTPUT: ${{github.workspace}}/update.sql
+          DB_LOG: ${{github.workspace}}/update.log
+          DB_REPORT: ${{github.workspace}}/update.xml
+          DB_FILTER: ${{github.workspace}}/db/Filter.scpf
+
       ## NUGET PACKAGES
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != ''}}
         name: Pack tool
@@ -149,30 +173,41 @@ jobs:
       ## OCTOPUS PACKAGES
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Pack Packages for Octopus (x64)
-        working-directory: ./src/${{env.OCTOPUS_DEPLOY_PACKAGE}}
+        working-directory: ${{github.workspace}}/src/${{env.OCTOPUS_DEPLOY_PACKAGE}}
         run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:linux-x64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{env.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/x64
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Pack Packages for Octopus (arm64)
-        working-directory: ./src/${{env.OCTOPUS_DEPLOY_PACKAGE}}
+        working-directory: ${{github.workspace}}/src/${{env.OCTOPUS_DEPLOY_PACKAGE}}
         run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:linux-arm64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{env.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/arm64
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Zip Packages for Octopus (x64)
-        working-directory: ./src/server-dist/x64
-        run: zip -9r "../../../${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64.${{env.BUILD_VERSION}}.zip" . -x *.pdb
+        working-directory: ${{github.workspace}}/src/server-dist/x64
+        run: zip -9r "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64.${{env.BUILD_VERSION}}.zip" . -x -- *.pdb
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Zip Packages for Octopus (arm64)
-        working-directory: ./src/server-dist/arm64
-        run: zip -9r "../../../${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64.${{env.BUILD_VERSION}}.zip" . -x *.pdb
+        working-directory: ${{github.workspace}}/src/server-dist/arm64
+        run: zip -9r "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64.${{env.BUILD_VERSION}}.zip" . -x -- *.pdb
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+        name: Zip DB for Octopus
+        working-directory: ./db
+        run: |
+          mkdir -p ../package/db/state
+          cp -R -- * ../package/db/state
+          cd ../package
+          zip -9r "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}.Database.${{env.BUILD_VERSION}}.zip" .
+          echo "DB_PACKAGE_PUSH=--package \"${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}.Database:${{env.BUILD_VERSION}}.zip\"" >> "$GITHUB_OUTPUT"
+          echo "DB_PACKAGE_DEPLOY=--package \"${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}.Database:${{env.BUILD_VERSION}}\"" >> "$GITHUB_OUTPUT"
+
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Push package to Octopus
-        run: octopus package upload --no-prompt --overwrite-mode=ignore --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64.${{env.BUILD_VERSION}}.zip" "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64.${{env.BUILD_VERSION}}.zip"
+        run: octopus package upload --no-prompt --overwrite-mode=ignore --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64.${{env.BUILD_VERSION}}.zip" "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64.${{env.BUILD_VERSION}}.zip" $DB_PACKAGE_PUSH
         env:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != ''}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
         name: Create Octopus Release
-        run: octopus release create --no-prompt --project "${{env.OCTOPUS_PROJECT}}" --version "${{env.BUILD_VERSION}}" --channel "${{env.OCTOPUS_CHANNEL}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64:${{env.BUILD_VERSION}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
+        run: octopus release create --no-prompt --project "${{env.OCTOPUS_PROJECT}}" --version "${{env.BUILD_VERSION}}" --channel "${{env.OCTOPUS_CHANNEL}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-x64:${{env.BUILD_VERSION}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-arm64:${{env.BUILD_VERSION}}" $DB_PACKAGE_DEPLOY --release-notes-file="RELEASE_NOTES.md"
         env:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
