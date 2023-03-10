@@ -1,4 +1,4 @@
-name: Dependabot
+name: "Dependabot: Rebase"
 on:
   push:
     branches:
