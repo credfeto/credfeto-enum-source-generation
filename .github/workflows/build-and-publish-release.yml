@@ -1,4 +1,4 @@
-name: .NET [Release]
+name: "Build .NET Release"
 
 on:
   push:
@@ -197,3 +197,4 @@ jobs:
           prerelease: false
           generateReleaseNotes: true
           token: ${{secrets.GITHUB_TOKEN}}
+
