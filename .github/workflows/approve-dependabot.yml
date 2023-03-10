@@ -28,6 +28,7 @@ jobs:
     # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
 
     steps:
+    - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
     - run: echo "${{github.repository_owner}}"
     - if: github.repository_owner != 'funfair-tech'
       uses: alexwilson/enable-github-automerge-action@1.0.0
@@ -46,6 +47,7 @@ jobs:
       pull-requests: write
 
     steps:
+    - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
     - run: echo "${{github.repository_owner}}"
     - uses: hmarr/auto-approve-action@v3
       with:
