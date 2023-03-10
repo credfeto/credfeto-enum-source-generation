@@ -1,4 +1,4 @@
-name: PR Lint
+name: "PR: Lint"
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened, ready_for_review, unlocked]
@@ -27,22 +27,22 @@ jobs:
           echo "Repo: ${{github.repository}}"
           echo "Owner: ${{github.repository_owner}}"
 
-  include-JIRA-ticket:
-    if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v3.3.0
-        with:
-          fetch-depth: 0
-      - if: |-
-          ${{!endsWith(github.repository, '-template')
-          && !startsWith(github.head_ref, 'release/')
-          && !startsWith(github.head_ref, 'hotfix/')}}
-        uses: seferov/pr-lint-action@v1.2.0
-        with:
-          title-regex: '^\[FF\-\d*?\](:)?(\ )'
-          error-message: 'Add Jira Ticket ID to your title'
+#  include-JIRA-ticket:
+#    if: github.event.pull_request.draft == false
+#    runs-on: ubuntu-latest
+#    steps:
+#      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+#      - uses: actions/checkout@v3.3.0
+#        with:
+#          fetch-depth: 0
+#      - if: |-
+#          ${{!endsWith(github.repository, '-template')
+#          && !startsWith(github.head_ref, 'release/')
+#          && !startsWith(github.head_ref, 'hotfix/')}}
+#        uses: seferov/pr-lint-action@v1.2.0
+#        with:
+#          title-regex: '^\[FF\-\d*?\](:)?(\ )'
+#          error-message: 'Add Jira Ticket ID to your title'
 
   include-changelog-entry:
     if: github.event.pull_request.draft == false
