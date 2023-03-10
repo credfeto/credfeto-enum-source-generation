@@ -1,4 +1,4 @@
-name: .NET [Pre-Release]
+name: "Build .NET Pre-Release"
 
 on:
   push:
@@ -189,3 +189,4 @@ jobs:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
+
