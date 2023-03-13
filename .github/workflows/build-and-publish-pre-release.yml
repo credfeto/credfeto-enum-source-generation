@@ -3,6 +3,7 @@ name: "Build: .NET Pre-Release"
 on:
   push:
     paths:
+      - 'db/**/*'
       - 'src/**/*'
       - '.github/workflows/build*.yml'
     branches-ignore:
@@ -84,7 +85,16 @@ jobs:
         run: |
           [[ -d src && -f src/global.json && '${{hashfiles('**/*.csproj', '**/*.cs')}}' != '' ]] && echo 'CSPROJ_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'CSPROJ_EXIST=false' >> "$GITHUB_OUTPUT"
           [[ -d src && -f src/global.json && '${{hashfiles('**/*.sln')}}' != '' ]] && echo 'SLN_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SLN_EXIST=false' >> "$GITHUB_OUTPUT"
-          [[ -d src && -f src/global.json && '${{hashfiles('db/**/*.sql')}}' != '' ]] && echo 'SQL_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SQL_EXIST=false' >> "$GITHUB_OUTPUT"
+          [[ -d db && '${{hashfiles('**/*.sql')}}' != '' ]] && echo 'SQL_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SQL_EXIST=false' >> "$GITHUB_OUTPUT"
+          [[ -d src && -f src/package.json && src/package-lock.json && '${{hashfiles('src/package.json', 'src/package-lock.json')}}' != '' ]] && echo 'NPM_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'NPM_EXIST=false' >> "$GITHUB_OUTPUT"
+
+      - name: Check Files Results
+        run: |
+          echo "CSPROJ_EXIST: ${{env.CSPROJ_EXIST}}"
+          echo "SLN_EXIST: ${{env.SLN_EXIST}}"
+          echo "SQL_EXIST: ${{env.SQL_EXIST}}"
+          echo "NPM_EXIST: ${{env.NPM_EXIST}}"
+
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
         name: Determine .net core version
         uses: credfeto/action-dotnet-version-detect@v1.3.0
@@ -253,7 +263,7 @@ jobs:
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
 
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
         name: Create Octopus Release (EXE and DB)
         run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
         env:
