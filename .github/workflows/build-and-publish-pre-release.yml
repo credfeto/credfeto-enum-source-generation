@@ -95,6 +95,11 @@ jobs:
           echo "SQL_EXIST: ${{steps.check_files.outputs.SQL_EXIST}}"
           echo "NPM_EXIST: ${{steps.check_files.outputs.NPM_EXIST}}"
 
+      - name: Check Build Tools Requirements
+        id: build_tools
+        run: |
+          [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
+
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
         name: Determine .net core version
         uses: credfeto/action-dotnet-version-detect@v1.3.0
@@ -111,30 +116,40 @@ jobs:
           dotnet-version: |
               6.0.*
               ${{env.DOTNET_VERSION}}
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST != 'true' && steps.check_files.outputs.SLN_EXIST != 'true' && steps.check_files.outputs.NPM_EXIST == 'true'}}
+        name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          dotnet-version: |
+              7.0.*
+
+      - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
         name: Enable dotnet tools
         run: dotnet new tool-manifest
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+      - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
         name: Install Build Version Tool
         run: dotnet tool install --local FunFair.BuildVersion
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_PACK == 'true'}}
+      - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && env.NUGET_PACK == 'true'}}
         name: Install Multi-Push Tool
         run: dotnet tool install --local Credfeto.Package.Push
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+      - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
         name: Set Define Build Version
         run: dotnet buildversion --BuildNumber "$GITHUB_RUN_NUMBER"
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+      - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
         name: Install Changelog Tool
         run: dotnet tool install --local Credfeto.Changelog.Cmd
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+      - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: install Octopus Deploy CLI
         uses: OctopusDeploy/install-octocli@v3.0.0
         with:
           version: latest
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+      - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
         name: Create Release Notes
         run: dotnet changelog --changelog CHANGELOG.md --extract RELEASE_NOTES.md --version "${{env.BUILD_VERSION}}"
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+      - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
         id: release-notes
         uses: juliangruber/read-file-action@v1
         with:
@@ -153,15 +168,15 @@ jobs:
             ${{runner.os}}-nuget-
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
         name: Stop dotnet build server for clean build
-        working-directory: ./src
+        working-directory: ${{github.workspace}}/src
         run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
         name: Restore dotnet packages
-        working-directory: ./src
+        working-directory: ${{github.workspace}}/src
         run: dotnet restore
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
         name: Build with dotnet
-        working-directory: ./src
+        working-directory: ${{github.workspace}}/src
         run: dotnet build --no-restore --configuration Release "/p:Version=${{env.BUILD_VERSION}}"
         env:
           ReleaseNotes: ${{steps.release-notes.outputs.content}}
@@ -169,7 +184,7 @@ jobs:
       ## RUN TESTS
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
         name: Test with dotnet
-        working-directory: ./src
+        working-directory: ${{github.workspace}}/src
         run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "/p:Version=${{env.BUILD_VERSION}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results
         env:
           ReleaseNotes: ${{steps.release-notes.outputs.content}}
@@ -196,10 +211,33 @@ jobs:
           DB_REPORT: ${{github.workspace}}/update.xml
           DB_FILTER: ${{github.workspace}}/db/Filter.scpf
 
+      ## NPM Support
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
+        name: Setup Node.js
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: '16'
+
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
+        name: Install dependencies
+        working-directory: ${{github.workspace}}/src
+        run: npm ci --ignore-scripts
+
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
+        name: Test NPM
+        shell: bash
+        working-directory: ${{github.workspace}}/src
+        run: npm run test
+
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
+        name: Build NPM
+        working-directory: ${{github.workspace}}/src
+        run: npm run build
+
       ## NUGET PACKAGES
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != '' && env.NUGET_PACK == 'true'}}
         name: Pack tool
-        working-directory: ./src
+        working-directory: ${{github.workspace}}/src
         run: dotnet pack --configuration Release "/p:Version=${{env.BUILD_VERSION}}" --no-restore
         env:
           ReleaseNotes: ${{steps.release-notes.outputs.content}}
@@ -209,7 +247,7 @@ jobs:
           shopt -s globstar
           [ ! -d ../dist ] && mkdir ../dist
           cp **/*.nupkg ../dist
-        working-directory: ./src
+        working-directory: ${{github.workspace}}/src        
         shell: bash
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != '' && env.NUGET_PACK == 'true'}}
         name: Publish Packages to Nuget
@@ -244,7 +282,7 @@ jobs:
 
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Zip DB for Octopus
-        working-directory: ./db
+        working-directory: ${{github.workspace}}/db
         run: |
           mkdir -p ../package/db/state
           cp -R -- * ../package/db/state
