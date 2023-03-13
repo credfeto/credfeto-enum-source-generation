@@ -99,7 +99,7 @@ jobs:
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
         name: Install Build Version Tool
         run: dotnet tool install --local FunFair.BuildVersion
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_PACK == 'true'}}
         name: Install Multi-Push Tool
         run: dotnet tool install --local Credfeto.Package.Push
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
@@ -238,14 +238,14 @@ jobs:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != ''}}
         name: Create Octopus Release
         run: octopus release create --no-prompt --project "${{env.OCTOPUS_PROJECT}}" --version "${{env.BUILD_VERSION}}" --channel "${{env.OCTOPUS_CHANNEL}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" ${{env.DB_PACKAGE_DEPLOY}} --release-notes-file="RELEASE_NOTES.md"
         env:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' }}
         name: Deploy Octopus Release
         run: octopus release deploy --no-prompt --project "${{env.OCTOPUS_PROJECT}}" --version "${{env.BUILD_VERSION}}" --environment "${{env.OCTOPUS_DEPLOY_TO}}"
         env:
