@@ -165,7 +165,7 @@ jobs:
         run: dotnet tool install --local TSQLLint
 
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
-        name: run TSQL Lint
+        name: Lint SQL Files
         run: dotnet tsqllint "${{github.workspace}}/db"
 
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
@@ -239,7 +239,7 @@ jobs:
 
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Push package to Octopus (EXE and DB)
-        run: octopus package upload --no-prompt --overwrite-mode=ignore --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database.${{env.BUILD_VERSION}}.zip"
+        run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database.${{env.BUILD_VERSION}}.zip"
         env:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
@@ -247,7 +247,7 @@ jobs:
 
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Push package to Octopus (EXE ONLY)
-        run: octopus package upload --no-prompt --overwrite-mode=ignore --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip"
+        run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip"
         env:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
@@ -255,7 +255,7 @@ jobs:
 
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
         name: Create Octopus Release (EXE and DB)
-        run: octopus release create --no-prompt --project "${{env.OCTOPUS_PROJECT}}" --version "${{env.BUILD_VERSION}}" --channel "${{env.OCTOPUS_CHANNEL}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
+        run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
         env:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
@@ -263,7 +263,7 @@ jobs:
 
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
         name: Create Octopus Release (EXE ONLY)
-        run: octopus release create --no-prompt --project "${{env.OCTOPUS_PROJECT}}" --version "${{env.BUILD_VERSION}}" --channel "${{env.OCTOPUS_CHANNEL}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package "${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
+        run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
         env:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
@@ -271,7 +271,7 @@ jobs:
 
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
         name: Deploy Octopus Release
-        run: octopus release deploy --no-prompt --project "${{env.OCTOPUS_PROJECT}}" --version "${{env.BUILD_VERSION}}" --environment "${{env.OCTOPUS_DEPLOY_TO}}"
+        run: octopus release deploy --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --environment="${{env.OCTOPUS_DEPLOY_TO}}"
         env:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
