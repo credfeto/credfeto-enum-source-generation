@@ -246,8 +246,8 @@ jobs:
         run: npm run build
 
       - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
-        name: Build Package
-        run: dotnet buildcontentpackage -SourcePath ${{github.workspace}}/src/dist -targetPath ${{github.workspace}}/dist-pkg -version %system.build.number% -WarningAsErrors false -Wallet ${{github.workspace}}/Wallet.json -WalletPassword "${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}""
+        name: "NPM: Build Package"
+        run: dotnet buildcontentpackage -SourcePath "${{github.workspace}}/src/dist" -targetPath "${{github.workspace}}" -version "${{env.BUILD_VERSION}}" -WarningAsErrors false -Wallet "${{github.workspace}}/Wallet.json" -WalletPassword "${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}"
 
       ## NUGET PACKAGES
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != '' && env.NUGET_PACK == 'true'}}
@@ -320,6 +320,14 @@ jobs:
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
 
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+        name: "Dotnet: Push package to Octopus (NPM NUPKG ONLY)"
+        run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg"
+        env:
+          OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
+          OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
+          OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
+
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
         name: "Dotnet: Create Octopus Release (EXE and DB)"
         run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
@@ -331,6 +339,14 @@ jobs:
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
         name: "Dotnet: Create Octopus Release (EXE ONLY)"
         run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
+        env:
+          OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
+          OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
+          OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
+
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+        name: "Dotnet: Create Octopus Release (EXE ONLY)"
+        run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
         env:
           OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
