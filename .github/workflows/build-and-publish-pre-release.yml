@@ -1,4 +1,4 @@
-name: "Build: .NET Pre-Release"
+name: "Build: Pre-Release"
 
 on:
   push:
@@ -87,6 +87,7 @@ jobs:
           [[ -d src && -f src/global.json && '${{hashfiles('**/*.sln')}}' != '' ]] && echo 'SLN_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SLN_EXIST=false' >> "$GITHUB_OUTPUT"
           [[ -d db && '${{hashfiles('**/*.sql')}}' != '' ]] && echo 'SQL_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SQL_EXIST=false' >> "$GITHUB_OUTPUT"
           [[ -d src && -f src/package.json && src/package-lock.json && '${{hashfiles('src/package.json', 'src/package-lock.json')}}' != '' ]] && echo 'NPM_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'NPM_EXIST=false' >> "$GITHUB_OUTPUT"
+          [[ -f Wallet.json ]] && echo 'NPM_SIGNING_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'NPM_SIGNING_EXIST=false' >> "$GITHUB_OUTPUT"
 
       - name: Check Files Results
         run: |
@@ -94,6 +95,7 @@ jobs:
           echo "SLN_EXIST: ${{steps.check_files.outputs.SLN_EXIST}}"
           echo "SQL_EXIST: ${{steps.check_files.outputs.SQL_EXIST}}"
           echo "NPM_EXIST: ${{steps.check_files.outputs.NPM_EXIST}}"
+          echo "NPM_SIGNING_EXIST: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}"
 
       - name: Check Build Tools Requirements
         id: build_tools
@@ -141,6 +143,12 @@ jobs:
       - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
         name: Install Changelog Tool
         run: dotnet tool install --local Credfeto.Changelog.Cmd
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' }}
+        name: Install Package Builder
+        run: dotnet tool install --local FunFair.Content.Packager.Cmd --version ${{vars.PRODUCTION_PACKAGER_VERSION}}
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' }}
+        name: Install Package Store Signer
+        run: dotnet tool install --local FunFair.Content.PackageSigner.Cmd --version ${{vars.PRODUCTION_PACKAGER_VERSION}}
       - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Install Octopus Deploy CLI
         uses: OctopusDeploy/install-octocli@v3.0.0
@@ -236,6 +244,10 @@ jobs:
         name: "NPM: Build"
         working-directory: ${{github.workspace}}/src
         run: npm run build
+
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
+        name: Build Package
+        run: dotnet buildcontentpackage -SourcePath ${{github.workspace}}/src/dist -targetPath ${{github.workspace}}/dist-pkg -version %system.build.number% -WarningAsErrors false -Wallet ${{github.workspace}}/Wallet.json -WalletPassword "${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}""
 
       ## NUGET PACKAGES
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != '' && env.NUGET_PACK == 'true'}}
