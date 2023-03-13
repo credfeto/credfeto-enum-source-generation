@@ -78,6 +78,14 @@ jobs:
           [[ -d src && -f src/global.json && '${{hashfiles('**/*.csproj', '**/*.cs')}}' != '' ]] && echo 'CSPROJ_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'CSPROJ_EXIST=false' >> "$GITHUB_OUTPUT"
           [[ -d src && -f src/global.json && '${{hashfiles('**/*.sln')}}' != '' ]] && echo 'SLN_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SLN_EXIST=false' >> "$GITHUB_OUTPUT"
           [[ -d src && -f src/global.json && '${{hashfiles('db/**/*.sql')}}' != '' ]] && echo 'SQL_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SQL_EXIST=false' >> "$GITHUB_OUTPUT"
+
+      - name: Check Files Results
+        run: |
+          echo "CSPROJ_EXIST: ${{steps.check_files.outputs.CSPROJ_EXIST}}"
+          echo "SLN_EXIST: ${{steps.check_files.outputs.SLN_EXIST}}"
+          echo "SQL_EXIST: ${{steps.check_files.outputs.SQL_EXIST}}"
+          echo "NPM_EXIST: ${{steps.check_files.outputs.NPM_EXIST}}"
+
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
         name: Determine .net core version
         uses: credfeto/action-dotnet-version-detect@v1.3.0
@@ -134,6 +142,10 @@ jobs:
           restore-keys: |
             ${{runner.os}}-nuget-
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+        name: Stop dotnet build server for clean build
+        working-directory: ./src
+        run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
         name: Restore dotnet packages
         working-directory: ./src
         run: dotnet restore
@@ -153,18 +165,18 @@ jobs:
           ReleaseNotes: ${{steps.release-notes.outputs.content}}
 
       ## DATABASE SUPPORT
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true'}}
         run: dotnet tool install --local TSQLLint
 
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true'}}
         name: Lint SQL Files
         run: dotnet tsqllint "${{github.workspace}}/db"
 
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true'}}
         name: Get SQL Compare
         run: docker pull redgate/sqlcompare:latest
 
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true'}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true'}}
         name: Build SQL change
         run: docker run "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" --net=host --rm redgate/sqlcompare:latest /IAgreeToTheEULA /filter:"$DB_FILTER" /options:ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel /transactionIsolationLevel:SERIALIZABLE /include:staticData /scriptFile:"$DB_OUTPUT" /scripts1:"$DB_SOURCE" /showWarnings /include:Identical /report:"$DB_REPORT" /reportType:Xml /force /OutputWidth:1024 /out:"$DB_LOG" /empty2
         env:
@@ -220,7 +232,7 @@ jobs:
         working-directory: ${{github.workspace}}/src/server-dist/linux-arm64
         run: zip -9r "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip" . -x -- *.pdb
 
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Zip DB for Octopus
         working-directory: ./db
         run: |
@@ -231,7 +243,7 @@ jobs:
           echo "DB_PACKAGE_PUSH=--package \"${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}.Database:${{env.BUILD_VERSION}}.zip\"" >> "$GITHUB_OUTPUT"
           echo "DB_PACKAGE_DEPLOY=--package \"${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}.Database:${{env.BUILD_VERSION}}\"" >> "$GITHUB_OUTPUT"
 
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Push package to Octopus (EXE and DB)
         run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database.${{env.BUILD_VERSION}}.zip"
         env:
@@ -239,7 +251,7 @@ jobs:
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
 
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
         name: Push package to Octopus (EXE ONLY)
         run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip"
         env:
@@ -247,7 +259,7 @@ jobs:
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
 
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != ''}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != ''}}
         name: Create Octopus Release (EXE and DB)
         run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
         env:
@@ -255,7 +267,7 @@ jobs:
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
 
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != ''}}
+      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != ''}}
         name: Create Octopus Release (EXE ONLY)
         run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
         env:
