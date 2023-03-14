@@ -5,7 +5,7 @@ on:
     paths:
       - 'db/**/*'
       - 'src/**/*'
-      - '.github/actions/build/**/*.yml'
+      - '.github/actions/**/*'
       - '.github/workflows/build-and-publish-pre-release.yml'
     branches-ignore:
       - 'release/*'
@@ -33,6 +33,7 @@ jobs:
       - name: Build and deploy
         uses: ./.github/actions/build
         with:
+          NPM_PRODUCTION_PACKAGER_VERSION: ${{vars.PRODUCTION_PACKAGER_VERSION}}
           NPM_CONTENT_PACKAGE_WALLET_PASSWORD: ${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}
           NPM_PACKAGE_STORE_SIGNING_WALLET: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
           NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
