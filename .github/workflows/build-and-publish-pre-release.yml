@@ -249,6 +249,13 @@ jobs:
         name: "NPM: Build Package"
         run: dotnet buildcontentpackage -SourcePath "${{github.workspace}}/src/dist" -targetPath "${{github.workspace}}" -version "${{env.BUILD_VERSION}}" -WarningAsErrors false -Wallet "${{github.workspace}}/Wallet.json" -WalletPassword "${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}"
 
+
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
+        name: "NPM: Check Package"
+        run: |
+            [ ! -f "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg" ] && echo "Not found: ${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg"
+            [ ! -f "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg" ] && exit -1
+
       - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
         name: "NPM: Create Store Signer"
         run: echo ${{secrets.PACKAGE_STORE_SIGNING_WALLET}} > "${{github.workspace}}/.StoreSigningWallet.json"
