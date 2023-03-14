@@ -20,11 +20,15 @@ runs:
     uses: actions/setup-dotnet@v3
     env:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
-      DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_NOLOGO: "true"
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      DOTNET_MULTILEVEL_LOOKUP: false
     with:
       dotnet-version: |
           6.0.*
           ${{env.DOTNET_VERSION}}
+      dotnet-quality: ga
 
   - name: Enable dotnet tools
     shell: bash
