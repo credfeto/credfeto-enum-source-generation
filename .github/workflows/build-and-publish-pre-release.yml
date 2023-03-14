@@ -5,7 +5,11 @@ on:
     paths:
       - 'db/**/*'
       - 'src/**/*'
-      - '.github/actions/**/*'
+      - '.github/actions/build/action.yml'
+      - '.github/actions/build-tools/action.yml'
+      - '.github/actions/dotnet/action.yml'
+      - '.github/actions/npm/action.yml'
+      - '.github/actions/sql/action.yml'
       - '.github/workflows/build-and-publish-pre-release.yml'
     branches-ignore:
       - 'release/*'
