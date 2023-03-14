@@ -1,0 +1,64 @@
+--- # Build SQL
+name: 'Build SQL'
+description: 'Builds SQL Package'
+inputs:
+  # General
+  BUILD_VERSION:
+    description: 'Build version'
+    required: true
+
+  # Octopus
+  OCTOPUS_DEPLOY_PACKAGE:
+    description: 'Package (root) to deploy'
+    required: false
+  OCTOPUS_DEPLOY_PACKAGE_ZIP:
+    description: 'Package (root) to deploy when zipped'
+    required: false
+
+
+runs:
+  using: "composite"
+  steps:
+    
+  - name: "SQL: Install TSQLLint"
+    shell: bash
+    run: dotnet tool install --local TSQLLint
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
+  - name: "SQL: Lint SQL Files"
+    shell: bash
+    run: dotnet tsqllint "${{github.workspace}}/db"
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
+  - name: "SQL: Get SQL Compare"
+    shell: bash
+    run: docker pull redgate/sqlcompare:latest
+
+  - name: "SQL: Build SQL change"
+    shell: bash
+    run: docker run "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" --net=host --rm redgate/sqlcompare:latest /IAgreeToTheEULA /filter:"$DB_FILTER" /options:ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel /transactionIsolationLevel:SERIALIZABLE /include:staticData /scriptFile:"$DB_OUTPUT" /scripts1:"$DB_SOURCE" /showWarnings /include:Identical /report:"$DB_REPORT" /reportType:Xml /force /OutputWidth:1024 /out:"$DB_LOG" /empty2
+    env:
+      DB_SOURCE: ${{github.workspace}}/db
+      DB_OUTPUT: ${{github.workspace}}/update.sql
+      DB_LOG: ${{github.workspace}}/update.log
+      DB_REPORT: ${{github.workspace}}/update.xml
+      DB_FILTER: ${{github.workspace}}/db/Filter.scpf
+
+  - name: "SQL: Zip DB for Octopus"
+    working-directory: ${{github.workspace}}/db
+    shell: bash
+    run: |
+      mkdir -p ../package/db/state
+      cp -R -- * ../package/db/state
+      cd ../package
+      zip -9r "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database.${{inputs.BUILD_VERSION}}.zip" .
