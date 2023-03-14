@@ -1,0 +1,589 @@
+--- # Build and deploy packages
+name: 'Build and deploy'
+description: 'Builds and deploys the source'
+inputs:
+  # NPM
+  NPM_CONTENT_PACKAGE_WALLET_PASSWORD:
+    description: 'Password to unlock /Wallet.json'
+    required: false
+  NPM_PACKAGE_STORE_SIGNING_WALLET:
+    description: 'Store signing wallet.json'
+    required: false
+  NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD:
+    description: 'Password to unlock NPM_PACKAGE_STORE_SIGNING_WALLET'
+    required: false
+
+  # NUGET
+  NUGET_ADDITIONAL_RESTORE_FEED:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_PACK:
+    description: 'Whether to pack packages with feeds'
+    required: false
+  NUGET_FEED:
+    description: 'Nuget feed to push packages to'
+    required: false
+  NUGET_API_KEY:
+    description: 'API key to authenticate when pushing packages'
+    required: false
+
+  # Octopus
+  OCTOPUS_SERVER:
+    description: 'octopus server'
+    required: false
+  OCTOPUS_SPACE_NAME:
+    description: 'octopus space to deploy to'
+    required: false
+  OCTOPUS_PROJECT:
+    description: 'Octopus project to deploy to'
+    required: false
+  OCTOPUS_CHANNEL:
+    description: 'Octopus channel to deploy to'
+    required: false
+  OCTOPUS_DEPLOY_TO:
+    description: 'Octopus environment to deploy to'
+    required: false
+  OCTOPUS_API_KEY:
+    description: 'Octopus api key to talk to authenticate with'
+    required: false
+  OCTOPUS_DEPLOY_PACKAGE:
+    description: 'Package (root) to deploy'
+    required: false
+  OCTOPUS_DEPLOY_PACKAGE_ZIP:
+    description: 'Package (root) to deploy when zipped'
+    required: false
+
+  # RELEASE
+  GITHUB_TOKEN:
+    description: 'Github Token'
+    required: true
+  CREATE_RELEASE:
+    description: 'Whether to create a release in github'
+    required: true
+
+
+runs:
+  using: "composite"
+  steps:
+    
+  - name: Parameter Summary
+    shell: bash
+    run: |
+      echo "OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}"
+      echo "OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}"
+      echo "OCTOPUS_PROJECT: ${{inputs.OCTOPUS_PROJECT}}"
+      echo "OCTOPUS_CHANNEL: ${{inputs.OCTOPUS_CHANNEL}}"
+      echo "OCTOPUS_DEPLOY_TO: ${{inputs.OCTOPUS_DEPLOY_TO}}"
+      echo "OCTOPUS_SERVER: ${{inputs.OCTOPUS_SERVER}}"
+      echo "OCTOPUS_API_KEY: ${{inputs.OCTOPUS_API_KEY}}"
+      echo "OCTOPUS_SPACE_NAME: ${{inputs.OCTOPUS_SPACE}}"
+      echo "NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}"
+      echo "NUGET_FEED: ${{inputs.NUGET_FEED}}"
+      echo "NUGET_ADDITIONAL_RESTORE_FEED: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}"
+      echo "NUGET_PACK: ${{inputs.NUGET_PACK}}"
+
+  - name: Fetch tags and master
+    shell: bash
+    run: |
+      git fetch --tags
+      echo "REF: $GITHUB_REF"
+      echo "SHA: $GITHUB_SHA"
+      echo "GIT_BRANCH=$GITHUB_REF" >> "$GITHUB_ENV"
+      git branch --remote
+
+  - name: Check file existence
+    id: check_files
+    shell: bash
+    run: |
+      [[ -d src && -f src/global.json && '${{hashfiles('**/*.csproj', '**/*.cs')}}' != '' ]] && echo 'CSPROJ_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'CSPROJ_EXIST=false' >> "$GITHUB_OUTPUT"
+      [[ -d src && -f src/global.json && '${{hashfiles('**/*.sln')}}' != '' ]] && echo 'SLN_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SLN_EXIST=false' >> "$GITHUB_OUTPUT"
+      [[ -d db && '${{hashfiles('**/*.sql')}}' != '' ]] && echo 'SQL_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SQL_EXIST=false' >> "$GITHUB_OUTPUT"
+      [[ -d src && -f src/package.json && src/package-lock.json && '${{hashfiles('src/package.json', 'src/package-lock.json')}}' != '' ]] && echo 'NPM_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'NPM_EXIST=false' >> "$GITHUB_OUTPUT"
+      [[ -f Wallet.json ]] && echo 'NPM_SIGNING_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'NPM_SIGNING_EXIST=false' >> "$GITHUB_OUTPUT"
+
+  - name: Check Files Results
+    shell: bash
+    run: |
+      echo "CSPROJ_EXIST: ${{steps.check_files.outputs.CSPROJ_EXIST}}"
+      echo "SLN_EXIST: ${{steps.check_files.outputs.SLN_EXIST}}"
+      echo "SQL_EXIST: ${{steps.check_files.outputs.SQL_EXIST}}"
+      echo "NPM_EXIST: ${{steps.check_files.outputs.NPM_EXIST}}"
+      echo "NPM_SIGNING_EXIST: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}"
+
+  - name: Check Build Tools Requirements
+    id: build_tools
+    shell: bash
+    run: |
+      [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+    name: Determine .net core version
+    uses: credfeto/action-dotnet-version-detect@v1.3.0
+    with:
+      file: src/global.json
+      fallback: 6.0.*
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+    name: Setup .NET Core
+    uses: actions/setup-dotnet@v3
+    env:
+      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+    with:
+      dotnet-version: |
+          6.0.*
+          ${{env.DOTNET_VERSION}}
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST != 'true' && steps.check_files.outputs.SLN_EXIST != 'true' && steps.check_files.outputs.NPM_EXIST == 'true'}}
+    name: Setup .NET Core
+    uses: actions/setup-dotnet@v3
+    env:
+      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+    with:
+      dotnet-version: |
+          7.0.*
+
+  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
+    name: Enable dotnet tools
+    shell: bash
+    # TODO: if there's already a tool-manifest, don't do this, but do a restore
+    run: dotnet new tool-manifest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
+    name: Install Build Version Tool
+    shell: bash
+    run: dotnet tool install --local FunFair.BuildVersion
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && env.NUGET_PACK == 'true'}}
+    name: Install Multi-Push Tool
+    shell: bash
+    run: dotnet tool install --local Credfeto.Package.Push
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
+    name: Set Define Build Version
+    shell: bash
+    run: dotnet buildversion --BuildNumber "$GITHUB_RUN_NUMBER"
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
+    name: Install Changelog Tool
+    shell: bash
+    run: dotnet tool install --local Credfeto.Changelog.Cmd
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' }}
+    name: Install Package Builder
+    shell: bash
+    run: dotnet tool install --local FunFair.Content.Packager.Cmd --version ${{vars.PRODUCTION_PACKAGER_VERSION}}
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' }}
+    name: Install Package Store Signer
+    shell: bash
+    run: dotnet tool install --local FunFair.Content.PackageSigner.Cmd --version ${{vars.PRODUCTION_PACKAGER_VERSION}}
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: Install Octopus Deploy CLI
+    uses: OctopusDeploy/install-octocli@v3.0.0
+    with:
+      version: latest
+
+  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
+    name: Create Release Notes
+    shell: bash
+    run: dotnet changelog --changelog CHANGELOG.md --extract RELEASE_NOTES.md --version "${{env.BUILD_VERSION}}"
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
+    id: release-notes
+    uses: juliangruber/read-file-action@v1
+    with:
+      path: RELEASE_NOTES.md
+
+  ############################################################################################################
+  # DOTNET BUILD
+  ############################################################################################################
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_ADDITIONAL_RESTORE_FEED != ''}}
+    name: "Dotnet: Add optional nuget feed"
+    shell: bash
+    run: dotnet nuget add source --name Additional1 "${{env.NUGET_ADDITIONAL_RESTORE_FEED}}"
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+    name: "Dotnet: Setup package cache"
+    uses: actions/cache@v3
+    with:
+      path: ~/.nuget/packages
+      key: ${{runner.os}}-nuget-${{hashFiles('**/*.sln', '**/*.csproj', '**/*.props')}}
+      restore-keys: |
+        ${{runner.os}}-nuget-
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+    name: "Dotnet: Stop build server for clean build"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+    name: "Dotnet: Restore packages"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet restore
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+    name: "Dotnet: Build"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet build --no-restore --configuration Release "/p:Version=${{env.BUILD_VERSION}}"
+    env:
+      ReleaseNotes: ${{steps.release-notes.outputs.content}}
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  ## RUN TESTS
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
+    name: "Dotnet: Test"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "/p:Version=${{env.BUILD_VERSION}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results
+    env:
+      ReleaseNotes: ${{steps.release-notes.outputs.content}}
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  ############################################################################################################
+  # DATABASE BUILD
+  ############################################################################################################
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true'}}
+    name: "SQL: Install TSQLLint"
+    shell: bash
+    run: dotnet tool install --local TSQLLint
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true'}}
+    name: "SQL: Lint SQL Files"
+    shell: bash
+    run: dotnet tsqllint "${{github.workspace}}/db"
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true'}}
+    name: "SQL: Get SQL Compare"
+    shell: bash
+    run: docker pull redgate/sqlcompare:latest
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true'}}
+    name: "SQL: Build SQL change"
+    shell: bash
+    run: docker run "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" --net=host --rm redgate/sqlcompare:latest /IAgreeToTheEULA /filter:"$DB_FILTER" /options:ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel /transactionIsolationLevel:SERIALIZABLE /include:staticData /scriptFile:"$DB_OUTPUT" /scripts1:"$DB_SOURCE" /showWarnings /include:Identical /report:"$DB_REPORT" /reportType:Xml /force /OutputWidth:1024 /out:"$DB_LOG" /empty2
+    env:
+      DB_SOURCE: ${{github.workspace}}/db
+      DB_OUTPUT: ${{github.workspace}}/update.sql
+      DB_LOG: ${{github.workspace}}/update.log
+      DB_REPORT: ${{github.workspace}}/update.xml
+      DB_FILTER: ${{github.workspace}}/db/Filter.scpf
+
+  ############################################################################################################
+  # NPM BUILD
+  ############################################################################################################
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
+    name: "NPM: Setup Node.js"
+    uses: actions/setup-node@v3.6.0
+    with:
+      node-version: '16'
+
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
+    name: "NPM: Install dependencies"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: npm ci --ignore-scripts
+
+  # Running tests doesn't work as they're crap
+  # - if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
+  #   name: "NPM: Test"
+  #   shell: bash
+  #   working-directory: ${{github.workspace}}/src
+  #   run: npm run test
+
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
+    name: "NPM: Build"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: npm run build
+
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
+    name: "NPM: Build Package"
+    shell: bash
+    run: dotnet buildcontentpackage -SourcePath "${{github.workspace}}/src/dist" -targetPath "${{github.workspace}}" -version "${{env.BUILD_VERSION}}" -WarningAsErrors false -Wallet "${{github.workspace}}/Wallet.json" -WalletPassword "${{inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD}}"
+
+
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
+    name: "NPM: Check Package"
+    shell: bash
+    run: |
+        ls -la "${{github.workspace}}"
+        echo "-----------------------"
+        ls "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg"
+
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
+    name: "NPM: Create Store Signing Wallet"
+    uses: ttd2089/secret-file-action@1.0.0
+    id: store-siging-wallet
+    with:
+      secret: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
+      b64-decode: false
+
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
+    name: "NPM: Store Sign Package"
+    shell: bash
+    run: dotnet signcontentpackage -Package "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg" -WarningAsErrors true -Wallet false -Wallet "${{steps.store-siging-wallet.outputs.file}}" -WalletPassword "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
+
+  ############################################################################################################
+  # DOTNET PUSH TO NUGET
+  ############################################################################################################
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != '' && env.NUGET_PACK == 'true'}}
+    name: "Dotnet: Pack tool"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet pack --configuration Release "/p:Version=${{env.BUILD_VERSION}}" --no-restore
+    env:
+      ReleaseNotes: ${{steps.release-notes.outputs.content}}
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != '' && env.NUGET_PACK == 'true'}}
+    name: "Dotnet: Copy packed to dist"
+    shell: bash
+    run:  |
+      shopt -s globstar
+      [ ! -d ../dist ] && mkdir ../dist
+      cp **/*.nupkg ../dist
+    working-directory: ${{github.workspace}}/src        
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != '' && env.NUGET_PACK == 'true'}}
+    name: "Dotnet: Publish Packages to Nuget"
+    shell: bash
+    run: dotnet pushpackages -folder dist --api-key "${{env.NUGET_API_KEY}}" --source "${{env.NUGET_FEED}}"
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  ############################################################################################################
+  # DEPLOY TO OCTOPUS
+  ############################################################################################################
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "Dotnet: Pack Packages for Octopus (win-x64)"
+    working-directory: ${{github.workspace}}/src/${{env.OCTOPUS_DEPLOY_PACKAGE}}
+    shell: bash
+    run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:win-x64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{env.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/win-x64
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "Dotnet: Pack Packages for Octopus (linux-x64)"
+    working-directory: ${{github.workspace}}/src/${{env.OCTOPUS_DEPLOY_PACKAGE}}
+    shell: bash
+    run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:linux-x64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{env.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/linux-x64
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "Dotnet: Pack Packages for Octopus (linux-arm64)"
+    working-directory: ${{github.workspace}}/src/${{env.OCTOPUS_DEPLOY_PACKAGE}}
+    shell: bash
+    run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:linux-arm64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{env.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/linux-arm64
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_PRINT_TELEMETRY_MESSAGE: false
+      DOTNET_ReadyToRun: 0
+      DOTNET_TC_QuickJitForLoops: 1
+      DOTNET_TieredPGO: 1
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "Dotnet: Zip Packages for Octopus (win-x64)"
+    working-directory: ${{github.workspace}}/src/server-dist/win-x64
+    shell: bash
+    run: zip -9r "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" . -x -- *.pdb
+  
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "Dotnet: Zip Packages for Octopus (linux-x64)"
+    working-directory: ${{github.workspace}}/src/server-dist/linux-x64
+    shell: bash
+    run: zip -9r "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" . -x -- *.pdb
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "Dotnet: Zip Packages for Octopus (linux-arm64)"
+    working-directory: ${{github.workspace}}/src/server-dist/linux-arm64
+    shell: bash
+    run: zip -9r "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip" . -x -- *.pdb
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "SQL: Zip DB for Octopus"
+    working-directory: ${{github.workspace}}/db
+    shell: bash
+    run: |
+      mkdir -p ../package/db/state
+      cp -R -- * ../package/db/state
+      cd ../package
+      zip -9r "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database.${{env.BUILD_VERSION}}.zip" .
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "Dotnet: Push package to Octopus (EXE and DB)"
+    shell: bash
+    run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database.${{env.BUILD_VERSION}}.zip"
+    env:
+      OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
+      OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
+      OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "Dotnet: Push package to Octopus (EXE ONLY)"
+    shell: bash
+    run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip"
+    env:
+      OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
+      OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
+      OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
+
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "Dotnet: Push package to Octopus (NPM NUPKG ONLY)"
+    shell: bash
+    run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg"
+    env:
+      OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
+      OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
+      OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
+    name: "Dotnet: Create Octopus Release (EXE and DB)"
+    shell: bash
+    run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
+    env:
+      OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
+      OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
+      OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
+
+  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST != 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
+    name: "Dotnet: Create Octopus Release (EXE ONLY)"
+    shell: bash
+    run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
+    env:
+      OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
+      OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
+      OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
+
+  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != ''}}
+    name: "Dotnet: Create Octopus Release (EXE ONLY)"
+    shell: bash
+    run: octopus release create --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{env.OCTOPUS_CHANNEL}}" --package="${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
+    env:
+      OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
+      OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
+      OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
+
+  - if: ${{(steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true') || (steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true') && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
+    shell: bash
+    name: Deploy Octopus Release
+    run: octopus release deploy --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --environment="${{env.OCTOPUS_DEPLOY_TO}}"
+    env:
+      OCTOPUS_URL: "${{env.OCTOPUS_SERVER}}"
+      OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
+      OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
+
+  ############################################################################################################
+  # Create Github Release
+  ############################################################################################################
+  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.CREATE_RELEASE == 'true'}}
+    name: Create Release
+    id: create_release
+    uses: ncipollo/release-action@v1
+    with:
+      tag: v${{env.BUILD_VERSION}}
+      name:  Release ${{env.BUILD_VERSION}}
+      bodyFile: "RELEASE_NOTES.md"
+      draft: false
+      prerelease: false
+      generateReleaseNotes: true
+      token: ${{inputs.GITHUB_TOKEN}}
