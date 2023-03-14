@@ -249,6 +249,14 @@ jobs:
         name: "NPM: Build Package"
         run: dotnet buildcontentpackage -SourcePath "${{github.workspace}}/src/dist" -targetPath "${{github.workspace}}" -version "${{env.BUILD_VERSION}}" -WarningAsErrors false -Wallet "${{github.workspace}}/Wallet.json" -WalletPassword "${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}"
 
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
+        name: "NPM: Create Store Signer"
+        run: echo "${{secrets.PACKAGE_STORE_SIGNING_WALLET}}" >> "${{github.workspace}}/.StoreSigningWallet.json"
+
+      - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
+        name: "NPM: Store Sign Package"
+        run: dotnet signcontentpackage -Package "${{github.workspace}}\${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg" -WarningAsErrors true -Wallet false -Wallet "${{github.workspace}}/.StoreSigningWallet.json" -WalletPassword "${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
+
       ## NUGET PACKAGES
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != '' && env.NUGET_PACK == 'true'}}
         name: "Dotnet: Pack tool"
@@ -352,7 +360,7 @@ jobs:
           OCTOPUS_API_KEY: "${{env.OCTOPUS_API_KEY}}"
           OCTOPUS_SPACE: "${{env.OCTOPUS_SPACE_NAME}}"
 
-      - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
+      - if: ${{(steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true') || (steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true') && env.OCTOPUS_DEPLOY_PACKAGE != '' && env.OCTOPUS_CHANNEL != '' && env.GIT_BRANCH == 'refs/heads/main'}}
         name: Deploy Octopus Release
         run: octopus release deploy --no-prompt --project="${{env.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --environment="${{env.OCTOPUS_DEPLOY_TO}}"
         env:
