@@ -1,0 +1,85 @@
+--- # Build and deploy packages
+name: 'Build and deploy'
+description: 'Builds and deploys the source'
+inputs:
+  # NPM
+  NPM_PRODUCTION_PACKAGER_VERSION:
+    description: 'Version of the NPM output nuget packager to use'
+    required: false
+  NPM_CONTENT_PACKAGE_WALLET_PASSWORD:
+    description: 'Password to unlock /Wallet.json'
+    required: false
+  NPM_PACKAGE_STORE_SIGNING_WALLET:
+    description: 'Store signing wallet.json'
+    required: false
+  NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD:
+    description: 'Password to unlock NPM_PACKAGE_STORE_SIGNING_WALLET'
+    required: false
+  NPM_SIGNING:
+    description: 'Whether produce a signed package'
+    required: false
+
+  # General
+  BUILD_VERSION:
+    description: 'Build version'
+    required: true
+
+  # Octopus
+  OCTOPUS_DEPLOY_PACKAGE:
+    description: 'Package (root) to deploy'
+    required: false
+  OCTOPUS_DEPLOY_PACKAGE_ZIP:
+    description: 'Package (root) to deploy when zipped'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    
+  - name: "NPM: Setup Node.js"
+    uses: actions/setup-node@v3.6.0
+    with:
+      node-version: '16'
+
+  - name: "NPM: Install dependencies"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: npm ci --ignore-scripts
+
+  # Running tests doesn't work as they're crap
+  # - name: "NPM: Test"
+  #   shell: bash
+  #   working-directory: ${{github.workspace}}/src
+  #   run: npm run test
+
+  - name: "NPM: Build"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: npm run build
+
+  - if: ${{inputs.NPM_SIGNING == 'true'}}
+    name: "NPM: Build Package"
+    shell: bash
+    run: dotnet buildcontentpackage -SourcePath "${{github.workspace}}/src/dist" -targetPath "${{github.workspace}}" -version "${{inputs.BUILD_VERSION}}" -WarningAsErrors false -Wallet "${{github.workspace}}/Wallet.json" -WalletPassword "${{inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD}}"
+
+
+  - if: ${{inputs.NPM_SIGNING == 'true'}}
+    name: "NPM: Check Package"
+    shell: bash
+    run: |
+        ls -la "${{github.workspace}}"
+        echo "-----------------------"
+        ls "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg"
+
+  - if: ${{inputs.NPM_SIGNING == 'true'}}
+    name: "NPM: Create Store Signing Wallet"
+    uses: ttd2089/secret-file-action@1.0.0
+    id: store-siging-wallet
+    with:
+      secret: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
+      b64-decode: false
+
+  - if: ${{inputs.NPM_SIGNING == 'true'}}
+    name: "NPM: Store Sign Package"
+    shell: bash
+    run: dotnet signcontentpackage -Package "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{inputs.BUILD_VERSION}}.nupkg" -WarningAsErrors true -Wallet false -Wallet "${{steps.store-siging-wallet.outputs.file}}" -WalletPassword "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
