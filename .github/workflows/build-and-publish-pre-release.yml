@@ -251,11 +251,11 @@ jobs:
 
       - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
         name: "NPM: Create Store Signer"
-        run: echo "${{secrets.PACKAGE_STORE_SIGNING_WALLET}}" >> "${{github.workspace}}/.StoreSigningWallet.json"
+        run: echo ${{secrets.PACKAGE_STORE_SIGNING_WALLET}} > "${{github.workspace}}/.StoreSigningWallet.json"
 
       - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'}}
         name: "NPM: Store Sign Package"
-        run: dotnet signcontentpackage -Package "${{github.workspace}}\${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg" -WarningAsErrors true -Wallet false -Wallet "${{github.workspace}}/.StoreSigningWallet.json" -WalletPassword "${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
+        run: dotnet signcontentpackage -Package "${{github.workspace}}/${{env.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg" -WarningAsErrors true -Wallet false -Wallet "${{github.workspace}}/.StoreSigningWallet.json" -WalletPassword "${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
 
       ## NUGET PACKAGES
       - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && env.NUGET_API_KEY != '' && env.NUGET_PACK == 'true'}}
