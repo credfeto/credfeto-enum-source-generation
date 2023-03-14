@@ -1,0 +1,59 @@
+--- # Build and deploy packages
+name: 'Install dotnet and build tools'
+description: 'Install dotnet and build tools'
+inputs:
+  GITHUB_TOKEN:
+    description: 'Github Token'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+  - name: Determine .net core version
+    uses: credfeto/action-dotnet-version-detect@v1.3.0
+    with:
+      file: src/global.json
+      fallback: 7.0.*
+
+  - name: Setup .NET Core
+    uses: actions/setup-dotnet@v3
+    env:
+      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+      DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
+    with:
+      dotnet-version: |
+          6.0.*
+          ${{env.DOTNET_VERSION}}
+
+  - name: Enable dotnet tools
+    shell: bash
+    run: |
+      [ -f .config/dotnet-tools.json ] && dotnet tool restore --local
+      [ ! -f .config/dotnet-tools.json ] && dotnet new tool-manifest
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
+  - name: Install Build Version Tool
+    shell: bash
+    run: dotnet tool install --local FunFair.BuildVersion
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
+  - name: Install Changelog Tool
+    shell: bash
+    run: dotnet tool install --local Credfeto.Changelog.Cmd
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
