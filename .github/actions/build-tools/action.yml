@@ -16,6 +16,10 @@ runs:
       file: src/global.json
       fallback: 7.0.*
 
+  - name: "Explicitly kill any existing dotnet"
+    run: rm -fr "${{github.workspace}}/.dotnet"
+    shell: bash
+
   - name: Setup .NET Core
     uses: actions/setup-dotnet@v3
     env:
