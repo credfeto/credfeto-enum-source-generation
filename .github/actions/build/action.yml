@@ -228,8 +228,8 @@ runs:
       NUGET_PACK: ${{inputs.NUGET_PACK}}
       NUGET_FEED: ${{inputs.NUGET_FEED}}
       NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
-      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
-      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
 
   ############################################################################################################
@@ -245,8 +245,8 @@ runs:
       NPM_PACKAGE_STORE_SIGNING_WALLET: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
       NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
       NPM_SIGNING: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}
-      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
-      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
   ############################################################################################################
   # DEPLOY TO OCTOPUS
