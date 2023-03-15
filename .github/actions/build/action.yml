@@ -68,7 +68,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    
+
   - name: Parameter Summary
     shell: bash
     run: |
@@ -224,7 +224,6 @@ runs:
     with:
       BUILD_VERSION: ${{env.BUILD_VERSION}}
       BUILD_SQL: ${{steps.check_files.outputs.SQL_EXIST}}
-      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       NUGET_ADDITIONAL_RESTORE_FEED: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}
       NUGET_PACK: ${{inputs.NUGET_PACK}}
       NUGET_FEED: ${{inputs.NUGET_FEED}}
