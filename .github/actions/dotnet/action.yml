@@ -69,8 +69,15 @@ runs:
       DOTNET_TieredPGO: "1"
 
   - name: "Dotnet: Clean"
+    working-directory: ${{github.workspace}}/src
     run: dotnet clean --configuration=Release -nodeReuse:False
     shell: bash
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
 
   - name: "Dotnet: Restore packages"
     working-directory: ${{github.workspace}}/src
