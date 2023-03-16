@@ -306,7 +306,7 @@ runs:
       OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
       OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
 
-  - if: ${{(steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true') || (steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true') && inputs.OCTOPUS_DEPLOY_PACKAGE != '' && inputs.OCTOPUS_CHANNEL != '' && env.DEPLOY == 'true'}}
+  - if: ${{((steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true') || (steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true')) && inputs.OCTOPUS_DEPLOY_PACKAGE != '' && inputs.OCTOPUS_CHANNEL != '' && env.DEPLOY == 'true'}}
     shell: bash
     name: Deploy Octopus Release
     run: octopus release deploy --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --environment="${{inputs.OCTOPUS_DEPLOY_TO}}"
