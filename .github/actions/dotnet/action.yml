@@ -137,78 +137,42 @@ runs:
     name: "SQL: Build"
     uses: ./.github/actions/sql
     with:
-      BUILD_VERSION: ${{env.BUILD_VERSION}}
-      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
-      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+      BUILD_VERSION: ${{inputs.BUILD_VERSION}}
+      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
   ############################################################################################################
   # Publish ready for deploy to octopus
   ############################################################################################################
   - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     name: "Dotnet: Pack Packages for Octopus (win-x64)"
-    working-directory: ${{github.workspace}}/src/${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
-    shell: bash
-    run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:win-x64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/win-x64  -nodeReuse:False
-    env:
-      ReleaseNotes: ${{inputs.RELEASE_NOTES}}
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TieredPGO: "1"
+    uses: ./.github/actions/dotnet-publish
+    with:
+      BUILD_VERSION: ${{inputs.BUILD_VERSION}}
+      RELEASE_NOTES: ${{input.RELEASE_NOTES}}
+      PLATFORM: "win-x64"
+      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
   - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     name: "Dotnet: Pack Packages for Octopus (linux-x64)"
-    working-directory: ${{github.workspace}}/src/${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
-    shell: bash
-    run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:linux-x64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/linux-x64  -nodeReuse:False
-    env:
-      ReleaseNotes: ${{inputs.RELEASE_NOTES}}
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TieredPGO: "1"
+    uses: ./.github/actions/dotnet-publish
+    with:
+      BUILD_VERSION: ${{inputs.BUILD_VERSION}}
+      RELEASE_NOTES: ${{input.RELEASE_NOTES}}
+      PLATFORM: "linux-x64"
+      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
   - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     name: "Dotnet: Pack Packages for Octopus (linux-arm64)"
-    working-directory: ${{github.workspace}}/src/${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
-    shell: bash
-    run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:linux-arm64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/linux-arm64  -nodeReuse:False
-    env:
-      ReleaseNotes: ${{inputs.RELEASE_NOTES}}
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TieredPGO: "1"
-
-  - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Zip Packages for Octopus (win-x64)"
-    working-directory: ${{github.workspace}}/src/server-dist/win-x64
-    shell: bash
-    run: zip -9r "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{inputs.BUILD_VERSION}}.zip" . -x -- *.pdb
-
-  - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Zip Packages for Octopus (linux-x64)"
-    working-directory: ${{github.workspace}}/src/server-dist/linux-x64
-    shell: bash
-    run: zip -9r "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{inputs.BUILD_VERSION}}.zip" . -x -- *.pdb
-
-  - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Zip Packages for Octopus (linux-arm64)"
-    working-directory: ${{github.workspace}}/src/server-dist/linux-arm64
-    shell: bash
-    run: zip -9r "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{inputs.BUILD_VERSION}}.zip" . -x -- *.pdb
+    uses: ./.github/actions/dotnet-publish
+    with:
+      BUILD_VERSION: ${{inputs.BUILD_VERSION}}
+      RELEASE_NOTES: ${{input.RELEASE_NOTES}}
+      PLATFORM: "linux-arm64"
+      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
   ############################################################################################################
   # DOTNET PUSH TO NUGET
