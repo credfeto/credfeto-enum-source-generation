@@ -35,7 +35,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    
+
   - name: "NPM: Setup Node.js"
     uses: actions/setup-node@v3.6.0
     with:
@@ -61,6 +61,15 @@ runs:
     name: "NPM: Build Package"
     shell: bash
     run: dotnet buildcontentpackage -SourcePath "${{github.workspace}}/src/dist" -targetPath "${{github.workspace}}" -version "${{inputs.BUILD_VERSION}}" -WarningAsErrors false -Wallet "${{github.workspace}}/Wallet.json" -WalletPassword "${{inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD}}"
+    env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
 
 
   - if: ${{inputs.NPM_SIGNING == 'true'}}
@@ -83,3 +92,12 @@ runs:
     name: "NPM: Store Sign Package"
     shell: bash
     run: dotnet signcontentpackage -Package "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{inputs.BUILD_VERSION}}.nupkg" -WarningAsErrors true -Wallet false -Wallet "${{steps.store-siging-wallet.outputs.file}}" -WalletPassword "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
+    env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
