@@ -1,0 +1,47 @@
+--- # Build and deploy packages
+name: 'Build Dotnet'
+description: 'Builds and deploys the source'
+inputs:
+  # General
+  BUILD_VERSION:
+    description: 'Build version'
+    required: true
+
+  RELEASE_NOTES:
+    description: 'Release notes'
+    required: false
+
+  PLATFORM:
+    description: 'Release notes'
+    required: true
+
+  # Octopus
+  OCTOPUS_DEPLOY_PACKAGE:
+    description: 'Package (root) to deploy'
+    required: false
+  OCTOPUS_DEPLOY_PACKAGE_ZIP:
+    description: 'Package (root) to deploy when zipped'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+  - name: "Dotnet: Pack For Octopus"
+    working-directory: ${{github.workspace}}/src/${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+    shell: bash
+    run: dotnet publish -warnaserror --configuration:Release -r:${{inputs.PLATFORM} --self-contained -p:NoWarn=NETSDK1179 -p:PublishSingleFile=true -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/${{inputs.PLATFORM} -nodeReuse:False
+    env:
+      ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
+  - name: "Dotnet: Zip Packages for Octopus"
+    working-directory: ${{github.workspace}}/src/server-dist/${{inputs.PLATFORM}
+    shell: bash
+    run: zip -9r "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{inputs.PLATFORM}.${{inputs.BUILD_VERSION}}.zip" . -x -- *.pdb
