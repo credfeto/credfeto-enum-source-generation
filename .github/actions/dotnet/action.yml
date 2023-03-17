@@ -62,6 +62,9 @@ runs:
     shell: bash
     run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
     env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -73,6 +76,9 @@ runs:
     run: dotnet clean --configuration=Release -nodeReuse:False
     shell: bash
     env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -84,6 +90,9 @@ runs:
     shell: bash
     run: dotnet restore -nodeReuse:False
     env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -96,6 +105,9 @@ runs:
     run: dotnet build --no-restore --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" -nodeReuse:False
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -109,6 +121,9 @@ runs:
     run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results  -nodeReuse:False
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -136,6 +151,9 @@ runs:
     run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:win-x64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/win-x64  -nodeReuse:False
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -149,6 +167,9 @@ runs:
     run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:linux-x64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/linux-x64  -nodeReuse:False
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -162,6 +183,9 @@ runs:
     run: dotnet publish -warnaserror -p:PublishSingleFile=true --configuration:Release -r:linux-arm64 --self-contained -p:NoWarn=NETSDK1179 -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/linux-arm64  -nodeReuse:False
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -196,6 +220,9 @@ runs:
     run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -216,6 +243,9 @@ runs:
     shell: bash
     run: dotnet pushpackages -folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source "${{inputs.NUGET_FEED}}"
     env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: false
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
