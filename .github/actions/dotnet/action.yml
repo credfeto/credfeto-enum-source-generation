@@ -149,7 +149,7 @@ runs:
     uses: ./.github/actions/dotnet-publish
     with:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
-      RELEASE_NOTES: ${{input.RELEASE_NOTES}}
+      RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
       PLATFORM: "win-x64"
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
@@ -159,7 +159,7 @@ runs:
     uses: ./.github/actions/dotnet-publish
     with:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
-      RELEASE_NOTES: ${{input.RELEASE_NOTES}}
+      RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
       PLATFORM: "linux-x64"
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
@@ -169,7 +169,7 @@ runs:
     uses: ./.github/actions/dotnet-publish
     with:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
-      RELEASE_NOTES: ${{input.RELEASE_NOTES}}
+      RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
       PLATFORM: "linux-arm64"
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
