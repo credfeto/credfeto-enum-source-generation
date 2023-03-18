@@ -37,7 +37,7 @@ runs:
   - name: Enable dotnet tools
     shell: bash
     run: |
-      [ -f .config/dotnet-tools.json ] && dotnet tool restore --local
+      [ -f .config/dotnet-tools.json ] && dotnet tool restore
       [ ! -f .config/dotnet-tools.json ] && dotnet new tool-manifest
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
