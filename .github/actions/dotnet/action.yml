@@ -118,7 +118,7 @@ runs:
   - name: "Dotnet: Test"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results  -nodeReuse:False
+    run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results -nodeReuse:False
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
@@ -181,7 +181,7 @@ runs:
     name: "Dotnet: Pack tool"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore
+    run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore "/p:PackageReadmeFile=${{github.workspace}}/README.md" -nodeReuse:False
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
