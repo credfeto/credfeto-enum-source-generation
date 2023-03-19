@@ -181,7 +181,7 @@ runs:
     name: "Dotnet: Pack tool"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore "/p:PackageReadmeFile=${{github.workspace}}/README.md" -nodeReuse:False
+    run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore -nodeReuse:False
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
