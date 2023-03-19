@@ -38,7 +38,7 @@ runs:
     shell: bash
     run: |
       [ ! -f .config/dotnet-tools.json ] && dotnet new tool-manifest
-      dotnet tool restore
+      dotnet tool restore || true
 
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
