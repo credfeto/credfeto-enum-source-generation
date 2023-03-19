@@ -29,7 +29,7 @@ runs:
   - name: "Dotnet: Pack For Octopus"
     working-directory: ${{github.workspace}}/src/${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
     shell: bash
-    run: dotnet publish -warnaserror --configuration:Release -r:${{inputs.PLATFORM} --self-contained -p:NoWarn=NETSDK1179 -p:PublishSingleFile=true -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/${{inputs.PLATFORM} -nodeReuse:False
+    run: dotnet publish -warnaserror --configuration:Release -r:${{inputs.PLATFORM}} --self-contained -p:NoWarn=NETSDK1179 -p:PublishSingleFile=true -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/${{inputs.PLATFORM} -nodeReuse:False
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
@@ -42,6 +42,6 @@ runs:
       DOTNET_TieredPGO: "1"
 
   - name: "Dotnet: Zip Packages for Octopus"
-    working-directory: ${{github.workspace}}/src/server-dist/${{inputs.PLATFORM}
+    working-directory: ${{github.workspace}}/src/server-dist/${{inputs.PLATFORM}}
     shell: bash
-    run: zip -9r "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{inputs.PLATFORM}.${{inputs.BUILD_VERSION}}.zip" . -x -- *.pdb
+    run: zip -9r "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{inputs.PLATFORM}}.${{inputs.BUILD_VERSION}}.zip" . -x -- *.pdb
