@@ -20,7 +20,7 @@
     <TieredCompilation>true</TieredCompilation>
     <TreatSpecificWarningsAsErrors />
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
+    <WarningsAsErrors/>
     <IsTrimmable>true</IsTrimmable>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <!-- Dotnet 7 features -->
@@ -29,6 +29,8 @@
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
     <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
     <DebuggerSupport>true</DebuggerSupport>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <PropertyGroup>
     <Company>Mark Ridgwell</Company>
