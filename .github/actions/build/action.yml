@@ -298,7 +298,7 @@ runs:
       OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
 
   - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Create Octopus Release (EXE ONLY)"
+    name: "Dotnet: Create Octopus Release (NPM ONLY)"
     shell: bash
     run: octopus release create --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{inputs.OCTOPUS_CHANNEL}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
     env:
