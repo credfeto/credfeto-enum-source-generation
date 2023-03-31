@@ -281,7 +281,7 @@ runs:
 
   - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != '' && inputs.OCTOPUS_CHANNEL != '' && env.DEPLOY == 'true'}}
     name: "Dotnet: Create Octopus Release (EXE and DB)"
-    shell: inputs
+    shell: bash
     run: octopus release create --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{inputs.OCTOPUS_CHANNEL}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
     env:
       OCTOPUS_URL: "${{inputs.OCTOPUS_SERVER}}"
