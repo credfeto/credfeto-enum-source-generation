@@ -17,7 +17,7 @@ on:
       - 'hotfix/*'
 
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: ${{github.workflow}}-${{github.ref}}-pre-release
   cancel-in-progress: true
 
 permissions:
