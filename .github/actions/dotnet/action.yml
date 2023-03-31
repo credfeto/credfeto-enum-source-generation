@@ -57,14 +57,14 @@ runs:
       restore-keys: |
         ${{runner.os}}-nuget-
 
-  - name: "Dotnet: Stop build server for clean build"
+  - name: "Dotnet: Stop build server for clean"
     working-directory: ${{github.workspace}}/src
     shell: bash
     run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -78,7 +78,21 @@ runs:
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
+  - name: "Dotnet: Stop build server for restore"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
+    env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -92,7 +106,21 @@ runs:
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
+  - name: "Dotnet: Stop build server for build"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
+    env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -107,7 +135,7 @@ runs:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -115,6 +143,20 @@ runs:
       DOTNET_TieredPGO: "1"
 
   ## RUN TESTS
+  - name: "Dotnet: Stop build server for Test"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
+    env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: "false"
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
   - name: "Dotnet: Test"
     working-directory: ${{github.workspace}}/src
     shell: bash
@@ -123,7 +165,21 @@ runs:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
+  - name: "Dotnet: Stop build server post test"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
+    env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -186,12 +242,28 @@ runs:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+
+  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true'}}
+    name: "Dotnet: Stop build server post Pack"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
+    env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_MULTILEVEL_LOOKUP: "false"
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
 
   - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true'}}
     name: "Dotnet: Copy packed to dist"
@@ -209,7 +281,7 @@ runs:
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
