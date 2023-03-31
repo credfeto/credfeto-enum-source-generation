@@ -27,7 +27,7 @@ runs:
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
       DOTNET_NOLOGO: "true"
       DOTNET_CLI_TELEMETRY_OPTOUT: true
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
     with:
       dotnet-version: |
           6.0.*
@@ -43,7 +43,7 @@ runs:
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -56,7 +56,7 @@ runs:
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
@@ -69,7 +69,7 @@ runs:
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_MULTILEVEL_LOOKUP: false
+      DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
       DOTNET_ReadyToRun: "0"
