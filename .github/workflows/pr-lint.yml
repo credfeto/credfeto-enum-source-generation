@@ -79,36 +79,52 @@ jobs:
         uses: actions/setup-dotnet@v3.0.3
         env:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: false
+          DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+          DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
           DOTNET_MULTILEVEL_LOOKUP: "false"
+          DOTNET_NOLOGO: "true"
+          DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+          DOTNET_ReadyToRun: "0"
+          DOTNET_TC_QuickJitForLoops: "1"
+          DOTNET_TieredPGO: "1"
         with:
           dotnet-version: ${{env.DOTNET_VERSION}}
       - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
         name: Enable dotnet tools
         run: dotnet new tool-manifest
         env:
-          DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: false
+          DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+          DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
           DOTNET_MULTILEVEL_LOOKUP: "false"
+          DOTNET_NOLOGO: "true"
+          DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+          DOTNET_ReadyToRun: "0"
+          DOTNET_TC_QuickJitForLoops: "1"
+          DOTNET_TieredPGO: "1"
       - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
         name: Install Changelog tool
         run: dotnet tool install --local Credfeto.ChangeLog.Cmd
         env:
-          DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: false
+          DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+          DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
           DOTNET_MULTILEVEL_LOOKUP: "false"
+          DOTNET_NOLOGO: "true"
+          DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+          DOTNET_ReadyToRun: "0"
+          DOTNET_TC_QuickJitForLoops: "1"
+          DOTNET_TieredPGO: "1"
       - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
         name: Check Changelog
         run: dotnet changelog --changelog CHANGELOG.md --check-insert "origin/${{github.base_ref}}"
         env:
-          DOTNET_INSTALL_DIR: ${{github.workspace}}/.dotnet
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: false
+          DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+          DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
           DOTNET_MULTILEVEL_LOOKUP: "false"
+          DOTNET_NOLOGO: "true"
+          DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+          DOTNET_ReadyToRun: "0"
+          DOTNET_TC_QuickJitForLoops: "1"
+          DOTNET_TieredPGO: "1"
 
   does-not-contain-secrets:
     if: github.event.pull_request.draft == false
