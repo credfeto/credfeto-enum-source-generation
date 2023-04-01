@@ -24,10 +24,14 @@ runs:
     uses: actions/setup-dotnet@v3
     env:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
-      DOTNET_NOLOGO: "true"
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_MULTILEVEL_LOOKUP: "false"
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
     with:
       dotnet-version: |
           6.0.*
@@ -41,8 +45,8 @@ runs:
       dotnet tool restore || true
 
     env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
@@ -54,8 +58,8 @@ runs:
     shell: bash
     run: dotnet tool install --local FunFair.BuildVersion
     env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
@@ -67,8 +71,8 @@ runs:
     shell: bash
     run: dotnet tool install --local Credfeto.Changelog.Cmd
     env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet"
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_MULTILEVEL_LOOKUP: "false"
       DOTNET_NOLOGO: "true"
       DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
