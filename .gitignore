@@ -359,3 +359,7 @@ src/Data
 
 # Lock files
 *.lock
+
+## Kate
+**/*.kate-swp
+
