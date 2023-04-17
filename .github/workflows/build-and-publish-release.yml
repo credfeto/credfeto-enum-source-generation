@@ -19,7 +19,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: Initialise Workspace
+        run: |
+          sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+          mkdir -p "$GITHUB_WORKSPACE/.tmp"
 
       - uses: actions/checkout@v3
         with:
