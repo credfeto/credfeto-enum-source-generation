@@ -731,7 +731,7 @@
         <!-- MA0103 - Use SequenceEqual instead of equality operator -->
         <Rule Id="MA0103" Action="Error"/>
         <!-- MA0104 - Do not create a type with a name from the BCL -->
-        <Rule Id="MA0104" Action="Error"/>
+        <Rule Id="MA0104" Action="Info"/>
         <!-- MA0105 - Use the lambda parameters instead of using a closure -->
         <Rule Id="MA0105" Action="Error"/>
         <!-- MA0106 - Avoid closure by using an overload with the 'factoryArgument' parameter -->
