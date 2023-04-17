@@ -48,6 +48,8 @@ runs:
     name: "Dotnet: Add optional nuget feed"
     shell: bash
     run: dotnet nuget add source --name Additional1 "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}"
+    env:
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: "Dotnet: Setup package cache"
     uses: actions/cache@v3
@@ -70,6 +72,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: "Dotnet: Clean"
     working-directory: ${{github.workspace}}/src
@@ -84,6 +87,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: "Dotnet: Stop build server for restore"
     working-directory: ${{github.workspace}}/src
@@ -98,6 +102,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: "Dotnet: Restore packages"
     working-directory: ${{github.workspace}}/src
@@ -112,6 +117,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: "Dotnet: Stop build server for build"
     working-directory: ${{github.workspace}}/src
@@ -126,6 +132,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: "Dotnet: Build"
     working-directory: ${{github.workspace}}/src
@@ -141,6 +148,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   ## RUN TESTS
   - name: "Dotnet: Stop build server for Test"
@@ -156,6 +164,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: "Dotnet: Test"
     working-directory: ${{github.workspace}}/src
@@ -171,6 +180,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: "Dotnet: Stop build server post test"
     working-directory: ${{github.workspace}}/src
@@ -185,6 +195,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   # ############################################################################################################
   # # DATABASE BUILD
@@ -196,6 +207,7 @@ runs:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   ############################################################################################################
   # Publish ready for deploy to octopus
@@ -209,6 +221,7 @@ runs:
       PLATFORM: "win-x64"
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     name: "Dotnet: Pack Packages for Octopus (linux-x64)"
@@ -219,6 +232,7 @@ runs:
       PLATFORM: "linux-x64"
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     name: "Dotnet: Pack Packages for Octopus (linux-arm64)"
@@ -229,6 +243,7 @@ runs:
       PLATFORM: "linux-arm64"
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   ############################################################################################################
   # DOTNET PUSH TO NUGET
@@ -248,6 +263,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true'}}
     name: "Dotnet: Stop build server post Pack"
@@ -263,7 +279,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true'}}
     name: "Dotnet: Copy packed to dist"
@@ -287,3 +303,4 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
