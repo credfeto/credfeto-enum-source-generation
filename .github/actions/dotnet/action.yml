@@ -48,8 +48,6 @@ runs:
     name: "Dotnet: Add optional nuget feed"
     shell: bash
     run: dotnet nuget add source --name Additional1 "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}"
-    env:
-      TMPDIR: "${{inputs.TEMP_WORK_DIR}}"
 
   - name: "Dotnet: Setup package cache"
     uses: actions/cache@v3
@@ -72,9 +70,6 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      TMP: "${{inputs.TEMP_WORK_DIR}}/"
-      TEMP: "${{inputs.TEMP_WORK_DIR}}/"
-      TMPDIR: "${{inputs.TEMP_WORK_DIR}}/"
 
   - name: "Dotnet: Build"
     working-directory: ${{github.workspace}}/src
@@ -90,9 +85,6 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      TMP: "${{inputs.TEMP_WORK_DIR}}/"
-      TEMP: "${{inputs.TEMP_WORK_DIR}}/"
-      TMPDIR: "${{inputs.TEMP_WORK_DIR}}/"
 
   ## RUN TESTS
   - name: "Dotnet: Test"
@@ -109,9 +101,6 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      TMP: "${{inputs.TEMP_WORK_DIR}}"
-      TEMP: "${{inputs.TEMP_WORK_DIR}}"
-      TMPDIR: "${{inputs.TEMP_WORK_DIR}}"
 
   # ############################################################################################################
   # # DATABASE BUILD
@@ -175,7 +164,6 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      TMPDIR: "${{inputs.TEMP_WORK_DIR}}"
 
   - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true'}}
     name: "Dotnet: Copy packed to dist"
