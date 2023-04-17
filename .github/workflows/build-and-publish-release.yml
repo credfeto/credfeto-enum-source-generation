@@ -18,16 +18,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    env:
-      TEMP_WORK_DIR: ${{github.workspace}}/.tmp
-
     steps:
       - name: Initialise Workspace
-        run: |
-          echo "Setting owner of $GITHUB_WORKSPACE to $USER"
-          sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-          [[ ! -d "${{env.TEMP_WORK_DIR}}" ]] && mkdir -p "${{env.TEMP_WORK_DIR}}"
-          sudo chown -R "$USER:$USER" "${{env.TEMP_WORK_DIR}}"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - uses: actions/checkout@v3
         with:
@@ -52,7 +45,6 @@ jobs:
           OCTOPUS_API_KEY: ${{secrets.OCTOPUS_API_KEY}}
           OCTOPUS_DEPLOY_PACKAGE: ${{vars.OCTOPUS_DEPLOY_PACKAGE}}
           OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{vars.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
-          TEMP_WORK_DIR: ${{env.TEMP_WORK_DIR}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           CREATE_RELEASE: true
 
