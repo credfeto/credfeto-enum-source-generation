@@ -6,11 +6,6 @@ inputs:
     description: 'Github Token'
     required: true
 
-  # BUILD
-  TEMP_WORK_DIR:
-    description: 'Temp path'
-    required: true
-
 runs:
   using: "composite"
   steps:
