@@ -70,7 +70,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - if: ${{inputs.NPM_SIGNING == 'true'}}
     name: "NPM: Check Package"
@@ -101,3 +101,4 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
