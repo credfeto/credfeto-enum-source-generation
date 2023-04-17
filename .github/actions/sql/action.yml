@@ -15,6 +15,11 @@ inputs:
     description: 'Package (root) to deploy when zipped'
     required: false
 
+  # BUILD
+  TEMP_WORK_DIR:
+    description: 'Temp path'
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -31,7 +36,6 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: "SQL: Lint SQL Files"
     shell: bash
@@ -45,7 +49,6 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: "SQL: Get SQL Compare"
     shell: bash
