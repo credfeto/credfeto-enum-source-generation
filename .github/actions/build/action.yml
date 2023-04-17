@@ -64,11 +64,6 @@ inputs:
     description: 'Whether to create a release in github'
     required: true
 
-  # BUILD
-  TEMP_WORK_DIR:
-    description: 'Temp path'
-    required: true
-
 runs:
   using: "composite"
   steps:
@@ -88,7 +83,6 @@ runs:
       echo "NUGET_FEED: ${{inputs.NUGET_FEED}}"
       echo "NUGET_ADDITIONAL_RESTORE_FEED: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}"
       echo "NUGET_PACK: ${{inputs.NUGET_PACK}}"
-      echo "TEMP_WORK_DIR: ${{inputs.TEMP_WORK_DIR}}"
 
   - name: Fetch tags and master
     shell: bash
@@ -122,7 +116,6 @@ runs:
     uses: ./.github/actions/build-tools
     with:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
-      TEMP_WORK_DIR: ${{inputs.TEMP_WORK_DIR}}
 
   - name: Check Build Tools Requirements
     id: build_tools
@@ -251,7 +244,6 @@ runs:
       NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
-      TEMP_WORK_DIR: "${{inputs.TEMP_WORK_DIR}}"
 
   ############################################################################################################
   # NPM BUILD
@@ -268,7 +260,6 @@ runs:
       NPM_SIGNING: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
-      TEMP_WORK_DIR: ${{inputs.TEMP_WORK_DIR}}
 
   ############################################################################################################
   # DEPLOY TO OCTOPUS
