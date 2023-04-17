@@ -6,6 +6,11 @@ inputs:
     description: 'Github Token'
     required: true
 
+  # BUILD
+  TEMP_WORK_DIR:
+    description: 'Temp path'
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -32,7 +37,6 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
     with:
       dotnet-version: |
           6.0.*
@@ -44,7 +48,6 @@ runs:
     run: |
       [ ! -f .config/dotnet-tools.json ] && dotnet new tool-manifest
       dotnet tool restore || true
-
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -54,7 +57,6 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: Install Build Version Tool
     shell: bash
@@ -68,7 +70,6 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
 
   - name: Install Changelog Tool
     shell: bash
@@ -82,4 +83,3 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      TMPDIR: "$GITHUB_WORKSPACE/.tmp"
