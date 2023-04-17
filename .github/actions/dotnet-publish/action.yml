@@ -47,21 +47,6 @@ runs:
       DOTNET_TieredPGO: "1"
       TMPDIR: "${{inputs.TEMP_WORK_DIR}}"
 
-  - name: "Dotnet: Stop build server post publish"
-    working-directory: ${{github.workspace}}/src
-    shell: bash
-    run: dotnet build-server shutdown && echo "Build server closed" || echo "Failed to shutdown build server"
-    env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_MULTILEVEL_LOOKUP: "false"
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TieredPGO: "1"
-      TMPDIR: "${{inputs.TEMP_WORK_DIR}}"
-
   - name: "Dotnet: Zip Packages for Octopus"
     working-directory: ${{github.workspace}}/src/server-dist/${{inputs.PLATFORM}}
     shell: bash
