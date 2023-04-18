@@ -26,6 +26,9 @@ inputs:
   NUGET_FEED:
     description: 'Nuget feed to push packages to'
     required: false
+  NUGET_SYMBOL_FEED:
+    description: 'Nuget feed to push packages symbols to'
+    required: false
   NUGET_API_KEY:
     description: 'API key to authenticate when pushing packages'
     required: false
@@ -81,6 +84,7 @@ runs:
       echo "OCTOPUS_SPACE_NAME: ${{inputs.OCTOPUS_SPACE}}"
       echo "NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}"
       echo "NUGET_FEED: ${{inputs.NUGET_FEED}}"
+      echo "NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}"
       echo "NUGET_ADDITIONAL_RESTORE_FEED: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}"
       echo "NUGET_PACK: ${{inputs.NUGET_PACK}}"
 
@@ -246,6 +250,7 @@ runs:
       NUGET_ADDITIONAL_RESTORE_FEED: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}
       NUGET_PACK: ${{inputs.NUGET_PACK}}
       NUGET_FEED: ${{inputs.NUGET_FEED}}
+      NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}
       NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
