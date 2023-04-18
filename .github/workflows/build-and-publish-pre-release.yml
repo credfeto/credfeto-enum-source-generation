@@ -47,6 +47,7 @@ jobs:
           NUGET_PACK: ${{vars.NUGET_PACK}}
           NUGET_FEED: ${{secrets.NUGET_FEED}}
           NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
+          NUGET_SYMBOL_FEED: ${{secrets.NUGET_SYMBOL_FEED}}
           OCTOPUS_SERVER: ${{vars.OCTOPUS_SERVER}}
           OCTOPUS_SPACE_NAME: ${{vars.OCTOPUS_SPACE}}
           OCTOPUS_PROJECT: ${{vars.OCTOPUS_PROJECT}}
