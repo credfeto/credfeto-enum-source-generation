@@ -138,10 +138,15 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
+  - uses: credfeto/build-number-action@master
+    id: build-number
+    with:
+      key: main-build
+
   - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
     name: Set Define Build Version
     shell: bash
-    run: dotnet buildversion --BuildNumber "$GITHUB_RUN_NUMBER"
+    run: dotnet buildversion --BuildNumber "${{steps.build-number.outputs.build-number}}"
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
