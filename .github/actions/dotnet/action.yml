@@ -12,6 +12,9 @@ inputs:
   NUGET_FEED:
     description: 'Nuget feed to push packages to'
     required: false
+  NUGET_SYMBOL_FEED:
+    description: 'Nuget feed to push packages symbols to'
+    required: false
   NUGET_API_KEY:
     description: 'API key to authenticate when pushing packages'
     required: false
@@ -174,10 +177,24 @@ runs:
       cp **/*.nupkg ../dist
     working-directory: ${{github.workspace}}/src
 
-  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true'}}
-    name: "Dotnet: Publish Packages to Nuget"
+  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true' && inputs.NUGET_SYMBOL_FEED ~= ''}}
+    name: "Dotnet: Publish Packages to Nuget (Without separate symbol feed)"
     shell: bash
-    run: dotnet pushpackages -folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source "${{inputs.NUGET_FEED}}"
+    run: dotnet pushpackages --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}}
+    env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+      DOTNET_MULTILEVEL_LOOKUP: "false"
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
+  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED ~= '')}}
+    name: "Dotnet: Publish Packages to Nuget (With separate symbol feed)"
+    shell: bash
+    run: dotnet pushpackages --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}} --symbol-source ${{inputs.NUGET_SYMBOL_FEED}}
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
