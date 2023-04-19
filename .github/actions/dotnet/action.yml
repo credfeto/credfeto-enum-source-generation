@@ -56,10 +56,26 @@ runs:
       restore-keys: |
         ${{runner.os}}-nuget-
 
-  - name: "Dotnet: Restore packages"
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED == ''}}
+    name: "Dotnet: Restore packages (No Alt Feed)"
     working-directory: ${{github.workspace}}/src
     shell: bash
     run: dotnet restore -nodeReuse:False
+    env:
+      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+      DOTNET_MULTILEVEL_LOOKUP: "false"
+      DOTNET_NOLOGO: "true"
+      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+      DOTNET_ReadyToRun: "0"
+      DOTNET_TC_QuickJitForLoops: "1"
+      DOTNET_TieredPGO: "1"
+
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED != ''}}
+    name: "Dotnet: Restore packages (With Alt Feed)"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: dotnet restore -nodeReuse:False --source "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}"
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
