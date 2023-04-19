@@ -171,13 +171,13 @@ runs:
     name: Deploy check - Is main or master
     shell: bash
     run: |
-      { echo "DEPLOY=true"; } >> "$GITHUB_ENV"
+      { echo "DEPLOY=true"; echo "RELEASE=false"; } >> "$GITHUB_ENV"
 
   - if: ${{!contains(env.BUILD_VERSION, '-')}}
     name: Deploy check - Is release branch
     shell: bash
     run: |
-      { echo "DEPLOY=true";  } >> "$GITHUB_ENV"
+      { echo "DEPLOY=true"; echo "RELEASE=true"; } >> "$GITHUB_ENV"
 
   - if: ${{(github.actor == 'dependabot[bot]')}}
     name: Deploy check - Is Dependabot
