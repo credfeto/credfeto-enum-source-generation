@@ -47,10 +47,6 @@ runs:
   ############################################################################################################
   # DOTNET BUILD
   ############################################################################################################
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED != ''}}
-    name: "Dotnet: Add optional nuget feed"
-    shell: bash
-    run: dotnet nuget add source --name Additional1 "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}"
 
   - name: "Dotnet: Setup package cache"
     uses: actions/cache@v3
