@@ -177,7 +177,7 @@ runs:
       cp **/*.nupkg ../dist
     working-directory: ${{github.workspace}}/src
 
-  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true' && inputs.NUGET_SYMBOL_FEED ~= ''}}
+  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true' && (inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
     name: "Dotnet: Publish Packages to Nuget (Without separate symbol feed)"
     shell: bash
     run: dotnet pushpackages --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}}
@@ -191,7 +191,7 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED ~= '')}}
+  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
     name: "Dotnet: Publish Packages to Nuget (With separate symbol feed)"
     shell: bash
     run: dotnet pushpackages --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}} --symbol-source ${{inputs.NUGET_SYMBOL_FEED}}
