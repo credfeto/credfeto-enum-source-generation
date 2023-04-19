@@ -48,7 +48,7 @@ runs:
     shell: bash
     run: |
       echo "Removing Additional1 NuGet Feed"
-      [ "$(dotnet nuget list source | grep Additional1 | tr -s ' ' | cut -d ' ' -f 3)" == "Additional1" ] && dotnet nuget remove source Additional1
+      [ "$(dotnet nuget list source | grep Additional1 | tr -s ' ' | cut -d ' ' -f 3)" == "Additional1" ] && dotnet nuget remove source Additional1 || echo "Additional1 NuGet Feed is Not Registered"
 
   - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED != ''}}
     name: "Dotnet: Add optional nuget feed"
