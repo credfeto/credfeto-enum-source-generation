@@ -120,6 +120,7 @@ runs:
     uses: ./.github/actions/build-tools
     with:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+      NUGET_ADDITIONAL_RESTORE_FEED: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}
 
   - name: Check Build Tools Requirements
     id: build_tools
