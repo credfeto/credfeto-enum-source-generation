@@ -29,7 +29,7 @@ runs:
   - name: "Dotnet: Pack For Octopus"
     working-directory: ${{github.workspace}}/src/${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
     shell: bash
-    run: dotnet publish -warnaserror --configuration:Release -r:${{inputs.PLATFORM}} --self-contained -p:NoWarn=NETSDK1179 -p:PublishSingleFile=true -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/${{inputs.PLATFORM}} -nodeReuse:False
+    run: dotnet publish -warnaserror --configuration:Release -r:${{inputs.PLATFORM}} --self-contained -p:NoWarn=NETSDK1179 -p:PublishSingleFile=true -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:PublishTrimmed=False -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false -p:SolutionDir=..\\ --output ../server-dist/${{inputs.PLATFORM}} -nodeReuse:False ${{env.NUGET_SOURCES}} ${{env.DOTNET_RELEASE_DEFINES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
