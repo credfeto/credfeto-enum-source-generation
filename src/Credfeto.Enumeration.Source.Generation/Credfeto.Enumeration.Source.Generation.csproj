@@ -29,7 +29,7 @@
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
     <WarningsAsErrors/>
     <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <SymbolPackageFormat>symbols.nupkg</SymbolPackageFormat>
   </PropertyGroup>
   <PropertyGroup>
     <Company>Mark Ridgwell</Company>
