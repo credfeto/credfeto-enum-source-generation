@@ -363,3 +363,5 @@ src/Data
 ## Kate
 **/*.kate-swp
 
+## Results
+/results
