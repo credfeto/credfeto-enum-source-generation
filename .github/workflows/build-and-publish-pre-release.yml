@@ -22,6 +22,7 @@ concurrency:
 
 permissions:
   contents: write
+  security-events: write
 
 jobs:
   build-pre-release:
@@ -35,6 +36,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: "Check Repo Visibility"
+        uses: credfeto/action-repo-visibility@v1.2.0
+        id: visibility
+        with:
+          repository: ${{github.repository}}
+          token: ${{secrets.GITHUB_TOKEN}}
 
       - name: Build and deploy
         uses: ./.github/actions/build
@@ -57,5 +65,6 @@ jobs:
           OCTOPUS_DEPLOY_PACKAGE: ${{vars.OCTOPUS_DEPLOY_PACKAGE}}
           OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{vars.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          REPO_VISIBILITY: ${{env.REPO_STATUS}}
           CREATE_RELEASE: false
 
