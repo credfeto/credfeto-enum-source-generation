@@ -63,6 +63,9 @@ inputs:
   GITHUB_TOKEN:
     description: 'Github Token'
     required: true
+  REPO_VISIBILITY:
+    description: 'Visibility of the repo'
+    required: true
   CREATE_RELEASE:
     description: 'Whether to create a release in github'
     required: true
@@ -254,6 +257,7 @@ runs:
       NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}
       NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+      REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
@@ -266,6 +270,7 @@ runs:
     with:
       BUILD_VERSION: ${{env.BUILD_VERSION}}
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+      REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
       NPM_PRODUCTION_PACKAGER_VERSION: ${{inputs.NPM_PRODUCTION_PACKAGER_VERSION}}
       NPM_CONTENT_PACKAGE_WALLET_PASSWORD: ${{inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD}}
       NPM_PACKAGE_STORE_SIGNING_WALLET: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
