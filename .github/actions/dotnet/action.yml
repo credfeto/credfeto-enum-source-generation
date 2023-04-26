@@ -32,6 +32,11 @@ inputs:
     description: 'Whether to build SQL DB'
     required: true
 
+  # GENERAL
+  GITHUB_TOKEN:
+    description: 'Github Token'
+    required: true
+
   # Octopus
   OCTOPUS_DEPLOY_PACKAGE:
     description: 'Package (root) to deploy'
@@ -96,7 +101,7 @@ runs:
   - name: "Dotnet: Build"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" -nodeReuse:False ${{env.NUGET_SOURCES}} ${{env.DOTNET_RELEASE_DEFINES}}
+    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:ReportAnalyzer=True" "/p:ErrorLog=${{github.workspace}}/src/Diagnostics.sarif" -nodeReuse:False ${{env.NUGET_SOURCES}} ${{env.DOTNET_RELEASE_DEFINES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -107,6 +112,21 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+
+  - name: "Check Repo Visibility"
+    uses: credfeto/action-repo-visibility@v1.1.0
+    id: visibility
+    with:
+      repository: ${{github.repository}}
+      token: ${{inputs.GITHUB_TOKEN}}
+
+  - if: ${{steps.visibility.outputs.is_public == 'true'}}
+    name: "Upload SARIF file for diagnostics"
+    uses: github/codeql-action/upload-sarif@v2
+    with:
+      sarif_file: ${{github.workspace}}/src/Diagnostics.sarif
+      category: dotnet
+      token: ${{inputs.GITHUB_TOKEN}}
 
   ## RUN TESTS
   - name: "Dotnet: Test"
