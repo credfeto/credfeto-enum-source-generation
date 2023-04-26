@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Project>
+    <!-- Sarif -->
+    <PropertyGroup Condition="$(EnableSarif)='True'">
+        <ErrorLog>$(SolutionDir)\..\results\$(MSBuildProjectName).sarif,version=2.1</ErrorLog>
+        <ReportAnalyzer>true</ReportAnalyzer>
+    </PropertyGroup>
+</Project>
