@@ -253,6 +253,7 @@ runs:
       NUGET_FEED: ${{inputs.NUGET_FEED}}
       NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}
       NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
+      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
@@ -260,7 +261,7 @@ runs:
   # NPM BUILD
   ############################################################################################################
   - if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
-    name: "Dotnet: Build"
+    name: "Npm: Build"
     uses: ./.github/actions/npm
     with:
       BUILD_VERSION: ${{env.BUILD_VERSION}}
