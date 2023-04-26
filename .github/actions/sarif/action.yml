@@ -1,0 +1,32 @@
+--- # Build and deploy packages
+name: 'Upload sarif files'
+description: 'Builds and deploys the source'
+inputs:
+  # GENERAL
+  GITHUB_TOKEN:
+    description: 'Github Token'
+    required: true
+  REPO_VISIBILITY:
+    description: 'Visibility of the repo'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Sarif Files to upload"
+      shell: bash
+      working-directory: ${{github.workspace}}/results
+      run: ls -la
+
+    - if: ${{inputs.REPO_VISIBILITY == 'public' && hashfiles('${{github.workspace}}/results/**/*') != ''}}
+      name: "Upload SARIF file for diagnostics"
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: ${{github.workspace}}/results
+        category: dotnet
+        token: ${{github.token}}
+
+    - name: "Sarif Upload Summary"
+      shell: bash
+      working-directory: ${{github.workspace}}/results
+      run: echo "Sarif Upload COmpleted"
