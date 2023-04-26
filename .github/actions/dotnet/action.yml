@@ -101,12 +101,16 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  # n.b. the =version needs the = to be % encoded to %2c to prevent dotnet build considering it as a separate parameter!
-  # https://github.com/dotnet/docs/issues/27872
+  - name: "Dotnet: Prepare build"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: |
+      [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
+
   - name: "Dotnet: Build"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:ReportAnalyzer=True" "/p:ErrorLog=${{github.workspace}}/src/Diagnostics.sarif%2Cversion=2.1" -nodeReuse:False ${{env.NUGET_SOURCES}} ${{env.DOTNET_RELEASE_DEFINES}}
+    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:EnableSarif=True" -nodeReuse:False ${{env.NUGET_SOURCES}} ${{env.DOTNET_RELEASE_DEFINES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -118,11 +122,11 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - if: ${{inputs.REPO_VISIBILITY == 'public'}}
+  - if: ${{inputs.REPO_VISIBILITY == 'public' && hashfiles('${{github.workspace}}/results/**/*') != ''}}
     name: "Upload SARIF file for diagnostics"
     uses: github/codeql-action/upload-sarif@v2
     with:
-      sarif_file: ${{github.workspace}}/src/Diagnostics.sarif
+      sarif_file: ${{github.workspace}}/results
       category: dotnet
       token: ${{github.token}}
 
