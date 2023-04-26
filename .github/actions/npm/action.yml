@@ -23,6 +23,9 @@ inputs:
   BUILD_VERSION:
     description: 'Build version'
     required: true
+  REPO_VISIBILITY:
+    description: 'Visibility of the repo'
+    required: true
 
   # Octopus
   OCTOPUS_DEPLOY_PACKAGE:
