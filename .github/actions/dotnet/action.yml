@@ -36,6 +36,9 @@ inputs:
   GITHUB_TOKEN:
     description: 'Github Token'
     required: true
+  REPO_VISIBILITY:
+    description: 'Visibility of the repo'
+    required: true
 
   # Octopus
   OCTOPUS_DEPLOY_PACKAGE:
@@ -98,10 +101,12 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
+  # n.b. the =version needs the = to be % encoded to %2c to prevent dotnet build considering it as a separate parameter!
+  # https://github.com/dotnet/docs/issues/27872
   - name: "Dotnet: Build"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:ReportAnalyzer=True" "/p:ErrorLog=${{github.workspace}}/src/Diagnostics.sarif" -nodeReuse:False ${{env.NUGET_SOURCES}} ${{env.DOTNET_RELEASE_DEFINES}}
+    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:ReportAnalyzer=True" "/p:ErrorLog=${{github.workspace}}/src/Diagnostics.sarif%2Cversion=2.1" -nodeReuse:False ${{env.NUGET_SOURCES}} ${{env.DOTNET_RELEASE_DEFINES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -113,28 +118,13 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - name: "Check Repo Visibility"
-    uses: credfeto/action-repo-visibility@v1.1.0
-    id: visibility
-    with:
-      repository: ${{github.repository}}
-      token: ${{inputs.GITHUB_TOKEN}}
-
-  - name: "Show Repo Visibility"
-    working-directory: ${{github.workspace}}/src
-    shell: bash
-    run: |
-      echo "Is Public: ${{steps.visibility.outputs.is_public}}"
-      echo "Is Private: ${{steps.visibility.outputs.is_private}}"
-      echo "Status: ${{steps.visibility.outputs.status}}"
-
-  - if: ${{steps.visibility.outputs.is_public == 'true'}}
+  - if: ${{inputs.REPO_VISIBILITY == 'public'}}
     name: "Upload SARIF file for diagnostics"
     uses: github/codeql-action/upload-sarif@v2
     with:
       sarif_file: ${{github.workspace}}/src/Diagnostics.sarif
       category: dotnet
-      token: ${{inputs.GITHUB_TOKEN}}
+      token: ${{github.token}}
 
   ## RUN TESTS
   - name: "Dotnet: Test"
