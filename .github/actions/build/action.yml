@@ -124,7 +124,7 @@ runs:
     shell: bash
     run: |
       [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
-      
+
   - name: Install Build tools
     uses: ./.github/actions/build-tools
     with:
@@ -152,15 +152,17 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - uses: credfeto/build-number-action@master
+  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
+    uses: onyxmueller/build-tag-number@v1
     id: build-number
     with:
-      key: main-build
+      token: ${{inputs.GITHUB_TOKEN}}
+      prefix: github
 
   - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
     name: Set Define Build Version
     shell: bash
-    run: dotnet buildversion --BuildNumber "${{steps.build-number.outputs.build-number}}"
+    run: dotnet buildversion --BuildNumber "${{steps.build-number.outputs.build_number}}"
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -369,7 +371,7 @@ runs:
       token: ${{inputs.GITHUB_TOKEN}}
 
   ############################################################################################################
-  # Upload Sarif files to github
+  # Upload Sarif files to GitHub
   ############################################################################################################
   - name: "Upload SARIF file for diagnostics"
     uses: ./.github/actions/sarif
