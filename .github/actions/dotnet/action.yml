@@ -101,12 +101,6 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - name: "Dotnet: Prepare build"
-    working-directory: ${{github.workspace}}/src
-    shell: bash
-    run: |
-      [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
-
   - name: "Dotnet: Build"
     working-directory: ${{github.workspace}}/src
     shell: bash
@@ -121,12 +115,6 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-
-  - name: "Upload SARIF file for diagnostics"
-    uses: ./.github/actions/sarif
-    with:
-      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
-      REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
 
   ## RUN TESTS
   - name: "Dotnet: Test"
