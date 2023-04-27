@@ -119,6 +119,12 @@ runs:
       echo "NPM_EXIST: ${{steps.check_files.outputs.NPM_EXIST}}"
       echo "NPM_SIGNING_EXIST: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}"
 
+  - name: "Dotnet: Prepare build"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: |
+      [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
+      
   - name: Install Build tools
     uses: ./.github/actions/build-tools
     with:
@@ -361,3 +367,12 @@ runs:
       prerelease: false
       generateReleaseNotes: true
       token: ${{inputs.GITHUB_TOKEN}}
+
+  ############################################################################################################
+  # Upload Sarif files to github
+  ############################################################################################################
+  - name: "Upload SARIF file for diagnostics"
+    uses: ./.github/actions/sarif
+    with:
+      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+      REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
