@@ -16,17 +16,25 @@ runs:
     - name: "Sarif Files to upload"
       shell: bash
       working-directory: ${{github.workspace}}/results
-      run: ls -la
+      run: |
+        ls -la
+        rm -rf *.Tests.sarif
+        echo "Hash: ${{ hashfiles('**/*.sarif') }}"
+        echo "SARIF_HASH=${{ hashfiles('**/*.sarif') }}" >> $GITHUB_ENV
 
-    - if: ${{inputs.REPO_VISIBILITY == 'public' && hashfiles('${{github.workspace}}/results/**/*') != ''}}
-      name: "Upload SARIF file for diagnostics"
-      uses: github/codeql-action/upload-sarif@v2
-      with:
-        sarif_file: ${{github.workspace}}/results
-        category: dotnet
-        token: ${{github.token}}
+#    - if: ${{inputs.REPO_VISIBILITY == 'public' && env.SARIF_HASH != ''}}
+#      name: "Upload SARIF file for diagnostics"
+#      id: sarif
+#      uses: github/codeql-action/upload-sarif@v2
+#      with:
+#        sarif_file: ${{github.workspace}}/results
+#        category: dotnet
+#        token: ${{github.token}}
+#        wait-for-processing: true
 
-    - name: "Sarif Upload Summary"
-      shell: bash
-      working-directory: ${{github.workspace}}/results
-      run: echo "Sarif Upload COmpleted"
+#    - name: "Sarif Upload Summary"
+#      shell: bash
+#      working-directory: ${{github.workspace}}/results
+#      run: |
+#         echo "Sarif Upload Completed"
+#         echo "sarifId: ${{steps.sarif.outputs.sarif-id}}"
