@@ -52,6 +52,7 @@ jobs:
         branch: ${{fromJson(needs.build-matrix.outputs.branches)}}
     env:
       BRANCH: ${{matrix.branch}}
+      CREATE_DRAFT: true
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/checkout@v3.3.0
@@ -59,6 +60,17 @@ jobs:
           fetch-depth: 0
           ref: main
           repository: ${{github.repository}}
+
+      - if: ${{github.repository_owner != 'funfair-tech'}}
+        name: "Check Repo Visibility"
+        uses: credfeto/action-repo-visibility@v1.2.0
+        id: visibility
+        with:
+          repository: ${{github.repository}}
+          token: ${{secrets.GITHUB_TOKEN}}
+
+      - if: ${{github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'}}
+        run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
 
       - id: detection
         run: |
@@ -133,7 +145,7 @@ jobs:
           destination_branch: ${{steps.detection.outputs.defaultbranch}}            # If blank, default: master
           pr_assignee: "${{github.actor}}"    # Comma-separated list (no spaces)
           pr_label: "auto-pr,stale"             # Comma-separated list (no spaces)
-          pr_draft: true                        # Creates pull request as draft
+          pr_draft: ${{env.CREATE_DRAFT}}                        # Creates pull request as draft
           pr_title: "${{steps.aheadbehind.outputs.COMMIT_MSG}} [No commits for ${{steps.aheadbehind.outputs.dayssinceupdate}} days]"
           pr_body: "${{steps.pr-template.outputs.content}}"
           github_token: ${{github.token}}
