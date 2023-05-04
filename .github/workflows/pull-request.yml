@@ -20,6 +20,9 @@ jobs:
   pull-request:
     runs-on: ubuntu-latest
 
+    env:
+      CREATE_DRAFT: true
+
     steps:
       - name: Cleanup Repo
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
@@ -47,6 +50,17 @@ jobs:
       - if: ${{steps.findPr.outputs.number == ''}}
         run: echo "COMMIT_MSG=$(git log -1 --pretty=%B)" >> "$GITHUB_ENV"
 
+      - if: ${{steps.findPr.outputs.number != '' && github.repository_owner != 'funfair-tech'}}
+        name: "Check Repo Visibility"
+        uses: credfeto/action-repo-visibility@v1.2.0
+        id: visibility
+        with:
+          repository: ${{github.repository}}
+          token: ${{secrets.GITHUB_TOKEN}}
+
+      - if: ${{steps.findPr.outputs.number != '' && github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'}}
+        run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
+
       - if: ${{steps.findPr.outputs.number == ''}}
         id: open-pr
         uses: repo-sync/pull-request@v2.12
@@ -55,7 +69,7 @@ jobs:
           destination_branch: "main"            # If blank, default: master
           pr_assignee: ${{github.actor}}      # Comma-separated list (no spaces)
           pr_label: "auto-pr"                   # Comma-separated list (no spaces)
-          pr_draft: true                        # Creates pull request as draft
+          pr_draft: ${{env.CREATE_DRAFT}}                        # Creates pull request as draft
           pr_title: ${{env.COMMIT_MSG}}
           pr_body: ${{steps.pr-template.outputs.content}}
           github_token: ${{github.token}}
