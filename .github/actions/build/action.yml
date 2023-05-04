@@ -120,7 +120,7 @@ runs:
       echo "NPM_SIGNING_EXIST: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}"
 
   - name: "Dotnet: Prepare build"
-    working-directory: ${{github.workspace}}/src
+    working-directory: ${{github.workspace}}
     shell: bash
     run: |
       [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
