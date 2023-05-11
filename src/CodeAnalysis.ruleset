@@ -190,6 +190,8 @@
         <!-- CA1848 - For improved performance, use the LoggerMessage delegates instead of calling 'LoggerExtensions.LogXXX(ILogger, string?, params object?[])' -->
         <!-- TODO: Review whethere there's a better way of doing this that keeps the code readable -->
         <Rule Id="CA1848" Action="None"/>
+        <!-- CA1848 - For improved performance, use the concrete type X instead of base class or interface' -->
+        <Rule Id="CA1859" Action="None"/>
         <!-- CA1900 - ?? -->
         <Rule Id="CA1900" Action="Error"/>
         <!-- CA1901 - ?? -->
