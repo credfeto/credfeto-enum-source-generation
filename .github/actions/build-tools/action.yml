@@ -41,8 +41,8 @@ runs:
     with:
       dotnet-version: |
           6.0.*
+          7.0.*
           ${{env.DOTNET_VERSION}}
-      dotnet-quality: ga
 
   - name: "Dotnet: Remove optional nuget feed if it exists"
     shell: bash
