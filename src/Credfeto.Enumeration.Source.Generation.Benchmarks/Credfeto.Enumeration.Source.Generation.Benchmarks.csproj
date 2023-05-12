@@ -16,7 +16,7 @@
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <RunAOTCompilation>false</RunAOTCompilation>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
     <TieredPGO>true</TieredPGO>
     <TreatSpecificWarningsAsErrors />
