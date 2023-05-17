@@ -9,4 +9,4 @@
 
 ## Reporting a Vulnerability
 
-Report the vulnerability here [SECURITY](security/advisories/new).
+Report the vulnerability here [SECURITY](../../security/advisories/new).
