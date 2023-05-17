@@ -19,6 +19,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Microsoft.VisualStudio.Threading.Analyzers to 17.6.40
 - Dependencies - Updated Microsoft.NET.Test.Sdk to 17.6.0
 - Dependencies - Updated CSharpIsNullAnalyzer to 0.1.495
+- SDK - Updated DotNet SDK to 8.0.100-preview.4.23260.5
 ### Removed
 ### Deployment Changes
 
