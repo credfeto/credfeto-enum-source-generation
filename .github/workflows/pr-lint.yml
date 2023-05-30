@@ -76,7 +76,7 @@ jobs:
           file: src/global.json
           fallback: 7.0.*
       - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
-        uses: actions/setup-dotnet@v3.1.0
+        uses: actions/setup-dotnet@v3.2.0
         env:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
           DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
