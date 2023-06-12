@@ -61,12 +61,12 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
     {
         INamedTypeSymbol? typeInfo = ExtractExpressionSyntax(invocation: memberAccessExpressionSyntax, syntaxNodeAnalysisContext: syntaxNodeAnalysisContext);
 
-        if (typeInfo == null)
+        if (typeInfo is null)
         {
             return;
         }
 
-        if (typeInfo.EnumUnderlyingType == null)
+        if (typeInfo.EnumUnderlyingType is null)
         {
             // not an enum
             return;
@@ -98,7 +98,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         INamedTypeSymbol? typeInfo = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: e, cancellationToken: syntaxNodeAnalysisContext.CancellationToken)
                                                               .Type as INamedTypeSymbol;
 
-        if (typeInfo?.ConstructedFrom == null)
+        if (typeInfo?.ConstructedFrom is null)
         {
             return null;
         }
@@ -147,7 +147,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         {
             SyntaxNode? parent = checkNode.Parent;
 
-            if (parent == null)
+            if (parent is null)
             {
                 return false;
             }

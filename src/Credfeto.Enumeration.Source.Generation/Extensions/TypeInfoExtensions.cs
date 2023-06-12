@@ -16,6 +16,6 @@ public static class TypeInfoExtensions
             return false;
         }
 
-        return type.EnumUnderlyingType != null;
+        return type.EnumUnderlyingType is not null;
     }
 }

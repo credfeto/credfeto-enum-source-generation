@@ -300,7 +300,7 @@ public sealed class EnumGenerator : ISourceGenerator
             AttributeData? description = member.GetAttributes()
                                                .FirstOrDefault(SymbolExtensions.IsDescriptionAttribute);
 
-            if (description == null)
+            if (description is null)
             {
                 continue;
             }
@@ -324,7 +324,7 @@ public sealed class EnumGenerator : ISourceGenerator
     {
         EnumMemberDeclarationSyntax? syntax = FindEnumMemberDeclarationSyntax(member);
 
-        if (syntax?.EqualsValue != null)
+        if (syntax?.EqualsValue is not null)
         {
             if (syntax.EqualsValue.Value.Kind() == SyntaxKind.IdentifierName)
             {
@@ -347,7 +347,7 @@ public sealed class EnumGenerator : ISourceGenerator
     {
         object? cv = member.ConstantValue;
 
-        if (cv == null)
+        if (cv is null)
         {
             return false;
         }
@@ -363,7 +363,7 @@ public sealed class EnumGenerator : ISourceGenerator
         {
             syntax = GetSyntax(dsr);
 
-            if (syntax != null)
+            if (syntax is not null)
             {
                 break;
             }

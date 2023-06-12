@@ -74,7 +74,7 @@ public abstract partial class DiagnosticVerifier
         {
             Compilation? compilation = await project.GetCompilationAsync(CancellationToken.None);
 
-            if (compilation == null)
+            if (compilation is null)
             {
                 continue;
             }
@@ -130,7 +130,7 @@ public abstract partial class DiagnosticVerifier
     private static async Task<bool> ShouldAddDiagnosticAsync(Document document, Diagnostic diag)
     {
         SyntaxTree? tree = await document.GetSyntaxTreeAsync(CancellationToken.None);
-        bool add = tree != null && tree == diag.Location.SourceTree;
+        bool add = tree is not null && tree == diag.Location.SourceTree;
 
         return add;
     }

@@ -125,7 +125,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
     private static bool IsCodeGenerationAttribute(AttributeData item)
     {
-        if (item.AttributeClass == null)
+        if (item.AttributeClass is null)
         {
             return false;
         }

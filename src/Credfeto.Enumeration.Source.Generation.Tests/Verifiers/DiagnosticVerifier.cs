@@ -53,7 +53,7 @@ public abstract partial class DiagnosticVerifier : TestBase
 
             DiagnosticDescriptor? rule = rules.FirstOrDefault(predicate: rule => rule.Id == diagnostic.Id);
 
-            if (rule == null)
+            if (rule is null)
             {
                 continue;
             }
