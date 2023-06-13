@@ -901,9 +901,9 @@
         <Rule Id="SCS0019" Action="Error"/>
     </Rules>
     <Rules AnalyzerId="CSharpIsNull" RuleNamespace="CSharpIsNull">
-        <!-- CSIsNull001 - catch uses of is null -->
+        <!-- CSIsNull001 - catch uses of == null -->
         <Rule Id="CSIsNull001" Action="Error"/>
-        <!-- CSIsNull002 to catch uses of is not null -->
+        <!-- CSIsNull002 to catch uses of != null -->
         <Rule Id="CSIsNull002" Action="Error"/>
     </Rules>
     <Rules AnalyzerId="FunFair.CodeAnalysis" RuleNamespace="FunFair.CodeAnalysis">
