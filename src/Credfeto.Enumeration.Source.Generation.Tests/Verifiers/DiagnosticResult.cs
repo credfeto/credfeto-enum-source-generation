@@ -3,9 +3,6 @@ using Microsoft.CodeAnalysis;
 
 namespace Credfeto.Enumeration.Source.Generation.Tests.Verifiers;
 
-/// <summary>
-///     Struct that stores information about a Diagnostic appearing in a source
-/// </summary>
 [SuppressMessage(category: "Microsoft.Performance", checkId: "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes", Justification = "Test code")]
 public sealed class DiagnosticResult
 {

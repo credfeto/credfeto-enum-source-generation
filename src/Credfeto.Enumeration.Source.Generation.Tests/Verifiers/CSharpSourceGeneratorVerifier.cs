@@ -24,7 +24,8 @@ public static class CSharpSourceGeneratorVerifier<TSourceGenerator>
             CSharpCommandLineArguments commandLineArguments =
                 CSharpCommandLineParser.Default.Parse(args: args, baseDirectory: Environment.CurrentDirectory, sdkDirectory: Environment.CurrentDirectory);
 
-            return compilationOptions.WithSpecificDiagnosticOptions(compilationOptions.SpecificDiagnosticOptions.SetItems(commandLineArguments.CompilationOptions.SpecificDiagnosticOptions));
+            return compilationOptions.WithSpecificDiagnosticOptions(
+                compilationOptions.SpecificDiagnosticOptions.SetItems(commandLineArguments.CompilationOptions.SpecificDiagnosticOptions));
         }
 
         protected override ParseOptions CreateParseOptions()

@@ -34,12 +34,18 @@ public sealed class EnumGenerator : ISourceGenerator
 
         foreach (EnumGeneration enumDeclaration in receiver.Enums)
         {
-            GenerateClassForEnum(context: context, enumDeclaration: enumDeclaration, hasDoesNotReturn: hasDoesNotReturn, supportsUnreachableException: supportsUnreachableException);
+            GenerateClassForEnum(context: context,
+                                 enumDeclaration: enumDeclaration,
+                                 hasDoesNotReturn: hasDoesNotReturn,
+                                 supportsUnreachableException: supportsUnreachableException);
         }
 
         foreach (ClassEnumGeneration classDeclaration in receiver.Classes)
         {
-            GenerateClassForClass(context: context, classDeclaration: classDeclaration, hasDoesNotReturn: hasDoesNotReturn, supportsUnreachableException: supportsUnreachableException);
+            GenerateClassForClass(context: context,
+                                  classDeclaration: classDeclaration,
+                                  hasDoesNotReturn: hasDoesNotReturn,
+                                  supportsUnreachableException: supportsUnreachableException);
         }
     }
 
@@ -82,7 +88,12 @@ public sealed class EnumGenerator : ISourceGenerator
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source)
     {
-        return AddUsingDeclarations(source: source, "System", "System.CodeDom.Compiler", "System.Diagnostics", "System.Diagnostics.CodeAnalysis", "System.Runtime.CompilerServices");
+        return AddUsingDeclarations(source: source,
+                                    "System",
+                                    "System.CodeDom.Compiler",
+                                    "System.Diagnostics",
+                                    "System.Diagnostics.CodeAnalysis",
+                                    "System.Runtime.CompilerServices");
     }
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source, params string[] namespaces)
@@ -129,7 +140,11 @@ public sealed class EnumGenerator : ISourceGenerator
         context.AddSource(classDeclaration.Namespace + "." + className + ".generated.cs", sourceText: source.Text);
     }
 
-    private static void GenerateMethods(bool hasDoesNotReturn, bool supportsUnreachableException, CodeBuilder source, EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
+    private static void GenerateMethods(bool hasDoesNotReturn,
+                                        bool supportsUnreachableException,
+                                        CodeBuilder source,
+                                        EnumGeneration attribute,
+                                        Func<EnumGeneration, string> classNameFormatter)
     {
         GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
@@ -203,7 +218,8 @@ public sealed class EnumGenerator : ISourceGenerator
             {
                 using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
                 {
-                    members.Aggregate(seed: source, func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
+                    members.Aggregate(seed: source,
+                                      func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
                            .AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
                 }
             }

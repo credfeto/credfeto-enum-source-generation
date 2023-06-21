@@ -33,8 +33,9 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
     {
         if (!this._hasDoesNotReturnAttribute.HasValue)
         {
-            this._hasDoesNotReturnAttribute = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
-                                                      .IsEmpty;
+            this._hasDoesNotReturnAttribute = !context
+                                               .SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
+                                               .IsEmpty;
         }
 
         if (!this._hasUnreachableException.HasValue)

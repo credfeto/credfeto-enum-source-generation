@@ -45,8 +45,8 @@
   <PropertyGroup>
     <Description>Source code generator for Enums.</Description>
     <DevelopmentDependency>true</DevelopmentDependency>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
     <NeutralLanguage>en</NeutralLanguage>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
     <PackageTags>C# Source code generator Enum</PackageTags>
     <RepositoryUrl>https://github.com/credfeto/credfeto-enum-source-generation</RepositoryUrl>
   </PropertyGroup>

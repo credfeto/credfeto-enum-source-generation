@@ -23,7 +23,6 @@ internal static class EnumWrappers
         return EnumHelpers.GetDescription(value);
     }
 
-
     [SuppressMessage(category: "ReSharper", checkId: "InvokeAsExtensionMethod", Justification = "This is a benchmark.")]
     [SuppressMessage(category: "Philips.CodeAnalysis.MaintainabilityAnalyzers", checkId: "PH2073: Call as instance", Justification = "This is a benchmark.")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -32,5 +31,4 @@ internal static class EnumWrappers
     {
         return EnumHelpers.IsDefined(value);
     }
-
 }

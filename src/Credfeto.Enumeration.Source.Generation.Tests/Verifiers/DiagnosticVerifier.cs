@@ -13,16 +13,10 @@ using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Tests.Verifiers;
 
-/// <summary>
-///     Superclass of all Unit Tests for DiagnosticAnalyzers
-/// </summary>
 public abstract partial class DiagnosticVerifier : TestBase
 {
     #region To be implemented by Test classes
 
-    /// <summary>
-    ///     Get the CSharp analyzer being tested - to be implemented in non-abstract class
-    /// </summary>
     protected virtual DiagnosticAnalyzer? GetCSharpDiagnosticAnalyzer()
     {
         return null;
@@ -32,12 +26,6 @@ public abstract partial class DiagnosticVerifier : TestBase
 
     #region Formatting Diagnostics
 
-    /// <summary>
-    ///     Helper method to format a Diagnostic into an easily readable string
-    /// </summary>
-    /// <param name="analyzer">The analyzer that this verifier tests</param>
-    /// <param name="diagnostics">The Diagnostics to be formatted</param>
-    /// <returns>The Diagnostics formatted as a string</returns>
     private static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
     {
         StringBuilder builder = new();
@@ -72,7 +60,8 @@ public abstract partial class DiagnosticVerifier : TestBase
                 LinePosition linePosition = diagnostic.Location.GetLineSpan()
                                                       .StartLinePosition;
 
-                builder = builder.Append(provider: CultureInfo.InvariantCulture, $"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
+                builder = builder.Append(provider: CultureInfo.InvariantCulture,
+                                         $"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
             }
 
             builder = builder.Append(value: ',')
@@ -95,24 +84,11 @@ public abstract partial class DiagnosticVerifier : TestBase
 
     #region Verifier wrappers
 
-    /// <summary>
-    ///     Called to test a C# DiagnosticAnalyzer when applied on the single inputted string as a source
-    ///     Note: input a DiagnosticResult for each Diagnostic expected
-    /// </summary>
-    /// <param name="source">A class in the form of a string to run the analyzer on</param>
-    /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source</param>
     protected Task VerifyCSharpDiagnosticAsync(string source, params DiagnosticResult[] expected)
     {
         return this.VerifyCSharpDiagnosticAsync(source: source, Array.Empty<MetadataReference>(), expected: expected);
     }
 
-    /// <summary>
-    ///     Called to test a C# DiagnosticAnalyzer when applied on the single inputted string as a source
-    ///     Note: input a DiagnosticResult for each Diagnostic expected
-    /// </summary>
-    /// <param name="source">A class in the form of a string to run the analyzer on</param>
-    /// <param name="references">The project/assemblies that are referenced by the code.</param>
-    /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source</param>
     [SuppressMessage(category: "Meziantou.Analyzer", checkId: "MA0109:Use span", Justification = "doesn't need to be")]
     protected Task VerifyCSharpDiagnosticAsync(string source, MetadataReference[] references, params DiagnosticResult[] expected)
     {
@@ -129,12 +105,6 @@ public abstract partial class DiagnosticVerifier : TestBase
                                       expected: expected);
     }
 
-    /// <summary>
-    ///     Called to test a C# DiagnosticAnalyzer when applied on the inputted strings as a source
-    ///     Note: input a DiagnosticResult for each Diagnostic expected
-    /// </summary>
-    /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
-    /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
     [SuppressMessage(category: "ReSharper", checkId: "UnusedMember.Global", Justification = "May be needed in future")]
     [SuppressMessage(category: "Meziantou.Analyzer", checkId: "MA0109:Use span", Justification = "doesn't need to be")]
     protected Task VerifyCSharpDiagnosticAsync(string[] sources, params DiagnosticResult[] expected)
@@ -142,13 +112,6 @@ public abstract partial class DiagnosticVerifier : TestBase
         return this.VerifyCSharpDiagnosticAsync(sources: sources, Array.Empty<MetadataReference>(), expected: expected);
     }
 
-    /// <summary>
-    ///     Called to test a C# DiagnosticAnalyzer when applied on the inputted strings as a source
-    ///     Note: input a DiagnosticResult for each Diagnostic expected
-    /// </summary>
-    /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
-    /// <param name="references">The project/assemblies that are referenced by the code.</param>
-    /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
     private Task VerifyCSharpDiagnosticAsync(string[] sources, MetadataReference[] references, params DiagnosticResult[] expected)
     {
         DiagnosticAnalyzer? diagnostic = this.GetCSharpDiagnosticAnalyzer();
@@ -157,16 +120,11 @@ public abstract partial class DiagnosticVerifier : TestBase
         return VerifyDiagnosticsAsync(sources: sources, references: references, language: LanguageNames.CSharp, analyzer: diagnostic, expected: expected);
     }
 
-    /// <summary>
-    ///     General method that gets a collection of actual diagnostics found in the source after the analyzer is run,
-    ///     then verifies each of them.
-    /// </summary>
-    /// <param name="sources">An array of strings to create source documents from to run the analyzers on</param>
-    /// <param name="references">The project/assemblies that are referenced by the code.</param>
-    /// <param name="language">The language of the classes represented by the source strings</param>
-    /// <param name="analyzer">The analyzer to be run on the source code</param>
-    /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
-    private static async Task VerifyDiagnosticsAsync(string[] sources, MetadataReference[] references, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected)
+    private static async Task VerifyDiagnosticsAsync(string[] sources,
+                                                     MetadataReference[] references,
+                                                     string language,
+                                                     DiagnosticAnalyzer analyzer,
+                                                     params DiagnosticResult[] expected)
     {
         IReadOnlyList<Diagnostic> diagnostics = await GetSortedDiagnosticsAsync(sources: sources, references: references, language: language, analyzer: analyzer);
 
@@ -177,13 +135,6 @@ public abstract partial class DiagnosticVerifier : TestBase
 
     #region Actual comparisons and verifications
 
-    /// <summary>
-    ///     Checks each of the actual Diagnostics found and compares them with the corresponding DiagnosticResult in the array of expected results.
-    ///     Diagnostics are considered equal only if the DiagnosticResultLocation, Id, Severity, and Message of the DiagnosticResult match the actual diagnostic.
-    /// </summary>
-    /// <param name="actualResults">The Diagnostics found by the compiler after running the analyzer on the source code</param>
-    /// <param name="analyzer">The analyzer that was being run on the sources</param>
-    /// <param name="expectedResults">Diagnostic Results that should have appeared in the code</param>
     private static void VerifyDiagnosticResults(IEnumerable<Diagnostic> actualResults, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expectedResults)
     {
         Diagnostic[] results = actualResults.ToArray();
@@ -196,7 +147,8 @@ public abstract partial class DiagnosticVerifier : TestBase
                 ? FormatDiagnostics(analyzer: analyzer, results.ToArray())
                 : "    NONE.";
 
-            Assert.True(condition: false, $"Mismatch between number of diagnostics returned, expected \"{expectedCount}\" actual \"{actualCount}\"\r\n\r\nDiagnostics:\r\n{diagnosticsOutput}\r\n");
+            Assert.True(condition: false,
+                        $"Mismatch between number of diagnostics returned, expected \"{expectedCount}\" actual \"{actualCount}\"\r\n\r\nDiagnostics:\r\n{diagnosticsOutput}\r\n");
         }
 
         for (int i = 0; i < expectedResults.Length; i++)
@@ -220,7 +172,8 @@ public abstract partial class DiagnosticVerifier : TestBase
             VerifyAdditionalDiagnosticLocations(analyzer: analyzer, actual: actual, expected: expected);
         }
 
-        Assert.True(actual.Id == expected.Id, $"Expected diagnostic id to be \"{expected.Id}\" was \"{actual.Id}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, actual)}\r\n");
+        Assert.True(actual.Id == expected.Id,
+                    $"Expected diagnostic id to be \"{expected.Id}\" was \"{actual.Id}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, actual)}\r\n");
 
         Assert.True(actual.Severity == expected.Severity,
                     $"Expected diagnostic severity to be \"{expected.Severity}\" was \"{actual.Severity}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, actual)}\r\n");
@@ -245,13 +198,6 @@ public abstract partial class DiagnosticVerifier : TestBase
         }
     }
 
-    /// <summary>
-    ///     Helper method to VerifyDiagnosticResult that checks the location of a diagnostic and compares it with the location in the expected DiagnosticResult.
-    /// </summary>
-    /// <param name="analyzer">The analyzer that was being run on the sources</param>
-    /// <param name="diagnostic">The diagnostic that was found in the code</param>
-    /// <param name="actual">The Location of the Diagnostic found in the code</param>
-    /// <param name="expected">The DiagnosticResultLocation that should have been found</param>
     private static void VerifyDiagnosticLocation(DiagnosticAnalyzer analyzer, Diagnostic diagnostic, Location actual, in DiagnosticResultLocation expected)
     {
         FileLinePositionSpan actualSpan = actual.GetLineSpan();
