@@ -34,6 +34,7 @@ updates:
   - dependency-name: "DisableDateTimeNow"
   - dependency-name: "Discord.Net"
   - dependency-name: "dotnetstandard-bip39"
+  - dependency-name: "FluentValidation"
   - dependency-name: "FluentValidation.AspNetCore"
   - dependency-name: "HexMate"
   - dependency-name: "HtmlAgilityPack"
