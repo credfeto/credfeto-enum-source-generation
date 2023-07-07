@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated NonBlocking to 2.1.2
 - Dependencies - Updated BenchmarkDotNet to 0.13.6
 - Dependencies - Updated Meziantou.Analyzer to 2.0.66
+- Dependencies - Updated xunit to 2.5.0
 ### Removed
 ### Deployment Changes
 
