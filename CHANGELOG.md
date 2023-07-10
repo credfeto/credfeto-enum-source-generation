@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit.runner.visualstudio to 2.5.0
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.5.0.73987
 - Dependencies - Updated NonBlocking to 2.1.2
+- Dependencies - Updated FunFair.Test.Common to 6.1.2.83
 ### Removed
 ### Deployment Changes
 
