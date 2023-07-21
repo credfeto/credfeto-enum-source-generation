@@ -501,6 +501,8 @@
         <Rule Id="CC0031" Action="None"/>
         <!-- CC0057 - Review unused parameters -->
         <Rule Id="CC0057" Action="None"/>
+        <!-- CC0072 - Remove 'Async' suffix -->
+        <Rule Id="CC0072" Action="None"/>
         <!-- CC0105 - Use var instead of specifying type name -->
         <Rule Id="CC0105" Action="None"/>
     </Rules>
