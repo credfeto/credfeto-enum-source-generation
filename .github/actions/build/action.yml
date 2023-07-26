@@ -267,6 +267,7 @@ runs:
       NUGET_FEED: ${{inputs.NUGET_FEED}}
       NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}
       NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
+      SLEET_CONFIG: ${{inputs.SLEET_CONFIG}}
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
