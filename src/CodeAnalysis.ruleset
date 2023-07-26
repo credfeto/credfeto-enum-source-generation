@@ -387,6 +387,8 @@
         <Rule Id="S3063" Action="Error"/>
         <!-- S3218 - Inner class members should not shadow outer class "static" or type members -->
         <Rule Id="S3218" Action="None"/>
+        <!-- S3329 - Use a dynamically-generated, random IV. -->
+        <Rule Id="S3329" Action="Error"/>
         <!-- S3442 - "abstract" classes should not have "public" constructors -->
         <Rule Id="S3442" Action="None"/>
         <!-- S3459 - Unassigned members should be removed -->
