@@ -32,6 +32,9 @@ inputs:
   NUGET_API_KEY:
     description: 'API key to authenticate when pushing packages'
     required: false
+  SLEET_CONFIG:
+    description: 'Sleet config file'
+    required: false
 
   # Octopus
   OCTOPUS_SERVER:
