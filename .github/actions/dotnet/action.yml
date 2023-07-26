@@ -246,7 +246,7 @@ runs:
   - if: ${{inputs.NUGET_API_KEY == 'SLEET' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
     name: "Dotnet: Publish Packages to Nuget (Using Sleet)"
     shell: bash
-    run: dotnet sleet push --config sleet.json --folder dist --source dotnet-nuget
+    run: dotnet sleet push "${{github.workspace}}/dist" --config sleet.json --source dotnet-nuget
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
