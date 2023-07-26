@@ -18,6 +18,9 @@ inputs:
   NUGET_API_KEY:
     description: 'API key to authenticate when pushing packages'
     required: false
+  SLEET_CONFIG:
+    description: 'Sleet config file'
+    required: false
 
   # General
   BUILD_VERSION:
@@ -237,7 +240,7 @@ runs:
     uses: joutvhu/write-file@v1
     with:
       path: sleet.json
-      contents: ${{ secrets.SLEET_CONFIG }}
+      contents: ${{ inputs.SLEET_CONFIG }}
       write_mode: overwrite
 
   - if: ${{inputs.NUGET_API_KEY == 'SLEET' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
