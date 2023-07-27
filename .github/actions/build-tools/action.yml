@@ -153,9 +153,7 @@ runs:
 
   - name: "Dotnet: Clear nuget cache"
     shell: bash
-    run: |
-      dotnet nuget locals http-cache --clear
-      dotnet nuget locals temp --clear
+    run: dotnet nuget locals all --clear
 
   - name: Enable dotnet tools
     shell: bash
