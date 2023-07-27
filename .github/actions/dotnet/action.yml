@@ -3,6 +3,12 @@ name: 'Build Dotnet'
 description: 'Builds and deploys the source'
 inputs:
   # NUGET
+  NUGET_PUBLIC_RESTORE_FEED_CACHE:
+    description: 'Local cache of public nuget feed'
+    required: false
+  NUGET_PUBLIC_RESTORE_FEED:
+    description: 'public nuget feed'
+    required: false
   NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
     description: 'Any additional nuget feed to download packages from'
     required: false
@@ -79,10 +85,17 @@ runs:
       restore-keys: |
         ${{runner.os}}-nuget-
 
-  - name: "Dotnet: Define Nuget Sources (Standard)"
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
+    name: "Dotnet: Define Nuget Sources (nuget.org [Cache])"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: echo "NUGET_SOURCES=--source https://api.nuget.org/v3/index.json" >> "$GITHUB_ENV"
+    run: echo "NUGET_SOURCES=--source ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}} -source ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}" >> "$GITHUB_ENV"
+
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE == ''}}
+    name: "Dotnet: Define Nuget Sources (Standard)"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: echo "NUGET_SOURCES=--source ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}" >> "$GITHUB_ENV"
 
   - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
     name: "Dotnet: Define Nuget Sources (Additional Feed 1 [Cache])"
