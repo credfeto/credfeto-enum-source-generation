@@ -40,13 +40,13 @@ jobs:
           echo "OS: ${{runner.os}}"
 
       - name: "Enable Local nuget feeds if caching"
-        if: ${{runner.name.startsWith('buildagent-')}}
+        if: ${{startsWith(runner.name, 'buildagent-')}}
         id: nuget-local-cache
         run: |
           {
-            echo "NUGET_BAGET_CACHE: ${{vars.RELEASE_BAGET_CACHE}}"
-            echo "PRERELEASE_BAGET_CACHE: ${{vars.PRERELEASE_BAGET_CACHE}}"
-            echo "RELEASE_BAGET_CACHE: ${{vars.RELEASE_BAGET_CACHE}}"
+            echo "NUGET_BAGET_CACHE=${{vars.NUGET_BAGET_CACHE}}"
+            echo "PRERELEASE_BAGET_CACHE=${{vars.PRERELEASE_BAGET_CACHE}}"
+            echo "RELEASE_BAGET_CACHE=${{vars.RELEASE_BAGET_CACHE}}"
           }>> "$GITHUB_OUTPUT"
 
       - name: Build and deploy
@@ -59,9 +59,9 @@ jobs:
           NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{steps.nuget-local-cache.outputs.NUGET_BAGET_CACHE}}
           NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED}}
           NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{steps.nuget-local-cache.outputs.RELEASE_BAGET_CACHE}}
-          #NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{secrets.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{secrets.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
-          #NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{secrets.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
+          #NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+          #NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
 
           NUGET_PACK: ${{vars.NUGET_PACK}}
           NUGET_FEED: ${{secrets.NUGET_FEED}}
