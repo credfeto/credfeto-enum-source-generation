@@ -81,3 +81,7 @@ jobs:
           REPO_VISIBILITY: ${{env.REPO_STATUS}}
           CREATE_RELEASE: true
 
+      - name: Build Version
+        run: |
+          echo "Version: ${{env.BUILD_VERSION}}"
+
