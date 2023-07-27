@@ -8,7 +8,16 @@ inputs:
     required: true
 
   # NUGET
-  NUGET_ADDITIONAL_RESTORE_FEED:
+  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE:
     description: 'Any additional nuget feed to download packages from'
     required: false
 
@@ -47,15 +56,54 @@ runs:
   - name: "Dotnet: Remove optional nuget feed if it exists"
     shell: bash
     run: |
+      echo "Removing Additional1Cache NuGet Feed"
+      [ "$(dotnet nuget list source | grep Additional1Cache | tr -s ' ' | cut -d ' ' -f 3)" == "Additional1Cache" ] && dotnet nuget remove source Additional1Cache || echo "Additional1Cache NuGet Feed is Not Registered"
+
+  - name: "Dotnet: Remove optional nuget feed if it exists"
+    shell: bash
+    run: |
+      echo "Removing Additional2Cache NuGet Feed"
+      [ "$(dotnet nuget list source | grep Additional2Cache | tr -s ' ' | cut -d ' ' -f 3)" == "Additional2Cache" ] && dotnet nuget remove source Additional2Cache || echo "Additional2Cache NuGet Feed is Not Registered"
+
+  - name: "Dotnet: Remove optional nuget feed if it exists"
+    shell: bash
+    run: |
       echo "Removing Additional1 NuGet Feed"
       [ "$(dotnet nuget list source | grep Additional1 | tr -s ' ' | cut -d ' ' -f 3)" == "Additional1" ] && dotnet nuget remove source Additional1 || echo "Additional1 NuGet Feed is Not Registered"
 
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED != ''}}
-    name: "Dotnet: Add optional nuget feed"
+  - name: "Dotnet: Remove optional nuget feed if it exists"
     shell: bash
     run: |
-      echo "Adding Additional1 NuGet feed..."
-      dotnet nuget add source --name Additional1 "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}"
+      echo "Removing Additional2 NuGet Feed"
+      [ "$(dotnet nuget list source | grep Additional2 | tr -s ' ' | cut -d ' ' -f 3)" == "Additional2" ] && dotnet nuget remove source Additional2 || echo "Additional2 NuGet Feed is Not Registered"
+
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
+    name: "Dotnet: Add optional nuget feed (Additional1Cache)"
+    shell: bash
+    run: |
+      echo "Adding Additional1Cache NuGet feed..."
+      dotnet nuget add source --name Additional1Cache "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}"
+
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''}}
+    name: "Dotnet: Add optional nuget feed (Additional2Cache)"
+    shell: bash
+    run: |
+      echo "Adding Additional2Cache NuGet feed..."
+      dotnet nuget add source --name Additional2Cache "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}"
+
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''}}
+    name: "Dotnet: Add optional nuget feed (Additional1)"
+    shell: bash
+    run: |
+      echo "Adding Additional1Cache NuGet feed..."
+      dotnet nuget add source --name Additional1 "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
+
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''}}
+    name: "Dotnet: Add optional nuget feed (Additional2)"
+    shell: bash
+    run: |
+      echo "Adding Additional2 NuGet feed..."
+      dotnet nuget add source --name Additional2 "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}"
 
   - name: "Dotnet: Show sources"
     shell: bash
