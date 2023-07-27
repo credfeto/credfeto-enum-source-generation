@@ -8,6 +8,12 @@ inputs:
     required: true
 
   # NUGET
+  NUGET_PUBLIC_RESTORE_FEED_CACHE:
+    description: 'Local cache of public nuget feed'
+    required: false
+  NUGET_PUBLIC_RESTORE_FEED:
+    description: 'public nuget feed'
+    required: false
   NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
     description: 'Any additional nuget feed to download packages from'
     required: false
