@@ -17,11 +17,17 @@ inputs:
     required: false
 
   # NUGET
-  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
-    description: 'Any additional nuget feed to download packages from'
+  NUGET_PUBLIC_RESTORE_FEED_CACHE:
+    description: 'Local cache of public nuget feed'
+    required: false
+  NUGET_PUBLIC_RESTORE_FEED:
+    description: 'public nuget feed'
     required: false
   NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE:
-    description: 'Any additional nuget feed to download packages from'
+    description: 'Cache of any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
+    description: 'Cache of Any additional nuget feed to download packages from'
     required: false
   NUGET_ADDITIONAL_RESTORE_FEED_RELEASE:
     description: 'Any additional nuget feed to download packages from'
@@ -103,6 +109,8 @@ runs:
       echo "NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}"
       echo "NUGET_FEED: ${{inputs.NUGET_FEED}}"
       echo "NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}"
+      echo "NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}"
+      echo "NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}"
       echo "NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}"
       echo "NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}"
       echo "NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
@@ -147,6 +155,8 @@ runs:
     uses: ./.github/actions/build-tools
     with:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+      NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}
+      NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}
       NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
       NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
       NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
@@ -280,6 +290,8 @@ runs:
     with:
       BUILD_VERSION: ${{env.BUILD_VERSION}}
       BUILD_SQL: ${{steps.check_files.outputs.SQL_EXIST}}
+      NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}
+      NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}
       NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
       NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
       NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
