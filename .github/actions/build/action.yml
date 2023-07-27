@@ -17,7 +17,16 @@ inputs:
     required: false
 
   # NUGET
-  NUGET_ADDITIONAL_RESTORE_FEED:
+  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE:
     description: 'Any additional nuget feed to download packages from'
     required: false
   NUGET_PACK:
@@ -34,6 +43,9 @@ inputs:
     required: false
   SLEET_CONFIG:
     description: 'Sleet config file'
+    required: false
+  SLEET_FEED:
+    description: 'Sleet feed to push packages to'
     required: false
 
   # Octopus
@@ -91,7 +103,10 @@ runs:
       echo "NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}"
       echo "NUGET_FEED: ${{inputs.NUGET_FEED}}"
       echo "NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}"
-      echo "NUGET_ADDITIONAL_RESTORE_FEED: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}"
+      echo "NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}"
+      echo "NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}"
+      echo "NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
+      echo "NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}"
       echo "NUGET_PACK: ${{inputs.NUGET_PACK}}"
 
   - name: Fetch tags and master
@@ -132,7 +147,10 @@ runs:
     uses: ./.github/actions/build-tools
     with:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
-      NUGET_ADDITIONAL_RESTORE_FEED: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}
+      NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
+      NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
+      NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+      NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
 
   - name: Check Build Tools Requirements
     id: build_tools
@@ -262,12 +280,16 @@ runs:
     with:
       BUILD_VERSION: ${{env.BUILD_VERSION}}
       BUILD_SQL: ${{steps.check_files.outputs.SQL_EXIST}}
-      NUGET_ADDITIONAL_RESTORE_FEED: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}
+      NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
+      NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
+      NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+      NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
       NUGET_PACK: ${{inputs.NUGET_PACK}}
       NUGET_FEED: ${{inputs.NUGET_FEED}}
       NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}
       NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
       SLEET_CONFIG: ${{inputs.SLEET_CONFIG}}
+      SLEET_FEED: ${{inputs.SLEET_FEED}}
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
