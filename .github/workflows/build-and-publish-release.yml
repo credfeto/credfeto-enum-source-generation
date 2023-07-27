@@ -6,9 +6,10 @@ on:
       - 'release/*'
       - 'hotfix/*'
 
+# Don't cancel anything in progress
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}-release
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write
