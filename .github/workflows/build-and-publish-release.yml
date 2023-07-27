@@ -34,6 +34,11 @@ jobs:
           repository: ${{github.repository}}
           token: ${{secrets.GITHUB_TOKEN}}
 
+      - name: "Check Runner details"
+        run: |
+          echo "Name: ${{runner.name}}"
+          echo "OS: ${{runner.os}}"
+
       - name: Build and deploy
         uses: ./.github/actions/build
         with:
