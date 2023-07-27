@@ -3,7 +3,16 @@ name: 'Build Dotnet'
 description: 'Builds and deploys the source'
 inputs:
   # NUGET
-  NUGET_ADDITIONAL_RESTORE_FEED:
+  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE:
     description: 'Any additional nuget feed to download packages from'
     required: false
   NUGET_PACK:
@@ -20,6 +29,9 @@ inputs:
     required: false
   SLEET_CONFIG:
     description: 'Sleet config file'
+    required: false
+  SLEET_FEED:
+    description: 'Sleet feed to push packages to'
     required: false
 
   # General
@@ -72,11 +84,29 @@ runs:
     shell: bash
     run: echo "NUGET_SOURCES=--source https://api.nuget.org/v3/index.json" >> "$GITHUB_ENV"
 
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED != ''}}
-    name: "Dotnet: Define Nuget Sources (Additional Feed)"
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
+    name: "Dotnet: Define Nuget Sources (Additional Feed 1 [Cache])"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED}}" >> "$GITHUB_ENV"
+    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}" >> "$GITHUB_ENV"
+
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''}}
+    name: "Dotnet: Define Nuget Sources (Additional Feed 2 [Cache])"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}" >> "$GITHUB_ENV"
+
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''}}
+    name: "Dotnet: Define Nuget Sources (Additional Feed 1 [Direct])"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}" >> "$GITHUB_ENV"
+
+  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''}}
+    name: "Dotnet: Define Nuget Sources (Additional Feed 2 [Direct])"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}" >> "$GITHUB_ENV"
 
   - if: ${{env.Release == 'false'}}
     name: "Dotnet: Define Master build settings"
@@ -246,7 +276,7 @@ runs:
   - if: ${{inputs.NUGET_API_KEY == 'SLEET' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
     name: "Dotnet: Publish Packages to Nuget (Using Sleet)"
     shell: bash
-    run: dotnet sleet push "${{github.workspace}}/dist" --config sleet.json --source dotnet-nuget
+    run: dotnet sleet push "${{github.workspace}}/dist" --config sleet.json --source ${{inputs.SLEET_FEED}}
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
