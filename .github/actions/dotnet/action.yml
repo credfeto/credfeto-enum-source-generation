@@ -85,41 +85,41 @@ runs:
       restore-keys: |
         ${{runner.os}}-nuget-
 
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
-    name: "Dotnet: Define Nuget Sources (nuget.org [Cache])"
-    working-directory: ${{github.workspace}}/src
-    shell: bash
-    run: echo "NUGET_SOURCES=--source ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}} -source ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}" >> "$GITHUB_ENV"
-
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE == ''}}
-    name: "Dotnet: Define Nuget Sources (Standard)"
-    working-directory: ${{github.workspace}}/src
-    shell: bash
-    run: echo "NUGET_SOURCES=--source ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}" >> "$GITHUB_ENV"
-
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
-    name: "Dotnet: Define Nuget Sources (Additional Feed 1 [Cache])"
-    working-directory: ${{github.workspace}}/src
-    shell: bash
-    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}" >> "$GITHUB_ENV"
-
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''}}
-    name: "Dotnet: Define Nuget Sources (Additional Feed 2 [Cache])"
-    working-directory: ${{github.workspace}}/src
-    shell: bash
-    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}" >> "$GITHUB_ENV"
-
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''}}
-    name: "Dotnet: Define Nuget Sources (Additional Feed 1 [Direct])"
-    working-directory: ${{github.workspace}}/src
-    shell: bash
-    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}" >> "$GITHUB_ENV"
-
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''}}
-    name: "Dotnet: Define Nuget Sources (Additional Feed 2 [Direct])"
-    working-directory: ${{github.workspace}}/src
-    shell: bash
-    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}" >> "$GITHUB_ENV"
+#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
+#    name: "Dotnet: Define Nuget Sources (nuget.org [Cache])"
+#    working-directory: ${{github.workspace}}/src
+#    shell: bash
+#    run: echo "NUGET_SOURCES=--source ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}} -source ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}" >> "$GITHUB_ENV"
+#
+#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE == ''}}
+#    name: "Dotnet: Define Nuget Sources (Standard)"
+#    working-directory: ${{github.workspace}}/src
+#    shell: bash
+#    run: echo "NUGET_SOURCES=--source ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}" >> "$GITHUB_ENV"
+#
+#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
+#    name: "Dotnet: Define Nuget Sources (Additional Feed 1 [Cache])"
+#    working-directory: ${{github.workspace}}/src
+#    shell: bash
+#    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}" >> "$GITHUB_ENV"
+#
+#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''}}
+#    name: "Dotnet: Define Nuget Sources (Additional Feed 2 [Cache])"
+#    working-directory: ${{github.workspace}}/src
+#    shell: bash
+#    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}" >> "$GITHUB_ENV"
+#
+#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''}}
+#    name: "Dotnet: Define Nuget Sources (Additional Feed 1 [Direct])"
+#    working-directory: ${{github.workspace}}/src
+#    shell: bash
+#    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}" >> "$GITHUB_ENV"
+#
+#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''}}
+#    name: "Dotnet: Define Nuget Sources (Additional Feed 2 [Direct])"
+#    working-directory: ${{github.workspace}}/src
+#    shell: bash
+#    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}" >> "$GITHUB_ENV"
 
   - if: ${{env.Release == 'false'}}
     name: "Dotnet: Define Master build settings"
@@ -136,7 +136,8 @@ runs:
   - name: "Dotnet: Restore packages"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet restore -nodeReuse:False ${{env.NUGET_SOURCES}}
+    run: dotnet restore -nodeReuse:False
+    # ${{env.NUGET_SOURCES}}
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -150,7 +151,8 @@ runs:
   - name: "Dotnet: Build"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:EnableSarif=True" -nodeReuse:False ${{env.NUGET_SOURCES}} ${{env.DOTNET_RELEASE_DEFINES}}
+    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:EnableSarif=True" -nodeReuse:False ${{env.DOTNET_RELEASE_DEFINES}}
+    #${{env.NUGET_SOURCES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -229,7 +231,8 @@ runs:
     name: "Dotnet: Pack tool"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore -nodeReuse:False ${{env.NUGET_SOURCES}}
+    run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore -nodeReuse:False
+    #${{env.NUGET_SOURCES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
