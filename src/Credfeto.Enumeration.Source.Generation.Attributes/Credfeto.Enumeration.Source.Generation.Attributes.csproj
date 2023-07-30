@@ -34,6 +34,7 @@
     <DebuggerSupport>true</DebuggerSupport>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <NuGetAudit>true</NuGetAudit>
   </PropertyGroup>
   <PropertyGroup>
     <Company>Mark Ridgwell</Company>
