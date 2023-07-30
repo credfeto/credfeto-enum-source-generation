@@ -19,7 +19,7 @@
     <OptimizationPreference>speed</OptimizationPreference>
     <OutputType>Library</OutputType>
     <RunAOTCompilation>false</RunAOTCompilation>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <TieredCompilation>true</TieredCompilation>
     <TieredPGO>true</TieredPGO>
     <TreatSpecificWarningsAsErrors />
