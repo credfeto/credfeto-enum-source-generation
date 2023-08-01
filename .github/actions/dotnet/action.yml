@@ -3,24 +3,6 @@ name: 'Build Dotnet'
 description: 'Builds and deploys the source'
 inputs:
   # NUGET
-  NUGET_PUBLIC_RESTORE_FEED_CACHE:
-    description: 'Local cache of public nuget feed'
-    required: false
-  NUGET_PUBLIC_RESTORE_FEED:
-    description: 'public nuget feed'
-    required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
-    description: 'Any additional nuget feed to download packages from'
-    required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE:
-    description: 'Any additional nuget feed to download packages from'
-    required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE:
-    description: 'Any additional nuget feed to download packages from'
-    required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE:
-    description: 'Any additional nuget feed to download packages from'
-    required: false
   NUGET_PACK:
     description: 'Whether to pack packages with feeds'
     required: false
@@ -77,50 +59,6 @@ runs:
   # DOTNET BUILD
   ############################################################################################################
 
-  - name: "Dotnet: Setup package cache"
-    uses: actions/cache@v3
-    with:
-      path: ~/.nuget/packages
-      key: ${{runner.os}}-nuget-${{hashFiles('**/*.sln', '**/*.csproj', '**/*.props')}}
-      restore-keys: |
-        ${{runner.os}}-nuget-
-
-#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
-#    name: "Dotnet: Define Nuget Sources (nuget.org [Cache])"
-#    working-directory: ${{github.workspace}}/src
-#    shell: bash
-#    run: echo "NUGET_SOURCES=--source ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}} -source ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}" >> "$GITHUB_ENV"
-#
-#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE == ''}}
-#    name: "Dotnet: Define Nuget Sources (Standard)"
-#    working-directory: ${{github.workspace}}/src
-#    shell: bash
-#    run: echo "NUGET_SOURCES=--source ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}" >> "$GITHUB_ENV"
-#
-#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
-#    name: "Dotnet: Define Nuget Sources (Additional Feed 1 [Cache])"
-#    working-directory: ${{github.workspace}}/src
-#    shell: bash
-#    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}" >> "$GITHUB_ENV"
-#
-#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''}}
-#    name: "Dotnet: Define Nuget Sources (Additional Feed 2 [Cache])"
-#    working-directory: ${{github.workspace}}/src
-#    shell: bash
-#    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}" >> "$GITHUB_ENV"
-#
-#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''}}
-#    name: "Dotnet: Define Nuget Sources (Additional Feed 1 [Direct])"
-#    working-directory: ${{github.workspace}}/src
-#    shell: bash
-#    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}" >> "$GITHUB_ENV"
-#
-#  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''}}
-#    name: "Dotnet: Define Nuget Sources (Additional Feed 2 [Direct])"
-#    working-directory: ${{github.workspace}}/src
-#    shell: bash
-#    run: echo "NUGET_SOURCES=${{env.NUGET_SOURCES}} --source ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}" >> "$GITHUB_ENV"
-
   - if: ${{env.Release == 'false'}}
     name: "Dotnet: Define Master build settings"
     working-directory: ${{github.workspace}}/src
@@ -136,8 +74,8 @@ runs:
   - name: "Dotnet: Restore packages"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet restore -nodeReuse:False
-    # ${{env.NUGET_SOURCES}}
+    run: dotnet restore -nodeReuse:False || dotnet restore -nodeReuse:False -verbosity:d
+         # -p:NoWarn=MSB4241
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -152,7 +90,6 @@ runs:
     working-directory: ${{github.workspace}}/src
     shell: bash
     run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:EnableSarif=True" -nodeReuse:False ${{env.DOTNET_RELEASE_DEFINES}}
-    #${{env.NUGET_SOURCES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -227,12 +164,11 @@ runs:
   ############################################################################################################
   # DOTNET PUSH TO NUGET
   ############################################################################################################
-  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true'}}
+  - if: ${{inputs.NUGET_PACK == 'true'}}
     name: "Dotnet: Pack tool"
     working-directory: ${{github.workspace}}/src
     shell: bash
     run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore -nodeReuse:False
-    #${{env.NUGET_SOURCES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -244,7 +180,7 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_PACK == 'true'}}
+  - if: ${{inputs.NUGET_PACK == 'true'}}
     name: "Dotnet: Copy packed to dist"
     shell: bash
     run: |
