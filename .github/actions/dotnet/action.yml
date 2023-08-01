@@ -74,8 +74,7 @@ runs:
   - name: "Dotnet: Restore packages"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet restore -nodeReuse:False || dotnet restore -nodeReuse:False -verbosity:d
-         # -p:NoWarn=MSB4241
+    run: dotnet restore -nodeReuse:False -p:NoWarn=MSB4241 || dotnet restore -nodeReuse:False -verbosity:d -p:NoWarn=MSB4241
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -89,7 +88,7 @@ runs:
   - name: "Dotnet: Build"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:EnableSarif=True" -nodeReuse:False ${{env.DOTNET_RELEASE_DEFINES}}
+    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:EnableSarif=True" -nodeReuse:False -p:NoWarn=MSB4241 ${{env.DOTNET_RELEASE_DEFINES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -105,7 +104,7 @@ runs:
   - name: "Dotnet: Test"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results -nodeReuse:False
+    run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results -nodeReuse:False -p:NoWarn=MSB4241
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -168,7 +167,7 @@ runs:
     name: "Dotnet: Pack tool"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore -nodeReuse:False
+    run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore -nodeReuse:False -p:NoWarn=MSB4241
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
