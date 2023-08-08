@@ -17,6 +17,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 2.0.66
 - Dependencies - Updated xunit to 2.5.0
 - Dependencies - Updated FunFair.Test.Common to 6.1.3.87
+- SDK - Updated DotNet SDK to 8.0.100-preview.7.23376.3
 ### Removed
 ### Deployment Changes
 
