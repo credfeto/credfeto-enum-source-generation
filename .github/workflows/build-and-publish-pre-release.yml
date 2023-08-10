@@ -93,6 +93,9 @@ jobs:
           CREATE_RELEASE: false
 
       - name: Build Version
-        run: |
-          echo "Version: ${{env.BUILD_VERSION}}"
+        uses: actions/github-script@v6.4.1
+        with:
+          script: |
+            core.info('Version: \u001b[38;5;6m${{env.BUILD_VERSION}}');
+            core.notice('Version: ${{env.BUILD_VERSION}}');
 
