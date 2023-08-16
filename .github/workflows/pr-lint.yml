@@ -197,7 +197,7 @@ jobs:
           fetch-depth: 0
       - if: ${{steps.visibility.outputs.is_public == 'true'}}
         name: 'Dependency Review'
-        uses: actions/dependency-review-action@v3.0.7
+        uses: actions/dependency-review-action@v3.0.8
 
   no-merge-commits:
     # Check that there are no merge commits in the PR
