@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.8.0.76515
+- Dependencies - Updated TeamCity.VSTest.TestAdapter to 1.0.37
 ### Removed
 ### Deployment Changes
 
