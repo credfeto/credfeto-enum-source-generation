@@ -34,18 +34,12 @@ public sealed class EnumGenerator : ISourceGenerator
 
         foreach (EnumGeneration enumDeclaration in receiver.Enums)
         {
-            GenerateClassForEnum(context: context,
-                                 enumDeclaration: enumDeclaration,
-                                 hasDoesNotReturn: hasDoesNotReturn,
-                                 supportsUnreachableException: supportsUnreachableException);
+            GenerateClassForEnum(context: context, enumDeclaration: enumDeclaration, hasDoesNotReturn: hasDoesNotReturn, supportsUnreachableException: supportsUnreachableException);
         }
 
         foreach (ClassEnumGeneration classDeclaration in receiver.Classes)
         {
-            GenerateClassForClass(context: context,
-                                  classDeclaration: classDeclaration,
-                                  hasDoesNotReturn: hasDoesNotReturn,
-                                  supportsUnreachableException: supportsUnreachableException);
+            GenerateClassForClass(context: context, classDeclaration: classDeclaration, hasDoesNotReturn: hasDoesNotReturn, supportsUnreachableException: supportsUnreachableException);
         }
     }
 
@@ -88,12 +82,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source)
     {
-        return AddUsingDeclarations(source: source,
-                                    "System",
-                                    "System.CodeDom.Compiler",
-                                    "System.Diagnostics",
-                                    "System.Diagnostics.CodeAnalysis",
-                                    "System.Runtime.CompilerServices");
+        return AddUsingDeclarations(source: source, "System", "System.CodeDom.Compiler", "System.Diagnostics", "System.Diagnostics.CodeAnalysis", "System.Runtime.CompilerServices");
     }
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source, params string[] namespaces)
@@ -140,11 +129,7 @@ public sealed class EnumGenerator : ISourceGenerator
         context.AddSource(classDeclaration.Namespace + "." + className + ".generated.cs", sourceText: source.Text);
     }
 
-    private static void GenerateMethods(bool hasDoesNotReturn,
-                                        bool supportsUnreachableException,
-                                        CodeBuilder source,
-                                        in EnumGeneration attribute,
-                                        Func<EnumGeneration, string> classNameFormatter)
+    private static void GenerateMethods(bool hasDoesNotReturn, bool supportsUnreachableException, CodeBuilder source, in EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
     {
         GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
@@ -218,8 +203,7 @@ public sealed class EnumGenerator : ISourceGenerator
             {
                 using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
                 {
-                    members.Aggregate(seed: source,
-                                      func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
+                    members.Aggregate(seed: source, func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
                            .AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
                 }
             }
@@ -300,40 +284,24 @@ public sealed class EnumGenerator : ISourceGenerator
         }
     }
 
-    private static IReadOnlyList<string> GetDescriptionCaseOptions(in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    private static IReadOnlyList<string> GetDescriptionCaseOptions(EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
-        List<string> items = new();
-
         HashSet<string> names = UniqueEnumMemberNames(enumDeclaration);
 
-        foreach (IFieldSymbol? member in enumDeclaration.Members)
-        {
-            if (IsSkipEnumValue(member: member, names: names) || member.HasObsoleteAttribute())
-            {
-                continue;
-            }
+        return enumDeclaration.Members.Where(member => !IsSkipEnumValue(member: member, names: names) && !member.HasObsoleteAttribute())
+                              .Select(member => (member, description: member.GetAttributes()
+                                                                            .FirstOrDefault(SymbolExtensions.IsDescriptionAttribute)))
+                              .Where(item => item.description is not null)
+                              .Select(item => (item.member, typedConstant: item.description!.ConstructorArguments.FirstOrDefault()))
+                              .Select(item => (item.member, attributeText: ((TypedConstant?)item.typedConstant).Value.ToCSharpString()))
+                              .Where(item => !string.IsNullOrWhiteSpace(item.attributeText))
+                              .Select(item => FormatMember(enumDeclaration: enumDeclaration, classNameFormatter: classNameFormatter, member: item.member, attributeText: item.attributeText))
+                              .ToArray();
+    }
 
-            AttributeData? description = member.GetAttributes()
-                                               .FirstOrDefault(SymbolExtensions.IsDescriptionAttribute);
-
-            if (description is null)
-            {
-                continue;
-            }
-
-            TypedConstant? tc = description.ConstructorArguments.FirstOrDefault();
-
-            string attributeText = tc.Value.ToCSharpString();
-
-            if (string.IsNullOrWhiteSpace(attributeText))
-            {
-                continue;
-            }
-
-            items.Add(classNameFormatter(enumDeclaration) + "." + member.Name + " => " + attributeText + ",");
-        }
-
-        return items;
+    private static string FormatMember(in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter, IFieldSymbol member, string attributeText)
+    {
+        return classNameFormatter(enumDeclaration) + "." + member.Name + " => " + attributeText + ",";
     }
 
     private static bool IsSkipEnumValue(IFieldSymbol member, HashSet<string> names)

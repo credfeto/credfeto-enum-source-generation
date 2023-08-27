@@ -6,7 +6,7 @@ namespace Credfeto.Enumeration.Source.Generation.Builders;
 
 public sealed class CodeBuilder
 {
-    private readonly StringBuilder _stringBuilder = new();
+    private readonly StringBuilder _stringBuilder = new(16384);
 
     private int _indent;
 
