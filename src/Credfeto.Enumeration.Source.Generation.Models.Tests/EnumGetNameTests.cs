@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using FunFair.Test.Common;
 using Xunit;
@@ -37,7 +38,7 @@ public sealed class EnumGetNameTests : TestBase
     {
         const ExampleEnumValues unknown = (ExampleEnumValues)72;
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => unknown.GetName());
+        Assert.Throws<UnreachableException>(() => unknown.GetName());
     }
 
     [Fact]

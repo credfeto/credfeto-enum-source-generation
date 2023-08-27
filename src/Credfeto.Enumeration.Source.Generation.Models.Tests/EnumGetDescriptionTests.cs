@@ -1,4 +1,4 @@
-using System;
+using System.Diagnostics;
 using System.Net;
 using FunFair.Test.Common;
 using Xunit;
@@ -26,7 +26,7 @@ public sealed class EnumGetDescriptionTests : TestBase
     {
         const ExampleEnumValues unknown = (ExampleEnumValues)72;
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => unknown.GetDescription());
+        Assert.Throws<UnreachableException>(() => unknown.GetDescription());
     }
 
     [Fact]
