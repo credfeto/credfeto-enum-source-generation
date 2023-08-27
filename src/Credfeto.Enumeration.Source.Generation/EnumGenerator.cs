@@ -55,7 +55,7 @@ public sealed class EnumGenerator : ISourceGenerator
         context.RegisterForSyntaxNotifications(() => new EnumSyntaxReceiver());
     }
 
-    private static void GenerateClassForEnum(in GeneratorExecutionContext context, EnumGeneration enumDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
+    private static void GenerateClassForEnum(in GeneratorExecutionContext context, in EnumGeneration enumDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
     {
         string className = enumDeclaration.Name + "GeneratedExtensions";
 
@@ -143,7 +143,7 @@ public sealed class EnumGenerator : ISourceGenerator
     private static void GenerateMethods(bool hasDoesNotReturn,
                                         bool supportsUnreachableException,
                                         CodeBuilder source,
-                                        EnumGeneration attribute,
+                                        in EnumGeneration attribute,
                                         Func<EnumGeneration, string> classNameFormatter)
     {
         GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
@@ -160,7 +160,7 @@ public sealed class EnumGenerator : ISourceGenerator
     }
 
     private static void GenerateThrowNotFound(CodeBuilder source,
-                                              EnumGeneration enumDeclaration,
+                                              in EnumGeneration enumDeclaration,
                                               bool supportsUnreachableException,
                                               Func<EnumGeneration, string> classNameFormatter,
                                               bool hasDoesNotReturn)
@@ -194,12 +194,12 @@ public sealed class EnumGenerator : ISourceGenerator
         source.AppendLine("throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: \"Unknown enum member\");");
     }
 
-    private static void IssueUnreachableException(CodeBuilder source, EnumGeneration enumDeclaration)
+    private static void IssueUnreachableException(CodeBuilder source, in EnumGeneration enumDeclaration)
     {
         source.AppendLine("throw new UnreachableException(message: \"" + enumDeclaration.Name + ": Unknown enum member\");");
     }
 
-    private static void GenerateGetName(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    private static void GenerateGetName(CodeBuilder source, in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
         string className = classNameFormatter(enumDeclaration);
 
@@ -226,7 +226,7 @@ public sealed class EnumGenerator : ISourceGenerator
         }
     }
 
-    private static void GenerateIsDefined(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    private static void GenerateIsDefined(CodeBuilder source, in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
         string className = classNameFormatter(enumDeclaration);
 
@@ -272,7 +272,7 @@ public sealed class EnumGenerator : ISourceGenerator
         }
     }
 
-    private static void GenerateGetDescription(CodeBuilder source, EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    private static void GenerateGetDescription(CodeBuilder source, in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
         string className = classNameFormatter(enumDeclaration);
 
@@ -300,7 +300,7 @@ public sealed class EnumGenerator : ISourceGenerator
         }
     }
 
-    private static IReadOnlyList<string> GetDescriptionCaseOptions(EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    private static IReadOnlyList<string> GetDescriptionCaseOptions(in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
         List<string> items = new();
 
@@ -394,7 +394,7 @@ public sealed class EnumGenerator : ISourceGenerator
         return dsr.GetSyntax(CancellationToken.None) as EnumMemberDeclarationSyntax;
     }
 
-    private static HashSet<string> UniqueEnumMemberNames(EnumGeneration enumDeclaration)
+    private static HashSet<string> UniqueEnumMemberNames(in EnumGeneration enumDeclaration)
     {
         return new(enumDeclaration.Members.Select(m => m.Name)
                                   .Distinct(StringComparer.Ordinal),

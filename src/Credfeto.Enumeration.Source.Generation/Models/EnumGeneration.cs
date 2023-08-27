@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 namespace Credfeto.Enumeration.Source.Generation.Models;
 
 [DebuggerDisplay("{AccessType} {Namespace}.{Name}")]
-public sealed class EnumGeneration
+public readonly record struct EnumGeneration
 {
     public EnumGeneration(AccessType accessType, string name, string @namespace, IReadOnlyList<IFieldSymbol> members)
     {
