@@ -17,11 +17,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
                                                                                title: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
                                                                                message: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead");
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        new[]
-        {
-            Rule
-        }.ToImmutableArray();
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => SupportedDiagnosticsList.Build(Rule);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -112,8 +108,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         }
     }
 
-    private static void LookForBannedInInterpolatedStrings(InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax,
-                                                           in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    private static void LookForBannedInInterpolatedStrings(InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax, in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         foreach (InterpolationSyntax part in interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>())
         {
@@ -164,8 +159,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static void LookForBannedInStringConcatenation(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        if (syntaxNodeAnalysisContext.Node is BinaryExpressionSyntax binaryExpressionSyntax && IsAddExpression(binaryExpressionSyntax) &&
-            !IsAttributeArgument(binaryExpressionSyntax))
+        if (syntaxNodeAnalysisContext.Node is BinaryExpressionSyntax binaryExpressionSyntax && IsAddExpression(binaryExpressionSyntax) && !IsAttributeArgument(binaryExpressionSyntax))
 
         {
             LookForBannedInStringConcatenation(binaryExpressionSyntax: binaryExpressionSyntax, syntaxNodeAnalysisContext: syntaxNodeAnalysisContext);
@@ -174,10 +168,8 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static void LookForBannedInStringConcatenation(BinaryExpressionSyntax binaryExpressionSyntax, in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        TypeInfo left = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: binaryExpressionSyntax.Left,
-                                                                            cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
-        TypeInfo right = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: binaryExpressionSyntax.Right,
-                                                                             cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
+        TypeInfo left = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: binaryExpressionSyntax.Left, cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
+        TypeInfo right = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: binaryExpressionSyntax.Right, cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
 
         if (left.IsString() && right.IsEnum())
         {
