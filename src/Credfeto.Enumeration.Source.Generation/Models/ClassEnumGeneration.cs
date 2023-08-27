@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Credfeto.Enumeration.Source.Generation.Models;
 
 [DebuggerDisplay("{AccessType} {Namespace}.{Name}")]
-public sealed class ClassEnumGeneration
+public readonly record struct ClassEnumGeneration
 {
     public ClassEnumGeneration(AccessType accessType, string name, string @namespace, in IReadOnlyList<EnumGeneration> enums)
     {

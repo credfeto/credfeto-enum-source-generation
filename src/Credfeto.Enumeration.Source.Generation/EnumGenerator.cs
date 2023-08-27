@@ -103,7 +103,7 @@ public sealed class EnumGenerator : ISourceGenerator
                          .AppendBlankLine();
     }
 
-    private static void GenerateClassForClass(in GeneratorExecutionContext context, ClassEnumGeneration classDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
+    private static void GenerateClassForClass(in GeneratorExecutionContext context, in ClassEnumGeneration classDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
     {
         string className = classDeclaration.Name;
 
