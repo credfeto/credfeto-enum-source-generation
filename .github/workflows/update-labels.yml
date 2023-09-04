@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
           token: ${{secrets.SOURCE_PUSH_TOKEN}}
       - if: success()
-        uses: crazy-max/ghaction-github-labeler@v4.1.0
+        uses: crazy-max/ghaction-github-labeler@v4.2.0
         with:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           yaml-file: .github/labels.yml
