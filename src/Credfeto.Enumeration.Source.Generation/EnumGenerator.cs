@@ -29,6 +29,24 @@ public sealed class EnumGenerator : ISourceGenerator
             return;
         }
 
+        try
+        {
+            ExecuteInternal(context: context, receiver: receiver);
+        }
+        catch (Exception exception)
+        {
+            context.ReportDiagnostic(diagnostic: Diagnostic.Create(new(id: "ENUM004",
+                                                                       title: "Unhandled exception",
+                                                                       messageFormat: exception.Message,
+                                                                       category: "Credfeto.Enumerationc.Source.Generation",
+                                                                       defaultSeverity: DiagnosticSeverity.Error,
+                                                                       isEnabledByDefault: true),
+                                                                   location: context.Compilation.Assembly.Locations.FirstOrDefault()));
+        }
+    }
+
+    private static void ExecuteInternal(in GeneratorExecutionContext context, EnumSyntaxReceiver receiver)
+    {
         bool hasDoesNotReturn = receiver.HasDoesNotReturnAttribute;
         bool supportsUnreachableException = receiver.SupportsUnreachableException;
 
