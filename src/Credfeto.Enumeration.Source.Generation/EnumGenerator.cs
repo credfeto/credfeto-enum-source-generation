@@ -34,10 +34,20 @@ public sealed class EnumGenerator : ISourceGenerator
 
         foreach (EnumGeneration enumDeclaration in receiver.Enums)
         {
-            GenerateClassForEnum(context: context,
-                                 enumDeclaration: enumDeclaration,
-                                 hasDoesNotReturn: hasDoesNotReturn,
-                                 supportsUnreachableException: supportsUnreachableException);
+            try
+            {
+                GenerateClassForEnum(context: context, enumDeclaration: enumDeclaration, hasDoesNotReturn: hasDoesNotReturn, supportsUnreachableException: supportsUnreachableException);
+            }
+            catch (Exception exception)
+            {
+                context.ReportDiagnostic(diagnostic: Diagnostic.Create(new(id: "CDSG002",
+                                                                           title: "Unhandled exception",
+                                                                           messageFormat: exception.Message,
+                                                                           category: "Credfeto.Database.Source.Generation",
+                                                                           defaultSeverity: DiagnosticSeverity.Error,
+                                                                           isEnabledByDefault: true),
+                                                                       location: enumDeclaration.Location));
+            }
         }
 
         foreach (ClassEnumGeneration classDeclaration in receiver.Classes)

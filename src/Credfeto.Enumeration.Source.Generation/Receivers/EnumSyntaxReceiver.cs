@@ -115,7 +115,7 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
                                                           .OfType<IFieldSymbol>()
                                                           .ToArray();
 
-                EnumGeneration enumGen = new(accessType: AccessType.PUBLIC, name: type.Name, type.ContainingNamespace.ToDisplayString(), members: members);
+                EnumGeneration enumGen = new(accessType: AccessType.PUBLIC, name: type.Name, type.ContainingNamespace.ToDisplayString(), members: members, classDeclarationSyntax.GetLocation());
 
                 attributesForGeneration.Add(item: enumGen);
             }
@@ -171,6 +171,6 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
             members.Add(item: fieldSymbol);
         }
 
-        this.Enums.Add(new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members));
+        this.Enums.Add(new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation()));
     }
 }
