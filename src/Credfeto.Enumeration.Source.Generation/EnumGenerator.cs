@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Credfeto.Enumeration.Source.Generation;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 public sealed class EnumGenerator : ISourceGenerator
 {
     private const string IS_DEFINED_METHOD_NAME = nameof(Enum.IsDefined);
