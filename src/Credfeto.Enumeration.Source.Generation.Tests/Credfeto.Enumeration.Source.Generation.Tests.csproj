@@ -49,7 +49,7 @@
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation\Credfeto.Enumeration.Source.Generation.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FunFair.Test.Common" Version="6.1.7.129" />
+    <PackageReference Include="FunFair.Test.Common" Version="6.1.9.149" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.SourceGenerators.Testing.XUnit" Version="1.1.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
