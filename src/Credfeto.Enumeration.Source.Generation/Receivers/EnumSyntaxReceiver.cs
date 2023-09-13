@@ -33,9 +33,8 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
     {
         if (!this._hasDoesNotReturnAttribute.HasValue)
         {
-            this._hasDoesNotReturnAttribute = !context
-                                               .SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
-                                               .IsEmpty;
+            this._hasDoesNotReturnAttribute = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
+                                                      .IsEmpty;
         }
 
         if (!this._hasUnreachableException.HasValue)
@@ -89,7 +88,11 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
         INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None)!;
 
-        this.Classes.Add(item: new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration));
+        this.Classes.Add(item: new(accessType: accessType,
+                                   name: classSymbol.Name,
+                                   classSymbol.ContainingNamespace.ToDisplayString(),
+                                   enums: attributesForGeneration,
+                                   classDeclarationSyntax.GetLocation()));
     }
 
     private static IReadOnlyList<EnumGeneration> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax)

@@ -40,10 +40,10 @@ public sealed class EnumGenerator : ISourceGenerator
             }
             catch (Exception exception)
             {
-                context.ReportDiagnostic(diagnostic: Diagnostic.Create(new(id: "CDSG002",
+                context.ReportDiagnostic(diagnostic: Diagnostic.Create(new(id: "ENUM002",
                                                                            title: "Unhandled exception",
                                                                            messageFormat: exception.Message,
-                                                                           category: "Credfeto.Database.Source.Generation",
+                                                                           category: "Credfeto.Enumerationc.Source.Generation",
                                                                            defaultSeverity: DiagnosticSeverity.Error,
                                                                            isEnabledByDefault: true),
                                                                        location: enumDeclaration.Location));
@@ -52,10 +52,20 @@ public sealed class EnumGenerator : ISourceGenerator
 
         foreach (ClassEnumGeneration classDeclaration in receiver.Classes)
         {
-            GenerateClassForClass(context: context,
-                                  classDeclaration: classDeclaration,
-                                  hasDoesNotReturn: hasDoesNotReturn,
-                                  supportsUnreachableException: supportsUnreachableException);
+            try
+            {
+                GenerateClassForClass(context: context, classDeclaration: classDeclaration, hasDoesNotReturn: hasDoesNotReturn, supportsUnreachableException: supportsUnreachableException);
+            }
+            catch (Exception exception)
+            {
+                context.ReportDiagnostic(diagnostic: Diagnostic.Create(new(id: "ENUM003",
+                                                                           title: "Unhandled exception",
+                                                                           messageFormat: exception.Message,
+                                                                           category: "Credfeto.Enumerationc.Source.Generation",
+                                                                           defaultSeverity: DiagnosticSeverity.Error,
+                                                                           isEnabledByDefault: true),
+                                                                       location: classDeclaration.Location));
+            }
         }
     }
 
@@ -98,12 +108,7 @@ public sealed class EnumGenerator : ISourceGenerator
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source)
     {
-        return AddUsingDeclarations(source: source,
-                                    "System",
-                                    "System.CodeDom.Compiler",
-                                    "System.Diagnostics",
-                                    "System.Diagnostics.CodeAnalysis",
-                                    "System.Runtime.CompilerServices");
+        return AddUsingDeclarations(source: source, "System", "System.CodeDom.Compiler", "System.Diagnostics", "System.Diagnostics.CodeAnalysis", "System.Runtime.CompilerServices");
     }
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source, params string[] namespaces)
@@ -113,10 +118,7 @@ public sealed class EnumGenerator : ISourceGenerator
                          .AppendBlankLine();
     }
 
-    private static void GenerateClassForClass(in GeneratorExecutionContext context,
-                                              in ClassEnumGeneration classDeclaration,
-                                              bool hasDoesNotReturn,
-                                              bool supportsUnreachableException)
+    private static void GenerateClassForClass(in GeneratorExecutionContext context, in ClassEnumGeneration classDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
     {
         string className = classDeclaration.Name;
 
@@ -153,11 +155,7 @@ public sealed class EnumGenerator : ISourceGenerator
         context.AddSource(classDeclaration.Namespace + "." + className + ".generated.cs", sourceText: source.Text);
     }
 
-    private static void GenerateMethods(bool hasDoesNotReturn,
-                                        bool supportsUnreachableException,
-                                        CodeBuilder source,
-                                        in EnumGeneration attribute,
-                                        Func<EnumGeneration, string> classNameFormatter)
+    private static void GenerateMethods(bool hasDoesNotReturn, bool supportsUnreachableException, CodeBuilder source, in EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
     {
         GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
@@ -231,8 +229,7 @@ public sealed class EnumGenerator : ISourceGenerator
             {
                 using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
                 {
-                    members.Aggregate(seed: source,
-                                      func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
+                    members.Aggregate(seed: source, func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
                            .AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
                 }
             }
@@ -324,10 +321,7 @@ public sealed class EnumGenerator : ISourceGenerator
                               .Select(item => (item.member, typedConstant: item.description!.ConstructorArguments.FirstOrDefault()))
                               .Select(item => (item.member, attributeText: ((TypedConstant?)item.typedConstant).Value.ToCSharpString()))
                               .Where(item => !string.IsNullOrWhiteSpace(item.attributeText))
-                              .Select(item => FormatMember(enumDeclaration: enumDeclaration,
-                                                           classNameFormatter: classNameFormatter,
-                                                           member: item.member,
-                                                           attributeText: item.attributeText))
+                              .Select(item => FormatMember(enumDeclaration: enumDeclaration, classNameFormatter: classNameFormatter, member: item.member, attributeText: item.attributeText))
                               .ToArray();
     }
 
