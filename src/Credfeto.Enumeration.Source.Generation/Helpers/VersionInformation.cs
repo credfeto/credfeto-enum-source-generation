@@ -14,22 +14,21 @@ public static class VersionInformation
 
     private static string CommonVersion(Type type)
     {
-        string? filename = GetFileName(type.Assembly);
+        string filename = GetFileName(type.Assembly);
 
         if (string.IsNullOrWhiteSpace(filename))
         {
-            return AssemblyVersion();
+            return AssemblyVersion(type.Assembly);
         }
 
         FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(filename);
 
-        return fileVersionInfo.ProductVersion ?? AssemblyVersion();
+        return fileVersionInfo.ProductVersion ?? AssemblyVersion(type.Assembly);
     }
 
-    private static string AssemblyVersion()
+    private static string AssemblyVersion(Assembly assembly)
     {
-        return Assembly.GetExecutingAssembly()
-                       .GetName()
+        return assembly.GetName()
                        .Version?.ToString() ?? "0.0.0.1";
     }
 
