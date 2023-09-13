@@ -14,9 +14,23 @@ public static class VersionInformation
 
     private static string CommonVersion(Type type)
     {
-        FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(GetFileName(type.Assembly));
+        string? filename = GetFileName(type.Assembly);
 
-        return fileVersionInfo.ProductVersion ?? "Unknown";
+        if (string.IsNullOrWhiteSpace(filename))
+        {
+            return AssemblyVersion();
+        }
+
+        FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(filename);
+
+        return fileVersionInfo.ProductVersion ?? AssemblyVersion();
+    }
+
+    private static string AssemblyVersion()
+    {
+        return Assembly.GetExecutingAssembly()
+                       .GetName()
+                       .Version?.ToString() ?? "0.0.0.1";
     }
 
     [SuppressMessage(category: "FunFair.CodeAnalysis", checkId: "FFS0008:Don't disable warnings with #pragma", Justification = "Needed in this case")]
