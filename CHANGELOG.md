@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 2.0.85
 - Dependencies - Updated FunFair.Test.Common to 6.1.9.149
 - Switched to using incremental generation
+- SDK - Updated DotNet SDK to 8.0.100-rc.1.23455.8
 ### Removed
 ### Deployment Changes
 
