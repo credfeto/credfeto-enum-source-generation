@@ -58,53 +58,63 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
     private void AddEnumExtensionHolder(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax)
     {
+        ClassEnumGeneration? item = ExtractClass(context: context, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: CancellationToken.None);
+
+        if (item is not null)
+        {
+            this.Classes.Add(item: item.Value);
+        }
+    }
+
+    public static ClassEnumGeneration? ExtractClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax, CancellationToken cancellationToken)
+    {
         bool isStatic = classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword);
 
         if (!isStatic)
         {
-            return;
+            return null;
         }
 
         bool isPartial = classDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword);
 
         if (!isPartial)
         {
-            return;
+            return null;
         }
 
         AccessType accessType = classDeclarationSyntax.GetAccessType();
 
         if (accessType == AccessType.PRIVATE)
         {
-            return;
+            return null;
         }
 
-        IReadOnlyList<EnumGeneration> attributesForGeneration = GetEnumsToGenerateForClass(context: context, classDeclarationSyntax: classDeclarationSyntax);
+        IReadOnlyList<EnumGeneration> attributesForGeneration = GetEnumsToGenerateForClass(context: context, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: cancellationToken);
 
         if (attributesForGeneration.Count == 0)
         {
-            return;
+            return null;
         }
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None)!;
 
-        this.Classes.Add(item: new(accessType: accessType,
-                                   name: classSymbol.Name,
-                                   classSymbol.ContainingNamespace.ToDisplayString(),
-                                   enums: attributesForGeneration,
-                                   classDeclarationSyntax.GetLocation()));
+        return new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration, classDeclarationSyntax.GetLocation());
     }
 
-    private static IReadOnlyList<EnumGeneration> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax)
+    private static IReadOnlyList<EnumGeneration> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax, CancellationToken cancellationToken)
     {
         List<EnumGeneration> attributesForGeneration = new();
 
-        INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None)!;
+        INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: cancellationToken)!;
 
         ImmutableArray<AttributeData> attributes = classSymbol.GetAttributes();
 
         foreach (AttributeData? item in attributes)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (!IsCodeGenerationAttribute(item))
             {
                 continue;
@@ -149,12 +159,24 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
     private void AddDefinedEnums(in GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax)
     {
+        EnumGeneration? item = ExtractEnum(context: context, enumDeclarationSyntax: enumDeclarationSyntax, cancellationToken: CancellationToken.None);
+
+        if (item is null)
+        {
+            return;
+        }
+
+        this.Enums.Add(item.Value);
+    }
+
+    public static EnumGeneration? ExtractEnum(in GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax, CancellationToken cancellationToken)
+    {
         INamedTypeSymbol enumSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax, cancellationToken: CancellationToken.None)!;
 
         if (enumSymbol.HasObsoleteAttribute())
         {
             // no point in generating code for obsolete enums
-            return;
+            return null;
         }
 
         AccessType accessType = enumDeclarationSyntax.GetAccessType();
@@ -162,18 +184,22 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
         if (accessType == AccessType.PRIVATE)
         {
             // skip privates
-            return;
+            return null;
         }
 
         List<IFieldSymbol> members = new();
 
         foreach (EnumMemberDeclarationSyntax member in enumDeclarationSyntax.Members)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             IFieldSymbol fieldSymbol = (IFieldSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: CancellationToken.None)!;
 
             members.Add(item: fieldSymbol);
         }
 
-        this.Enums.Add(new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation()));
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation());
     }
 }

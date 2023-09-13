@@ -1,15 +1,74 @@
-﻿using System;
-using System.Linq;
+﻿using System.Threading;
 using Credfeto.Enumeration.Source.Generation.Builders;
 using Credfeto.Enumeration.Source.Generation.Models;
 using Credfeto.Enumeration.Source.Generation.Receivers;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Credfeto.Enumeration.Source.Generation;
 
 [Generator(LanguageNames.CSharp)]
-public sealed class EnumGenerator : ISourceGenerator
+public sealed class EnumGenerator : IIncrementalGenerator
 {
+    public void Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        IncrementalValuesProvider<EnumGeneration?> enumKinds = context.SyntaxProvider.CreateSyntaxProvider(predicate: static (n, _) => n is EnumDeclarationSyntax,
+                                                                                                           transform: GetEnumDetails);
+
+        context.RegisterSourceOutput(source: enumKinds, action: GenerateEnums);
+
+        IncrementalValuesProvider<ClassEnumGeneration?> classKinds = context.SyntaxProvider.CreateSyntaxProvider(predicate: static (n, _) => n is ClassDeclarationSyntax,
+                                                                                                                 transform: GetClassDetails);
+
+        context.RegisterSourceOutput(source: classKinds, action: GenerateClasses);
+    }
+
+    private static ClassEnumGeneration? GetClassDetails(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
+    {
+        if(  generatorSyntaxContext.Node is ClassDeclarationSyntax classDeclarationSyntax)
+        {
+            return EnumSyntaxReceiver.ExtractClass(context: generatorSyntaxContext, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: cancellationToken);
+        }
+
+        return null;
+    }
+
+    private static EnumGeneration? GetEnumDetails(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
+    {
+        if (generatorSyntaxContext.Node is EnumDeclarationSyntax enumDeclarationSyntax)
+        {
+            return EnumSyntaxReceiver.ExtractEnum(context: generatorSyntaxContext, enumDeclarationSyntax: enumDeclarationSyntax, cancellationToken: cancellationToken);
+        }
+
+        return null;
+    }
+
+    private static void GenerateClasses(SourceProductionContext sourceProductionContext, ClassEnumGeneration? classEnumGeneration)
+    {
+        if(classEnumGeneration is null)
+        {
+            return;
+        }
+
+        string className = EnumSourceGenerator.GenerateClassForClass(classEnumGeneration.Value, false, false, out CodeBuilder? codeBuilder);
+
+        sourceProductionContext.AddSource(classEnumGeneration.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
+    }
+
+    private static void GenerateEnums(SourceProductionContext sourceProductionContext, EnumGeneration? enumGeneration)
+    {
+        if (enumGeneration is null)
+        {
+            return;
+        }
+
+
+        string className = EnumSourceGenerator.GenerateClassForEnum(enumGeneration.Value, false, false, out CodeBuilder? codeBuilder);
+
+        sourceProductionContext.AddSource(enumGeneration.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
+    }
+
+#if FALSE
     public void Execute(GeneratorExecutionContext context)
     {
         if (context.SyntaxContextReceiver is not EnumSyntaxReceiver receiver)
@@ -84,9 +143,9 @@ public sealed class EnumGenerator : ISourceGenerator
     private static void GenerateClassForEnum(in GeneratorExecutionContext context, in EnumGeneration enumDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
     {
         string className = EnumSourceGenerator.GenerateClassForEnum(enumDeclaration: enumDeclaration,
-                                                                hasDoesNotReturn: hasDoesNotReturn,
-                                                                supportsUnreachableException: supportsUnreachableException,
-                                                                out CodeBuilder source);
+                                                                    hasDoesNotReturn: hasDoesNotReturn,
+                                                                    supportsUnreachableException: supportsUnreachableException,
+                                                                    out CodeBuilder source);
 
         context.AddSource(enumDeclaration.Namespace + "." + className + ".generated.cs", sourceText: source.Text);
     }
@@ -94,10 +153,11 @@ public sealed class EnumGenerator : ISourceGenerator
     private static void GenerateClassForClass(in GeneratorExecutionContext context, in ClassEnumGeneration classDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException)
     {
         string className = EnumSourceGenerator.GenerateClassForClass(classDeclaration: classDeclaration,
-                                                                 hasDoesNotReturn: hasDoesNotReturn,
-                                                                 supportsUnreachableException: supportsUnreachableException,
-                                                                 out CodeBuilder source);
+                                                                     hasDoesNotReturn: hasDoesNotReturn,
+                                                                     supportsUnreachableException: supportsUnreachableException,
+                                                                     out CodeBuilder source);
 
         context.AddSource(classDeclaration.Namespace + "." + className + ".generated.cs", sourceText: source.Text);
     }
+#endif
 }
