@@ -14,7 +14,7 @@ public static class VersionInformation
 
     private static string CommonVersion(Type type)
     {
-        string? filename = GetFileName(type.Assembly);
+        string filename = GetFileName(type.Assembly);
 
         if (string.IsNullOrWhiteSpace(filename))
         {
