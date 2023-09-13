@@ -30,14 +30,14 @@ public sealed class EnumGenerator : IIncrementalGenerator
     private static ClassEnumGeneration? GetClassDetails(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
     {
         return generatorSyntaxContext.Node is ClassDeclarationSyntax classDeclarationSyntax
-            ? EnumSyntaxReceiver.ExtractClass(context: generatorSyntaxContext, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: cancellationToken)
+            ? SyntaxExtractor.ExtractClass(context: generatorSyntaxContext, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: cancellationToken)
             : null;
     }
 
     private static EnumGeneration? GetEnumDetails(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
     {
         return generatorSyntaxContext.Node is EnumDeclarationSyntax enumDeclarationSyntax
-            ? EnumSyntaxReceiver.ExtractEnum(context: generatorSyntaxContext, enumDeclarationSyntax: enumDeclarationSyntax, cancellationToken: cancellationToken)
+            ? SyntaxExtractor.ExtractEnum(context: generatorSyntaxContext, enumDeclarationSyntax: enumDeclarationSyntax, cancellationToken: cancellationToken)
             : null;
     }
 
@@ -63,7 +63,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
             return;
         }
 
-        string className = EnumSourceGenerator.GenerateClassForEnum(enumDeclaration: enumGeneration.Value, hasDoesNotReturn: false, supportsUnreachableException: false, out CodeBuilder? codeBuilder);
+        string className = EnumSourceGenerator.GenerateClassForEnum(enumDeclaration: enumGeneration.Value, out CodeBuilder codeBuilder);
 
         sourceProductionContext.AddSource(enumGeneration.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
     }

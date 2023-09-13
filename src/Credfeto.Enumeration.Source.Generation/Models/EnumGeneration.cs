@@ -7,13 +7,14 @@ namespace Credfeto.Enumeration.Source.Generation.Models;
 [DebuggerDisplay("{AccessType} {Namespace}.{Name}")]
 public readonly record struct EnumGeneration
 {
-    public EnumGeneration(AccessType accessType, string name, string @namespace, IReadOnlyList<IFieldSymbol> members, Location location)
+    public EnumGeneration(AccessType accessType, string name, string @namespace, IReadOnlyList<IFieldSymbol> members, Location location, in GenerationOptions options)
     {
         this.AccessType = accessType;
         this.Name = name;
         this.Namespace = @namespace;
         this.Members = members;
         this.Location = location;
+        this.Options = options;
     }
 
     public AccessType AccessType { get; }
@@ -25,4 +26,6 @@ public readonly record struct EnumGeneration
     public IReadOnlyList<IFieldSymbol> Members { get; }
 
     public Location Location { get; }
+
+    public GenerationOptions Options { get; }
 }

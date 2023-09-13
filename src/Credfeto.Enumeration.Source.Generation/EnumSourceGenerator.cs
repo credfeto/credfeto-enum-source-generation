@@ -20,7 +20,7 @@ public static class EnumSourceGenerator
     private const string GET_DESCRIPTION_METHOD_NAME = "GetDescription";
     private const string INVALID_ENUM_MEMBER_METHOD_NAME = "ThrowInvalidEnumMemberException";
 
-    public static string GenerateClassForEnum(in EnumGeneration enumDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException, out CodeBuilder source)
+    public static string GenerateClassForEnum(in EnumGeneration enumDeclaration, out CodeBuilder source)
     {
         string className = enumDeclaration.Name + "GeneratedExtensions";
 
@@ -31,11 +31,7 @@ public static class EnumSourceGenerator
                      .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{VersionInformation.Version()}\")]")
                      .StartBlock(ConvertAccessType(enumDeclaration.AccessType) + " static class " + className))
         {
-            GenerateMethods(hasDoesNotReturn: hasDoesNotReturn,
-                            supportsUnreachableException: supportsUnreachableException,
-                            source: source,
-                            attribute: enumDeclaration,
-                            classNameFormatter: ClassNameOnlyFormatter);
+            GenerateMethods(source: source, attribute: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
         }
 
         return className;
@@ -89,18 +85,14 @@ public static class EnumSourceGenerator
                     source.AppendBlankLine();
                 }
 
-                GenerateMethods(hasDoesNotReturn: hasDoesNotReturn,
-                                supportsUnreachableException: supportsUnreachableException,
-                                source: source,
-                                attribute: attribute,
-                                classNameFormatter: classNameFormatter);
+                GenerateMethods(source: source, attribute: attribute, classNameFormatter: classNameFormatter);
             }
         }
 
         return className;
     }
 
-    private static void GenerateMethods(bool hasDoesNotReturn, bool supportsUnreachableException, CodeBuilder source, in EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
+    private static void GenerateMethods(CodeBuilder source, in EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
     {
         GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
@@ -108,29 +100,21 @@ public static class EnumSourceGenerator
         source.AppendBlankLine();
         GenerateIsDefined(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
-        GenerateThrowNotFound(source: source,
-                              enumDeclaration: attribute,
-                              classNameFormatter: classNameFormatter,
-                              hasDoesNotReturn: hasDoesNotReturn,
-                              supportsUnreachableException: supportsUnreachableException);
+        GenerateThrowNotFound(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
     }
 
-    private static void GenerateThrowNotFound(CodeBuilder source,
-                                              in EnumGeneration enumDeclaration,
-                                              bool supportsUnreachableException,
-                                              Func<EnumGeneration, string> classNameFormatter,
-                                              bool hasDoesNotReturn)
+    private static void GenerateThrowNotFound(CodeBuilder source, in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
         string className = classNameFormatter(enumDeclaration);
 
-        if (hasDoesNotReturn)
+        if (enumDeclaration.Options.HasDoesNotReturnAttribute)
         {
             source.AppendLine("[DoesNotReturn]");
         }
 
         using (source.StartBlock("public static string " + INVALID_ENUM_MEMBER_METHOD_NAME + "(this " + className + " value)"))
         {
-            if (supportsUnreachableException)
+            if (enumDeclaration.Options.SupportsUnreachableException)
             {
                 IssueUnreachableException(source: source, enumDeclaration: enumDeclaration);
             }

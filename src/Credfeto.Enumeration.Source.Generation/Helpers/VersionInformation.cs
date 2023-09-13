@@ -16,7 +16,7 @@ public static class VersionInformation
     {
         FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(GetFileName(type.Assembly));
 
-        return fileVersionInfo.ProductVersion!;
+        return fileVersionInfo.ProductVersion ?? "Unknown";
     }
 
     [SuppressMessage(category: "FunFair.CodeAnalysis", checkId: "FFS0008:Don't disable warnings with #pragma", Justification = "Needed in this case")]

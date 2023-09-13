@@ -10,62 +10,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Credfeto.Enumeration.Source.Generation.Receivers;
 
-public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
+internal static class SyntaxExtractor
 {
-    private bool? _hasDoesNotReturnAttribute;
-    private bool? _hasUnreachableException;
-
-    public EnumSyntaxReceiver()
-    {
-        this.Enums = new();
-        this.Classes = new();
-    }
-
-    public List<EnumGeneration> Enums { get; }
-
-    public List<ClassEnumGeneration> Classes { get; }
-
-    public bool HasDoesNotReturnAttribute => this._hasDoesNotReturnAttribute.GetValueOrDefault(false);
-
-    public bool SupportsUnreachableException => this._hasUnreachableException.GetValueOrDefault(false);
-
-    public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
-    {
-        if (!this._hasDoesNotReturnAttribute.HasValue)
-        {
-            this._hasDoesNotReturnAttribute = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
-                                                      .IsEmpty;
-        }
-
-        if (!this._hasUnreachableException.HasValue)
-        {
-            this._hasUnreachableException = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.UnreachableException")
-                                                    .IsEmpty;
-        }
-
-        if (context.Node is EnumDeclarationSyntax enumDeclarationSyntax)
-        {
-            this.AddDefinedEnums(context: context, enumDeclarationSyntax: enumDeclarationSyntax);
-
-            return;
-        }
-
-        if (context.Node is ClassDeclarationSyntax classDeclarationSyntax)
-        {
-            this.AddEnumExtensionHolder(context: context, classDeclarationSyntax: classDeclarationSyntax);
-        }
-    }
-
-    private void AddEnumExtensionHolder(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax)
-    {
-        ClassEnumGeneration? item = ExtractClass(context: context, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: CancellationToken.None);
-
-        if (item is not null)
-        {
-            this.Classes.Add(item: item.Value);
-        }
-    }
-
     public static ClassEnumGeneration? ExtractClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax, CancellationToken cancellationToken)
     {
         bool isStatic = classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword);
@@ -89,7 +35,10 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
             return null;
         }
 
-        IReadOnlyList<EnumGeneration> attributesForGeneration = GetEnumsToGenerateForClass(context: context, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: cancellationToken);
+        GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
+
+        IReadOnlyList<EnumGeneration> attributesForGeneration =
+            GetEnumsToGenerateForClass(context: context, classDeclarationSyntax: classDeclarationSyntax, options: options, cancellationToken: cancellationToken);
 
         if (attributesForGeneration.Count == 0)
         {
@@ -103,7 +52,10 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
         return new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration, classDeclarationSyntax.GetLocation());
     }
 
-    private static IReadOnlyList<EnumGeneration> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax, CancellationToken cancellationToken)
+    private static IReadOnlyList<EnumGeneration> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context,
+                                                                            ClassDeclarationSyntax classDeclarationSyntax,
+                                                                            in GenerationOptions options,
+                                                                            CancellationToken cancellationToken)
     {
         List<EnumGeneration> attributesForGeneration = new();
 
@@ -128,7 +80,12 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
                                                           .OfType<IFieldSymbol>()
                                                           .ToArray();
 
-                EnumGeneration enumGen = new(accessType: AccessType.PUBLIC, name: type.Name, type.ContainingNamespace.ToDisplayString(), members: members, classDeclarationSyntax.GetLocation());
+                EnumGeneration enumGen = new(accessType: AccessType.PUBLIC,
+                                             name: type.Name,
+                                             type.ContainingNamespace.ToDisplayString(),
+                                             members: members,
+                                             classDeclarationSyntax.GetLocation(),
+                                             options: options);
 
                 attributesForGeneration.Add(item: enumGen);
             }
@@ -155,18 +112,6 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
         }
 
         return true;
-    }
-
-    private void AddDefinedEnums(in GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax)
-    {
-        EnumGeneration? item = ExtractEnum(context: context, enumDeclarationSyntax: enumDeclarationSyntax, cancellationToken: CancellationToken.None);
-
-        if (item is null)
-        {
-            return;
-        }
-
-        this.Enums.Add(item.Value);
     }
 
     public static EnumGeneration? ExtractEnum(in GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax, CancellationToken cancellationToken)
@@ -200,6 +145,22 @@ public sealed class EnumSyntaxReceiver : ISyntaxContextReceiver
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        return new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation());
+        GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
+
+        return new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation(), options: options);
+    }
+
+    private static GenerationOptions DetectGenerationOptions(in GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    {
+        bool hasDoesNotReturnAttribute = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
+                                                 .IsEmpty;
+
+        cancellationToken.ThrowIfCancellationRequested();
+        bool hasUnreachableException = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.UnreachableException")
+                                               .IsEmpty;
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return new(hasDoesNotReturnAttribute: hasDoesNotReturnAttribute, supportsUnreachableException: hasUnreachableException);
     }
 }
