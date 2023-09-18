@@ -9,6 +9,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+
+- Used ThisAssembly.AssemblyInfo to generate static version information
 ### Removed
 ### Deployment Changes
 
