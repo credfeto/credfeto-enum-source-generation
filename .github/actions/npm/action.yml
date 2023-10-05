@@ -84,7 +84,8 @@ runs:
 
   - if: ${{inputs.NPM_SIGNING == 'true'}}
     name: "NPM: Create Store Signing Wallet"
-    uses: ttd2089/secret-file-action@1.0.0
+    #uses: ttd2089/secret-file-action@1.0.0  
+    uses: credfeto/secret-file-action@feat/fix-github-deprecations
     id: store-siging-wallet
     with:
       secret: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
