@@ -17,6 +17,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  info:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - run: |
+          echo "Branch: ${{env.HEAD_REF}}"
+          echo "Base Branch: ${{env.BASE_REF}}"
+          echo "Repo: ${{github.repository}}"
+          echo "Owner: ${{github.repository_owner}}"
+
   pull-request:
     runs-on: ubuntu-latest
 
