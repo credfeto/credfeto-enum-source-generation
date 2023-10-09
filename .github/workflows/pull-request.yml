@@ -20,7 +20,8 @@ jobs:
   info:
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - run: |
           echo "Branch: ${{env.HEAD_REF}}"
           echo "Base Branch: ${{env.BASE_REF}}"
@@ -32,9 +33,10 @@ jobs:
 
     env:
       CREATE_DRAFT: true
+      REPO_STATUS: private
 
     steps:
-      - name: Cleanup Repo
+      - name: "Initialise Workspace"
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Checkout source"
@@ -49,29 +51,29 @@ jobs:
           branch: ${{github.ref_name}}
 
       - name: "Existing PR Information"
-        if: ${{steps.findPr.outputs.number != ''}}
+        if: steps.findPr.outputs.number != ''
         run: |
           echo "Pull request already exists with id: ${{steps.findPr.outputs.number}}"
           echo "URL: https://github.com/${{github.repository}}/pull/${{steps.findPr.outputs.number}}"
 
       - name: "Read PR Template"
-        if: ${{steps.findPr.outputs.number == ''}}
+        if: steps.findPr.outputs.number == ''
         id: pr-template
         uses: juliangruber/read-file-action@v1.1.6
         with:
           path: ./.github/PULL_REQUEST_TEMPLATE.md
 
       - name: "Get last commit info"
-        if: ${{steps.findPr.outputs.number == ''}}
+        if: steps.findPr.outputs.number == ''
         run: echo "COMMIT_MSG=$(git log -1 --pretty=%B)" >> "$GITHUB_ENV"
 
       - name: "Check Owner"
-        if: ${{github.repository_owner != 'funfair-tech'}}
+        if: github.repository_owner != 'funfair-tech'
         run: |
            echo "Current Owner: ${{github.repository_owner}}"
 
       - name: "Check Repo Visibility"
-        if: ${{steps.findPr.outputs.number != '' && github.repository_owner != 'funfair-tech'}}
+        if: steps.findPr.outputs.number != '' && github.repository_owner != 'funfair-tech'
         uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
         with:
@@ -79,11 +81,11 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
 
       - name: "Override DRAFT Flag"
-        if: ${{steps.findPr.outputs.number != '' && github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'}}
+        if: steps.findPr.outputs.number != '' && github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'
         run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
 
       - name: "Create Pull Request"
-        if: ${{steps.findPr.outputs.number == ''}}
+        if: steps.findPr.outputs.number == ''
         id: open-pr
         uses: repo-sync/pull-request@v2.12
         with:
@@ -97,14 +99,14 @@ jobs:
           github_token: ${{github.token}}
 
       - name: New PR Details
-        if: ${{steps.findPr.outputs.number == ''}}
+        if: steps.findPr.outputs.number == ''
         run: |
             echo "URL: ${{steps.open-pr.outputs.pr_url}}"
             echo "PR: ${{steps.open-pr.outputs.pr_number}}"
             echo "CF: ${{steps.open-pr.outputs.has_changed_files}}"
 
       - name: "Sync Labels"
-        if: ${{steps.findPr.outputs.number == ''}}
+        if: steps.findPr.outputs.number == ''
         uses: actions/labeler@v4.3.0
         with:
           repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
