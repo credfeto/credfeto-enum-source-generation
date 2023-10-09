@@ -21,19 +21,24 @@ jobs:
       contents: read
 
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - run: |
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Info"
+        run: |
           echo "Repo: ${{github.repository}}"
           echo "Owner: ${{github.repository_owner}}"
 
-      - run: sudo apt install -y jq
-      - uses: actions/checkout@v4
+      - name: "Ensure JQ is installed"
+        run: sudo apt install -y jq
+      - name: "Checkout Source"
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
           repository: ${{github.repository}}
 
-      - id: set-matrix
+      - name: "Create matrix of branches"
+        id: set-matrix
         run: |
           echo "branches=$(git branch --remote --format='%(refname:short)' | grep -Po 'origin/\K[^*]*' | grep -vE 'HEAD|release/|hotfix/' | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
     outputs:
@@ -53,47 +58,57 @@ jobs:
     env:
       BRANCH: ${{matrix.branch}}
       CREATE_DRAFT: true
+      REPO_STATUS: private
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v4
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Checkout Source"
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
           repository: ${{github.repository}}
 
-      - if: ${{github.repository_owner != 'funfair-tech'}}
-        name: "Check Repo Visibility"
+      - name: "Check Repo Visibility"
+        if: github.repository_owner != 'funfair-tech'
         uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
         with:
           repository: ${{github.repository}}
           token: ${{secrets.GITHUB_TOKEN}}
 
-      - if: ${{github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'}}
+      - name: "Override DRAFT Flag"
+        if: github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'
         run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
 
-      - id: detection
+      - name: "Branch Detection"
+        id: detection
         run: |
           echo "defaultbranch=$(git remote show origin | grep -Po 'HEAD\sbranch:\s+\K[^.*]*')" >> "$GITHUB_OUTPUT"
           echo "DEFAULT_BRANCH=$(git remote show origin | grep -Po 'HEAD\sbranch:\s+\K[^.*]*')" >> "$GITHUB_ENV"
 
       # On Default branch
-      - if: ${{steps.detection.outputs.defaultbranch == matrix.branch}}
+      - name: "On Default Branch"
+        if: steps.detection.outputs.defaultbranch == matrix.branch
         run: echo "On Default branch - don't do anything"
 
       # On Non-Default branch
-      - if: ${{steps.detection.outputs.defaultbranch != matrix.branch}}
+      - name: "On Non-Default branch"
+        if: steps.detection.outputs.defaultbranch != matrix.branch
         run: echo "On non-default branch"
 
-      - if: ${{steps.detection.outputs.defaultbranch != matrix.branch}}
+      - name: "Find Existing PR"
+        if: steps.detection.outputs.defaultbranch != matrix.branch
         uses: juliangruber/find-pull-request-action@v1.8.0
         id: find-pull-request
         with:
           branch: "${{env.BRANCH}}"
 
-      - if: ${{steps.detection.outputs.defaultbranch != matrix.branch}}
+      - name: "Display Found PR"
+        if: steps.detection.outputs.defaultbranch != matrix.branch
         run: echo "Pull Request ${{steps.find-pull-request.outputs.number}} (${{steps.find-pull-request.outputs.head-sha}})"
-      - if: ${{steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''}}
+      - name: "Check Branch Status"
+        if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
         run:
           echo "Check to see if ${{env.DEFAULT_BRANCH}} is ahead or behind ${{matrix.branch}}..."
           git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{matrix.branch}}"
@@ -101,13 +116,14 @@ jobs:
           git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{matrix.branch}}" | awk '{ print "${{matrix.BRANCH}} is ahead of ${{env.DEFAULT_BRANCH}} by "$2" commit(s)" }'
         env:
           DEFAULT_BRANCH: ${{steps.detection.outputs.defaultbranch}}
-      - if: ${{steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''}}
+      - name: "Get last update time of branch"
+        if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
         id: lastupdate
         run: echo "time=$(git log -1 --format=@%ct origin/${{env.BRANCH}})" >> "$GITHUB_OUTPUT"
 
-      - if: ${{steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''}}
+      - name: Check Ahead\Behind Status
+        if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
         id: aheadbehind
-        name: Check Ahead\Behind Status
         run: >
           { \
             git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{env.BRANCH}}" \
@@ -123,17 +139,19 @@ jobs:
           LAST_UPDATE: ${{steps.lastupdate.outputs.time}}
 
       # Non-default - ahead of default branch, and no -re-existing PR then create one.
-      - if: |-
-          ${{steps.detection.outputs.defaultbranch != matrix.branch
+      - name: "Read PR Template"
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
           && steps.aheadbehind.outputs.ahead != 0
-          && steps.aheadbehind.outputs.dayssinceupdate > 7}}
+          && steps.aheadbehind.outputs.dayssinceupdate > 7
         id: pr-template
         uses: juliangruber/read-file-action@v1.1.6
         with:
           path: ./.github/PULL_REQUEST_TEMPLATE.md
 
-      - if: |-
+      - name: "Create PR"
+        if: |-
           ${{steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
           && steps.aheadbehind.outputs.ahead != 0
@@ -150,18 +168,19 @@ jobs:
           pr_body: "${{steps.pr-template.outputs.content}}"
           github_token: ${{github.token}}
 
-      - if: |-
-          ${{steps.detection.outputs.defaultbranch != matrix.branch
+      - name: New PR Details
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
           && steps.aheadbehind.outputs.ahead != 0
-          && steps.aheadbehind.outputs.dayssinceupdate > 7}}
-        name: New PR Details
+          && steps.aheadbehind.outputs.dayssinceupdate > 7
         run: |
             echo "URL: ${{steps.open-pr.outputs.pr_url}}"
             echo "PR: ${{steps.open-pr.outputs.pr_number}}"
             echo "CF: ${{steps.open-pr.outputs.has_changed_files}}"
 
-      - if: ${{steps.open-pr.outputs.pr_number != ''}}
+      - name: "Update PR Labels"
+        if: steps.open-pr.outputs.pr_number != ''
         uses: actions/labeler@v4.3.0
         with:
           repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
@@ -169,29 +188,30 @@ jobs:
           sync-labels: true
           pr-number: ${{steps.open-pr.outputs.pr_number}}
 
-      - if: |-
-          ${{steps.detection.outputs.defaultbranch != matrix.branch
+      - name: Rebase
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
           && steps.aheadbehind.outputs.behind != 0
           && steps.aheadbehind.outputs.ahead != 0
-          && steps.aheadbehind.outputs.dayssinceupdate > 7}}
-        name: Rebase
+          && steps.aheadbehind.outputs.dayssinceupdate > 7
         run: echo "Rebase?"
 
-      - if: |-
-          ${{steps.detection.outputs.defaultbranch != matrix.branch
+      - name: Delete Branch
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
           && steps.aheadbehind.outputs.ahead == '0'
-          && steps.aheadbehind.outputs.dayssinceupdate > 60}}
-        name: Delete Branch
+          && steps.aheadbehind.outputs.dayssinceupdate > 60
         uses: dawidd6/action-delete-branch@v3.1.0
         with:
           github_token: ${{secrets.SOURCE_PUSH_TOKEN}}
           branches: ${{matrix.branch}}
 
-      - if: |-
-          ${{steps.detection.outputs.defaultbranch != matrix.branch
-          && steps.find-pull-request.outputs.number == ''}}
+      - name: "Statistics"
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
+          && steps.find-pull-request.outputs.number == ''
         run: |
           echo "Ahead: ${{steps.aheadbehind.outputs.ahead}}"
           echo "Behind: ${{steps.aheadbehind.outputs.behind}}"
