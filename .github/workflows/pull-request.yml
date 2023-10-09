@@ -27,8 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - run: |
+      - name: "Info"
+        shell: bash
+        run: |
           echo "Branch: ${{env.HEAD_REF}}"
           echo "Base Branch: ${{env.BASE_REF}}"
           echo "Repo: ${{env.REPO}}"
