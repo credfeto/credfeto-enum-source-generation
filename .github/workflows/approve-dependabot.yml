@@ -28,9 +28,12 @@ jobs:
     # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
 
     steps:
-    - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-    - run: echo "${{github.repository_owner}}"
-    - uses: alexwilson/enable-github-automerge-action@1.0.0
+    - name: "Initialise Workspace"
+      run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+    - name: "Check Repo Owner"
+      run: echo "${{github.repository_owner}}"
+    - name: "Auto Merge"
+      uses: alexwilson/enable-github-automerge-action@1.0.0
       with:
         github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
         merge-method: "MERGE"
@@ -46,9 +49,12 @@ jobs:
       pull-requests: write
 
     steps:
-    - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-    - run: echo "${{github.repository_owner}}"
-    - uses: hmarr/auto-approve-action@v3
+    - name: "Initialise Workspace"
+      run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+    - name: "Check Repo Owner"
+      run: echo "${{"github.repository_owner}}"
+    - name: "Approve"
+      uses: hmarr/auto-approve-action@v3
       with:
         github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
