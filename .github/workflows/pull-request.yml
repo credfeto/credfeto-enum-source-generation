@@ -89,8 +89,8 @@ jobs:
 
       - name: "Override DRAFT Flag"
         if: |-
-          steps.findPr.outputs.number != ''
-          && !(env.REPO_OWNER == 'funfair-tech')
+          steps.findPr.outputs.number == ''
+          && env.REPO_OWNER != 'funfair-tech'
           && env.REPO_STATUS == 'private'
         shell: bash
         run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
