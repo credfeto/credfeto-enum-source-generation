@@ -29,8 +29,10 @@ jobs:
 
     steps:
     - name: "Initialise Workspace"
+      shell: bash
       run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
     - name: "Check Repo Owner"
+      shell: bash
       run: echo "${{github.repository_owner}}"
     - name: "Auto Merge"
       uses: alexwilson/enable-github-automerge-action@1.0.0
@@ -50,8 +52,10 @@ jobs:
 
     steps:
     - name: "Initialise Workspace"
+      shell: bash
       run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
     - name: "Check Repo Owner"
+      shell: bash
       run: echo "${{"github.repository_owner}}"
     - name: "Approve"
       uses: hmarr/auto-approve-action@v3
