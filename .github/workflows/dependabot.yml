@@ -18,6 +18,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Rebase"
         uses: bbeesley/gha-auto-dependabot-rebase@v1.3.291
