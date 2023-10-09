@@ -22,6 +22,7 @@ jobs:
 
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Checkout Source"
@@ -37,6 +38,7 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
 
       - name: "Check Runner details"
+        shell: bash
         run: |
           echo "Name: ${{runner.name}}"
           echo "OS: ${{runner.os}}"
@@ -44,6 +46,7 @@ jobs:
       - name: "Enable Local nuget feeds if caching"
         if: ${{startsWith(runner.name, 'buildagent-')}}
         id: nuget-local-cache
+        shell: bash
         run: |
           {
             echo "NUGET_BAGET_CACHE=${{vars.NUGET_BAGET_CACHE}}"
