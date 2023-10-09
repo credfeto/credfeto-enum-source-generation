@@ -59,14 +59,14 @@ runs:
   # DOTNET BUILD
   ############################################################################################################
 
-  - if: ${{env.Release == 'false'}}
-    name: "Dotnet: Define Master build settings"
+  - name: "Dotnet: Define Master build settings"
+    if: ${{env.Release == 'false'}}
     working-directory: ${{github.workspace}}/src
     shell: bash
     run: echo "DOTNET_RELEASE_DEFINES=/p:IsProduction=false" >> "$GITHUB_ENV"
 
-  - if: ${{env.Release == 'false'}}
-    name: "Dotnet: Define Release build settings"
+  - name: "Dotnet: Define Release build settings"
+    if: ${{env.Release == 'false'}}
     working-directory: ${{github.workspace}}/src
     shell: bash
     run: echo "DOTNET_RELEASE_DEFINES=/p:IsProduction=True" >> "$GITHUB_ENV"
@@ -119,8 +119,8 @@ runs:
   # ############################################################################################################
   # # DATABASE BUILD
   # ############################################################################################################
-  - if: ${{inputs.BUILD_SQL == 'true'}}
-    name: "SQL: Build"
+  - name: "SQL: Build"
+    if: ${{inputs.BUILD_SQL == 'true'}}
     uses: ./.github/actions/sql
     with:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
@@ -130,8 +130,8 @@ runs:
   ############################################################################################################
   # Publish ready for deploy to octopus
   ############################################################################################################
-  - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Pack Packages for Octopus (win-x64)"
+  - name: "Dotnet: Pack Packages for Octopus (win-x64)"
+    if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     uses: ./.github/actions/dotnet-publish
     with:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
@@ -140,8 +140,8 @@ runs:
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
-  - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Pack Packages for Octopus (linux-x64)"
+  - name: "Dotnet: Pack Packages for Octopus (linux-x64)"
+    if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     uses: ./.github/actions/dotnet-publish
     with:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
@@ -150,8 +150,8 @@ runs:
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
-  - if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Pack Packages for Octopus (linux-arm64)"
+  - name: "Dotnet: Pack Packages for Octopus (linux-arm64)"
+    if: ${{inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     uses: ./.github/actions/dotnet-publish
     with:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
@@ -163,8 +163,8 @@ runs:
   ############################################################################################################
   # DOTNET PUSH TO NUGET
   ############################################################################################################
-  - if: ${{inputs.NUGET_PACK == 'true'}}
-    name: "Dotnet: Pack tool"
+  - name: "Dotnet: Pack tool"
+    if: ${{inputs.NUGET_PACK == 'true'}}
     working-directory: ${{github.workspace}}/src
     shell: bash
     run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore -nodeReuse:False -p:NoWarn=MSB4241
@@ -179,8 +179,8 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - if: ${{inputs.NUGET_PACK == 'true'}}
-    name: "Dotnet: Copy packed to dist"
+  - name: "Dotnet: Copy packed to dist"
+    if: ${{inputs.NUGET_PACK == 'true'}}
     shell: bash
     run: |
       shopt -s globstar
@@ -188,8 +188,8 @@ runs:
       cp **/*.nupkg ../dist
     working-directory: ${{github.workspace}}/src
 
-  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_API_KEY != 'SLEET' && inputs.NUGET_PACK == 'true' && (inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
-    name: "Dotnet: Publish Packages to Nuget (Without separate symbol feed)"
+  - name: "Dotnet: Publish Packages to Nuget (Without separate symbol feed)"
+    if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_API_KEY != 'SLEET' && inputs.NUGET_PACK == 'true' && (inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
     shell: bash
     run: dotnet pushpackages --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}}
     env:
@@ -202,8 +202,8 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_API_KEY != 'SLEET' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
-    name: "Dotnet: Publish Packages to Nuget (With separate symbol feed)"
+  - name: "Dotnet: Publish Packages to Nuget (With separate symbol feed)"
+    if: ${{inputs.NUGET_API_KEY != '' && inputs.NUGET_API_KEY != 'SLEET' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
     shell: bash
     run: dotnet pushpackages --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}} --symbol-source ${{inputs.NUGET_SYMBOL_FEED}}
     env:
@@ -216,16 +216,16 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - if: ${{inputs.NUGET_API_KEY == 'SLEET' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
-    name: "Dotnet: Publish Packages Generate Sleet Config"
+  - name: "Dotnet: Publish Packages Generate Sleet Config"
+    if: ${{inputs.NUGET_API_KEY == 'SLEET' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
     uses: joutvhu/write-file@v1
     with:
       path: sleet.json
       contents: ${{ inputs.SLEET_CONFIG }}
       write_mode: overwrite
 
-  - if: ${{inputs.NUGET_API_KEY == 'SLEET' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
-    name: "Dotnet: Publish Packages to Nuget (Using Sleet)"
+  - name: "Dotnet: Publish Packages to Nuget (Using Sleet)"
+    if: ${{inputs.NUGET_API_KEY == 'SLEET' && inputs.NUGET_PACK == 'true' && !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')}}
     shell: bash
     run: dotnet sleet push "${{github.workspace}}/dist" --config sleet.json --source ${{inputs.SLEET_FEED}}
     env:
