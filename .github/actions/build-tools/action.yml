@@ -41,7 +41,7 @@ runs:
     run: rm -fr "${{github.workspace}}/.dotnet"
     shell: bash
 
-  - name: Setup .NET Core
+  - name: "Install dotnet"
     uses: actions/setup-dotnet@v3
     env:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
@@ -103,8 +103,8 @@ runs:
       [ "$(dotnet nuget list source | grep Additional2 | tr -s ' ' | cut -d ' ' -f 3)" == "Additional2" ] && dotnet nuget remove source Additional2 || echo "Additional2 NuGet Feed is Not Registered"
 
 #### ADD FEEDS
-  - if: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE != ''}}
-    name: "Dotnet: Add optional nuget feed (NugetCache)"
+  - name: "Dotnet: Add optional nuget feed (NugetCache)"
+    if: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE != ''}}
     shell: bash
     run: |
       echo "Adding NugetCache NuGet feed..."
@@ -116,30 +116,30 @@ runs:
       echo "Adding nuget.org NuGet feed..."
       dotnet nuget add source --name nuget.org "${{inputs.NUGET_PUBLIC_RESTORE_FEED}}"
 
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
-    name: "Dotnet: Add optional nuget feed (Additional1Cache)"
+  - name: "Dotnet: Add optional nuget feed (Additional1Cache)"
+    if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
     shell: bash
     run: |
       echo "Adding Additional1Cache NuGet feed..."
       dotnet nuget add source --name Additional1Cache "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}"
 
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''}}
-    name: "Dotnet: Add optional nuget feed (Additional2Cache)"
+  - name: "Dotnet: Add optional nuget feed (Additional2Cache)"
+    if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''}}
     shell: bash
     run: |
       echo "Adding Additional2Cache NuGet feed..."
       dotnet nuget add source --name Additional2Cache "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}"
 
 
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''}}
-    name: "Dotnet: Add optional nuget feed (Additional1)"
+  - name: "Dotnet: Add optional nuget feed (Additional1)"
+    if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''}}
     shell: bash
     run: |
       echo "Adding Additional1 NuGet feed..."
       dotnet nuget add source --name Additional1 "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
 
-  - if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''}}
-    name: "Dotnet: Add optional nuget feed (Additional2)"
+  - name: "Dotnet: Add optional nuget feed (Additional2)"
+    if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''}}
     shell: bash
     run: |
       echo "Adding Additional2 NuGet feed..."
@@ -155,7 +155,7 @@ runs:
     shell: bash
     run: dotnet nuget locals all --clear
 
-  - name: Enable dotnet tools
+  - name: "Enable dotnet tools"
     shell: bash
     run: |
       [ ! -f .config/dotnet-tools.json ] && dotnet new tool-manifest
