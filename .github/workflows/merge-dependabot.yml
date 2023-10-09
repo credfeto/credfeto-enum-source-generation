@@ -36,9 +36,12 @@ jobs:
     # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
 
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - run: echo "${{github.repository_owner}}"
-      - if: github.repository_owner == 'funfair-tech'
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Check Owner"
+        run: echo "${{github.repository_owner}}"
+      - name: "Auto-Merge"
+        if: github.repository_owner == 'funfair-tech'
         uses: pascalgn/automerge-action@v0.15.6
         env:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
