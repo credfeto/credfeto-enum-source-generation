@@ -31,8 +31,10 @@ jobs:
 #    if: github.event.pull_request.draft == false
 #    runs-on: ubuntu-latest
 #    steps:
-#      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-#      - uses: actions/checkout@v4
+#      - name: "Initialise Workspace"
+#        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+#      - name: "Checkout Source"
+#        uses: actions/checkout@v4
 #        with:
 #          fetch-depth: 0
 #      - if: |-
@@ -48,7 +50,8 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
         uses: actions/checkout@v4
         with:
@@ -66,16 +69,20 @@ jobs:
     # As LibGit2Sharp doesn't work on 20.04
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v4
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Checkout Source"
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
+      - name: "Get version from global.json"
+        if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
         uses: credfeto/action-dotnet-version-detect@v1.3.0
         with:
           file: src/global.json
           fallback: 7.0.*
-      - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
+      - name: "Install dotnet"
+        if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
         uses: actions/setup-dotnet@v3.2.0
         env:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
@@ -92,8 +99,8 @@ jobs:
             6.0.*
             7.0.*
             ${{env.DOTNET_VERSION}}
-      - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
-        name: Enable dotnet tools
+      - name: "Enable dotnet tools"
+        if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
         run: dotnet new tool-manifest
         env:
           DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -104,8 +111,8 @@ jobs:
           DOTNET_ReadyToRun: "0"
           DOTNET_TC_QuickJitForLoops: "1"
           DOTNET_TieredPGO: "1"
-      - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
-        name: Install Changelog tool
+      - name: "Install Changelog tool"
+        if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
         run: dotnet tool install --local Credfeto.ChangeLog.Cmd
         env:
           DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -116,8 +123,8 @@ jobs:
           DOTNET_ReadyToRun: "0"
           DOTNET_TC_QuickJitForLoops: "1"
           DOTNET_TieredPGO: "1"
-      - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
-        name: Check Changelog
+      - name: "Check Changelog"
+        if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
         run: dotnet changelog --changelog CHANGELOG.md --check-insert "origin/${{github.base_ref}}"
         env:
           DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -133,11 +140,14 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v4
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Checkout Source"
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: DariuszPorowski/github-action-gitleaks@v2.0.9
+      - name: "Check for leaks"
+        uses: DariuszPorowski/github-action-gitleaks@v2.0.9
         id: gitleaks
         with:
           config: .gitleaks.toml
@@ -151,38 +161,48 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v4
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Checkout Source"
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: olivernybroe/action-conflict-finder@v4.0
+      - name: "Check for merge conflicts"
+        uses: olivernybroe/action-conflict-finder@v4.0
 
   has-no-file-or-folder-case-sensitivity-issues:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v4
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Checkout Source"
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: credfeto/action-case-checker@v1.3.0
+      - name: "Check for case conflicts"
+        uses: credfeto/action-case-checker@v1.3.0
 
   no-ignored-files:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v4
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Checkout Source"
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: credfeto/action-no-ignored-files@v1.2.0
+      - name: "Check for ignored files"
+        uses: credfeto/action-no-ignored-files@v1.2.0
 
   dependency-review:
     # Check that there are no dependencies with security problems in the PR
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
         with:
@@ -190,13 +210,13 @@ jobs:
           repository: ${{github.repository}}
           # optional parameter defaults to the current user
           token: ${{github.token}}
-      - if: ${{steps.visibility.outputs.is_public == 'true'}}
-        name: 'Checkout Repository'
+      - name: 'Checkout Repository'
+        if: ${{steps.visibility.outputs.is_public == 'true'}}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - if: ${{steps.visibility.outputs.is_public == 'true'}}
-        name: 'Dependency Review'
+      - name: 'Dependency Review'
+        if: ${{steps.visibility.outputs.is_public == 'true'}}
         uses: actions/dependency-review-action@v3.1.0
 
   no-merge-commits:
@@ -205,20 +225,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v4
+      - name: "Checkout Source"
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: greenled/no-merge-commits-check@v1.0.1
+      - name: "Check for merge commits"
+        uses: greenled/no-merge-commits-check@v1.0.1
 
   lint-code:
     if: ${{github.event.pull_request.draft == false && ( !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'hotfix/') )}}
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v4
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: github/super-linter@v5.0.0
+      - name: "Run Linter"
+        uses: github/super-linter@v5.0.0
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
