@@ -16,6 +16,12 @@ concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
+env:
+  HEAD_REF: ${{github.head_ref}}
+  BASE_REF: ${{github.base_ref}}
+  REPO: ${{github.repository}}"
+  REPO_OWNER: ${{github.repository_owner}}"
+
 jobs:
   info:
     runs-on: ubuntu-latest
@@ -25,8 +31,8 @@ jobs:
       - run: |
           echo "Branch: ${{env.HEAD_REF}}"
           echo "Base Branch: ${{env.BASE_REF}}"
-          echo "Repo: ${{github.repository}}"
-          echo "Owner: ${{github.repository_owner}}"
+          echo "Repo: ${{env.REPO}}"
+          echo "Owner: ${{env.REPO_OWNER}}"
 
   pull-request:
     runs-on: ubuntu-latest
@@ -54,7 +60,7 @@ jobs:
         if: steps.findPr.outputs.number != ''
         run: |
           echo "Pull request already exists with id: ${{steps.findPr.outputs.number}}"
-          echo "URL: https://github.com/${{github.repository}}/pull/${{steps.findPr.outputs.number}}"
+          echo "URL: https://github.com/${{env.REPO}}/pull/${{steps.findPr.outputs.number}}"
 
       - name: "Read PR Template"
         if: steps.findPr.outputs.number == ''
@@ -67,22 +73,28 @@ jobs:
         if: steps.findPr.outputs.number == ''
         run: echo "COMMIT_MSG=$(git log -1 --pretty=%B)" >> "$GITHUB_ENV"
 
-      - name: "Check Owner"
-        if: github.repository_owner != 'funfair-tech'
-        run: |
-           echo "Current Owner: ${{github.repository_owner}}"
-
       - name: "Check Repo Visibility"
-        if: steps.findPr.outputs.number != '' && github.repository_owner != 'funfair-tech'
+        if: steps.findPr.outputs.number != ''
         uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
         with:
-          repository: ${{github.repository}}
+          repository: ${{env.REPO}}
           token: ${{secrets.GITHUB_TOKEN}}
 
       - name: "Override DRAFT Flag"
-        if: steps.findPr.outputs.number != '' && github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'
+        if: |-
+          steps.findPr.outputs.number != ''
+          && env.REPO_OWNER != 'funfair-tech'
+          && env.REPO_STATUS == 'private'
         run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
+
+      - name: "Status"
+        run: |
+          echo "Repo: ${{env.REPO}}"
+          echo "Owner: ${{env.REPO_OWNER}}"
+          echo "Repo Status: ${{env.REPO_STATUS}}"
+          echo "Draft: ${{env.CREATE_DRAFT}}"
+
 
       - name: "Create Pull Request"
         if: steps.findPr.outputs.number == ''
