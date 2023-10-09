@@ -22,13 +22,16 @@ jobs:
 
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Info"
+        shell: bash
         run: |
           echo "Repo: ${{github.repository}}"
           echo "Owner: ${{github.repository_owner}}"
 
       - name: "Ensure JQ is installed"
+        shell: bash
         run: sudo apt install -y jq
       - name: "Checkout Source"
         uses: actions/checkout@v4
@@ -39,6 +42,7 @@ jobs:
 
       - name: "Create matrix of branches"
         id: set-matrix
+        shell: bash
         run: |
           echo "branches=$(git branch --remote --format='%(refname:short)' | grep -Po 'origin/\K[^*]*' | grep -vE 'HEAD|release/|hotfix/' | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
     outputs:
@@ -61,6 +65,7 @@ jobs:
       REPO_STATUS: private
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
         uses: actions/checkout@v4
@@ -79,10 +84,12 @@ jobs:
 
       - name: "Override DRAFT Flag"
         if: github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'
+        shell: bash
         run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
 
       - name: "Branch Detection"
         id: detection
+        shell: bash
         run: |
           echo "defaultbranch=$(git remote show origin | grep -Po 'HEAD\sbranch:\s+\K[^.*]*')" >> "$GITHUB_OUTPUT"
           echo "DEFAULT_BRANCH=$(git remote show origin | grep -Po 'HEAD\sbranch:\s+\K[^.*]*')" >> "$GITHUB_ENV"
@@ -90,11 +97,13 @@ jobs:
       # On Default branch
       - name: "On Default Branch"
         if: steps.detection.outputs.defaultbranch == matrix.branch
+        shell: bash
         run: echo "On Default branch - don't do anything"
 
       # On Non-Default branch
       - name: "On Non-Default branch"
         if: steps.detection.outputs.defaultbranch != matrix.branch
+        shell: bash
         run: echo "On non-default branch"
 
       - name: "Find Existing PR"
@@ -106,9 +115,11 @@ jobs:
 
       - name: "Display Found PR"
         if: steps.detection.outputs.defaultbranch != matrix.branch
+        shell: bash
         run: echo "Pull Request ${{steps.find-pull-request.outputs.number}} (${{steps.find-pull-request.outputs.head-sha}})"
       - name: "Check Branch Status"
         if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
+        shell: bash
         run:
           echo "Check to see if ${{env.DEFAULT_BRANCH}} is ahead or behind ${{matrix.branch}}..."
           git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{matrix.branch}}"
@@ -119,11 +130,13 @@ jobs:
       - name: "Get last update time of branch"
         if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
         id: lastupdate
+        shell: bash
         run: echo "time=$(git log -1 --format=@%ct origin/${{env.BRANCH}})" >> "$GITHUB_OUTPUT"
 
-      - name: "Check Ahead\Behind Status"
+      - name: "Check Ahead and Behind Status"
         if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
         id: aheadbehind
+        shell: bash
         run: >
           { \
             git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{env.BRANCH}}" \
@@ -174,6 +187,7 @@ jobs:
           && steps.find-pull-request.outputs.number == ''
           && steps.aheadbehind.outputs.ahead != 0
           && steps.aheadbehind.outputs.dayssinceupdate > 7
+        shell: bash
         run: |
             echo "URL: ${{steps.open-pr.outputs.pr_url}}"
             echo "PR: ${{steps.open-pr.outputs.pr_number}}"
@@ -195,6 +209,7 @@ jobs:
           && steps.aheadbehind.outputs.behind != 0
           && steps.aheadbehind.outputs.ahead != 0
           && steps.aheadbehind.outputs.dayssinceupdate > 7
+        shell: bash
         run: echo "Rebase?"
 
       - name: "Delete Branch"
@@ -212,6 +227,7 @@ jobs:
         if: |-
           steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
+        shell: bash
         run: |
           echo "Ahead: ${{steps.aheadbehind.outputs.ahead}}"
           echo "Behind: ${{steps.aheadbehind.outputs.behind}}"
