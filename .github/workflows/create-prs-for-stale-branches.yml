@@ -121,7 +121,7 @@ jobs:
         id: lastupdate
         run: echo "time=$(git log -1 --format=@%ct origin/${{env.BRANCH}})" >> "$GITHUB_OUTPUT"
 
-      - name: Check Ahead\Behind Status
+      - name: "Check Ahead\Behind Status"
         if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
         id: aheadbehind
         run: >
@@ -168,7 +168,7 @@ jobs:
           pr_body: "${{steps.pr-template.outputs.content}}"
           github_token: ${{github.token}}
 
-      - name: New PR Details
+      - name: "New PR Details"
         if: |-
           steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
@@ -188,7 +188,7 @@ jobs:
           sync-labels: true
           pr-number: ${{steps.open-pr.outputs.pr_number}}
 
-      - name: Rebase
+      - name: "Rebase"
         if: |-
           steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
@@ -197,7 +197,7 @@ jobs:
           && steps.aheadbehind.outputs.dayssinceupdate > 7
         run: echo "Rebase?"
 
-      - name: Delete Branch
+      - name: "Delete Branch"
         if: |-
           steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
