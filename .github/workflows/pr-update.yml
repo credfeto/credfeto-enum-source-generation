@@ -20,7 +20,8 @@ jobs:
     if: ${{endsWith(github.repository , '-template')}}
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - run: |
           echo "Branch: ${{env.HEAD_REF}}"
           echo "Base Branch: ${{env.BASE_REF}}"
@@ -37,7 +38,8 @@ jobs:
     if: ${{github.actor != 'dependabot[bot]'}}
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: actions/labeler@v4
         with:
           repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
@@ -52,8 +54,10 @@ jobs:
       && github.actor != 'dependabot[bot]'}}
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: thomaseizinger/assign-pr-creator-action@v1.0.0
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Assign PR to the creator"
+        uses: thomaseizinger/assign-pr-creator-action@v1.0.0
         with:
           repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
