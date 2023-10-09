@@ -95,7 +95,7 @@ runs:
   using: "composite"
   steps:
 
-  - name: Parameter Summary
+  - name: "Parameter Summary"
     shell: bash
     run: |
       echo "OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}"
@@ -117,7 +117,7 @@ runs:
       echo "NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}"
       echo "NUGET_PACK: ${{inputs.NUGET_PACK}}"
 
-  - name: Fetch tags and master
+  - name: "Fetch tags and master"
     shell: bash
     run: |
       git fetch --tags
@@ -126,7 +126,7 @@ runs:
       echo "GIT_BRANCH=$GITHUB_REF" >> "$GITHUB_ENV"
       git branch --remote
 
-  - name: Check file existence
+  - name: "Check file existence"
     id: check_files
     shell: bash
     run: |
@@ -136,7 +136,7 @@ runs:
       [[ -d src && -f src/package.json && src/package-lock.json && '${{hashfiles('src/package.json', 'src/package-lock.json')}}' != '' ]] && echo 'NPM_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'NPM_EXIST=false' >> "$GITHUB_OUTPUT"
       [[ -f Wallet.json ]] && echo 'NPM_SIGNING_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'NPM_SIGNING_EXIST=false' >> "$GITHUB_OUTPUT"
 
-  - name: Check Files Results
+  - name: "Check Files Results"
     shell: bash
     run: |
       echo "CSPROJ_EXIST: ${{steps.check_files.outputs.CSPROJ_EXIST}}"
@@ -151,7 +151,7 @@ runs:
     run: |
       [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
 
-  - name: Install Build tools
+  - name: "Install Build tools"
     uses: ./.github/actions/build-tools
     with:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
@@ -162,7 +162,7 @@ runs:
       NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
       NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
 
-  - name: Check Build Tools Requirements
+  - name: "Check Build Tools Requirements"
     id: build_tools
     shell: bash
     run: |
@@ -170,7 +170,7 @@ runs:
       [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
 
   - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.NUGET_PACK == 'true'}}
-    name: Install Multi-Push Tool
+    name: "Install Multi-Push Tool"
     shell: bash
     run: dotnet tool install --local Credfeto.Package.Push
     env:
@@ -183,7 +183,8 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
+  - name: "Get Unique Build Number"
+    if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
     uses: onyxmueller/build-tag-number@v1
     id: build-number
     with:
@@ -191,7 +192,7 @@ runs:
       prefix: github
 
   - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
-    name: Set Define Build Version
+    name: "Set Define Build Version"
     shell: bash
     run: dotnet buildversion --BuildNumber "${{steps.build-number.outputs.build_number}}"
     env:
@@ -204,31 +205,31 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - name: Deploy check - Default
+  - name: "Deploy check - Default"
     shell: bash
     run: |
       { echo "DEPLOY=false"; } >> "$GITHUB_ENV"
 
-  - if: ${{endsWith(env.BUILD_VERSION, '-main') || endsWith(env.BUILD_VERSION, '-master')}}
-    name: Deploy check - Is main or master
+  - name: "Deploy check - Is main or master"
+    if: ${{endsWith(env.BUILD_VERSION, '-main') || endsWith(env.BUILD_VERSION, '-master')}}
     shell: bash
     run: |
       { echo "DEPLOY=true"; echo "RELEASE=false"; } >> "$GITHUB_ENV"
 
-  - if: ${{!contains(env.BUILD_VERSION, '-')}}
-    name: Deploy check - Is release branch
+  - name: Deploy check - Is release branch
+    if: ${{!contains(env.BUILD_VERSION, '-')}}
     shell: bash
     run: |
       { echo "DEPLOY=true"; echo "RELEASE=true"; } >> "$GITHUB_ENV"
 
-  - if: ${{(github.actor == 'dependabot[bot]')}}
-    name: Deploy check - Is Dependabot
+  - name: "Deploy check - Is Dependabot"
+    if: ${{(github.actor == 'dependabot[bot]')}}
     shell: bash
     run: |
       { echo "DEPLOY=false";  } >> "$GITHUB_ENV"
 
-  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' }}
-    name: Install Package Builder
+  - name: "Install Package Builder"
+    if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' }}
     shell: bash
     run: dotnet tool install --local FunFair.Content.Packager.Cmd --version ${{inputs.NPM_PRODUCTION_PACKAGER_VERSION}}
     env:
@@ -241,8 +242,8 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' }}
-    name: Install Package Store Signer
+  - name: "Install Package Store Signer"
+    if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' }}
     shell: bash
     run: dotnet tool install --local FunFair.Content.PackageSigner.Cmd --version ${{inputs.NPM_PRODUCTION_PACKAGER_VERSION}}
     env:
@@ -255,14 +256,14 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: Install Octopus Deploy CLI
+  - name: "Install Octopus Deploy CLI"
+    if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     uses: OctopusDeploy/install-octocli@v3.0.0
     with:
       version: latest
 
-  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
-    name: Create Release Notes
+  - name: "Create Release Notes"
+    if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
     shell: bash
     run: dotnet changelog --changelog CHANGELOG.md --extract RELEASE_NOTES.md --version "${{env.BUILD_VERSION}}"
     env:
@@ -275,7 +276,8 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
+  - name: "Read Release Notes"
+    if: ${{steps.build_tools.outputs.BUILD_ENV == 'true'}}
     id: release-notes
     uses: juliangruber/read-file-action@v1
     with:
@@ -284,8 +286,8 @@ runs:
   ############################################################################################################
   # DOTNET BUILD
   ############################################################################################################
-  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
-    name: "Dotnet: Build"
+  - name: "Dotnet: Build"
+    if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}
     uses: ./.github/actions/dotnet
     with:
       BUILD_VERSION: ${{env.BUILD_VERSION}}
@@ -304,8 +306,8 @@ runs:
   ############################################################################################################
   # NPM BUILD
   ############################################################################################################
-  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
-    name: "Npm: Build"
+  - name: "Npm: Build"
+    if: ${{steps.check_files.outputs.NPM_EXIST == 'true'}}
     uses: ./.github/actions/npm
     with:
       BUILD_VERSION: ${{env.BUILD_VERSION}}
@@ -322,8 +324,8 @@ runs:
   # DEPLOY TO OCTOPUS
   ############################################################################################################
 
-  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Push package to Octopus (EXE and DB)"
+  - name: "Dotnet: Push package to Octopus (EXE and DB)"
+    if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     shell: bash
     run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip" --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database.${{env.BUILD_VERSION}}.zip"
     env:
@@ -331,8 +333,8 @@ runs:
       OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
       OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
 
-  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST != 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Push package to Octopus (EXE ONLY)"
+  - name: "Dotnet: Push package to Octopus (EXE ONLY)"
+    if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST != 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     shell: bash
     run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip"
     env:
@@ -340,8 +342,8 @@ runs:
       OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
       OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
 
-  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Push package to Octopus (NPM NUPKG ONLY)"
+  - name: "Dotnet: Push package to Octopus (NPM NUPKG ONLY)"
+    if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     shell: bash
     run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg"
     env:
@@ -349,8 +351,8 @@ runs:
       OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
       OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
 
-  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != '' && inputs.OCTOPUS_CHANNEL != '' && env.DEPLOY == 'true'}}
-    name: "Dotnet: Create Octopus Release (EXE and DB)"
+  - name: "Dotnet: Create Octopus Release (EXE and DB)"
+    if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != '' && inputs.OCTOPUS_CHANNEL != '' && env.DEPLOY == 'true'}}
     shell: bash
     run: octopus release create --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{inputs.OCTOPUS_CHANNEL}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
     env:
@@ -358,8 +360,8 @@ runs:
       OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
       OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
 
-  - if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST != 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != '' && inputs.OCTOPUS_CHANNEL != '' && env.DEPLOY == 'true'}}
-    name: "Dotnet: Create Octopus Release (EXE ONLY)"
+  - name: "Dotnet: Create Octopus Release (EXE ONLY)"
+    if: ${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true' && steps.check_files.outputs.SQL_EXIST != 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != '' && inputs.OCTOPUS_CHANNEL != '' && env.DEPLOY == 'true'}}
     shell: bash
     run: octopus release create --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{inputs.OCTOPUS_CHANNEL}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
     env:
@@ -367,8 +369,8 @@ runs:
       OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
       OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
 
-  - if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
-    name: "Dotnet: Create Octopus Release (NPM ONLY)"
+  - name: "Dotnet: Create Octopus Release (NPM ONLY)"
+    if: ${{steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''}}
     shell: bash
     run: octopus release create --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{inputs.OCTOPUS_CHANNEL}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
     env:
@@ -376,9 +378,9 @@ runs:
       OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
       OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
 
-  - if: ${{((steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true') || (steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true')) && inputs.OCTOPUS_DEPLOY_PACKAGE != '' && inputs.OCTOPUS_CHANNEL != '' && env.DEPLOY == 'true'}}
+  - name: "Deploy Octopus Release"
+    if: ${{((steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true') || (steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true')) && inputs.OCTOPUS_DEPLOY_PACKAGE != '' && inputs.OCTOPUS_CHANNEL != '' && env.DEPLOY == 'true'}}
     shell: bash
-    name: Deploy Octopus Release
     run: octopus release deploy --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --environment="${{inputs.OCTOPUS_DEPLOY_TO}}"
     env:
       OCTOPUS_URL: "${{inputs.OCTOPUS_SERVER}}"
@@ -388,8 +390,8 @@ runs:
   ############################################################################################################
   # Create GitHub Release
   ############################################################################################################
-  - if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.CREATE_RELEASE == 'true'}}
-    name: Create Release
+  - name: "Create Release"
+    if: ${{steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.CREATE_RELEASE == 'true'}}
     id: create_release
     uses: ncipollo/release-action@v1
     with:
