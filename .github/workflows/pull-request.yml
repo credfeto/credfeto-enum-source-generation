@@ -80,7 +80,7 @@ jobs:
         run: echo "COMMIT_MSG=$(git log -1 --pretty=%B)" >> "$GITHUB_ENV"
 
       - name: "Check Repo Visibility"
-        if: steps.findPr.outputs.number != ''
+        if: steps.findPr.outputs.number == ''
         uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
         with:
@@ -101,7 +101,9 @@ jobs:
           echo "Repo: ${{env.REPO}}"
           echo "Owner: ${{env.REPO_OWNER}}"
           echo "Repo Status: ${{env.REPO_STATUS}}"
-          echo "Draft: ${{env.CREATE_DRAFT}}"
+          echo "PR OK: ${{steps.findPr.outputs.number == ''}}"
+          echo "Owner OK: ${{env.REPO_OWNER != 'funfair-tech'}}"
+          echo "Status OK: ${{env.REPO_STATUS == 'private'}}"
 
       - name: "Create Pull Request"
         if: steps.findPr.outputs.number == ''
