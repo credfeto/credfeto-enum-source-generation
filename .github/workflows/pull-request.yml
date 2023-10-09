@@ -19,8 +19,8 @@ concurrency:
 env:
   HEAD_REF: ${{github.head_ref}}
   BASE_REF: ${{github.base_ref}}
-  REPO: ${{github.repository}}"
-  REPO_OWNER: ${{github.repository_owner}}"
+  REPO: ${{github.repository}}
+  REPO_OWNER: ${{github.repository_owner}}
 
 jobs:
   info:
@@ -43,6 +43,7 @@ jobs:
 
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Checkout source"
@@ -58,6 +59,7 @@ jobs:
 
       - name: "Existing PR Information"
         if: steps.findPr.outputs.number != ''
+        shell: bash
         run: |
           echo "Pull request already exists with id: ${{steps.findPr.outputs.number}}"
           echo "URL: https://github.com/${{env.REPO}}/pull/${{steps.findPr.outputs.number}}"
@@ -71,6 +73,7 @@ jobs:
 
       - name: "Get last commit info"
         if: steps.findPr.outputs.number == ''
+        shell: bash
         run: echo "COMMIT_MSG=$(git log -1 --pretty=%B)" >> "$GITHUB_ENV"
 
       - name: "Check Repo Visibility"
@@ -84,17 +87,18 @@ jobs:
       - name: "Override DRAFT Flag"
         if: |-
           steps.findPr.outputs.number != ''
-          && env.REPO_OWNER != 'funfair-tech'
+          && !(env.REPO_OWNER == 'funfair-tech')
           && env.REPO_STATUS == 'private'
+        shell: bash
         run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
 
       - name: "Status"
+        shell: bash
         run: |
           echo "Repo: ${{env.REPO}}"
           echo "Owner: ${{env.REPO_OWNER}}"
           echo "Repo Status: ${{env.REPO_STATUS}}"
           echo "Draft: ${{env.CREATE_DRAFT}}"
-
 
       - name: "Create Pull Request"
         if: steps.findPr.outputs.number == ''
@@ -112,6 +116,7 @@ jobs:
 
       - name: "New PR Details"
         if: steps.findPr.outputs.number == ''
+        shell: bash
         run: |
             echo "URL: ${{steps.open-pr.outputs.pr_url}}"
             echo "PR: ${{steps.open-pr.outputs.pr_number}}"
