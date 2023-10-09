@@ -20,8 +20,12 @@ jobs:
     if: ${{endsWith(github.repository, '-template')}}
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - run: |
+      - name: "Initialise Workspace"
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Info"
+        shell: bash
+        run: |
           echo "Branch: ${{env.HEAD_REF}}"
           echo "Base Branch: ${{env.BASE_REF}}"
           echo "Repo: ${{github.repository}}"
@@ -32,6 +36,7 @@ jobs:
 #    runs-on: ubuntu-latest
 #    steps:
 #      - name: "Initialise Workspace"
+#        shell: bash
 #        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 #      - name: "Checkout Source"
 #        uses: actions/checkout@v4
@@ -51,12 +56,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
+        shell: bash
         run: echo "CHANGES=$(git diff --exit-code --no-patch --merge-base origin/main CHANGELOG.md 2> /dev/null && echo 0 || echo $?)" >> "$GITHUB_ENV"
       - if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template')) && env.CHANGES == '0'}}
         uses: actions/github-script@v6.4.1
@@ -70,6 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
         uses: actions/checkout@v4
@@ -101,6 +109,7 @@ jobs:
             ${{env.DOTNET_VERSION}}
       - name: "Enable dotnet tools"
         if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
+        shell: bash
         run: dotnet new tool-manifest
         env:
           DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -113,6 +122,7 @@ jobs:
           DOTNET_TieredPGO: "1"
       - name: "Install Changelog tool"
         if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
+        shell: bash
         run: dotnet tool install --local Credfeto.ChangeLog.Cmd
         env:
           DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -125,6 +135,7 @@ jobs:
           DOTNET_TieredPGO: "1"
       - name: "Check Changelog"
         if: ${{(github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))}}
+        shell: bash
         run: dotnet changelog --changelog CHANGELOG.md --check-insert "origin/${{github.base_ref}}"
         env:
           DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -141,6 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
         uses: actions/checkout@v4
@@ -162,6 +174,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
         uses: actions/checkout@v4
@@ -175,6 +188,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
         uses: actions/checkout@v4
@@ -188,6 +202,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
         uses: actions/checkout@v4
@@ -202,6 +217,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
@@ -210,7 +226,7 @@ jobs:
           repository: ${{github.repository}}
           # optional parameter defaults to the current user
           token: ${{github.token}}
-      - name: 'Checkout Repository'
+      - name: "Checkout Source"
         if: ${{steps.visibility.outputs.is_public == 'true'}}
         uses: actions/checkout@v4
         with:
@@ -224,7 +240,9 @@ jobs:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Initialise Workspace"
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
         uses: actions/checkout@v4
         with:
@@ -237,8 +255,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - name: 'Checkout Repository'
+      - name: "Checkout Source"
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
