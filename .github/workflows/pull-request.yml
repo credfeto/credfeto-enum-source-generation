@@ -110,7 +110,7 @@ jobs:
           pr_body: ${{steps.pr-template.outputs.content}}
           github_token: ${{github.token}}
 
-      - name: New PR Details
+      - name: "New PR Details"
         if: steps.findPr.outputs.number == ''
         run: |
             echo "URL: ${{steps.open-pr.outputs.pr_url}}"
