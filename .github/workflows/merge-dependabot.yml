@@ -37,8 +37,10 @@ jobs:
 
     steps:
       - name: "Initialise Workspace"
+        shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Check Owner"
+        shell: bash
         run: echo "${{github.repository_owner}}"
       - name: "Auto-Merge"
         if: github.repository_owner == 'funfair-tech'
