@@ -27,13 +27,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/checkout@v4
+      - name: "Initialise Workspace"
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{secrets.SOURCE_PUSH_TOKEN}}
-      - uses: credfeto/action-yaml-format@v1.3.2
-      - uses: stefanzweifel/git-auto-commit-action@v5.0.0
+      - name: "Reformat"
+        uses: credfeto/action-yaml-format@v1.3.2
+      - name: "Commit Changes"
+        uses: stefanzweifel/git-auto-commit-action@v5.0.0
         with:
           commit_message: "[Reformat] YAML Files to common format"
           file_pattern: "*.yml"
