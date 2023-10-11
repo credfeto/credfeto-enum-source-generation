@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Used ThisAssembly.AssemblyInfo to generate static version information
+- SDK - Updated DotNet SDK to 8.0.100-rc.2.23502.2
 ### Removed
 ### Deployment Changes
 
