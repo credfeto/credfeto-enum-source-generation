@@ -165,10 +165,10 @@ jobs:
 
       - name: "Create PR"
         if: |-
-          ${{steps.detection.outputs.defaultbranch != matrix.branch
+          steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
           && steps.aheadbehind.outputs.ahead != 0
-          && steps.aheadbehind.outputs.dayssinceupdate > 7}}
+          && steps.aheadbehind.outputs.dayssinceupdate > 7
         id: open-pr
         uses: repo-sync/pull-request@v2.12
         with:
