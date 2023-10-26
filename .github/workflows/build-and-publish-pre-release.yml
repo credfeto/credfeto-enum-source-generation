@@ -55,7 +55,7 @@ jobs:
           echo "OS: ${{runner.os}}"
 
       - name: "Enable Local nuget feeds if caching"
-        if: ${{startsWith(runner.name, 'buildagent-')}}
+        if: startsWith(runner.name, 'buildagent-')
         id: nuget-local-cache
         shell: bash
         run: |
