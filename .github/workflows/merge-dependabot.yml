@@ -14,19 +14,19 @@ on:
       - ready_for_review
       - reopened
       - unlocked
-    pull_request_review:
+  pull_request_review:
       types:
         - submitted
-    check_suite:
+  check_suite:
       types:
         - completed
-    status: { }
+  status: { }
 
 jobs:
   auto_merge_dependabot:
     if: |-
-      ${{endsWith(github.repository, '-template') &&
-      startsWith(github.head_ref, 'dependabot/github_actions/')}}
+      endsWith(github.repository, '-template') &&
+      startsWith(github.head_ref, 'dependabot/github_actions/')
     runs-on: ubuntu-latest
 
     permissions:
