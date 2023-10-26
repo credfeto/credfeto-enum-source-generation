@@ -104,7 +104,7 @@ runs:
 
 #### ADD FEEDS
   - name: "Dotnet: Add optional nuget feed (NugetCache)"
-    if: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE != ''}}
+    if: inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE != ''
     shell: bash
     run: |
       echo "Adding NugetCache NuGet feed..."
@@ -117,14 +117,14 @@ runs:
       dotnet nuget add source --name nuget.org "${{inputs.NUGET_PUBLIC_RESTORE_FEED}}"
 
   - name: "Dotnet: Add optional nuget feed (Additional1Cache)"
-    if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''}}
+    if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''
     shell: bash
     run: |
       echo "Adding Additional1Cache NuGet feed..."
       dotnet nuget add source --name Additional1Cache "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}"
 
   - name: "Dotnet: Add optional nuget feed (Additional2Cache)"
-    if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''}}
+    if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''
     shell: bash
     run: |
       echo "Adding Additional2Cache NuGet feed..."
@@ -132,14 +132,14 @@ runs:
 
 
   - name: "Dotnet: Add optional nuget feed (Additional1)"
-    if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''}}
+    if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''
     shell: bash
     run: |
       echo "Adding Additional1 NuGet feed..."
       dotnet nuget add source --name Additional1 "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
 
   - name: "Dotnet: Add optional nuget feed (Additional2)"
-    if: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''}}
+    if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''
     shell: bash
     run: |
       echo "Adding Additional2 NuGet feed..."
