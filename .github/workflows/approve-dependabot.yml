@@ -17,8 +17,8 @@ on:
 jobs:
   enable-auto-merge:
     if: |-
-      ${{endsWith(github.repository, '-template') &&
-      startsWith(github.head_ref, 'dependabot/github_actions/')}}
+      endsWith(github.repository, '-template') &&
+      startsWith(github.head_ref, 'dependabot/github_actions/')
     runs-on: ubuntu-latest
 
     permissions:
@@ -42,8 +42,8 @@ jobs:
 
   auto_approve_dependabot:
     if: |-
-      ${{endsWith(github.repository, '-template') &&
-      startsWith(github.head_ref, 'dependabot/github_actions/')}}
+      endsWith(github.repository, '-template') &&
+      startsWith(github.head_ref, 'dependabot/github_actions/')
     runs-on: ubuntu-latest
 
     permissions:
@@ -56,10 +56,9 @@ jobs:
       run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
     - name: "Check Repo Owner"
       shell: bash
-      run: echo "${{"github.repository_owner}}"
+      run: echo "${{github.repository_owner}}"
     - name: "Approve"
       uses: hmarr/auto-approve-action@v3
       with:
         github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-
 
