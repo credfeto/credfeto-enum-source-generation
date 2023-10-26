@@ -20,10 +20,10 @@ jobs:
   standardise-yaml-files:
 
     if: |-
-      ${{github.event.pull_request.draft == false
+      github.event.pull_request.draft == false
       && ( !startsWith(github.head_ref, 'release/')
       && !startsWith(github.head_ref, 'hotfix/') )
-      && github.actor != 'dependabot[bot]'}}
+      && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
 
     steps:
