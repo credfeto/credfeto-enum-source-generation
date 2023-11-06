@@ -68,6 +68,7 @@ jobs:
       - name: "Build and deploy"
         uses: ./.github/actions/build
         with:
+          PRODUCTION_BUILD: False
           NPM_PRODUCTION_PACKAGER_VERSION: ${{vars.PRODUCTION_PACKAGER_VERSION}}
           NPM_CONTENT_PACKAGE_WALLET_PASSWORD: ${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}
           NPM_PACKAGE_STORE_SIGNING_WALLET: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
