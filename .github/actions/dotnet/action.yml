@@ -2,6 +2,11 @@
 name: 'Build Dotnet'
 description: 'Builds and deploys the source'
 inputs:
+  # General
+  PRODUCTION_BUILD:
+    description: 'Whether to build a production build'
+    required: true
+
   # NUGET
   NUGET_PACK:
     description: 'Whether to pack packages with feeds'
@@ -85,10 +90,10 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - name: "Dotnet: Build"
+  - name: "Dotnet: Build (Non-Release)"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:EnableSarif=True" -nodeReuse:False -p:NoWarn=MSB4241 -p:SuppressNETCoreSdkPreviewMessage=true ${{env.DOTNET_RELEASE_DEFINES}}
+    run: dotnet build --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:EnableSarif=True" "/p:IsProduction=${{inputs.PRODUCTION_BUILD}}" -nodeReuse:False -p:NoWarn=MSB4241 -p:SuppressNETCoreSdkPreviewMessage=true ${{env.DOTNET_RELEASE_DEFINES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -104,7 +109,7 @@ runs:
   - name: "Dotnet: Test"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results -nodeReuse:False -p:NoWarn=MSB4241 -p:SuppressNETCoreSdkPreviewMessage=true
+    run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:IsProduction=${{inputs.PRODUCTION_BUILD}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results -nodeReuse:False -p:NoWarn=MSB4241 -p:SuppressNETCoreSdkPreviewMessage=true
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -134,6 +139,7 @@ runs:
     if: inputs.OCTOPUS_DEPLOY_PACKAGE != ''
     uses: ./.github/actions/dotnet-publish
     with:
+      PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
       RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
       PLATFORM: "win-x64"
@@ -144,6 +150,7 @@ runs:
     if: inputs.OCTOPUS_DEPLOY_PACKAGE != ''
     uses: ./.github/actions/dotnet-publish
     with:
+      PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
       RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
       PLATFORM: "linux-x64"
@@ -154,6 +161,7 @@ runs:
     if: inputs.OCTOPUS_DEPLOY_PACKAGE != ''
     uses: ./.github/actions/dotnet-publish
     with:
+      PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
       RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
       PLATFORM: "linux-arm64"
@@ -167,7 +175,7 @@ runs:
     if: inputs.NUGET_PACK == 'true'
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" --no-restore -nodeReuse:False -p:NoWarn=MSB4241
+    run: dotnet pack --configuration Release "/p:Version=${{inputs.BUILD_VERSION}}" "/p:IsProduction=${{inputs.PRODUCTION_BUILD}}" --no-restore -nodeReuse:False -p:NoWarn=MSB4241
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
