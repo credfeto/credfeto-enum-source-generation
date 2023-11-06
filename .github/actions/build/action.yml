@@ -2,6 +2,11 @@
 name: 'Build and deploy'
 description: 'Builds and deploys the source'
 inputs:
+  # General
+  PRODUCTION_BUILD:
+    description: 'Whether to build a production build'
+    required: true
+
   # NPM
   NPM_PRODUCTION_PACKAGER_VERSION:
     description: 'Version of the NPM output nuget packager to use'
@@ -292,6 +297,7 @@ runs:
     if: steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'
     uses: ./.github/actions/dotnet
     with:
+      PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
       BUILD_VERSION: ${{env.BUILD_VERSION}}
       BUILD_SQL: ${{steps.check_files.outputs.SQL_EXIST}}
       NUGET_PACK: ${{inputs.NUGET_PACK}}
