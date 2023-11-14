@@ -52,7 +52,7 @@
   <ItemGroup>
     <PackageReference Include="FunFair.Test.Common" Version="6.1.9.149" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.37" />

@@ -18,6 +18,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.12.0.78982
 - Dependencies - Updated xunit.analyzers to 1.5.0
 - Dependencies - Updated BenchmarkDotNet to 0.13.10
+- Dependencies - Updated Microsoft.Extensions to 8.0.0
 ### Removed
 ### Deployment Changes
 
