@@ -22,6 +22,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Microsoft.NET.Test.Sdk to 17.8.0
 - Dependencies - Updated TeamCity.VSTest.TestAdapter to 1.0.38
 - Dependencies - Updated xunit to 2.6.1
+- Dependencies - Updated xunit.runner.visualstudio to 2.5.3
 ### Removed
 ### Deployment Changes
 
