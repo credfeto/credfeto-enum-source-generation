@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 2.0.109
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.4.0
 - Dependencies - Updated Roslynator.Analyzers to 4.6.2
+- Dependencies - Updated SonarAnalyzer.CSharp to 9.12.0.78982
 ### Removed
 ### Deployment Changes
 
