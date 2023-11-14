@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Used ThisAssembly.AssemblyInfo to generate static version information
 - SDK - Updated DotNet SDK to 8.0.100-rc.2.23502.2
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.3.138
+- Dependencies - Updated Meziantou.Analyzer to 2.0.109
 ### Removed
 ### Deployment Changes
 
