@@ -20,6 +20,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated BenchmarkDotNet to 0.13.10
 - Dependencies - Updated Microsoft.Extensions to 8.0.0
 - Dependencies - Updated Microsoft.NET.Test.Sdk to 17.8.0
+- Dependencies - Updated TeamCity.VSTest.TestAdapter to 1.0.38
 ### Removed
 ### Deployment Changes
 
