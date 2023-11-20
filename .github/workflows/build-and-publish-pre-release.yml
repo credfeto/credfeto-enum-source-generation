@@ -98,7 +98,7 @@ jobs:
           CREATE_RELEASE: false
 
       - name: "Build Version"
-        uses: actions/github-script@v7.0.0
+        uses: actions/github-script@v7.0.1
         with:
           script: |
             core.info('Version: \u001b[38;5;6m${{env.BUILD_VERSION}}');
