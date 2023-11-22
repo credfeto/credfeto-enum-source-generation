@@ -13,6 +13,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit.analyzers to 1.6.0
 - Dependencies - Updated xunit to 2.6.2
 - Dependencies - Updated xunit.runner.visualstudio to 2.5.4
+- Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.8.0
 ### Removed
 ### Deployment Changes
 
