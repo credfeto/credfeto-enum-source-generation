@@ -13,8 +13,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit to 2.6.2
 - Dependencies - Updated xunit.runner.visualstudio to 2.5.4
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.8.0
-- Dependencies - Updated FunFair.Test.Common to 6.1.20.244
 - Dependencies - Updated Roslynator.Analyzers to 4.6.4
+- Dependencies - Updated FunFair.Test.Common to 6.1.21.247
 ### Removed
 ### Deployment Changes
 
