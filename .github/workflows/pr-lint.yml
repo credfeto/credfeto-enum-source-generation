@@ -88,7 +88,7 @@ jobs:
         uses: credfeto/action-dotnet-version-detect@v1.3.0
         with:
           file: src/global.json
-          fallback: 7.0.*
+          fallback: 8.0.*
       - name: "Install dotnet"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         uses: actions/setup-dotnet@v3.2.0
@@ -106,7 +106,33 @@ jobs:
           dotnet-version: |
             6.0.*
             7.0.*
+            8.0.*
             ${{env.DOTNET_VERSION}}
+      - name: "Check Runner details"
+        shell: bash
+        run: |
+          echo "Name: ${{runner.name}}"
+          echo "OS: ${{runner.os}}"
+      - name: "Enable Local nuget feeds if caching"
+        if: startsWith(runner.name, 'buildagent-')
+        id: nuget-local-cache
+        shell: bash
+        run: |
+          {
+            echo "NUGET_BAGET_CACHE=${{vars.NUGET_BAGET_CACHE}}"
+            echo "PRERELEASE_BAGET_CACHE=${{vars.PRERELEASE_BAGET_CACHE}}"
+            echo "RELEASE_BAGET_CACHE=${{vars.RELEASE_BAGET_CACHE}}"
+          }>> "$GITHUB_OUTPUT"
+      - name: "Configure nuget feeds"
+        if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template')) &&
+        uses: ./.github/actions/nuget
+        with:
+          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{steps.nuget-local-cache.outputs.NUGET_BAGET_CACHE}}
+          NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED}}
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{steps.nuget-local-cache.outputs.RELEASE_BAGET_CACHE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ""
       - name: "Enable dotnet tools"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         shell: bash
