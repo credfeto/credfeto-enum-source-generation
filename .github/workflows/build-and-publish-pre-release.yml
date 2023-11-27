@@ -10,6 +10,7 @@ on:
       - '.github/actions/dotnet/action.yml'
       - '.github/actions/dotnet-publish/action.yml'
       - '.github/actions/npm/action.yml'
+      - '.github/actions/nuget/action.yml'
       - '.github/actions/sql/action.yml'
       - '.github/actions/sarif/action.yml'
       - '.github/workflows/build-and-publish-pre-release.yml'
