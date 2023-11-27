@@ -20,17 +20,9 @@ runs:
   steps:
 
   - name: "SQL: Install TSQLLint"
-    shell: bash
-    run: dotnet tool install --local TSQLLint
-    env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_MULTILEVEL_LOOKUP: "false"
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TieredPGO: "1"
+    uses: ./.github/actions/dotnet-tool
+    with:
+      TOOL_NAME: TSQLLint
 
   - name: "SQL: Lint SQL Files"
     shell: bash
