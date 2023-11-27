@@ -124,7 +124,7 @@ jobs:
             echo "RELEASE_BAGET_CACHE=${{vars.RELEASE_BAGET_CACHE}}"
           }>> "$GITHUB_OUTPUT"
       - name: "Configure nuget feeds"
-        if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template')) &&
+        if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         uses: ./.github/actions/nuget
         with:
           NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{steps.nuget-local-cache.outputs.NUGET_BAGET_CACHE}}
@@ -148,17 +148,9 @@ jobs:
           DOTNET_TieredPGO: "1"
       - name: "Install Changelog tool"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
-        shell: bash
-        run: dotnet tool install --local Credfeto.ChangeLog.Cmd
-        env:
-          DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-          DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-          DOTNET_MULTILEVEL_LOOKUP: "false"
-          DOTNET_NOLOGO: "true"
-          DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-          DOTNET_ReadyToRun: "0"
-          DOTNET_TC_QuickJitForLoops: "1"
-          DOTNET_TieredPGO: "1"
+        uses: ./.github/actions/dotnet-tool
+        with:
+          TOOL_NAME: Credfeto.ChangeLog.Cmd
       - name: "Check Changelog"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         shell: bash
