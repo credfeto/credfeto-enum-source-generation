@@ -1,0 +1,43 @@
+--- # Install dotnet tool
+name: 'Install dotnet tool'
+description: 'Install dotnet tool'
+inputs:
+  TOOL_NAME:
+    description: 'Tool to install'
+    required: true
+  TOOL_VERSION:
+    description: 'Tool version to install'
+    required: false
+    default: 'latest'
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "Install dotnet tool (Latest)"
+      if: inputs.TOOL_VERSION == 'latest'
+      shell: bash
+      run: dotnet tool install --local ${{inputs.TOOL_NAME}}
+      env:
+        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_MULTILEVEL_LOOKUP: "false"
+        DOTNET_NOLOGO: "true"
+        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+        DOTNET_ReadyToRun: "0"
+        DOTNET_TC_QuickJitForLoops: "1"
+        DOTNET_TieredPGO: "1"
+
+    - name: "Install dotnet tool (Specific Version)"
+      if: inputs.TOOL_VERSION != 'latest'
+      shell: bash
+      run: dotnet tool install --local ${{inputs.TOOL_NAME}} --version ${{inputs.TOOL_VERSION}}
+      env:
+        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_MULTILEVEL_LOOKUP: "false"
+        DOTNET_NOLOGO: "true"
+        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+        DOTNET_ReadyToRun: "0"
+        DOTNET_TC_QuickJitForLoops: "1"
+        DOTNET_TieredPGO: "1"
