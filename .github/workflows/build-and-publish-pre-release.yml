@@ -8,6 +8,7 @@ on:
       - '.github/actions/build/action.yml'
       - '.github/actions/build-tools/action.yml'
       - '.github/actions/dotnet/action.yml'
+      - '.github/actions/dotnet-tool/action.yml'
       - '.github/actions/dotnet-publish/action.yml'
       - '.github/actions/npm/action.yml'
       - '.github/actions/nuget/action.yml'
