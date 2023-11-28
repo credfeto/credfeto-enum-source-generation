@@ -30,12 +30,13 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Info"
-        shell: bash
-        run: |
-          echo "Branch: ${{env.HEAD_REF}}"
-          echo "Base Branch: ${{env.BASE_REF}}"
-          echo "Repo: ${{env.REPO}}"
-          echo "Owner: ${{env.REPO_OWNER}}"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Branch: ${{env.HEAD_REF}}');
+            core.info('Base Branch: ${{env.BASE_REF}}');
+            core.info('Repo: ${{env.REPO}}');
+            core.info('Owner: ${{env.REPO_OWNER}}');
 
   pull-request:
     runs-on: ubuntu-latest
@@ -62,10 +63,11 @@ jobs:
 
       - name: "Existing PR Information"
         if: steps.findPr.outputs.number != ''
-        shell: bash
-        run: |
-          echo "Pull request already exists with id: ${{steps.findPr.outputs.number}}"
-          echo "URL: https://github.com/${{env.REPO}}/pull/${{steps.findPr.outputs.number}}"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Pull request already exists with id: ${{steps.findPr.outputs.number}}');
+            core.info('URL: https://github.com/${{env.REPO}}/pull/${{steps.findPr.outputs.number}}');
 
       - name: "Read PR Template"
         if: steps.findPr.outputs.number == ''
@@ -96,14 +98,15 @@ jobs:
         run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
 
       - name: "Status"
-        shell: bash
-        run: |
-          echo "Repo: ${{env.REPO}}"
-          echo "Owner: ${{env.REPO_OWNER}}"
-          echo "Repo Status: ${{env.REPO_STATUS}}"
-          echo "PR OK: ${{steps.findPr.outputs.number == ''}}"
-          echo "Owner OK: ${{env.REPO_OWNER != 'funfair-tech'}}"
-          echo "Status OK: ${{env.REPO_STATUS == 'private'}}"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Repo: ${{env.REPO}}');
+            core.info('Owner: ${{env.REPO_OWNER}}');
+            core.info('Repo Status: ${{env.REPO_STATUS}}');
+            core.info('PR OK: ${{steps.findPr.outputs.number == ''}}');
+            core.info('Owner OK: ${{env.REPO_OWNER != 'funfair-tech'}}');
+            core.info('Status OK: ${{env.REPO_STATUS == 'private'}}');
 
       - name: "Create Pull Request"
         if: steps.findPr.outputs.number == ''
@@ -121,11 +124,12 @@ jobs:
 
       - name: "New PR Details"
         if: steps.findPr.outputs.number == ''
-        shell: bash
-        run: |
-            echo "URL: ${{steps.open-pr.outputs.pr_url}}"
-            echo "PR: ${{steps.open-pr.outputs.pr_number}}"
-            echo "CF: ${{steps.open-pr.outputs.has_changed_files}}"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('URL: ${{steps.open-pr.outputs.pr_url}}');
+            core.info('PR: ${{steps.open-pr.outputs.pr_number}}');
+            core.info('CF: ${{steps.open-pr.outputs.has_changed_files}}');
 
       - name: "Sync Labels"
         if: steps.findPr.outputs.number == ''
