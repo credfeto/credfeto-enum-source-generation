@@ -24,12 +24,13 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Info"
-        shell: bash
-        run: |
-          echo "Branch: ${{env.HEAD_REF}}"
-          echo "Base Branch: ${{env.BASE_REF}}"
-          echo "Repo: ${{github.repository}}"
-          echo "Owner: ${{github.repository_owner}}"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Branch: ${{env.HEAD_REF}}');
+            core.info('Base Branch: ${{env.BASE_REF}}');
+            core.info('Repo: ${{github.repository}}');
+            core.info('Owner: ${{github.repository_owner}}');
 
 #  include-JIRA-ticket:
 #    if: github.event.pull_request.draft == false
@@ -109,10 +110,11 @@ jobs:
             8.0.*
             ${{env.DOTNET_VERSION}}
       - name: "Check Runner details"
-        shell: bash
-        run: |
-          echo "Name: ${{runner.name}}"
-          echo "OS: ${{runner.os}}"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Name: ${{runner.name}}');
+            core.info('OS: ${{runner.os}}');
       - name: "Enable Local nuget feeds if caching"
         if: startsWith(runner.name, 'buildagent-')
         id: nuget-local-cache
