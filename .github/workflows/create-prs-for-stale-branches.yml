@@ -100,7 +100,7 @@ jobs:
         uses: actions/github-script@v7.0.1
         with:
           script: |
-            core.info('On Default branch - don't do anything');
+            core.info("On Default branch - don't do anything");
 
       # On Non-Default branch
       - name: "On Non-Default branch"
