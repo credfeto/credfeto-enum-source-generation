@@ -97,14 +97,18 @@ jobs:
       # On Default branch
       - name: "On Default Branch"
         if: steps.detection.outputs.defaultbranch == matrix.branch
-        shell: bash
-        run: echo "On Default branch - don't do anything"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('On Default branch - don't do anything');
 
       # On Non-Default branch
       - name: "On Non-Default branch"
         if: steps.detection.outputs.defaultbranch != matrix.branch
-        shell: bash
-        run: echo "On non-default branch"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('On non-default branch');
 
       - name: "Find Existing PR"
         if: steps.detection.outputs.defaultbranch != matrix.branch
@@ -187,11 +191,12 @@ jobs:
           && steps.find-pull-request.outputs.number == ''
           && steps.aheadbehind.outputs.ahead != 0
           && steps.aheadbehind.outputs.dayssinceupdate > 7
-        shell: bash
-        run: |
-            echo "URL: ${{steps.open-pr.outputs.pr_url}}"
-            echo "PR: ${{steps.open-pr.outputs.pr_number}}"
-            echo "CF: ${{steps.open-pr.outputs.has_changed_files}}"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('URL: ${{steps.open-pr.outputs.pr_url}}');
+            core.info('PR: ${{steps.open-pr.outputs.pr_number}}');
+            core.info('CF: ${{steps.open-pr.outputs.has_changed_files}}');
 
       - name: "Update PR Labels"
         if: steps.open-pr.outputs.pr_number != ''
@@ -209,8 +214,10 @@ jobs:
           && steps.aheadbehind.outputs.behind != 0
           && steps.aheadbehind.outputs.ahead != 0
           && steps.aheadbehind.outputs.dayssinceupdate > 7
-        shell: bash
-        run: echo "Rebase?"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Rebase?');
 
       - name: "Delete Branch"
         if: |-
@@ -227,9 +234,10 @@ jobs:
         if: |-
           steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
-        shell: bash
-        run: |
-          echo "Ahead: ${{steps.aheadbehind.outputs.ahead}}"
-          echo "Behind: ${{steps.aheadbehind.outputs.behind}}"
-          echo "Last Commit: ${{steps.aheadbehind.outputs.dayssinceupdate}} days ago"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Ahead: ${{steps.aheadbehind.outputs.ahead}}');
+            core.info('Behind: ${{steps.aheadbehind.outputs.behind}}');
+            core.info('Last Commit: ${{steps.aheadbehind.outputs.dayssinceupdate}} days ago');
 
