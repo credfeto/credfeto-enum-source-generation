@@ -51,10 +51,11 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
 
       - name: "Check Runner details"
-        shell: bash
-        run: |
-          echo "Name: ${{runner.name}}"
-          echo "OS: ${{runner.os}}"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Name: ${{runner.name}}');
+            core.info('OS: ${{runner.os}}');
 
       - name: "Enable Local nuget feeds if caching"
         if: startsWith(runner.name, 'buildagent-')
