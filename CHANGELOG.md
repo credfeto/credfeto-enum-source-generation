@@ -15,8 +15,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.8.0
 - Dependencies - Updated Roslynator.Analyzers to 4.6.4
 - Dependencies - Updated FunFair.Test.Common to 6.1.21.247
-- Dependencies - Updated Meziantou.Analyzer to 2.0.112
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.14.0.81108
+- Dependencies - Updated Meziantou.Analyzer to 2.0.113
 ### Removed
 ### Deployment Changes
 
