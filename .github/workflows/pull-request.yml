@@ -133,7 +133,7 @@ jobs:
 
       - name: "Sync Labels"
         if: steps.findPr.outputs.number == ''
-        uses: actions/labeler@v4.3.0
+        uses: actions/labeler@v5
         with:
           repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           configuration-path: .github/labeler.yml
