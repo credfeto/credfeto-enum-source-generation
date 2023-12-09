@@ -34,16 +34,13 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
             }
         }
     }";
-        DiagnosticResult expected = new()
-                                    {
-                                        Id = "ENUM001",
-                                        Message = @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
-                                        Severity = DiagnosticSeverity.Error,
-                                        Locations = new[]
-                                                    {
-                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 15, column: 26)
-                                                    }
-                                    };
+        DiagnosticResult expected = new(Id: "ENUM001",
+                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Severity: DiagnosticSeverity.Error,
+                                        Locations:
+                                        [
+                                            new(path: "Test0.cs", line: 15, column: 26)
+                                        ]);
 
         return this.VerifyCSharpDiagnosticAsync(source: test, expected);
     }
@@ -67,16 +64,13 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
             }
         }
     }";
-        DiagnosticResult expected = new()
-                                    {
-                                        Id = "ENUM001",
-                                        Message = @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
-                                        Severity = DiagnosticSeverity.Error,
-                                        Locations = new[]
-                                                    {
-                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 13, column: 24)
-                                                    }
-                                    };
+        DiagnosticResult expected = new(Id: "ENUM001",
+                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Severity: DiagnosticSeverity.Error,
+                                        Locations:
+                                        [
+                                            new(path: "Test0.cs", line: 13, column: 24)
+                                        ]);
 
         return this.VerifyCSharpDiagnosticAsync(source: test, expected);
     }
@@ -100,16 +94,13 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
 
         }
     }";
-        DiagnosticResult expected = new()
-                                    {
-                                        Id = "ENUM001",
-                                        Message = @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
-                                        Severity = DiagnosticSeverity.Error,
-                                        Locations = new[]
-                                                    {
-                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 13, column: 40)
-                                                    }
-                                    };
+        DiagnosticResult expected = new(Id: "ENUM001",
+                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Severity: DiagnosticSeverity.Error,
+                                        Locations:
+                                        [
+                                            new(path: "Test0.cs", line: 13, column: 40)
+                                        ]);
 
         return this.VerifyCSharpDiagnosticAsync(source: test, expected);
     }
@@ -133,16 +124,13 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
 
         }
     }";
-        DiagnosticResult expected = new()
-                                    {
-                                        Id = "ENUM001",
-                                        Message = @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
-                                        Severity = DiagnosticSeverity.Error,
-                                        Locations = new[]
-                                                    {
-                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 13, column: 40)
-                                                    }
-                                    };
+        DiagnosticResult expected = new(Id: "ENUM001",
+                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Severity: DiagnosticSeverity.Error,
+                                        Locations:
+                                        [
+                                            new(path: "Test0.cs", line: 13, column: 40)
+                                        ]);
 
         return this.VerifyCSharpDiagnosticAsync(source: test, expected);
     }
@@ -166,16 +154,13 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
 
         }
     }";
-        DiagnosticResult expected = new()
-                                    {
-                                        Id = "ENUM001",
-                                        Message = @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
-                                        Severity = DiagnosticSeverity.Error,
-                                        Locations = new[]
-                                                    {
-                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 13, column: 40)
-                                                    }
-                                    };
+        DiagnosticResult expected = new(Id: "ENUM001",
+                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Severity: DiagnosticSeverity.Error,
+                                        Locations:
+                                        [
+                                            new(path: "Test0.cs", line: 13, column: 40)
+                                        ]);
 
         return this.VerifyCSharpDiagnosticAsync(source: test, expected);
     }
@@ -199,16 +184,13 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
 
         }
     }";
-        DiagnosticResult expected = new()
-                                    {
-                                        Id = "ENUM001",
-                                        Message = @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
-                                        Severity = DiagnosticSeverity.Error,
-                                        Locations = new[]
-                                                    {
-                                                        new DiagnosticResultLocation(path: "Test0.cs", line: 13, column: 40)
-                                                    }
-                                    };
+        DiagnosticResult expected = new(Id: "ENUM001",
+                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Severity: DiagnosticSeverity.Error,
+                                        Locations:
+                                        [
+                                            new(path: "Test0.cs", line: 13, column: 40)
+                                        ]);
 
         return this.VerifyCSharpDiagnosticAsync(source: test, expected);
     }

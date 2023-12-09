@@ -191,10 +191,10 @@ public abstract partial class DiagnosticVerifier : TestBase
     {
         Location[] additionalLocations = actual.AdditionalLocations.ToArray();
 
-        if (additionalLocations.Length != expected.Locations.Length - 1)
+        if (additionalLocations.Length != expected.Locations.Count - 1)
         {
             Assert.Fail(
-                $"Expected {expected.Locations.Length - 1} additional locations but got {additionalLocations.Length} for Diagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, actual)}\r\n");
+                $"Expected {expected.Locations.Count - 1} additional locations but got {additionalLocations.Length} for Diagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, actual)}\r\n");
         }
 
         for (int j = 0; j < additionalLocations.Length; ++j)
