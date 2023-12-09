@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -47,13 +48,12 @@ internal static class SyntaxExtractor
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None)!;
+        if (context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None) is INamedTypeSymbol classSymbol)
+        {
+            return new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration, classDeclarationSyntax.GetLocation());
+        }
 
-        return new(accessType: accessType,
-                   name: classSymbol.Name,
-                   classSymbol.ContainingNamespace.ToDisplayString(),
-                   enums: attributesForGeneration,
-                   classDeclarationSyntax.GetLocation());
+        return null;
     }
 
     private static IReadOnlyList<EnumGeneration> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context,
@@ -61,9 +61,12 @@ internal static class SyntaxExtractor
                                                                             in GenerationOptions options,
                                                                             CancellationToken cancellationToken)
     {
-        List<EnumGeneration> attributesForGeneration = new();
+        if (context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: cancellationToken) is not INamedTypeSymbol classSymbol)
+        {
+            return Array.Empty<EnumGeneration>();
+        }
 
-        INamedTypeSymbol classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: cancellationToken)!;
+        List<EnumGeneration> attributesForGeneration = [];
 
         ImmutableArray<AttributeData> attributes = classSymbol.GetAttributes();
 
@@ -120,7 +123,10 @@ internal static class SyntaxExtractor
 
     public static EnumGeneration? ExtractEnum(in GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax, CancellationToken cancellationToken)
     {
-        INamedTypeSymbol enumSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax, cancellationToken: CancellationToken.None)!;
+        if (context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax, cancellationToken: CancellationToken.None) is not INamedTypeSymbol enumSymbol)
+        {
+            return null;
+        }
 
         if (enumSymbol.HasObsoleteAttribute())
         {
@@ -136,34 +142,29 @@ internal static class SyntaxExtractor
             return null;
         }
 
-        List<IFieldSymbol> members = new();
+        List<IFieldSymbol> members = [];
 
         foreach (EnumMemberDeclarationSyntax member in enumDeclarationSyntax.Members)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            IFieldSymbol fieldSymbol = (IFieldSymbol)context.SemanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: CancellationToken.None)!;
-
-            members.Add(item: fieldSymbol);
+            if (context.SemanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: CancellationToken.None) is IFieldSymbol fieldSymbol)
+            {
+                members.Add(item: fieldSymbol);
+            }
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
         GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
 
-        return new(accessType: accessType,
-                   name: enumSymbol.Name,
-                   enumSymbol.ContainingNamespace.ToDisplayString(),
-                   members: members,
-                   enumDeclarationSyntax.GetLocation(),
-                   options: options);
+        return new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation(), options: options);
     }
 
     private static GenerationOptions DetectGenerationOptions(in GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {
-        bool hasDoesNotReturnAttribute = !context
-                                          .SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
-                                          .IsEmpty;
+        bool hasDoesNotReturnAttribute = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
+                                                 .IsEmpty;
 
         cancellationToken.ThrowIfCancellationRequested();
         bool hasUnreachableException = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.UnreachableException")

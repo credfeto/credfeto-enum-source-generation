@@ -6,12 +6,15 @@ namespace Credfeto.Enumeration.Source.Generation.Tests.Verifiers;
 [SuppressMessage(category: "Microsoft.Performance", checkId: "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes", Justification = "Test code")]
 public sealed class DiagnosticResult
 {
+    // ! TODO:
     public DiagnosticResultLocation[] Locations { get; set; } = null!;
 
     public DiagnosticSeverity Severity { get; set; }
 
+    // ! TODO:
     public string Id { get; set; } = null!;
 
+    // ! TODO:
     public string Message { get; set; } = null!;
 
     public int Line =>
