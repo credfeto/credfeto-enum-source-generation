@@ -50,7 +50,11 @@ internal static class SyntaxExtractor
 
         if (context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None) is INamedTypeSymbol classSymbol)
         {
-            return new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration, classDeclarationSyntax.GetLocation());
+            return new(accessType: accessType,
+                       name: classSymbol.Name,
+                       classSymbol.ContainingNamespace.ToDisplayString(),
+                       enums: attributesForGeneration,
+                       classDeclarationSyntax.GetLocation());
         }
 
         return null;
@@ -158,13 +162,19 @@ internal static class SyntaxExtractor
 
         GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
 
-        return new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation(), options: options);
+        return new(accessType: accessType,
+                   name: enumSymbol.Name,
+                   enumSymbol.ContainingNamespace.ToDisplayString(),
+                   members: members,
+                   enumDeclarationSyntax.GetLocation(),
+                   options: options);
     }
 
     private static GenerationOptions DetectGenerationOptions(in GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {
-        bool hasDoesNotReturnAttribute = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
-                                                 .IsEmpty;
+        bool hasDoesNotReturnAttribute = !context
+                                          .SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
+                                          .IsEmpty;
 
         cancellationToken.ThrowIfCancellationRequested();
         bool hasUnreachableException = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.UnreachableException")
