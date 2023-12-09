@@ -60,13 +60,31 @@ public abstract partial class DiagnosticVerifier
                 continue;
             }
 
-            EnsureNoCompilationErrors(compilation);
+            IReadOnlyList<Diagnostic> additionalDiagnostics = await CollectMoreDiagnosticsAsync(analyzer: analyzer, documents: documents, compilation: compilation);
 
-            CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers(IaHelper.For(analyzer), options: null, cancellationToken: CancellationToken.None);
-            diagnostics = await CollectDiagnosticsAsync(documents: documents, compilationWithAnalyzers: compilationWithAnalyzers);
+            if (additionalDiagnostics.Count != 0)
+            {
+                diagnostics = diagnostics.Concat(additionalDiagnostics)
+                                         .ToArray();
+            }
         }
 
         return SortDiagnostics(diagnostics);
+    }
+
+    private static async Task<IReadOnlyList<Diagnostic>> CollectMoreDiagnosticsAsync(DiagnosticAnalyzer analyzer, IReadOnlyList<Document> documents, Compilation compilation)
+    {
+        EnsureNoCompilationErrors(compilation);
+
+        CompilationWithAnalyzers compilationWithAnalyzers = CompilationWithAnalyzers(analyzer: analyzer, compilation: compilation);
+        IReadOnlyList<Diagnostic> additionalDiagnostics = await CollectDiagnosticsAsync(documents: documents, compilationWithAnalyzers: compilationWithAnalyzers);
+
+        return additionalDiagnostics;
+    }
+
+    private static CompilationWithAnalyzers CompilationWithAnalyzers(DiagnosticAnalyzer analyzer, Compilation compilation)
+    {
+        return compilation.WithAnalyzers(IaHelper.For(analyzer), options: null);
     }
 
     private static async Task<IReadOnlyList<Diagnostic>> CollectDiagnosticsAsync(IReadOnlyList<Document> documents, CompilationWithAnalyzers compilationWithAnalyzers)
@@ -136,11 +154,10 @@ public abstract partial class DiagnosticVerifier
     {
         return !compilerError.ToString()
                              .Contains(value: "netstandard", comparisonType: StringComparison.Ordinal) && !compilerError.ToString()
-            .Contains(value: "static 'Main' method", comparisonType: StringComparison.Ordinal) && !compilerError.ToString()
-                                                                                                                .Contains(value: "CS1002",
-                                                                                                                    comparisonType: StringComparison.Ordinal) && !compilerError
-            .ToString()
-            .Contains(value: "CS1702", comparisonType: StringComparison.Ordinal);
+                                                                                                                        .Contains(value: "static 'Main' method",
+                                                                                                                                  comparisonType: StringComparison.Ordinal) && !compilerError.ToString()
+            .Contains(value: "CS1002", comparisonType: StringComparison.Ordinal) && !compilerError.ToString()
+                                                                                                  .Contains(value: "CS1702", comparisonType: StringComparison.Ordinal);
     }
 
     private static IReadOnlyList<Diagnostic> SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
