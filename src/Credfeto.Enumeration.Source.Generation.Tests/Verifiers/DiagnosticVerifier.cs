@@ -60,8 +60,7 @@ public abstract partial class DiagnosticVerifier : TestBase
                 LinePosition linePosition = diagnostic.Location.GetLineSpan()
                                                       .StartLinePosition;
 
-                builder = builder.Append(provider: CultureInfo.InvariantCulture,
-                                         $"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
+                builder = builder.Append(provider: CultureInfo.InvariantCulture, $"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
             }
 
             builder = builder.Append(value: ',')
@@ -75,9 +74,21 @@ public abstract partial class DiagnosticVerifier : TestBase
 
     private static string GetResultMethodName(Diagnostic diagnostic)
     {
-        return diagnostic.Location.SourceTree!.FilePath.EndsWith(value: ".cs", comparisonType: StringComparison.Ordinal)
+        SyntaxTree? syntaxTree = diagnostic.Location.SourceTree;
+
+        if (syntaxTree is null)
+        {
+            return MissingSourceTree();
+        }
+
+        return syntaxTree.FilePath.EndsWith(value: ".cs", comparisonType: StringComparison.Ordinal)
             ? "GetCSharpResultAt"
             : "GetBasicResultAt";
+    }
+
+    private static string MissingSourceTree()
+    {
+        throw new InvalidOperationException("Source tree is null");
     }
 
     #endregion
@@ -120,11 +131,7 @@ public abstract partial class DiagnosticVerifier : TestBase
         return VerifyDiagnosticsAsync(sources: sources, references: references, language: LanguageNames.CSharp, analyzer: diagnostic, expected: expected);
     }
 
-    private static async Task VerifyDiagnosticsAsync(string[] sources,
-                                                     MetadataReference[] references,
-                                                     string language,
-                                                     DiagnosticAnalyzer analyzer,
-                                                     params DiagnosticResult[] expected)
+    private static async Task VerifyDiagnosticsAsync(string[] sources, MetadataReference[] references, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected)
     {
         IReadOnlyList<Diagnostic> diagnostics = await GetSortedDiagnosticsAsync(sources: sources, references: references, language: language, analyzer: analyzer);
 
@@ -171,8 +178,7 @@ public abstract partial class DiagnosticVerifier : TestBase
             VerifyAdditionalDiagnosticLocations(analyzer: analyzer, actual: actual, expected: expected);
         }
 
-        Assert.True(actual.Id == expected.Id,
-                    $"Expected diagnostic id to be \"{expected.Id}\" was \"{actual.Id}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, actual)}\r\n");
+        Assert.True(actual.Id == expected.Id, $"Expected diagnostic id to be \"{expected.Id}\" was \"{actual.Id}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, actual)}\r\n");
 
         Assert.True(actual.Severity == expected.Severity,
                     $"Expected diagnostic severity to be \"{expected.Severity}\" was \"{actual.Severity}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, actual)}\r\n");
@@ -185,10 +191,10 @@ public abstract partial class DiagnosticVerifier : TestBase
     {
         Location[] additionalLocations = actual.AdditionalLocations.ToArray();
 
-        if (additionalLocations.Length != expected.Locations.Length - 1)
+        if (additionalLocations.Length != expected.Locations.Count - 1)
         {
             Assert.Fail(
-                $"Expected {expected.Locations.Length - 1} additional locations but got {additionalLocations.Length} for Diagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, actual)}\r\n");
+                $"Expected {expected.Locations.Count - 1} additional locations but got {additionalLocations.Length} for Diagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, actual)}\r\n");
         }
 
         for (int j = 0; j < additionalLocations.Length; ++j)

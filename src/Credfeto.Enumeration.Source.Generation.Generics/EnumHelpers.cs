@@ -26,7 +26,7 @@ public static class EnumHelpers
     public static string GetNameReflection<T>(this T value)
         where T : Enum
     {
-        return Enum.GetName(value.GetType(), value: value)!;
+        return Enum.GetName(value.GetType(), value: value) ?? string.Empty;
     }
 
     public static string GetName<T>(this T value)

@@ -18,7 +18,12 @@ public static class SymbolExtensions
 
     public static bool IsObsoleteAttribute(this AttributeData attributeData)
     {
-        return IsObsoleteAttribute(attributeData.AttributeClass!);
+        return IsObsoleteAttribute(attributeData.AttributeClass ?? InvalidAttributeClass());
+    }
+
+    private static INamedTypeSymbol InvalidAttributeClass()
+    {
+        throw new InvalidOperationException("AttributeClass is null");
     }
 
     private static bool IsObsoleteAttribute(INamedTypeSymbol symbol)
@@ -28,7 +33,7 @@ public static class SymbolExtensions
 
     public static bool IsDescriptionAttribute(this AttributeData attributeData)
     {
-        return IsDescriptionAttribute(attributeData.AttributeClass!);
+        return IsDescriptionAttribute(attributeData.AttributeClass ?? InvalidAttributeClass());
     }
 
     private static bool IsDescriptionAttribute(INamedTypeSymbol symbol)
