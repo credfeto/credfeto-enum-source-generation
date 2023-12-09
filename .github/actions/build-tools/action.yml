@@ -31,7 +31,7 @@ runs:
   using: "composite"
   steps:
 
-  - name: Determine .net core version
+  - name: "Determine dotnet version"
     uses: credfeto/action-dotnet-version-detect@v1.3.0
     with:
       file: src/global.json
@@ -84,22 +84,22 @@ runs:
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
 
-  - name: Install Sleet package management tool
+  - name: "Install Sleet package management tool"
     uses: ./.github/actions/dotnet-tool
     with:
       TOOL_NAME: Sleet
 
-  - name: Install Build Version Tool
+  - name: "Install Build Version Tool"
     uses: ./.github/actions/dotnet-tool
     with:
       TOOL_NAME: FunFair.BuildVersion
 
-  - name: Install Changelog Tool
+  - name: "Install Changelog Tool"
     uses: ./.github/actions/dotnet-tool
     with:
       TOOL_NAME: Credfeto.Changelog.Cmd
 
-  - name: Install SQLProj
+  - name: "Install SQLProj"
     shell: bash
     run: dotnet new install MSBuild.Sdk.SqlProj.Templates
     env:
