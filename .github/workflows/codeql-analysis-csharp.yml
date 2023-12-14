@@ -36,7 +36,7 @@ jobs:
       # Initializes the CodeQL tools for scanning.
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true'}}
         name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: csharp
           # If you wish to specify custom queries, you can do so here or in a config file.
@@ -48,7 +48,7 @@ jobs:
       # If this step fails, then you should remove it and run the build manually (see below)
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true'}}
         name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@v3
 
       # ℹ️ Command-line programs to run using the OS shell.
       # 📚 https://git.io/JvXDl
@@ -63,4 +63,4 @@ jobs:
 
       - if: ${{steps.check_files.outputs.FILES_EXIST == 'true'}}
         name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
