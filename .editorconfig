@@ -196,6 +196,7 @@ roslynator_object_creation_type_style=implicit_when_type_is_obvious
 #roslynator_use_var_instead_of_implicit_object_creation = true|false
 roslynator_use_var_instead_of_implicit_object_creation=false
 
+dotnet_diagnostic.IDE0300.severity = error
 
 [*.{appxmanifest,asax,ascx,aspx,build,cshtml,dtd,fs,fsi,fsscript,fsx,master,ml,mli,nuspec,razor,resw,resx,skin,vb,xaml,xamlx,xoml,xsd}]
 indent_style=space
