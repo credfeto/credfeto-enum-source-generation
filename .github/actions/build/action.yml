@@ -112,9 +112,6 @@ runs:
         core.info('OCTOPUS_SERVER: ${{inputs.OCTOPUS_SERVER}}');
         core.info('OCTOPUS_API_KEY: ${{inputs.OCTOPUS_API_KEY}}');
         core.info('OCTOPUS_SPACE_NAME: ${{inputs.OCTOPUS_SPACE}}');
-        core.info('NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}');
-        core.info('NUGET_FEED: ${{inputs.NUGET_FEED}}');
-        core.info('NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}');
         core.info('NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}');
         core.info('NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}');
         core.info('NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}');
@@ -122,6 +119,9 @@ runs:
         core.info('NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}');
         core.info('NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}');
         core.info('NUGET_PACK: ${{inputs.NUGET_PACK}}');
+    #        core.info('NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}');
+    #        core.info('NUGET_FEED: ${{inputs.NUGET_FEED}}');
+    #        core.info('NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}');
 
   - name: "Fetch tags and master"
     shell: bash
