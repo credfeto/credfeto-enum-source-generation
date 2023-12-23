@@ -80,7 +80,7 @@ jobs:
         id: visibility
         with:
           repository: ${{github.repository}}
-          token: ${{secrets.GITHUB_TOKEN}}
+          token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
       - name: "Override DRAFT Flag"
         if: github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'
