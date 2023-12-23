@@ -35,7 +35,7 @@ jobs:
         id: visibility
         with:
           repository: ${{github.repository}}
-          token: ${{secrets.GITHUB_TOKEN}}
+          token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
       - name: "Check Runner details"
         uses: actions/github-script@v7.0.1
@@ -83,7 +83,7 @@ jobs:
           OCTOPUS_API_KEY: ${{secrets.OCTOPUS_API_KEY}}
           OCTOPUS_DEPLOY_PACKAGE: ${{vars.OCTOPUS_DEPLOY_PACKAGE}}
           OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{vars.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
           REPO_VISIBILITY: ${{env.REPO_STATUS}}
           CREATE_RELEASE: true
 
