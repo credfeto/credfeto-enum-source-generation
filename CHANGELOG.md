@@ -12,7 +12,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.8.0
 - Dependencies - Updated Roslynator.Analyzers to 4.7.0
 - Dependencies - Updated BenchmarkDotNet to 0.13.11
-- Dependencies - Updated Nullable.Extended.Analyzer to 1.14.6129
 - Dependencies - Updated SmartAnalyzers.CSharpExtensions.Annotations to 4.2.9
 - Dependencies - Updated TeamCity.VSTest.TestAdapter to 1.0.39
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.5.0
@@ -22,6 +21,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit to 2.6.4
 - Dependencies - Updated xunit.runner.visualstudio to 2.5.6
 - Dependencies - Updated FunFair.Test.Common to 6.1.25.293
+- Dependencies - Updated Nullable.Extended.Analyzer to 1.15.6169
 ### Removed
 ### Deployment Changes
 
