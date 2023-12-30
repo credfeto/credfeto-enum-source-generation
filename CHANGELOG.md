@@ -21,7 +21,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit.runner.visualstudio to 2.5.6
 - Dependencies - Updated Nullable.Extended.Analyzer to 1.15.6169
 - Dependencies - Updated FunFair.Test.Common to 6.1.27.296
-- Dependencies - Updated Meziantou.Analyzer to 2.0.128
+- Dependencies - Updated Meziantou.Analyzer to 2.0.132
 ### Removed
 ### Deployment Changes
 
