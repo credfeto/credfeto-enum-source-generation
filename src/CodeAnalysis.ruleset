@@ -543,7 +543,7 @@
         <!-- MA0005 - Use Array.Empty<T>() -->
         <Rule Id="MA0005" Action="Error"/>
         <!-- MA0006 - Use string.Equals instead of the comparison operator -->
-        <Rule Id="MA0006" Action="Info"/>
+        <Rule Id="MA0006" Action="Error"/>
         <!-- MA0007	- Add a comma after the last value -->
         <Rule Id="MA0007" Action="None"/>
         <!-- MA0008	- Add StructLayoutAttribute -->
