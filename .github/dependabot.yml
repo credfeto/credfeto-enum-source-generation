@@ -45,6 +45,7 @@ updates:
   - dependency-name: "Jetbrains.Annotations"
   - dependency-name: "LibGit2Sharp"
   - dependency-name: "Meziantou.Analyzer"
+  - dependency-name: "Meziantou.Framework.InlineSnapshotTesting"
   - dependency-name: "MaxMind.GeoIP2"
   - dependency-name: "MaxMind.MinFraud"  
   - dependency-name: "Microsoft.ApplicationInsights.AspNetCore"
