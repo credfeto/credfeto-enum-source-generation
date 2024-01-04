@@ -910,6 +910,17 @@
         <!-- CSIsNull002 to catch uses of != null -->
         <Rule Id="CSIsNull002" Action="Error"/>
     </Rules>
+    <Rules AnalyzerId="Nullable.Extended.Analyzer" RuleNamespace="Nullable.Extended.Analyzer">
+        <!-- See https://github.com/tom-englert/Nullable.Extended -->
+        <!-- NX0001 - Instance of NullForgiving operator without justification (GeneralDiagnosticId) -->
+        <Rule Id="NX0001" Action="Error"/>
+        <!-- NX0002 - Instance of NullForgiving operator without justification (NullOrDefaultDiagnosticId) -->
+        <Rule Id="NX0002" Action="Error"/>
+        <!-- NX0003 - Instance of NullForgiving operator without justification (LambdaDiagnosticId) -->
+        <Rule Id="NX0003" Action="Error"/>
+        <!-- NX0004 - Instance of NullForgiving operator without justification (InitDiagnosticId) -->
+        <Rule Id="NX0004" Action="Error"/>
+    </Rules>
     <Rules AnalyzerId="FunFair.CodeAnalysis" RuleNamespace="FunFair.CodeAnalysis">
         <!-- See https://github.com/funfair-tech/funfair-server-code-analysis -->
         <!-- FFS0001 - Avoid using DateTime.Now - Use IDateTimeSource.UtcNow() -->
