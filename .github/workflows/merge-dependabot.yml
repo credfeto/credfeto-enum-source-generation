@@ -46,7 +46,7 @@ jobs:
             core.info('Owner: ${{github.repository_owner}}');
       - name: "Auto-Merge"
         if: github.repository_owner == 'funfair-tech'
-        uses: pascalgn/automerge-action@v0.15.6
+        uses: pascalgn/automerge-action@v0.16.0
         env:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
           MERGE_METHOD: merge
