@@ -15,7 +15,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated TeamCity.VSTest.TestAdapter to 1.0.39
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.5.0
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.16.0.82469
-- Dependencies - Updated xunit.analyzers to 1.8.0
 - Dependencies - Updated xunit to 2.6.4
 - Dependencies - Updated xunit.runner.visualstudio to 2.5.6
 - Dependencies - Updated Nullable.Extended.Analyzer to 1.15.6169
@@ -24,6 +23,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.6.239
 - Dependencies - Updated Meziantou.Analyzer to 2.0.136
 - Dependencies - Updated Roslynator.Analyzers to 4.9.0
+- Dependencies - Updated xunit.analyzers to 1.10.0
 ### Removed
 ### Deployment Changes
 
