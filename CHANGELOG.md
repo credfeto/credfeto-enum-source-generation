@@ -10,7 +10,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.8.0
-- Dependencies - Updated BenchmarkDotNet to 0.13.11
 - Dependencies - Updated SmartAnalyzers.CSharpExtensions.Annotations to 4.2.9
 - Dependencies - Updated TeamCity.VSTest.TestAdapter to 1.0.39
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.5.0
@@ -24,6 +23,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Roslynator.Analyzers to 4.9.0
 - Dependencies - Updated xunit.analyzers to 1.10.0
 - Dependencies - Updated xunit to 2.6.6
+- Dependencies - Updated BenchmarkDotNet to 0.13.12
 ### Removed
 ### Deployment Changes
 
