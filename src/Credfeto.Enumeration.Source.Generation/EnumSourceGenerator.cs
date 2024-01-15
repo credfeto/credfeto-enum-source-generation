@@ -49,12 +49,7 @@ public static class EnumSourceGenerator
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source)
     {
-        return AddUsingDeclarations(source: source,
-                                    "System",
-                                    "System.CodeDom.Compiler",
-                                    "System.Diagnostics",
-                                    "System.Diagnostics.CodeAnalysis",
-                                    "System.Runtime.CompilerServices");
+        return AddUsingDeclarations(source: source, "System", "System.CodeDom.Compiler", "System.Diagnostics", "System.Diagnostics.CodeAnalysis", "System.Runtime.CompilerServices");
     }
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source, params string[] namespaces)
@@ -151,9 +146,11 @@ public static class EnumSourceGenerator
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                      .StartBlock("public static string " + GET_NAME_METHOD_NAME + "(this " + className + " value)"))
         {
-            IReadOnlyList<string> members = UniqueMembers(enumDeclaration)
-                                            .Select(member => member.Name)
-                                            .ToArray();
+            IReadOnlyList<string> members =
+            [
+                ..UniqueMembers(enumDeclaration)
+                    .Select(member => member.Name)
+            ];
 
             if (members.Count == 0)
             {
@@ -163,8 +160,7 @@ public static class EnumSourceGenerator
             {
                 using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
                 {
-                    members.Aggregate(seed: source,
-                                      func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
+                    members.Aggregate(seed: source, func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
                            .AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
                 }
             }
@@ -178,9 +174,11 @@ public static class EnumSourceGenerator
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                      .StartBlock("public static bool " + IS_DEFINED_METHOD_NAME + "(this " + className + " value)"))
         {
-            IReadOnlyList<string> members = UniqueMembers(enumDeclaration)
-                                            .Select(member => className + "." + member.Name)
-                                            .ToArray();
+            IReadOnlyList<string> members =
+            [
+                ..UniqueMembers(enumDeclaration)
+                    .Select(member => className + "." + member.Name)
+            ];
 
             switch (members.Count)
             {
@@ -257,10 +255,7 @@ public static class EnumSourceGenerator
                               .Select(item => (item.member, typedConstant: item.description.ConstructorArguments.FirstOrDefault()))
                               .Select(item => (item.member, attributeText: ((TypedConstant?)item.typedConstant).Value.ToCSharpString()))
                               .Where(item => !string.IsNullOrWhiteSpace(item.attributeText))
-                              .Select(item => FormatMember(enumDeclaration: enumDeclaration,
-                                                           classNameFormatter: classNameFormatter,
-                                                           member: item.member,
-                                                           attributeText: item.attributeText))
+                              .Select(item => FormatMember(enumDeclaration: enumDeclaration, classNameFormatter: classNameFormatter, member: item.member, attributeText: item.attributeText))
                               .ToArray();
 
         static (IFieldSymbol member, AttributeData description) EnsureNotNullDescription((IFieldSymbol member, AttributeData? description) item)
@@ -281,9 +276,11 @@ public static class EnumSourceGenerator
 
         if (syntax?.EqualsValue is not null)
         {
-            if (syntax.EqualsValue.Value.Kind() == SyntaxKind.IdentifierName)
+            ExpressionSyntax ev = syntax.EqualsValue.Value;
+
+            if (ev.Kind() == SyntaxKind.IdentifierName)
             {
-                bool found = names.Contains(syntax.EqualsValue.Value.ToString());
+                bool found = names.Contains(ev.ToString());
 
                 if (found)
                 {

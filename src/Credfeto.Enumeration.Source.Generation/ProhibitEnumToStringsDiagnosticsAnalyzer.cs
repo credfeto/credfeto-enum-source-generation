@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Extensions;
@@ -66,7 +67,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
             return;
         }
 
-        if (memberAccessExpressionSyntax.Name.Identifier.ToString() == nameof(ToString))
+        if (StringComparer.Ordinal.Equals(memberAccessExpressionSyntax.Name.Identifier.ToString(), nameof(ToString)))
         {
             ReportDiagnostic(expressionSyntax: memberAccessExpressionSyntax, context: syntaxNodeAnalysisContext);
         }
@@ -89,8 +90,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
             return null;
         }
 
-        INamedTypeSymbol? typeInfo = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: e, cancellationToken: syntaxNodeAnalysisContext.CancellationToken)
-                                                              .Type as INamedTypeSymbol;
+        INamedTypeSymbol? typeInfo = GetNamedType(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, e: e);
 
         if (typeInfo?.ConstructedFrom is null)
         {
@@ -98,6 +98,12 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         }
 
         return typeInfo;
+    }
+
+    private static INamedTypeSymbol? GetNamedType(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, ExpressionSyntax e)
+    {
+        return syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: e, cancellationToken: syntaxNodeAnalysisContext.CancellationToken)
+                                        .Type as INamedTypeSymbol;
     }
 
     private static void LookForBannedInInterpolatedStrings(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
@@ -108,8 +114,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         }
     }
 
-    private static void LookForBannedInInterpolatedStrings(InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax,
-                                                           in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    private static void LookForBannedInInterpolatedStrings(InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax, in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         foreach (InterpolationSyntax part in interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>())
         {
@@ -160,8 +165,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static void LookForBannedInStringConcatenation(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        if (syntaxNodeAnalysisContext.Node is BinaryExpressionSyntax binaryExpressionSyntax && IsAddExpression(binaryExpressionSyntax) &&
-            !IsAttributeArgument(binaryExpressionSyntax))
+        if (syntaxNodeAnalysisContext.Node is BinaryExpressionSyntax binaryExpressionSyntax && IsAddExpression(binaryExpressionSyntax) && !IsAttributeArgument(binaryExpressionSyntax))
 
         {
             LookForBannedInStringConcatenation(binaryExpressionSyntax: binaryExpressionSyntax, syntaxNodeAnalysisContext: syntaxNodeAnalysisContext);
@@ -170,10 +174,8 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static void LookForBannedInStringConcatenation(BinaryExpressionSyntax binaryExpressionSyntax, in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        TypeInfo left = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: binaryExpressionSyntax.Left,
-                                                                            cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
-        TypeInfo right = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: binaryExpressionSyntax.Right,
-                                                                             cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
+        TypeInfo left = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: binaryExpressionSyntax.Left, cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
+        TypeInfo right = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(expression: binaryExpressionSyntax.Right, cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
 
         if (left.IsString() && right.IsEnum())
         {

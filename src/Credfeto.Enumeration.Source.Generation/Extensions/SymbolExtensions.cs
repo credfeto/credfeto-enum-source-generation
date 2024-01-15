@@ -43,6 +43,6 @@ public static class SymbolExtensions
 
     private static bool MatchesType(Type type, INamedTypeSymbol symbol)
     {
-        return symbol.Name == type.Name && symbol.ContainingNamespace.ToDisplayString() == type.Namespace;
+        return StringComparer.Ordinal.Equals(x: symbol.Name, y: type.Name) && StringComparer.Ordinal.Equals(symbol.ContainingNamespace.ToDisplayString(), y: type.Namespace);
     }
 }

@@ -35,7 +35,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
         }
     }";
         DiagnosticResult expected = new(Id: "ENUM001",
-                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Message: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
                                         Severity: DiagnosticSeverity.Error,
                                         Locations:
                                         [
@@ -65,7 +65,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
         }
     }";
         DiagnosticResult expected = new(Id: "ENUM001",
-                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Message: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
                                         Severity: DiagnosticSeverity.Error,
                                         Locations:
                                         [
@@ -95,7 +95,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
         }
     }";
         DiagnosticResult expected = new(Id: "ENUM001",
-                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Message: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
                                         Severity: DiagnosticSeverity.Error,
                                         Locations:
                                         [
@@ -125,7 +125,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
         }
     }";
         DiagnosticResult expected = new(Id: "ENUM001",
-                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Message: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
                                         Severity: DiagnosticSeverity.Error,
                                         Locations:
                                         [
@@ -155,7 +155,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
         }
     }";
         DiagnosticResult expected = new(Id: "ENUM001",
-                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Message: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
                                         Severity: DiagnosticSeverity.Error,
                                         Locations:
                                         [
@@ -185,7 +185,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVe
         }
     }";
         DiagnosticResult expected = new(Id: "ENUM001",
-                                        Message: @"Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                        Message: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
                                         Severity: DiagnosticSeverity.Error,
                                         Locations:
                                         [

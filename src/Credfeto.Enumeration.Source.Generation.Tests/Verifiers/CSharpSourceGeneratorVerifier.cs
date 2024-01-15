@@ -18,9 +18,9 @@ public static class CSharpSourceGeneratorVerifier<TSourceGenerator>
             CompilationOptions compilationOptions = base.CreateCompilationOptions();
 
             string[] args =
-            {
+            [
                 "/warnaserror:nullable"
-            };
+            ];
             CSharpCommandLineArguments commandLineArguments =
                 CSharpCommandLineParser.Default.Parse(args: args, baseDirectory: Environment.CurrentDirectory, sdkDirectory: Environment.CurrentDirectory);
 

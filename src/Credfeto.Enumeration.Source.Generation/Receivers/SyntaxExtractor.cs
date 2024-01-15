@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Threading;
 using Credfeto.Enumeration.Source.Generation.Extensions;
 using Credfeto.Enumeration.Source.Generation.Models;
@@ -50,11 +49,7 @@ internal static class SyntaxExtractor
 
         if (context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None) is INamedTypeSymbol classSymbol)
         {
-            return new(accessType: accessType,
-                       name: classSymbol.Name,
-                       classSymbol.ContainingNamespace.ToDisplayString(),
-                       enums: attributesForGeneration,
-                       classDeclarationSyntax.GetLocation());
+            return new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration, classDeclarationSyntax.GetLocation());
         }
 
         return null;
@@ -87,9 +82,11 @@ internal static class SyntaxExtractor
 
             if (constructorArguments.Kind == TypedConstantKind.Type && constructorArguments.Value is INamedTypeSymbol type)
             {
-                IReadOnlyList<IFieldSymbol> members = type.GetMembers()
-                                                          .OfType<IFieldSymbol>()
-                                                          .ToArray();
+                IReadOnlyList<IFieldSymbol> members =
+                [
+                    ..type.GetMembers()
+                          .OfType<IFieldSymbol>()
+                ];
 
                 EnumGeneration enumGen = new(accessType: AccessType.PUBLIC,
                                              name: type.Name,
@@ -112,12 +109,12 @@ internal static class SyntaxExtractor
             return false;
         }
 
-        if (item.AttributeClass.ContainingNamespace.ToDisplayString() != "Credfeto.Enumeration.Source.Generation.Attributes")
+        if (StringComparer.Ordinal.Equals(item.AttributeClass.ContainingNamespace.ToDisplayString(), y: "Credfeto.Enumeration.Source.Generation.Attributes"))
         {
             return false;
         }
 
-        if (item.AttributeClass.Name != "EnumTextAttribute")
+        if (StringComparer.Ordinal.Equals(x: item.AttributeClass.Name, y: "EnumTextAttribute"))
         {
             return false;
         }
@@ -162,26 +159,24 @@ internal static class SyntaxExtractor
 
         GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
 
-        return new(accessType: accessType,
-                   name: enumSymbol.Name,
-                   enumSymbol.ContainingNamespace.ToDisplayString(),
-                   members: members,
-                   enumDeclarationSyntax.GetLocation(),
-                   options: options);
+        return new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation(), options: options);
     }
 
     private static GenerationOptions DetectGenerationOptions(in GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {
-        bool hasDoesNotReturnAttribute = !context
-                                          .SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute")
-                                          .IsEmpty;
+        bool hasDoesNotReturnAttribute = !HasAttribute(context: context, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute");
 
         cancellationToken.ThrowIfCancellationRequested();
-        bool hasUnreachableException = !context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: "System.Diagnostics.UnreachableException")
-                                               .IsEmpty;
+        bool hasUnreachableException = !HasAttribute(context: context, name: "System.Diagnostics.UnreachableException");
 
         cancellationToken.ThrowIfCancellationRequested();
 
         return new(hasDoesNotReturnAttribute: hasDoesNotReturnAttribute, supportsUnreachableException: hasUnreachableException);
+    }
+
+    private static bool HasAttribute(in GeneratorSyntaxContext context, string name)
+    {
+        return context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: name)
+                      .IsEmpty;
     }
 }
