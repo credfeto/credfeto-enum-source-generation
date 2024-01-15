@@ -173,7 +173,7 @@ public abstract partial class DiagnosticVerifier
 
     private static Document[] GetDocuments(string[] sources, MetadataReference[] references, string language)
     {
-        if (language != LanguageNames.CSharp && language != LanguageNames.VisualBasic)
+        if (!IsCSharp(language) && !IsVisualBasic(language))
         {
             throw new ArgumentException(message: "Unsupported Language", nameof(language));
         }
@@ -189,10 +189,25 @@ public abstract partial class DiagnosticVerifier
         return documents;
     }
 
+    private static bool IsCSharp(string language)
+    {
+        return IsLanguage(language, LanguageNames.CSharp);
+    }
+
+    private static bool IsVisualBasic(string language)
+    {
+        return IsLanguage(language, LanguageNames.VisualBasic);
+    }
+
+    private static bool IsLanguage(string namedLanguage, string languageName)
+    {
+        return StringComparer.Ordinal.Equals(namedLanguage, languageName);
+    }
+
     private static Project CreateProject(string[] sources, MetadataReference[] references, string language = LanguageNames.CSharp)
     {
         const string fileNamePrefix = DEFAULT_FILE_PATH_PREFIX;
-        string fileExt = language == LanguageNames.CSharp
+        string fileExt = IsCSharp(language)
             ? C_SHARP_DEFAULT_FILE_EXT
             : VISUAL_BASIC_DEFAULT_EXT;
 
