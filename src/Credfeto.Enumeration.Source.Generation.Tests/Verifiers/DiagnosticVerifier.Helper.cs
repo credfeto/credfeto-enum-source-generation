@@ -191,17 +191,17 @@ public abstract partial class DiagnosticVerifier
 
     private static bool IsCSharp(string language)
     {
-        return IsLanguage(language, LanguageNames.CSharp);
+        return IsLanguage(namedLanguage: language, languageName: LanguageNames.CSharp);
     }
 
     private static bool IsVisualBasic(string language)
     {
-        return IsLanguage(language, LanguageNames.VisualBasic);
+        return IsLanguage(namedLanguage: language, languageName: LanguageNames.VisualBasic);
     }
 
     private static bool IsLanguage(string namedLanguage, string languageName)
     {
-        return StringComparer.Ordinal.Equals(namedLanguage, languageName);
+        return StringComparer.Ordinal.Equals(x: namedLanguage, y: languageName);
     }
 
     private static Project CreateProject(string[] sources, MetadataReference[] references, string language = LanguageNames.CSharp)

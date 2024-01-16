@@ -59,7 +59,8 @@ public abstract partial class DiagnosticVerifier : TestBase
                 string resultMethodName = GetResultMethodName(diagnostic);
                 LinePosition linePosition = GetStartLinePosition(diagnostic);
 
-                builder = builder.Append(provider: CultureInfo.InvariantCulture, $"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
+                builder = builder.Append(provider: CultureInfo.InvariantCulture,
+                                         $"{resultMethodName}({linePosition.Line + 1}, {linePosition.Character + 1}, {analyzerType.Name}.{rule.Id})");
             }
 
             builder = builder.Append(value: ',')
@@ -135,7 +136,11 @@ public abstract partial class DiagnosticVerifier : TestBase
         return VerifyDiagnosticsAsync(sources: sources, references: references, language: LanguageNames.CSharp, analyzer: diagnostic, expected: expected);
     }
 
-    private static async Task VerifyDiagnosticsAsync(string[] sources, MetadataReference[] references, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected)
+    private static async Task VerifyDiagnosticsAsync(string[] sources,
+                                                     MetadataReference[] references,
+                                                     string language,
+                                                     DiagnosticAnalyzer analyzer,
+                                                     params DiagnosticResult[] expected)
     {
         IReadOnlyList<Diagnostic> diagnostics = await GetSortedDiagnosticsAsync(sources: sources, references: references, language: language, analyzer: analyzer);
 
@@ -212,10 +217,9 @@ public abstract partial class DiagnosticVerifier : TestBase
     {
         FileLinePositionSpan actualSpan = actual.GetLineSpan();
 
-        Assert.True(
-            StringComparer.Ordinal.Equals(x: actualSpan.Path, y: expected.Path) || actualSpan.Path.Contains(value: "Test0.", comparisonType: StringComparison.Ordinal) &&
-            expected.Path.Contains(value: "Test.", comparisonType: StringComparison.Ordinal),
-            $"Expected diagnostic to be in file \"{expected.Path}\" was actually in file \"{actualSpan.Path}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, diagnostic)}\r\n");
+        Assert.True(StringComparer.Ordinal.Equals(x: actualSpan.Path, y: expected.Path) || actualSpan.Path.Contains(value: "Test0.", comparisonType: StringComparison.Ordinal) &&
+                    expected.Path.Contains(value: "Test.", comparisonType: StringComparison.Ordinal),
+                    $"Expected diagnostic to be in file \"{expected.Path}\" was actually in file \"{actualSpan.Path}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer: analyzer, diagnostic)}\r\n");
 
         LinePosition actualLinePosition = actualSpan.StartLinePosition;
 
