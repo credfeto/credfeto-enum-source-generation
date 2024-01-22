@@ -13,7 +13,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated SmartAnalyzers.CSharpExtensions.Annotations to 4.2.9
 - Dependencies - Updated TeamCity.VSTest.TestAdapter to 1.0.39
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.5.0
-- Dependencies - Updated SonarAnalyzer.CSharp to 9.16.0.82469
 - Dependencies - Updated xunit.runner.visualstudio to 2.5.6
 - Dependencies - Updated Nullable.Extended.Analyzer to 1.15.6169
 - SDK - Updated DotNet SDK to 8.0.101
@@ -24,6 +23,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit to 2.6.6
 - Dependencies - Updated BenchmarkDotNet to 0.13.12
 - Dependencies - Updated FunFair.Test.Common to 6.1.39.333
+- Dependencies - Updated SonarAnalyzer.CSharp to 9.17.0.82934
 ### Removed
 ### Deployment Changes
 
