@@ -1,4 +1,4 @@
-name: "Dependabot: Approve actions updates in template repos"
+name: "Dependabot: Approve updates"
 on:
   # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
   # could and should work, at least for public repos;
@@ -15,7 +15,7 @@ on:
     - main
 
 jobs:
-  enable-auto-merge:
+  enable-auto-merge-github-actions:
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
       startsWith(github.head_ref, 'dependabot/github_actions/')
@@ -42,9 +42,36 @@ jobs:
         github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
         merge-method: "MERGE"
 
-  auto_approve_dependabot:
+  enable-auto-merge-npm:
     if: |-
-      endsWith(github.repository, '-template') &&
+      vars.DEPENDABOT_AUTOMERGE == 'true' &&
+      startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
+
+    steps:
+      - name: "Initialise Workspace"
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Check Repo Owner"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Owner: ${{github.repository_owner}}');
+      - name: "Auto Merge"
+        uses: alexwilson/enable-github-automerge-action@1.0.0
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          merge-method: "MERGE"
+
+  auto_approve_gitub_actions:
+    if: |-
+      vars.DEPENDABOT_AUTOMERGE == 'true' &&
       startsWith(github.head_ref, 'dependabot/github_actions/')
     runs-on: ubuntu-latest
 
@@ -65,4 +92,28 @@ jobs:
       uses: hmarr/auto-approve-action@v3
       with:
         github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+
+  auto_approve_gitub_npm:
+    if: |-
+      vars.DEPENDABOT_AUTOMERGE == 'true' &&
+      startsWith(github.head_ref, 'dependabot/github_actions/')
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: "Initialise Workspace"
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Check Repo Owner"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Owner: ${{github.repository_owner}}');
+      - name: "Approve"
+        uses: hmarr/auto-approve-action@v3
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
