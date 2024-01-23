@@ -25,7 +25,7 @@ on:
 jobs:
   auto_merge_dependabot:
     if: |-
-      endsWith(github.repository, '-template') &&
+      vars.DEPENDABOT_AUTOMERGE == 'true' &&
       startsWith(github.head_ref, 'dependabot/github_actions/')
     runs-on: ubuntu-latest
 
