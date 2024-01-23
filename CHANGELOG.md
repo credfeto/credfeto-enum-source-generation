@@ -17,13 +17,13 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Nullable.Extended.Analyzer to 1.15.6169
 - SDK - Updated DotNet SDK to 8.0.101
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.6.239
-- Dependencies - Updated Meziantou.Analyzer to 2.0.136
 - Dependencies - Updated Roslynator.Analyzers to 4.9.0
 - Dependencies - Updated xunit.analyzers to 1.10.0
 - Dependencies - Updated xunit to 2.6.6
 - Dependencies - Updated BenchmarkDotNet to 0.13.12
 - Dependencies - Updated FunFair.Test.Common to 6.1.39.333
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.17.0.82934
+- Dependencies - Updated Meziantou.Analyzer to 2.0.138
 ### Removed
 ### Deployment Changes
 
