@@ -87,6 +87,6 @@ jobs:
           MERGE_REQUIRED_APPROVALS: 1
           MERGE_DELETE_BRANCH: true
           MERGE_FORKS: false
-          MERGE_LABELS: github-actions
+          MERGE_LABELS: npm
           UPDATE_RETRIES: 10
 
