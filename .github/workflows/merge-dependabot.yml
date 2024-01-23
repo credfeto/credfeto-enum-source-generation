@@ -1,4 +1,4 @@
-name: "Dependabot: Merge actions updates in template repos"
+name: "Dependabot: Merge updates"
 on:
   # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
   # could and should work, at least for public repos;
@@ -23,7 +23,7 @@ on:
   status: { }
 
 jobs:
-  auto_merge_dependabot:
+  auto-merge-github-actions:
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
       startsWith(github.head_ref, 'dependabot/github_actions/')
@@ -35,6 +35,39 @@ jobs:
 
     # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
 
+    steps:
+      - name: "Initialise Workspace"
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Check Owner"
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            core.info('Owner: ${{github.repository_owner}}');
+      - name: "Auto-Merge"
+        if: github.repository_owner == 'funfair-tech'
+        uses: pascalgn/automerge-action@v0.16.2
+        env:
+          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
+          MERGE_METHOD: merge
+          MERGE_COMMIT_MESSAGE: pull-request-title-and-description
+          MERGE_REQUIRED_APPROVALS: 1
+          MERGE_DELETE_BRANCH: true
+          MERGE_FORKS: false
+          MERGE_LABELS: github-actions
+          UPDATE_RETRIES: 10
+
+  auto-merge-npm:
+    if: |-
+      vars.DEPENDABOT_AUTOMERGE == 'true' &&
+      startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
     steps:
       - name: "Initialise Workspace"
         shell: bash
