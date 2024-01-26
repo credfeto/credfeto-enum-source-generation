@@ -23,7 +23,7 @@ on:
   status: { }
 
 jobs:
-  auto-merge-github-actions:
+  auto-merge-dependabot-github-actions:
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
       startsWith(github.head_ref, 'dependabot/github_actions/')
@@ -56,4 +56,3 @@ jobs:
           MERGE_FORKS: false
           MERGE_LABELS: github-actions
           UPDATE_RETRIES: 10
-
