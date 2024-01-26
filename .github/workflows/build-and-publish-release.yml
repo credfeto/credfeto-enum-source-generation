@@ -93,4 +93,3 @@ jobs:
           script: |
             core.info('Version: \u001b[38;5;6m${{env.BUILD_VERSION}}');
             core.notice('Version: ${{env.BUILD_VERSION}}');
-
