@@ -139,4 +139,3 @@ jobs:
           configuration-path: .github/labeler.yml
           sync-labels: true
           pr-number: ${{steps.open-pr.outputs.pr_number}}
-
