@@ -69,7 +69,7 @@ jobs:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           merge-method: "MERGE"
 
-  auto_approve_gitub_actions:
+  auto-approve-dependabot-gitub-actions:
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
       startsWith(github.head_ref, 'dependabot/github_actions/')
@@ -93,10 +93,10 @@ jobs:
       with:
         github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
-  auto_approve_gitub_npm:
+  auto-approve-dependabot-npm:
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
-      startsWith(github.head_ref, 'dependabot/github_actions/')
+      startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
     runs-on: ubuntu-latest
 
     permissions:
@@ -116,4 +116,3 @@ jobs:
         uses: hmarr/auto-approve-action@v3
         with:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-
