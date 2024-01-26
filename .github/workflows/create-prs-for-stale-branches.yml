@@ -240,4 +240,3 @@ jobs:
             core.info('Ahead: ${{steps.aheadbehind.outputs.ahead}}');
             core.info('Behind: ${{steps.aheadbehind.outputs.behind}}');
             core.info('Last Commit: ${{steps.aheadbehind.outputs.dayssinceupdate}} days ago');
-
