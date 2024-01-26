@@ -24,4 +24,3 @@ jobs:
         uses: bbeesley/gha-auto-dependabot-rebase@v1.3.345
         env:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-
