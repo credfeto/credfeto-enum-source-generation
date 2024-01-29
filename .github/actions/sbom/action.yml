@@ -1,0 +1,60 @@
+--- # Software Bill of Materials (SBOM) Action
+name: 'Run Software Bill of Materials'
+description: 'Software Bill of materials'
+inputs:
+  # GENERAL
+  REPO_VISIBILITY:
+    description: 'Visibility of the repo'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Create SBOM"
+      shell: bash
+      run: echo "Create SBOM..."
+
+    - name: "Create SBOM"
+      uses: anchore/sbom-action@v0.15.6
+      with:
+        format: spdx-json
+        output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
+
+    - name: "Create SBOM"
+      shell: bash
+      run: |
+        echo "Output ${{ github.event.repository.name }}-sbom.spdx.json"
+        ls "${{ github.event.repository.name }}-sbom.spdx.json"
+
+    - name: "Scan SBOM (public Repo)"
+      if: inputs.REPO_VISIBILITY == 'public'
+      uses: anchore/scan-action@v3.6.1
+      id: sbom
+      with:
+        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
+        fail-build: false
+        output-format: sarif
+        only-fixed: true
+        add-cpes-if-none: false
+        by-cve: false
+
+    - name: "Copy SBOM to sarif (public Repo)"
+      if: |-
+        inputs.REPO_VISIBILITY == 'public' &&
+        steps.sbom.outputs.sarif != ''
+      shell: bash
+      run: |
+        echo "SBOM: ${{ steps.sbom.outputs.sarif }}"
+        cp "${{ steps.sbom.outputs.sarif }}" "${{ github.workspace }}/results/${{ github.event.repository.name }}-sbom.sarif"
+        cat "${{ steps.sbom.outputs.sarif }}"
+
+    - name: "Scan SBOM (private repo)"
+      uses: anchore/scan-action@v3.6.1
+      if: always()
+      with:
+        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
+        fail-build: false
+        output-format: table
+        only-fixed: true
+        add-cpes-if-none: false
+        by-cve: false
