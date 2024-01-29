@@ -163,7 +163,7 @@ jobs:
           && steps.aheadbehind.outputs.ahead != 0
           && steps.aheadbehind.outputs.dayssinceupdate > 7
         id: pr-template
-        uses: juliangruber/read-file-action@v1.1.6
+        uses: juliangruber/read-file-action@v1.1.7
         with:
           path: ./.github/PULL_REQUEST_TEMPLATE.md
 
