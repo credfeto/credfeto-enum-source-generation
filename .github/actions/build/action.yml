@@ -152,7 +152,7 @@ runs:
         core.info('NPM_EXIST: ${{steps.check_files.outputs.NPM_EXIST}}');
         core.info('NPM_SIGNING_EXIST: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}');
 
-  - name: "Dotnet: Prepare build"
+  - name: "Prepare build Results folder"
     working-directory: ${{github.workspace}}
     shell: bash
     run: |
@@ -424,6 +424,15 @@ runs:
       prerelease: false
       generateReleaseNotes: true
       token: ${{inputs.GITHUB_TOKEN}}
+
+  ############################################################################################################
+  # Software Bill of materials
+  ############################################################################################################
+  - name: "Software Bill of materials"
+    if: steps.build_tools.outputs.BUILD_ENV == 'true'
+    uses: ./.github/actions/sbom
+    with:
+      REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
 
   ############################################################################################################
   # Upload Sarif files to GitHub
