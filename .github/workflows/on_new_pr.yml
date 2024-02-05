@@ -37,6 +37,6 @@ jobs:
 
     if: contains(github.event.pull_request.labels.*.name, 'dependencies')
     steps:
-    - uses: hmarr/auto-approve-action@v3
+    - uses: hmarr/auto-approve-action@v4
       with:
         github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
