@@ -89,7 +89,7 @@ jobs:
         script: |
           core.info('Owner: ${{github.repository_owner}}');
     - name: "Approve"
-      uses: hmarr/auto-approve-action@v3
+      uses: hmarr/auto-approve-action@v4
       with:
         github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
@@ -113,6 +113,6 @@ jobs:
           script: |
             core.info('Owner: ${{github.repository_owner}}');
       - name: "Approve"
-        uses: hmarr/auto-approve-action@v3
+        uses: hmarr/auto-approve-action@v4
         with:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
