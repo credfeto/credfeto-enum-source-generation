@@ -204,6 +204,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      MSBUILDTERMINALLOGGER: "true"
 
   - name: "Deploy check - Default"
     shell: bash
@@ -261,6 +262,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
+      MSBUILDTERMINALLOGGER: "true"
 
   - name: "Read Release Notes"
     if: steps.build_tools.outputs.BUILD_ENV == 'true'
