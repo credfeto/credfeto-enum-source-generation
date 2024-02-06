@@ -89,7 +89,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "true"
+      MSBUILDTERMINALLOGGER: "auto"
 
   - name: "Dotnet: Build (Non-Release)"
     working-directory: ${{github.workspace}}/src
@@ -105,7 +105,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "true"
+      MSBUILDTERMINALLOGGER: "auto"
 
   ## RUN TESTS
   - name: "Dotnet: Test"
@@ -122,7 +122,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "true"
+      MSBUILDTERMINALLOGGER: "auto"
 
   # ############################################################################################################
   # # DATABASE BUILD
@@ -189,7 +189,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "true"
+      MSBUILDTERMINALLOGGER: "auto"
 
   - name: "Dotnet: Copy packed to dist"
     if: inputs.NUGET_PACK == 'true'
@@ -217,7 +217,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "true"
+      MSBUILDTERMINALLOGGER: "auto"
 
   - name: "Dotnet: Publish Packages to Nuget (With separate symbol feed)"
     if: |-
@@ -236,7 +236,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "true"
+      MSBUILDTERMINALLOGGER: "auto"
 
   - name: "Dotnet: Publish Packages Generate Sleet Config"
     if: |-
@@ -265,4 +265,4 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "true"
+      MSBUILDTERMINALLOGGER: "auto"
