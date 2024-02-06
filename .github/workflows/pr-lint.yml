@@ -103,7 +103,7 @@ jobs:
           DOTNET_ReadyToRun: "0"
           DOTNET_TC_QuickJitForLoops: "1"
           DOTNET_TieredPGO: "1"
-          MSBUILDTERMINALLOGGER: "true"
+          MSBUILDTERMINALLOGGER: "auto"
         with:
           dotnet-version: |
             6.0.*
@@ -149,7 +149,7 @@ jobs:
           DOTNET_ReadyToRun: "0"
           DOTNET_TC_QuickJitForLoops: "1"
           DOTNET_TieredPGO: "1"
-          MSBUILDTERMINALLOGGER: "true"
+          MSBUILDTERMINALLOGGER: "auto"
       - name: "Install Changelog tool"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         uses: ./.github/actions/dotnet-tool
@@ -168,7 +168,7 @@ jobs:
           DOTNET_ReadyToRun: "0"
           DOTNET_TC_QuickJitForLoops: "1"
           DOTNET_TieredPGO: "1"
-          MSBUILDTERMINALLOGGER: "true"
+          MSBUILDTERMINALLOGGER: "auto"
 
   does-not-contain-secrets:
     if: github.event.pull_request.draft == false
