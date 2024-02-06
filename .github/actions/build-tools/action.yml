@@ -53,7 +53,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "true"
+      MSBUILDTERMINALLOGGER: "auto"
     with:
       dotnet-version: |
           6.0.*
@@ -85,7 +85,7 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "true"
+      MSBUILDTERMINALLOGGER: "auto"
 
   - name: "Install Sleet package management tool"
     uses: ./.github/actions/dotnet-tool
@@ -114,4 +114,4 @@ runs:
       DOTNET_ReadyToRun: "0"
       DOTNET_TC_QuickJitForLoops: "1"
       DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "true"
+      MSBUILDTERMINALLOGGER: "auto"
