@@ -49,12 +49,7 @@ public static class EnumSourceGenerator
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source)
     {
-        return AddUsingDeclarations(source: source,
-                                    "System",
-                                    "System.CodeDom.Compiler",
-                                    "System.Diagnostics",
-                                    "System.Diagnostics.CodeAnalysis",
-                                    "System.Runtime.CompilerServices");
+        return AddUsingDeclarations(source: source, "System", "System.CodeDom.Compiler", "System.Diagnostics", "System.Diagnostics.CodeAnalysis", "System.Runtime.CompilerServices");
     }
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source, params string[] namespaces)
@@ -165,8 +160,7 @@ public static class EnumSourceGenerator
             {
                 using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
                 {
-                    members.Aggregate(seed: source,
-                                      func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
+                    members.Aggregate(seed: source, func: (current, memberName) => current.AppendLine(className + "." + memberName + " => nameof(" + className + "." + memberName + "),"))
                            .AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
                 }
             }
@@ -232,7 +226,7 @@ public static class EnumSourceGenerator
 
             if (items.Count == 0)
             {
-                source.AppendLine("return GetName(value);");
+                source.AppendLine("return " + GET_NAME_METHOD_NAME + "(value);");
             }
             else
             {
@@ -261,10 +255,7 @@ public static class EnumSourceGenerator
                               .Select(item => (item.member, typedConstant: item.description.ConstructorArguments.FirstOrDefault()))
                               .Select(item => (item.member, attributeText: ((TypedConstant?)item.typedConstant).Value.ToCSharpString()))
                               .Where(item => !string.IsNullOrWhiteSpace(item.attributeText))
-                              .Select(item => FormatMember(enumDeclaration: enumDeclaration,
-                                                           classNameFormatter: classNameFormatter,
-                                                           member: item.member,
-                                                           attributeText: item.attributeText))
+                              .Select(item => FormatMember(enumDeclaration: enumDeclaration, classNameFormatter: classNameFormatter, member: item.member, attributeText: item.attributeText))
                               .ToArray();
 
         static (IFieldSymbol member, AttributeData description) EnsureNotNullDescription((IFieldSymbol member, AttributeData? description) item)
