@@ -129,51 +129,42 @@ internal static class SyntaxExtractor
 
     public static EnumGeneration? ExtractEnum(in GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax, CancellationToken cancellationToken)
     {
-        try
+        if (context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax, cancellationToken: CancellationToken.None) is not INamedTypeSymbol enumSymbol)
         {
-            if (context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax, cancellationToken: CancellationToken.None) is not INamedTypeSymbol enumSymbol)
-            {
-                return null;
-            }
-
-            if (enumSymbol.HasObsoleteAttribute())
-            {
-                // no point in generating code for obsolete enums
-                return null;
-            }
-
-            AccessType accessType = enumDeclarationSyntax.GetAccessType();
-
-            if (accessType == AccessType.PRIVATE)
-            {
-                // skip privates
-                return null;
-            }
-
-            List<IFieldSymbol> members = [];
-
-            foreach (EnumMemberDeclarationSyntax member in enumDeclarationSyntax.Members)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (context.SemanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: CancellationToken.None) is IFieldSymbol fieldSymbol)
-                {
-                    members.Add(item: fieldSymbol);
-                }
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
-
-            return new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation(), options: options);
-        }
-        catch (Exception exception)
-        {
-            ReportException(location: enumDeclarationSyntax.GetLocation(), context, exception: exception);
-
             return null;
         }
+
+        if (enumSymbol.HasObsoleteAttribute())
+        {
+            // no point in generating code for obsolete enums
+            return null;
+        }
+
+        AccessType accessType = enumDeclarationSyntax.GetAccessType();
+
+        if (accessType == AccessType.PRIVATE)
+        {
+            // skip privates
+            return null;
+        }
+
+        List<IFieldSymbol> members = [];
+
+        foreach (EnumMemberDeclarationSyntax member in enumDeclarationSyntax.Members)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (context.SemanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: CancellationToken.None) is IFieldSymbol fieldSymbol)
+            {
+                members.Add(item: fieldSymbol);
+            }
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
+
+        return new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation(), options: options);
     }
 
     private static GenerationOptions DetectGenerationOptions(in GeneratorSyntaxContext context, CancellationToken cancellationToken)
