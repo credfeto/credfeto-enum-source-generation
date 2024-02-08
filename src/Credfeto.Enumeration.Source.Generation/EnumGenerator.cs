@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Credfeto.Enumeration.Source.Generation.Builders;
 using Credfeto.Enumeration.Source.Generation.Models;
 using Credfeto.Enumeration.Source.Generation.Receivers;
@@ -48,12 +49,19 @@ public sealed class EnumGenerator : IIncrementalGenerator
             return;
         }
 
-        string className = EnumSourceGenerator.GenerateClassForClass(classDeclaration: classEnumGeneration.Value,
-                                                                     hasDoesNotReturn: false,
-                                                                     supportsUnreachableException: false,
-                                                                     out CodeBuilder? codeBuilder);
+        try
+        {
+            string className = EnumSourceGenerator.GenerateClassForClass(classDeclaration: classEnumGeneration.Value,
+                                                                         hasDoesNotReturn: false,
+                                                                         supportsUnreachableException: false,
+                                                                         out CodeBuilder? codeBuilder);
 
-        sourceProductionContext.AddSource(classEnumGeneration.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
+            sourceProductionContext.AddSource(classEnumGeneration.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
+        }
+        catch (Exception exception)
+        {
+            ReportException(location: classEnumGeneration.Value.Location, context: sourceProductionContext, exception: exception);
+        }
     }
 
     private static void GenerateEnums(SourceProductionContext sourceProductionContext, EnumGeneration? enumGeneration)
@@ -63,8 +71,27 @@ public sealed class EnumGenerator : IIncrementalGenerator
             return;
         }
 
-        string className = EnumSourceGenerator.GenerateClassForEnum(enumDeclaration: enumGeneration.Value, out CodeBuilder codeBuilder);
+        try
+        {
 
-        sourceProductionContext.AddSource(enumGeneration.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
+            string className = EnumSourceGenerator.GenerateClassForEnum(enumDeclaration: enumGeneration.Value, out CodeBuilder codeBuilder);
+
+            sourceProductionContext.AddSource(enumGeneration.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
+        }
+        catch (Exception exception)
+        {
+            ReportException(location: enumGeneration.Value.Location, context: sourceProductionContext, exception: exception);
+        }
+    }
+
+    private static void ReportException(Location location, in SourceProductionContext context, Exception exception)
+    {
+        context.ReportDiagnostic(diagnostic: Diagnostic.Create(new(id: "ENUM002",
+                                                                   title: "Unhandled Exception",
+                                                                   exception.Message + ' ' + exception.StackTrace,
+                                                                   category: "Credfeto.Enum.Source.Generation",
+                                                                   defaultSeverity: DiagnosticSeverity.Error,
+                                                                   isEnabledByDefault: true),
+                                                               location: location));
     }
 }
