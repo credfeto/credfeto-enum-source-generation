@@ -49,11 +49,7 @@ internal static class SyntaxExtractor
 
         if (context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None) is INamedTypeSymbol classSymbol)
         {
-            return new(accessType: accessType,
-                       name: classSymbol.Name,
-                       classSymbol.ContainingNamespace.ToDisplayString(),
-                       enums: attributesForGeneration,
-                       classDeclarationSyntax.GetLocation());
+            return new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration, classDeclarationSyntax.GetLocation());
         }
 
         return null;
@@ -82,7 +78,7 @@ internal static class SyntaxExtractor
                 continue;
             }
 
-            if(item.ConstructorArguments.Length != 1)
+            if (item.ConstructorArguments.Length != 1)
             {
                 continue;
             }
@@ -133,47 +129,51 @@ internal static class SyntaxExtractor
 
     public static EnumGeneration? ExtractEnum(in GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax, CancellationToken cancellationToken)
     {
-        if (context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax, cancellationToken: CancellationToken.None) is not INamedTypeSymbol enumSymbol)
+        try
         {
-            return null;
-        }
+            if (context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax, cancellationToken: CancellationToken.None) is not INamedTypeSymbol enumSymbol)
+            {
+                return null;
+            }
 
-        if (enumSymbol.HasObsoleteAttribute())
-        {
-            // no point in generating code for obsolete enums
-            return null;
-        }
+            if (enumSymbol.HasObsoleteAttribute())
+            {
+                // no point in generating code for obsolete enums
+                return null;
+            }
 
-        AccessType accessType = enumDeclarationSyntax.GetAccessType();
+            AccessType accessType = enumDeclarationSyntax.GetAccessType();
 
-        if (accessType == AccessType.PRIVATE)
-        {
-            // skip privates
-            return null;
-        }
+            if (accessType == AccessType.PRIVATE)
+            {
+                // skip privates
+                return null;
+            }
 
-        List<IFieldSymbol> members = [];
+            List<IFieldSymbol> members = [];
 
-        foreach (EnumMemberDeclarationSyntax member in enumDeclarationSyntax.Members)
-        {
+            foreach (EnumMemberDeclarationSyntax member in enumDeclarationSyntax.Members)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (context.SemanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: CancellationToken.None) is IFieldSymbol fieldSymbol)
+                {
+                    members.Add(item: fieldSymbol);
+                }
+            }
+
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (context.SemanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: CancellationToken.None) is IFieldSymbol fieldSymbol)
-            {
-                members.Add(item: fieldSymbol);
-            }
+            GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
+
+            return new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation(), options: options);
         }
+        catch (Exception exception)
+        {
+            ReportException(location: enumDeclarationSyntax.GetLocation(), context, exception: exception);
 
-        cancellationToken.ThrowIfCancellationRequested();
-
-        GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
-
-        return new(accessType: accessType,
-                   name: enumSymbol.Name,
-                   enumSymbol.ContainingNamespace.ToDisplayString(),
-                   members: members,
-                   enumDeclarationSyntax.GetLocation(),
-                   options: options);
+            return null;
+        }
     }
 
     private static GenerationOptions DetectGenerationOptions(in GeneratorSyntaxContext context, CancellationToken cancellationToken)

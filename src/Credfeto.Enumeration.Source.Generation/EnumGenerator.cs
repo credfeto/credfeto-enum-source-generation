@@ -18,69 +18,108 @@ public sealed class EnumGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(ExtractClasses(context), action: GenerateClasses);
     }
 
-    private static IncrementalValuesProvider<ClassEnumGeneration?> ExtractClasses(in IncrementalGeneratorInitializationContext context)
+    private static IncrementalValuesProvider<(ClassEnumGeneration? classInfo, ErrorInfo? errorInfo)> ExtractClasses(in IncrementalGeneratorInitializationContext context)
     {
         return context.SyntaxProvider.CreateSyntaxProvider(predicate: static (n, _) => n is ClassDeclarationSyntax, transform: GetClassDetails);
     }
 
-    private static IncrementalValuesProvider<EnumGeneration?> ExtractEnums(in IncrementalGeneratorInitializationContext context)
+    private static IncrementalValuesProvider<(EnumGeneration? enumInfo, ErrorInfo? errorInfo)> ExtractEnums(in IncrementalGeneratorInitializationContext context)
     {
         return context.SyntaxProvider.CreateSyntaxProvider(predicate: static (n, _) => n is EnumDeclarationSyntax, transform: GetEnumDetails);
     }
 
-    private static ClassEnumGeneration? GetClassDetails(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
+    private static (ClassEnumGeneration? classInfo, ErrorInfo? errorInfo) GetClassDetails(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
     {
-        return generatorSyntaxContext.Node is ClassDeclarationSyntax classDeclarationSyntax
-            ? SyntaxExtractor.ExtractClass(context: generatorSyntaxContext, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: cancellationToken)
-            : null;
+        if (generatorSyntaxContext.Node is ClassDeclarationSyntax classDeclarationSyntax)
+        {
+            try
+            {
+                ClassEnumGeneration? classInfo = SyntaxExtractor.ExtractClass(context: generatorSyntaxContext, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: cancellationToken);
+
+                return (classInfo, null);
+            }
+            catch (Exception exception)
+            {
+                return (null, new ErrorInfo(classDeclarationSyntax.GetLocation(), exception: exception));
+            }
+        }
+
+        return (null, null);
     }
 
-    private static EnumGeneration? GetEnumDetails(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
+    private static (EnumGeneration? enumInfo, ErrorInfo? errorInfo) GetEnumDetails(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
     {
-        return generatorSyntaxContext.Node is EnumDeclarationSyntax enumDeclarationSyntax
-            ? SyntaxExtractor.ExtractEnum(context: generatorSyntaxContext, enumDeclarationSyntax: enumDeclarationSyntax, cancellationToken: cancellationToken)
-            : null;
+        if (generatorSyntaxContext.Node is EnumDeclarationSyntax enumDeclarationSyntax)
+        {
+            try
+            {
+                EnumGeneration? enumInfo = SyntaxExtractor.ExtractEnum(context: generatorSyntaxContext, enumDeclarationSyntax: enumDeclarationSyntax, cancellationToken: cancellationToken);
+
+                return (enumInfo, null);
+            }
+            catch (Exception exception)
+            {
+                return (null, new ErrorInfo(enumDeclarationSyntax.GetLocation(), exception: exception));
+            }
+        }
+
+        return (null, null);
     }
 
-    private static void GenerateClasses(SourceProductionContext sourceProductionContext, ClassEnumGeneration? classEnumGeneration)
+    private static void GenerateClasses(SourceProductionContext sourceProductionContext, (ClassEnumGeneration? classInfo, ErrorInfo? errorInfo) classEnumGeneration)
     {
-        if (classEnumGeneration is null)
+        if (classEnumGeneration.errorInfo is not null)
+        {
+            ErrorInfo ei = classEnumGeneration.errorInfo.Value;
+            ReportException(location: ei.Location, context: sourceProductionContext, exception: ei.Exception);
+
+            return;
+        }
+
+        if (classEnumGeneration.classInfo is null)
         {
             return;
         }
 
         try
         {
-            string className = EnumSourceGenerator.GenerateClassForClass(classDeclaration: classEnumGeneration.Value,
+            string className = EnumSourceGenerator.GenerateClassForClass(classDeclaration: classEnumGeneration.classInfo.Value,
                                                                          hasDoesNotReturn: false,
                                                                          supportsUnreachableException: false,
                                                                          out CodeBuilder? codeBuilder);
 
-            sourceProductionContext.AddSource(classEnumGeneration.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
+            sourceProductionContext.AddSource(classEnumGeneration.classInfo.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
         }
         catch (Exception exception)
         {
-            ReportException(location: classEnumGeneration.Value.Location, context: sourceProductionContext, exception: exception);
+            ReportException(location: classEnumGeneration.classInfo.Value.Location, context: sourceProductionContext, exception: exception);
         }
     }
 
-    private static void GenerateEnums(SourceProductionContext sourceProductionContext, EnumGeneration? enumGeneration)
+    private static void GenerateEnums(SourceProductionContext sourceProductionContext, (EnumGeneration? enumInfo, ErrorInfo? errorInfo) enumGeneration)
     {
-        if (enumGeneration is null)
+        if (enumGeneration.errorInfo is not null)
+        {
+            ErrorInfo ei = enumGeneration.errorInfo.Value;
+            ReportException(location: ei.Location, context: sourceProductionContext, exception: ei.Exception);
+
+            return;
+        }
+
+        if (enumGeneration.enumInfo is null)
         {
             return;
         }
 
         try
         {
+            string className = EnumSourceGenerator.GenerateClassForEnum(enumDeclaration: enumGeneration.enumInfo.Value, out CodeBuilder codeBuilder);
 
-            string className = EnumSourceGenerator.GenerateClassForEnum(enumDeclaration: enumGeneration.Value, out CodeBuilder codeBuilder);
-
-            sourceProductionContext.AddSource(enumGeneration.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
+            sourceProductionContext.AddSource(enumGeneration.enumInfo.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
         }
         catch (Exception exception)
         {
-            ReportException(location: enumGeneration.Value.Location, context: sourceProductionContext, exception: exception);
+            ReportException(location: enumGeneration.enumInfo.Value.Location, context: sourceProductionContext, exception: exception);
         }
     }
 
