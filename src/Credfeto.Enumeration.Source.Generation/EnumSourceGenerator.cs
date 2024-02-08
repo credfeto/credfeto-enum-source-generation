@@ -195,30 +195,24 @@ public static class EnumSourceGenerator
         {
             IReadOnlyList<string> members = GetUniqueMemberNames(enumDeclaration: enumDeclaration, className: className);
 
-            source.AppendLine(
-                members.Count switch
-                {
-                    0 => "return false;",
-                    1 => "return value == " + members[0] + ";",
-                    _ => "return value is " + string.Join(separator: " or ", values: members) + ";"
-                });
+            source.AppendLine(members.Count switch
+            {
+                0 => "return false;",
+                1 => "return value == " + members[0] + ";",
+                _ => "return value is " + string.Join(separator: " or ", values: members) + ";"
+            });
         }
     }
 
-
-
-    private static IEnumerable<IFieldSymbol> UniqueMembers(EnumGeneration enumDeclaration)
+    private static IEnumerable<IFieldSymbol> UniqueMembers(in EnumGeneration enumDeclaration)
     {
         HashSet<string> names = UniqueEnumMemberNames(enumDeclaration);
 
-        foreach (IFieldSymbol member in enumDeclaration.Members)
-        {
-            if (IsSkipEnumValue(member: member, names: names) || member.HasObsoleteAttribute())
-            {
-                continue;
-            }
+        return enumDeclaration.Members.Where(member => !IsSkippedOrObsolete(fieldSymbol: member, names: names));
 
-            yield return member;
+        static bool IsSkippedOrObsolete(IFieldSymbol fieldSymbol, HashSet<string> names)
+        {
+            return IsSkipEnumValue(member: fieldSymbol, names: names) || fieldSymbol.HasObsoleteAttribute();
         }
     }
 
