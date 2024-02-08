@@ -34,7 +34,8 @@ public sealed class EnumGenerator : IIncrementalGenerator
         {
             try
             {
-                ClassEnumGeneration? classInfo = SyntaxExtractor.ExtractClass(context: generatorSyntaxContext, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: cancellationToken);
+                ClassEnumGeneration? classInfo =
+                    SyntaxExtractor.ExtractClass(context: generatorSyntaxContext, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: cancellationToken);
 
                 return (classInfo, null);
             }
@@ -53,7 +54,9 @@ public sealed class EnumGenerator : IIncrementalGenerator
         {
             try
             {
-                EnumGeneration? enumInfo = SyntaxExtractor.ExtractEnum(context: generatorSyntaxContext, enumDeclarationSyntax: enumDeclarationSyntax, cancellationToken: cancellationToken);
+                EnumGeneration? enumInfo = SyntaxExtractor.ExtractEnum(context: generatorSyntaxContext,
+                                                                       enumDeclarationSyntax: enumDeclarationSyntax,
+                                                                       cancellationToken: cancellationToken);
 
                 return (enumInfo, null);
             }
