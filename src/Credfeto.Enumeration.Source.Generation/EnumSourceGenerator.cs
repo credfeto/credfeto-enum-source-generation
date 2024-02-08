@@ -146,11 +146,7 @@ public static class EnumSourceGenerator
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                      .StartBlock("public static string " + GET_NAME_METHOD_NAME + "(this " + className + " value)"))
         {
-            IReadOnlyList<string> members =
-            [
-                ..UniqueMembers(enumDeclaration)
-                    .Select(member => member.Name)
-            ];
+            IReadOnlyList<string> members = GetUniqueMemberNames(enumDeclaration);
 
             if (members.Count == 0)
             {
@@ -167,6 +163,29 @@ public static class EnumSourceGenerator
         }
     }
 
+    private static IReadOnlyList<string> GetUniqueMemberNames(in EnumGeneration enumDeclaration)
+    {
+        return
+        [
+            ..UniqueMembers(enumDeclaration)
+                .Select(member => member.Name)
+        ];
+    }
+
+    private static IReadOnlyList<string> GetUniqueMemberNames(in EnumGeneration enumDeclaration, string className)
+    {
+        return
+        [
+            ..UniqueMembers(enumDeclaration)
+                .Select(member => BuildClassMemberName(className: className, member: member))
+        ];
+    }
+
+    private static string BuildClassMemberName(string className, IFieldSymbol member)
+    {
+        return className + "." + member.Name;
+    }
+
     private static void GenerateIsDefined(CodeBuilder source, in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
     {
         string className = classNameFormatter(enumDeclaration);
@@ -174,11 +193,7 @@ public static class EnumSourceGenerator
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                      .StartBlock("public static bool " + IS_DEFINED_METHOD_NAME + "(this " + className + " value)"))
         {
-            IReadOnlyList<string> members =
-            [
-                ..UniqueMembers(enumDeclaration)
-                    .Select(member => className + "." + member.Name)
-            ];
+            IReadOnlyList<string> members = GetUniqueMemberNames(enumDeclaration: enumDeclaration, className: className);
 
             switch (members.Count)
             {
@@ -199,6 +214,8 @@ public static class EnumSourceGenerator
             }
         }
     }
+
+
 
     private static IEnumerable<IFieldSymbol> UniqueMembers(EnumGeneration enumDeclaration)
     {
