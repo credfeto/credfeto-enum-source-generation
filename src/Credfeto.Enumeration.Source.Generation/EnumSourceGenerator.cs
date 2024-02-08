@@ -195,23 +195,13 @@ public static class EnumSourceGenerator
         {
             IReadOnlyList<string> members = GetUniqueMemberNames(enumDeclaration: enumDeclaration, className: className);
 
-            switch (members.Count)
-            {
-                case 0:
-                    source.AppendLine("return false;");
-
-                    break;
-                case 1:
-                    source.AppendLine("return value == " + members[0] + ";");
-
-                    break;
-                default:
+            source.AppendLine(
+                members.Count switch
                 {
-                    source.AppendLine("return value is " + string.Join(separator: " or ", values: members) + ";");
-
-                    break;
-                }
-            }
+                    0 => "return false;",
+                    1 => "return value == " + members[0] + ";",
+                    _ => "return value is " + string.Join(separator: " or ", values: members) + ";"
+                });
         }
     }
 

@@ -82,9 +82,14 @@ internal static class SyntaxExtractor
                 continue;
             }
 
+            if(item.ConstructorArguments.Length != 1)
+            {
+                continue;
+            }
+
             TypedConstant constructorArguments = item.ConstructorArguments[0];
 
-            if (constructorArguments.Kind == TypedConstantKind.Type && constructorArguments.Value is INamedTypeSymbol type)
+            if (constructorArguments is { Kind: TypedConstantKind.Type, Value: INamedTypeSymbol type })
             {
                 IReadOnlyList<IFieldSymbol> members =
                 [
