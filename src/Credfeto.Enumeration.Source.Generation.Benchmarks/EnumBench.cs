@@ -1,3 +1,4 @@
+using System.Net;
 using BenchmarkDotNet.Attributes;
 using Credfeto.Enumeration.Source.Generation.Generics;
 using Credfeto.Enumeration.Source.Generation.Models;
@@ -24,6 +25,30 @@ public abstract class EnumBench : BenchBase
     public void GetNameCachedReflection()
     {
         this.Test(ExampleEnumValues.ONE.GetNameReflectionCached());
+    }
+
+    [Benchmark]
+    public void GetName2CodeGenerated()
+    {
+        this.Test(HttpStatusCode.Accepted.GetName());
+    }
+
+    [Benchmark]
+    public void GetName2ToString()
+    {
+        this.Test(HttpStatusCode.Accepted.GetNameToString());
+    }
+
+    [Benchmark]
+    public void GetName2Reflection()
+    {
+        this.Test(HttpStatusCode.Accepted.GetNameReflection());
+    }
+
+    [Benchmark]
+    public void GetName2CachedReflection()
+    {
+        this.Test(HttpStatusCode.Accepted.GetNameReflectionCached());
     }
 
     [Benchmark]

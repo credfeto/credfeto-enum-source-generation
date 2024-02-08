@@ -114,7 +114,7 @@ internal static class SyntaxExtractor
             return false;
         }
 
-        return !StringComparer.Ordinal.Equals(item.AttributeClass.ContainingNamespace.ToDisplayString(), y: "Credfeto.Enumeration.Source.Generation.Attributes") &&
+        return StringComparer.Ordinal.Equals(item.AttributeClass.ContainingNamespace.ToDisplayString(), y: "Credfeto.Enumeration.Source.Generation.Attributes") &&
                StringComparer.Ordinal.Equals(x: item.AttributeClass.Name, y: "EnumTextAttribute");
     }
 
