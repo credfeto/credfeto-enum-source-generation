@@ -155,6 +155,7 @@ jobs:
         uses: ./.github/actions/dotnet-tool
         with:
           TOOL_NAME: Credfeto.ChangeLog.Cmd
+          TOOL_VERSION: latest
       - name: "Check Changelog"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         shell: bash
@@ -256,7 +257,7 @@ jobs:
           fetch-depth: 0
       - name: 'Dependency Review'
         if: steps.visibility.outputs.is_public == 'true'
-        uses: actions/dependency-review-action@v4.0.0
+        uses: actions/dependency-review-action@v4.1.0
 
   no-merge-commits:
     # Check that there are no merge commits in the PR
