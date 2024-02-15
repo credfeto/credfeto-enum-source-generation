@@ -182,6 +182,7 @@ runs:
     uses: ./.github/actions/dotnet-tool
     with:
       TOOL_NAME: Credfeto.Package.Push
+      TOOL_VERSION: latest
 
   - name: "Get Unique Build Number"
     if: steps.build_tools.outputs.BUILD_ENV == 'true'
