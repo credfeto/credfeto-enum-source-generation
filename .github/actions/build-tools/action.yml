@@ -90,17 +90,20 @@ runs:
   - name: "Install Sleet package management tool"
     uses: ./.github/actions/dotnet-tool
     with:
-      TOOL_NAME: Sleet
+      TOOL_NAME: sleet
+      TOOL_VERSION: latest
 
   - name: "Install Build Version Tool"
     uses: ./.github/actions/dotnet-tool
     with:
       TOOL_NAME: FunFair.BuildVersion
+      TOOL_VERSION: latest
 
   - name: "Install Changelog Tool"
     uses: ./.github/actions/dotnet-tool
     with:
       TOOL_NAME: Credfeto.Changelog.Cmd
+      TOOL_VERSION: latest
 
   - name: "Install SQLProj"
     shell: bash
