@@ -23,6 +23,7 @@ runs:
     uses: ./.github/actions/dotnet-tool
     with:
       TOOL_NAME: TSQLLint
+      TOOL_VERSION: latest
 
   - name: "SQL: Lint SQL Files"
     shell: bash
