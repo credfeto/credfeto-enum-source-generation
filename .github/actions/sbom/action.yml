@@ -28,7 +28,7 @@ runs:
 
     - name: "Scan SBOM (public Repo)"
       if: inputs.REPO_VISIBILITY == 'public'
-      uses: anchore/scan-action@v3.6.1
+      uses: anchore/scan-action@v3.6.4
       id: sbom
       with:
         sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
@@ -49,7 +49,7 @@ runs:
         cat "${{ steps.sbom.outputs.sarif }}"
 
     - name: "Scan SBOM (private repo)"
-      uses: anchore/scan-action@v3.6.1
+      uses: anchore/scan-action@v3.6.4
       if: always()
       with:
         sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
