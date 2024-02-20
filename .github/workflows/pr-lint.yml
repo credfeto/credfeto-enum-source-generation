@@ -40,7 +40,7 @@ jobs:
 #        shell: bash
 #        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 #      - name: "Checkout Source"
-#        uses: actions/checkout@v4
+#        uses: actions/checkout@v4.1.1
 #        with:
 #          fetch-depth: 0
 #      - if: |-
@@ -60,7 +60,7 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
       - if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
@@ -81,7 +81,7 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
       - name: "Get version from global.json"
@@ -179,7 +179,7 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
       - name: "Check for leaks"
@@ -201,7 +201,7 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
       - name: "Check for merge conflicts"
@@ -215,7 +215,7 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
       - name: "Check for case conflicts"
@@ -229,7 +229,7 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
       - name: "Check for ignored files"
@@ -252,7 +252,7 @@ jobs:
           token: ${{github.token}}
       - name: "Checkout Source"
         if: steps.visibility.outputs.is_public == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
       - name: 'Dependency Review'
@@ -268,7 +268,7 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
       - name: "Check for merge commits"
@@ -284,7 +284,7 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
       - name: "Checkout Source"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
       - name: "Run Linter"
