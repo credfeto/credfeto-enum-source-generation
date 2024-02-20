@@ -1,3 +1,4 @@
+--- # Reformatting MSSQL
 name: "Standardise: MSSQL Format"
 
 on:
@@ -7,6 +8,7 @@ on:
       - "hotfix/*"
     paths:
       - '**.sql'
+      - '.github/workflows/reformat-sql.yml'
 
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
@@ -29,13 +31,16 @@ jobs:
       - name: "Initialise Workspace"
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
       - name: "Checkout Source"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
           token: ${{secrets.SOURCE_PUSH_TOKEN}}
-#      - name: Reformat
-#        uses: credfeto/action-sql-format@v1.4.1
+
+      - name: "Reformat"
+        uses: credfeto/action-sql-format@v1.5.0
+
       - name: "Commit Changes"
         uses: stefanzweifel/git-auto-commit-action@v5.0.0
         with:
