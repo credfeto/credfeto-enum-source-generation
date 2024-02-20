@@ -15,7 +15,7 @@ runs:
       run: echo "Create SBOM..."
 
     - name: "Create SBOM"
-      uses: anchore/sbom-action@v0.15.6
+      uses: anchore/sbom-action@v0.15.8
       with:
         format: spdx-json
         output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
