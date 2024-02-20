@@ -246,7 +246,7 @@ runs:
 
   - name: "Install Octopus Deploy CLI"
     if: steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''
-    uses: OctopusDeploy/install-octocli@v3.0.0
+    uses: OctopusDeploy/install-octopus-cli-action@v3.1.1
     with:
       version: latest
 
