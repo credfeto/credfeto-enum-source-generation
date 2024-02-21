@@ -1,3 +1,4 @@
+--- # Linting of pull requests
 name: "PR: Lint"
 on:
   pull_request:
