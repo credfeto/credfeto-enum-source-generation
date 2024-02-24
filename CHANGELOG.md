@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated NSubstitute.Analyzers.CSharp to 1.0.17
 - SDK - Updated DotNet SDK to 8.0.201
 - Dependencies - Updated Meziantou.Analyzer to 2.0.144
+- Dependencies - Updated Roslynator.Analyzers to 4.11.0
 ### Removed
 ### Deployment Changes
 
