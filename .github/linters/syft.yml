@@ -1,0 +1,19 @@
+# suppress all output (except for the SBOM report)
+# SYFT_QUIET env var / -q flag
+quiet: false
+
+# maximum number of workers used to process the list of package catalogers in parallel
+parallelism: 1
+
+log:
+  # use structured logging
+  # SYFT_LOG_STRUCTURED env var
+  structured: false
+
+  # the log level; note: detailed logging suppress the ETUI
+  # SYFT_LOG_LEVEL env var
+  level: "error"
+
+  # location to write the log file (default is not to have a log file)
+  # SYFT_LOG_FILE env var
+  file: ""
