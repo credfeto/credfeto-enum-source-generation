@@ -3,6 +3,9 @@ name: 'Run Software Bill of Materials'
 description: 'Software Bill of materials'
 inputs:
   # GENERAL
+  GITHUB_TOKEN:
+    description: 'Github Token'
+    required: true
   REPO_VISIBILITY:
     description: 'Visibility of the repo'
     required: true
@@ -17,8 +20,10 @@ runs:
     - name: "Create SBOM"
       uses: anchore/sbom-action@v0.15.8
       with:
+        github-token: ${{inputs.GITHUB_TOKEN}}
         format: spdx-json
         output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
+        config: "${{ github.workspace }}.github/linters/syft.yml"
 
     - name: "Create SBOM"
       shell: bash
