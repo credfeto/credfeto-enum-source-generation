@@ -186,7 +186,7 @@ runs:
 
   - name: "Get Unique Build Number"
     if: steps.build_tools.outputs.BUILD_ENV == 'true'
-    uses: onyxmueller/build-tag-number@v1
+    uses: onyxmueller/build-tag-number@v1.0.3
     id: build-number
     with:
       token: ${{inputs.GITHUB_TOKEN}}
@@ -435,6 +435,7 @@ runs:
     if: steps.build_tools.outputs.BUILD_ENV == 'true'
     uses: ./.github/actions/sbom
     with:
+      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
 
   ############################################################################################################
