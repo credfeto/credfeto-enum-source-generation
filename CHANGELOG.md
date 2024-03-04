@@ -12,7 +12,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated NSubstitute.Analyzers.CSharp to 1.0.17
 - SDK - Updated DotNet SDK to 8.0.201
 - Dependencies - Updated Roslynator.Analyzers to 4.11.0
-- Dependencies - Updated SonarAnalyzer.CSharp to 9.20.0.85982
 - Dependencies - Updated xunit.analyzers to 1.11.0
 - Dependencies - Updated xunit.runner.visualstudio to 2.5.7
 - Dependencies - Updated xunit to 2.7.0
@@ -22,6 +21,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.Test.Common to 6.1.42.380
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.9.296
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.9.2
+- Dependencies - Updated SonarAnalyzer.CSharp to 9.21.0.86780
 ### Removed
 ### Deployment Changes
 
