@@ -18,10 +18,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated coverlet to 6.0.1
 - Dependencies - Updated TeamCity.VSTest.TestAdapter to 1.0.40
 - Dependencies - Updated Meziantou.Analyzer to 2.0.145
-- Dependencies - Updated FunFair.Test.Common to 6.1.42.380
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.9.296
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.9.2
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.21.0.86780
+- Dependencies - Updated FunFair.Test.Common to 6.1.44.386
 ### Removed
 ### Deployment Changes
 
