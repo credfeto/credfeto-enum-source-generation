@@ -9,6 +9,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+### Removed
+### Deployment Changes
+
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+## [1.1.3] - 2024-03-07
+### Changed
 - Dependencies - Updated NSubstitute.Analyzers.CSharp to 1.0.17
 - SDK - Updated DotNet SDK to 8.0.201
 - Dependencies - Updated Roslynator.Analyzers to 4.11.0
@@ -22,12 +30,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.9.2
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.21.0.86780
 - Dependencies - Updated FunFair.Test.Common to 6.1.44.386
-### Removed
-### Deployment Changes
 
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
 ## [1.1.2] - 2024-02-08
 ### Changed
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.8.0
