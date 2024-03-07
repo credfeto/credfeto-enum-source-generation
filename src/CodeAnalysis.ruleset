@@ -490,6 +490,8 @@
         <Rule Id="RCS1240" Action="Error"/>
         <!-- RCS1242 - Do not pass non-read-only struct by read-only reference -->
         <Rule Id="RCS1242" Action="Error"/>
+        <!-- RCS1261 - Resource can be disposed asynchronously -->
+        <Rule Id="RCS1261" Action="Error"/>
     </Rules>
     <Rules AnalyzerId="codecracker.CSharp" RuleNamespace="codecracker.CSharp">
         <!-- See https://code-cracker.github.io/diagnostics.html -->
