@@ -4,8 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Xunit;
 
-using Credfeto.Enumeration.Source.Generation.Models;
-
 namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
 
 [SuppressMessage(category: "FunFair.CodeAnalysis", checkId: "FFS0013: Test classes should be derived from TestBase", Justification = "Not in this case")]
