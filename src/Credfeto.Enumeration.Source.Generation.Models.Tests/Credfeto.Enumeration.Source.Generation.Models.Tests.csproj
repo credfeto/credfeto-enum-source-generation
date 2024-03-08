@@ -47,7 +47,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation.Models\Credfeto.Enumeration.Source.Generation.Models.csproj" />
-<!--    <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation\Credfeto.Enumeration.Source.Generation.csproj" />-->
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FunFair.Test.Common" Version="6.1.44.386" />
