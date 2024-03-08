@@ -1,11 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using FunFair.Test.Common;
 using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
 
-public sealed class EnumGetNameTests : TestBase
+[SuppressMessage(category: "FunFair.CodeAnalysis", checkId: "FFS0013: Test classes should be derived from TestBase", Justification = "Not in this case")]
+public sealed class EnumGetNameTests
 {
     [Theory]
     [InlineData(ExampleEnumValues.ZERO)]
@@ -37,7 +38,7 @@ public sealed class EnumGetNameTests : TestBase
     {
         const ExampleEnumValues unknown = (ExampleEnumValues)72;
 
-        Assert.Throws<UnreachableException>(() => unknown.GetName());
+        Assert.Throws<ArgumentOutOfRangeException>(() => unknown.GetName());
     }
 
     [Fact]

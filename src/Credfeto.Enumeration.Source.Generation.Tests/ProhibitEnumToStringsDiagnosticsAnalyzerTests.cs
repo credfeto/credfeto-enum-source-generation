@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Credfeto.Enumeration.Source.Generation.Tests.Verifiers;
 using Microsoft.CodeAnalysis;
@@ -6,6 +7,7 @@ using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Tests;
 
+[SuppressMessage(category: "FunFair.CodeAnalysis", checkId: "FFS0013: Test classes should be derived from TestBase", Justification = "Not in this case")]
 public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : DiagnosticVerifier
 {
     protected override DiagnosticAnalyzer GetCSharpDiagnosticAnalyzer()
