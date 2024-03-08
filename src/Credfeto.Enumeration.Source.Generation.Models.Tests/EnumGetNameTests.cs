@@ -1,22 +1,27 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Xunit;
+
+using Credfeto.Enumeration.Source.Generation.Models;
 
 namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
 
 [SuppressMessage(category: "FunFair.CodeAnalysis", checkId: "FFS0013: Test classes should be derived from TestBase", Justification = "Not in this case")]
 public sealed class EnumGetNameTests
 {
+
+
     [Theory]
-    [InlineData(ExampleEnumValues.ZERO)]
-    [InlineData(ExampleEnumValues.ONE)]
-    [InlineData(ExampleEnumValues.THREE)]
-    public void IsNameNameAsToString(ExampleEnumValues value)
+    [InlineData(ExampleEnumValues.ZERO, nameof(ExampleEnumValues.ZERO))]
+    [InlineData(ExampleEnumValues.ONE, nameof(ExampleEnumValues.ONE))]
+    [InlineData(ExampleEnumValues.THREE, nameof(ExampleEnumValues.THREE))]
+    public void IsNameNameAsToString(ExampleEnumValues value, string expected)
     {
         string name = value.GetName();
 
-        Assert.Equal(value.ToString(), actual: name);
+        Assert.Equal(expected, actual: name);
     }
 
     [Fact]
@@ -38,7 +43,11 @@ public sealed class EnumGetNameTests
     {
         const ExampleEnumValues unknown = (ExampleEnumValues)72;
 
+        #if NET7_0_OR_GREATER
+        Assert.Throws<UnreachableException>(() => unknown.GetName());
+        #else
         Assert.Throws<ArgumentOutOfRangeException>(() => unknown.GetName());
+        #endif
     }
 
     [Fact]
