@@ -1,12 +1,15 @@
+using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
-using FunFair.Test.Common;
 using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
 
-public sealed class EnumGetDescriptionTests : TestBase
+[SuppressMessage(category: "FunFair.CodeAnalysis", checkId: "FFS0013: Test classes should be derived from TestBase", Justification = "Not in this case")]
+public sealed class EnumGetDescriptionTests
 {
+
     [Fact]
     public void GetDescriptionForAliased()
     {
@@ -25,8 +28,11 @@ public sealed class EnumGetDescriptionTests : TestBase
     public void GetDescriptionForUnknown()
     {
         const ExampleEnumValues unknown = (ExampleEnumValues)72;
-
+#if NET7_0_OR_GREATER
         Assert.Throws<UnreachableException>(() => unknown.GetDescription());
+        #else
+        Assert.Throws<ArgumentOutOfRangeException>(() => unknown.GetDescription());
+#endif
     }
 
     [Fact]
