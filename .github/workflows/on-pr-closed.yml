@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: "Install extensions"
         run: gh extension install actions/gh-actions-cache
+        env:
+          GH_TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
 
       - name: "Cleanup"
         run: |
