@@ -131,6 +131,7 @@ updates:
   - dependency-name: "NuGet.*"
   - dependency-name: "NWebsec.AspNetCore.Middleware.*"
   - dependency-name: "Octopus.Client"
+  - dependency-name: "OxyPlot.*"
   - dependency-name: "Polly"
   - dependency-name: "Portable.BouncyCastle"
   - dependency-name: "QRCoder"
