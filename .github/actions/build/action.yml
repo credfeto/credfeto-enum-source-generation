@@ -181,6 +181,8 @@ runs:
 
   - name: "Get Unique Build Number"
     uses: ./.github/actions/build-version
+    with:
+      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
 
   - name: "Deploy check - Default"
     shell: bash
