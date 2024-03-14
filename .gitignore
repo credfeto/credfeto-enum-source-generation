@@ -365,3 +365,6 @@ src/Data
 
 ## Results
 /results
+
+# GitHub Copilot persisted chat sessions
+/copilot/chatSessions
