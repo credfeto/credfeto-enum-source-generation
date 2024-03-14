@@ -123,14 +123,9 @@ runs:
         core.info('NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}');
         core.info('NUGET_PACK: ${{inputs.NUGET_PACK}}');
 
-  - name: "Fetch tags and master"
+  - name: "Set branch"
     shell: bash
-    run: |
-      git fetch --tags
-      echo "REF: $GITHUB_REF"
-      echo "SHA: $GITHUB_SHA"
-      echo "GIT_BRANCH=$GITHUB_REF" >> "$GITHUB_ENV"
-      git branch --remote
+    run: echo "GIT_BRANCH=$GITHUB_REF" >> "$GITHUB_ENV"
 
   - name: "Check file existence"
     id: check_files
@@ -185,27 +180,7 @@ runs:
       TOOL_VERSION: latest
 
   - name: "Get Unique Build Number"
-    if: steps.build_tools.outputs.BUILD_ENV == 'true'
-    uses: onyxmueller/build-tag-number@v1.0.3
-    id: build-number
-    with:
-      token: ${{inputs.GITHUB_TOKEN}}
-      prefix: github
-
-  - if: steps.build_tools.outputs.BUILD_ENV == 'true'
-    name: "Set Define Build Version"
-    shell: bash
-    run: dotnet buildversion --BuildNumber "${{steps.build-number.outputs.build_number}}"
-    env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_MULTILEVEL_LOOKUP: "false"
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "auto"
+    uses: ./.github/actions/build-version
 
   - name: "Deploy check - Default"
     shell: bash
