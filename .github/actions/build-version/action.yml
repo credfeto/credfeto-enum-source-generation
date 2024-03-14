@@ -1,6 +1,11 @@
---- # Define build version properites
+--- # Define build version properties
 name: 'Define Build Version'
 description: 'Defines the build version properties'
+inputs:
+  # GENERAL
+  GITHUB_TOKEN:
+    description: 'Github Token'
+    required: true
 
 runs:
   using: "composite"
