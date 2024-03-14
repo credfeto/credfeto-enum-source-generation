@@ -6,15 +6,13 @@ runs:
   using: "composite"
   steps:
     - name: "Get Unique Build Number"
-      if: steps.build_tools.outputs.BUILD_ENV == 'true'
       uses: onyxmueller/build-tag-number@v1.0.3
       id: build-number
       with:
         token: ${{inputs.GITHUB_TOKEN}}
         prefix: github
 
-    - if: steps.build_tools.outputs.BUILD_ENV == 'true'
-      name: "Set Define Build Version"
+    - name: "Set Define Build Version"
       shell: bash
       run: dotnet buildversion --BuildNumber "${{steps.build-number.outputs.build_number}}"
       env:
@@ -28,8 +26,7 @@ runs:
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
 
-    - if: steps.build_tools.outputs.BUILD_ENV == 'true'
-      name: "Log build version"
+    - name: "Log build version"
       shell: bash
       run: |
         echo "****************************************************************"
