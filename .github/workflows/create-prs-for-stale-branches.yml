@@ -33,10 +33,12 @@ jobs:
       - name: "Ensure JQ is installed"
         shell: bash
         run: sudo apt install -y jq
+
       - name: "Checkout Source"
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
         with:
           fetch-depth: 0
+          fetch-tags: true
           ref: main
           repository: ${{github.repository}}
 
@@ -67,10 +69,12 @@ jobs:
       - name: "Initialise Workspace"
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
       - name: "Checkout Source"
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
         with:
           fetch-depth: 0
+          fetch-tags: true
           ref: main
           repository: ${{github.repository}}
 
