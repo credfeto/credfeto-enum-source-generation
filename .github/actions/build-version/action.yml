@@ -1,0 +1,37 @@
+--- # Define build version properites
+name: 'Define Build Version'
+description: 'Defines the build version properties'
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Get Unique Build Number"
+      if: steps.build_tools.outputs.BUILD_ENV == 'true'
+      uses: onyxmueller/build-tag-number@v1.0.3
+      id: build-number
+      with:
+        token: ${{inputs.GITHUB_TOKEN}}
+        prefix: github
+
+    - if: steps.build_tools.outputs.BUILD_ENV == 'true'
+      name: "Set Define Build Version"
+      shell: bash
+      run: dotnet buildversion --BuildNumber "${{steps.build-number.outputs.build_number}}"
+      env:
+        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_MULTILEVEL_LOOKUP: "false"
+        DOTNET_NOLOGO: "true"
+        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+        DOTNET_ReadyToRun: "0"
+        DOTNET_TC_QuickJitForLoops: "1"
+        DOTNET_TieredPGO: "1"
+        MSBUILDTERMINALLOGGER: "auto"
+
+    - if: steps.build_tools.outputs.BUILD_ENV == 'true'
+      name: "Log build version"
+      shell: bash
+      run: |
+        echo "****************************************************************"
+        echo "* Current Build: ${{env.BUILD_VERSION}}"
+        echo "****************************************************************"
