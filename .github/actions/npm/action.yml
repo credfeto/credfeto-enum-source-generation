@@ -44,6 +44,30 @@ runs:
     with:
       node-version: '20'
 
+  ####################################################################################################################
+  # DO NOT USE NPM CACHE...  As it is SLOWER than pulling the packages down npm!
+  ####################################################################################################################
+  #    - name: "Get npm cache directory"
+  #      id: npm-cache-dir
+  #      shell: bash
+  #      run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+  #
+  #    - name: "Restore npm cache"
+  #      uses: actions/cache@v4.0.0
+  #      id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
+  #      with:
+  #        path: ${{ steps.npm-cache-dir.outputs.dir }}
+  #        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+  #        restore-keys: |
+  #          ${{ runner.os }}-node-
+  #    - name: "Npm Cache Status"
+  #      uses: actions/github-script@v7.0.1
+  #      with:
+  #        script: |
+  #          core.info('Cache Hit: \u001b[38;5;6m$${{steps.npm-cache.outputs.cache-hit}}');
+  #          core.notice('Cache Hit: ${{steps.npm-cache.outputs.cache-hit}}');
+  ####################################################################################################################
+
   - name: "NPM: Install dependencies"
     working-directory: ${{github.workspace}}/src
     shell: bash
