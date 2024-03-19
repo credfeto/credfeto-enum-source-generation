@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.Test.Common to 6.1.45.389
 - SDK - Updated DotNet SDK to 8.0.202
 - Dependencies - Updated coverlet to 6.0.2
+- Dependencies - Updated Meziantou.Analyzer to 2.0.146
 ### Removed
 ### Deployment Changes
 
