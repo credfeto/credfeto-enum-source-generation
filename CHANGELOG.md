@@ -10,8 +10,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated FunFair.Test.Common to 6.1.45.389
-- SDK - Updated DotNet SDK to 8.0.202
 - Dependencies - Updated coverlet to 6.0.2
+- SDK - Updated DotNet SDK to 8.0.203
 ### Removed
 ### Deployment Changes
 
