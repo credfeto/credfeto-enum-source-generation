@@ -1,0 +1,102 @@
+--- # Create a new branch for the latest (released) dotnet version if there's an update
+name: "Repo: Update Dotnet Version to latest released version"
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/dotnet-version.yml"
+  schedule:
+    - cron: "0 1 * * *"
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  bump-dotnet-sdk-version:
+    if: endsWith(github.repository, 'funfair-server-template')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Initialise Workspace"
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{secrets.SOURCE_PUSH_TOKEN}}
+
+      - name: "Install Build tools"
+        uses: ./.github/actions/build-tools
+        with:
+          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
+          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{steps.nuget-local-cache.outputs.NUGET_BAGET_CACHE}}
+          NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED}}
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{steps.nuget-local-cache.outputs.RELEASE_BAGET_CACHE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{steps.nuget-local-cache.outputs.PRERELEASE_BAGET_CACHE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
+
+      - name: "Get latest installed dotnet version"
+        id: latest-dotnet-version
+        run: |
+          echo "LATEST_RELEASE_VERSION=$(dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort | tail -1)" >> "$GITHUB_OUTPUT"
+
+      - name: "Display latest installed dotnet version"
+        run: |
+          echo "Latest installed dotnet version: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
+          echo "Requested dotnet version: ${{env.DOTNET_VERSION}}"
+
+      - name: "Switch to version branch"
+        if: ${{env.DOTNET_VERSION}} < ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+        shell: bash
+        run: |
+          git checkout "depends/dotnet/${{env.NEW_DOTNET_VERSION}}" || git checkout -b "depends/dotnet/${{env.NEW_DOTNET_VERSION}}"
+        env:
+          NEW_DOTNET_VERSION: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+
+      - name: "Update global.json to latest version"
+        if: ${{env.DOTNET_VERSION}} < ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+        shell: bash
+        working-directory: src
+        run: |
+          echo "Should update to ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
+          mv "global.json" "global.json.tmp";
+          jq --arg v "$NEW_DOTNET_VERSION" '.sdk.version = $v' < "global.json.tmp" > "global.json";
+          [ -f "global.json.tmp" ] && rm -f "global.json.tmp"
+          cat "global.json"
+        env:
+          NEW_DOTNET_VERSION: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+
+      - name: "Push"
+        if: ${{env.DOTNET_VERSION}} < ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+        shell: bash
+        working-directory: src
+        run: |
+          git config --global user.name 'fun-version[bot]'
+          git config --global user.email 'credfeto@users.noreply.github.com'
+          git diff
+          git add "global.json"
+          git commit -m "SDK - Update DotNet SDK to $NEW_DOTNET_VERSION"
+          git push --set-upstream origin "depends/dotnet/$NEW_DOTNET_VERSION"
+        env:
+          NEW_DOTNET_VERSION: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+
+#      - name: "Commit changes to new branch"
+#        if: ${{env.DOTNET_VERSION}} < ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+#        uses: stefanzweifel/git-auto-commit-action@v5.0.0
+#        with:
+#          commit_message: "SDK - Update DotNet SDK to ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
+#          branch: "depends/dotnet/${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
+#          file_pattern: src/global.json
+#          commit_user_name: "fun-version[bot]"
+#          commit_user_email: "credfeto@users.noreply.github.com"
+#          commit_author: "fun-version[bot] <credfeto@users.noreply.github.com>"
+#          skip_dirty_check: false
