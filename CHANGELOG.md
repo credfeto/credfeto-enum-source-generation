@@ -9,13 +9,13 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated FunFair.Test.Common to 6.1.45.389
 - Dependencies - Updated coverlet to 6.0.2
 - SDK - Updated DotNet SDK to 8.0.203
 - Dependencies - Updated Meziantou.Analyzer to 2.0.146
 - Dependencies - Updated Roslynator.Analyzers to 4.12.0
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.11.311
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.22.0.87781
+- Dependencies - Updated FunFair.Test.Common to 6.1.46.400
 ### Removed
 ### Deployment Changes
 
