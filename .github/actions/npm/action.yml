@@ -1,6 +1,6 @@
 --- # Build and deploy packages
-name: 'Build and deploy'
-description: 'Builds and deploys the source'
+name: 'Build using NPM'
+description: 'Builds using NPM'
 inputs:
   # NPM
   NPM_PRODUCTION_PACKAGER_VERSION:
