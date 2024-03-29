@@ -124,6 +124,7 @@ updates:
   - dependency-name: "Microsoft.Toolkit.HighPerformance"
   - dependency-name: "MSBuild.Sdk.SqlProj"
   - dependency-name: "NBitcoin"
+  - dependency-name: "Nethereum.*"
   - dependency-name: "Newtonsoft.Json"
   - dependency-name: "Nito.AsyncEx.Coordination"
   - dependency-name: "NonBlocking"
