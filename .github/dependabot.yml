@@ -23,7 +23,8 @@ updates:
   ignore:
   - dependency-name: "AsyncFixer"
   - dependency-name: "codecracker.CSharp"
-  - dependency-name: "Credfeto.Enumeration.Source.Generation.*"
+  - dependency-name: "Credfeto.Database.*"
+  - dependency-name: "Credfeto.Enumeration.*"
   - dependency-name: "CSharpIsNullAnalyzer.*"
   - dependency-name: "DisableDateTimeNow"
   - dependency-name: "Discord.Net.Analyzers"
