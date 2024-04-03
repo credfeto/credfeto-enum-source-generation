@@ -467,6 +467,8 @@
         <Rule Id="RCS1197" Action="Error"/>
         <!-- RCS1198 - Avoid unnecessary boxing of value type -->
         <Rule Id="RCS1198" Action="None"/>
+        <!-- RCS1205 - Order named arguments according to the order of parameters -->
+        <Rule Id="RCS1205" Action="Error"/>
         <!-- RCS1214 - Unnecessary interpolated string -->
         <Rule Id="RCS1214" Action="Error"/>
         <!-- RCS1217 - Convert interpolated string to concatenation -->
