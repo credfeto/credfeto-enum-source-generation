@@ -1,4 +1,4 @@
-name: TODO
+name: "Analysis: TODO"
 
 on:
   push:
@@ -19,8 +19,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: derjuulsn/todo-issue@main
+      - name: "Harden Security"
+        uses: step-security/harden-runner@v2.7.0
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: >
+            api.github.com:443
+            api.osv.dev:443
+            api.securityscorecards.dev:443
+            codeload.github.com:443
+            fulcio.sigstore.dev:443
+            github.com:443
+            oss-fuzz-build-logs.storage.googleapis.com:443
+            rekor.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+            www.bestpractices.dev:443
+
+      - name: "Checkout code"
+        uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: "Seach for TODOS"
+        uses: derjuulsn/todo-issue@main
         with:
           excludePattern: '(node_modules/)'
           autoAssign: 'true'
