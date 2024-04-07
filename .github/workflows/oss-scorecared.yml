@@ -1,4 +1,4 @@
-name: "Scorecard analysis workflow"
+name: "Security: Scorecard analysis"
 on:
   # Only the default branch is supported.
   branch_protection_rule:
@@ -25,7 +25,7 @@ jobs:
       - name: "Harden Security"
         uses: step-security/harden-runner@v2.7.0
         with:
-          egress-policy: audit
+          egress-policy: block
           disable-sudo: true
           allowed-endpoints: >
             api.github.com:443
