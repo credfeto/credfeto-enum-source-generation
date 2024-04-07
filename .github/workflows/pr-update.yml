@@ -23,6 +23,24 @@ jobs:
       - name: "Initialise Workspace"
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Harden Security"
+        uses: step-security/harden-runner@v2.7.0
+        with:
+          egress-policy: audit
+          disable-sudo: true
+          allowed-endpoints: >
+            api.github.com:443
+            api.osv.dev:443
+            api.securityscorecards.dev:443
+            codeload.github.com:443
+            fulcio.sigstore.dev:443
+            github.com:443
+            oss-fuzz-build-logs.storage.googleapis.com:443
+            rekor.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+            www.bestpractices.dev:443
+
       - name: "Info"
         uses: actions/github-script@v7.0.1
         with:
@@ -45,7 +63,26 @@ jobs:
       - name: "Initialise Workspace"
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-      - uses: actions/labeler@v5
+
+      - name: "Harden Security"
+        uses: step-security/harden-runner@v2.7.0
+        with:
+          egress-policy: audit
+          disable-sudo: true
+          allowed-endpoints: >
+            api.github.com:443
+            api.osv.dev:443
+            api.securityscorecards.dev:443
+            codeload.github.com:443
+            fulcio.sigstore.dev:443
+            github.com:443
+            oss-fuzz-build-logs.storage.googleapis.com:443
+            rekor.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+            www.bestpractices.dev:443
+
+      - name: "Add Labels"
+        uses: actions/labeler@v5
         with:
           repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           configuration-path: .github/labeler.yml
@@ -62,6 +99,24 @@ jobs:
       - name: "Initialise Workspace"
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Harden Security"
+        uses: step-security/harden-runner@v2.7.0
+        with:
+          egress-policy: audit
+          disable-sudo: true
+          allowed-endpoints: >
+            api.github.com:443
+            api.osv.dev:443
+            api.securityscorecards.dev:443
+            codeload.github.com:443
+            fulcio.sigstore.dev:443
+            github.com:443
+            oss-fuzz-build-logs.storage.googleapis.com:443
+            rekor.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+            www.bestpractices.dev:443
+
       - name: "Assign PR to the creator"
         uses: thomaseizinger/assign-pr-creator-action@v1.0.0
         with:
