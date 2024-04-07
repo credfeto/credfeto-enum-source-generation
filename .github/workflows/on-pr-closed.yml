@@ -9,6 +9,10 @@ jobs:
   cleanup-cache:
     runs-on: ubuntu-latest
     steps:
+      - name: "Initialise Workspace"
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
       - name: "Harden Security"
         uses: step-security/harden-runner@v2.7.0
         with:
