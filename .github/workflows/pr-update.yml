@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        if: startsWith(runner.name, 'buildagent-')
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
@@ -61,6 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        if: startsWith(runner.name, 'buildagent-')
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
@@ -97,6 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
+        if: startsWith(runner.name, 'buildagent-')
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
