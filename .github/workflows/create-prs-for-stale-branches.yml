@@ -22,8 +22,10 @@ jobs:
 
     steps:
       - name: "Initialise Workspace"
+        if: startsWith(runner.name, 'buildagent-')
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
       - name: "Info"
         shell: bash
         run: |
@@ -67,6 +69,7 @@ jobs:
       REPO_STATUS: private
     steps:
       - name: "Initialise Workspace"
+        if: startsWith(runner.name, 'buildagent-')
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
