@@ -29,9 +29,28 @@ jobs:
       - name: "Harden Security"
         uses: step-security/harden-runner@v2.7.0
         with:
-          egress-policy: audit
+          egress-policy: block
           disable-sudo: true
           allowed-endpoints: >
+            aka.ms:443
+            api.github.com:443
+            api.nuget.org:443
+            azuresearch-usnc.nuget.org:443
+            crl3.digicert.com:80
+            crl4.digicert.com:80
+            dc.services.visualstudio.com:443
+            dotnet-nuget.s3.eu-west-1.amazonaws.com:443
+            dotnetcli.azureedge.net:443
+            github.com:443
+            objects.githubusercontent.com:443
+            raw.githubusercontent.com:443
+            s.symcb.com:80
+            s3-eu-west-1.amazonaws.com:443
+            toolbox-data.anchore.io:443
+            ts-crl.ws.symantec.com:80
+            www.microsoft.com:80
+            www.nuget.org:443
+            octopus.funfair.io:443
             api.github.com:443
             api.osv.dev:443
             api.securityscorecards.dev:443
@@ -42,6 +61,10 @@ jobs:
             rekor.sigstore.dev:443
             tuf-repo-cdn.sigstore.dev:443
             www.bestpractices.dev:443
+            dotnet-nuget.s3.eu-west-1.amazonaws.com:443
+
+          ## Ignore pre-release
+          ## dotnet-nuget-prerelease.s3.eu-west-1.amazonaws.com:443
 
       - name: "Checkout Source"
         uses: actions/checkout@v4.1.1
