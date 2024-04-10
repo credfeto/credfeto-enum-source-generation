@@ -65,7 +65,7 @@
     <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="All" ExcludeAssets="runtime" Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="CSharpIsNullAnalyzer" Version="0.1.495" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="FunFair.CodeAnalysis" Version="7.0.12.324" PrivateAssets="All" ExcludeAssets="runtime" />
+    <PackageReference Include="FunFair.CodeAnalysis" Version="7.0.13.341" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Meziantou.Analyzer" Version="2.0.146" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" PrivateAssets="all" ExcludeAssets="runtime">
