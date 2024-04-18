@@ -5,6 +5,7 @@ on:
     paths:
       - 'db/**/*'
       - 'src/**/*'
+      - '.editorconfig'
       - '.github/actions/**/*'
       - '.github/workflows/*'
     branches-ignore:
