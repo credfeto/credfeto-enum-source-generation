@@ -76,6 +76,12 @@ runs:
     shell: bash
     run: echo "DOTNET_RELEASE_DEFINES=/p:IsProduction=True" >> "$GITHUB_ENV"
 
+  - name: "Dotnet: Run build check (Pre-Release)"
+    if: !endsWith(github.repository, 'funfair-build-check') && !endsWith(github.repository, '-template')
+    uses: ./.github/actions/build-check
+    with:
+      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+
   - name: "Dotnet: Restore packages"
     working-directory: ${{github.workspace}}/src
     shell: bash
