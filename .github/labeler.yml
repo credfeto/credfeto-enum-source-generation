@@ -1,46 +1,46 @@
-"C#":
- - any: [ './**/*.cs', './**/*.csproj' ]
-"C# Project":
- - any: [ './**/*.csproj' ]
-"C# Solution":
- - any: [ './**/*.sln' ]
-"Powershell":
- - any: [ './**/*.ps1', './**/*.psm1' ]
-"SQL":
- - any: [ 'db/**/*', './**/*.sql' ]
-"Solidity":
- - any: [ './**/*.sol' ]
-"unit-tests":
- - any: [ 'src/*.Tests.*/**/*', 'src/*.Tests/**/*', 'src/*.Tests.Integration.*/**/*', 'src/*.Tests.Integration/**/*' ]
 ".NET update":
- - any: [ 'src/global.json' ]
-"Config Change":
- - any: [ 'src/**/*.json', '!src/global.json' ]
-"Static Code Analysis Rules":
- - any: [ 'src/CodeAnalysis.ruleset' ]
-"Migration Script":
- - any: [ 'tools/MigrationScripts/**/*' ]
-"Legal Text":
- - any: [ 'tools/LegalText/**/*' ]
+ - any: [ ''src/global.json'' ]
+"C#":
+ - any: [ ''./**/*.cs', './**/*.csproj'' ]
+"C# Project":
+ - any: [ ''./**/*.csproj'' ]
+"C# Solution":
+ - any: [ ''./**/*.sln'' ]
 "Change Log":
- - any: [ 'CHANGELOG.md' ]
-"Read Me":
- - any: [ 'README.md' ]
-"Setup":
- - any: [ 'SETUP.md' ]
-"Markdown":
- - any: [ './**/*.md' ]
+ - any: [ ''CHANGELOG.md'' ]
+"Config Change":
+ - any: [ ''src/**/*.json', '!src/global.json'' ]
+"credfeto-enumeration-source-generation":
+ - any: [ ''src/$Credfeto.Enumeration.Source.Generation/**/*'' ]
+"credfeto-enumeration-source-generation-attributes":
+ - any: [ ''src/$Credfeto.Enumeration.Source.Generation.Attributes/**/*'' ]
+"credfeto-enumeration-source-generation-benchmarks":
+ - any: [ ''src/$Credfeto.Enumeration.Source.Generation.Benchmarks/**/*'' ]
+"credfeto-enumeration-source-generation-generics":
+ - any: [ ''src/$Credfeto.Enumeration.Source.Generation.Generics/**/*'' ]
+"credfeto-enumeration-source-generation-models":
+ - any: [ ''src/$Credfeto.Enumeration.Source.Generation.Models/**/*'' ]
+"credfeto-enumeration-source-generation-models-tests":
+ - any: [ ''src/$Credfeto.Enumeration.Source.Generation.Models.Tests/**/*'' ]
 "github-actions":
- - any: [ '.github/workflows/*.yml' ]
-"Credfeto.Enumeration.Source.Generation":
- - any: [ 'src/Credfeto.Enumeration.Source.Generation/**/*' ]
-"Attributes":
- - any: [ 'src/Credfeto.Enumeration.Source.Generation.Attributes/**/*' ]
-"Benchmarks":
- - any: [ 'src/Credfeto.Enumeration.Source.Generation.Benchmarks/**/*' ]
-"Generics":
- - any: [ 'src/Credfeto.Enumeration.Source.Generation.Generics/**/*' ]
-"Models":
- - any: [ 'src/Credfeto.Enumeration.Source.Generation.Models/**/*' ]
-"Models.Tests":
- - any: [ 'src/Credfeto.Enumeration.Source.Generation.Models.Tests/**/*' ]
+ - any: [ ''.github/workflows/*.yml'' ]
+"Legal Text":
+ - any: [ ''tools/LegalText/**/*'' ]
+"Markdown":
+ - any: [ ''./**/*.md'' ]
+"Migration Script":
+ - any: [ ''tools/MigrationScripts/**/*'' ]
+"Powershell":
+ - any: [ ''./**/*.ps1', './**/*.psm1'' ]
+"Read Me":
+ - any: [ ''README.md'' ]
+"Setup":
+ - any: [ ''SETUP.md'' ]
+"Solidity":
+ - any: [ ''./**/*.sol'' ]
+"SQL":
+ - any: [ ''./**/*.sql', 'db/**/*'' ]
+"Static Code Analysis Rules":
+ - any: [ ''src/CodeAnalysis.ruleset'' ]
+"unit-tests":
+ - any: [ ''src/*.Tests.*/**/*', 'src/*.Tests.Integration.*/**/*', 'src/*.Tests.Integration/**/*', 'src/*.Tests/**/*'' ]
