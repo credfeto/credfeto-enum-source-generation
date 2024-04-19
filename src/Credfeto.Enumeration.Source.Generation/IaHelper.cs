@@ -7,6 +7,6 @@ public static class IaHelper
 {
     public static ImmutableArray<DiagnosticAnalyzer> For(DiagnosticAnalyzer analyzer)
     {
-        return ImmutableArray.Create(analyzer);
+        return [analyzer];
     }
 }
