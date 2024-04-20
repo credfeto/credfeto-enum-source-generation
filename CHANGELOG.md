@@ -9,6 +9,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+- Dependencies - Updated SmartAnalyzers.CSharpExtensions.Annotations to 4.2.11
 ### Removed
 ### Deployment Changes
 
