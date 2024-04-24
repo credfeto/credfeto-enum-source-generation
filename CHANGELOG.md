@@ -13,6 +13,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.14.369
 - Dependencies - Updated FunFair.Test.Common to 6.1.51.455
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.24.0.89429
+- Dependencies - Updated Roslynator.Analyzers to 4.12.2
 ### Removed
 ### Deployment Changes
 
