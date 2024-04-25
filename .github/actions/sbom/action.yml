@@ -18,7 +18,7 @@ runs:
       run: echo "Create SBOM..."
 
     - name: "Create SBOM"
-      uses: anchore/sbom-action@v0.15.8
+      uses: anchore/sbom-action@v0.15.10
       with:
         github-token: ${{inputs.GITHUB_TOKEN}}
         format: spdx-json
