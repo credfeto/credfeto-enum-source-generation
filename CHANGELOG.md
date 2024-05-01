@@ -18,6 +18,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit to 2.8.0
 - Dependencies - Updated Meziantou.Analyzer to 2.0.150
 - Dependencies - Updated FunFair.Test.Common to 6.1.53.472
+- Dependencies - Updated Microsoft.VisualStudio.Threading.Analyzers to 17.10.48
 ### Removed
 ### Deployment Changes
 
