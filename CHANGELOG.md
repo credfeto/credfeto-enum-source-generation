@@ -11,7 +11,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated SmartAnalyzers.CSharpExtensions.Annotations to 4.2.11
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.14.369
-- Dependencies - Updated SonarAnalyzer.CSharp to 9.24.0.89429
 - Dependencies - Updated Roslynator.Analyzers to 4.12.2
 - Dependencies - Updated xunit.analyzers to 1.13.0
 - Dependencies - Updated xunit.runner.visualstudio to 2.8.0
@@ -19,6 +18,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 2.0.150
 - Dependencies - Updated FunFair.Test.Common to 6.1.53.472
 - Dependencies - Updated Microsoft.VisualStudio.Threading.Analyzers to 17.10.48
+- Dependencies - Updated SonarAnalyzer.CSharp to 9.25.0.90414
 ### Removed
 ### Deployment Changes
 
