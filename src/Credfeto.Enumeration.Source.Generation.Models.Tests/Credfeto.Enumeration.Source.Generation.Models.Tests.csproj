@@ -50,7 +50,7 @@
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation.Models\Credfeto.Enumeration.Source.Generation.Models.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FunFair.Test.Common" Version="6.1.54.488" />
+    <PackageReference Include="FunFair.Test.Common" Version="6.1.55.490" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.40" />
