@@ -62,6 +62,7 @@ jobs:
             tuf-repo-cdn.sigstore.dev:443
             www.bestpractices.dev:443
             dotnet-nuget.s3.eu-west-1.amazonaws.com:443
+            registry-1.docker.io:443
 
           ## Ignore pre-release
           ## dotnet-nuget-prerelease.s3.eu-west-1.amazonaws.com:443
