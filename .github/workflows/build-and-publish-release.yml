@@ -87,18 +87,8 @@ jobs:
             core.info('Name: ${{runner.name}}');
             core.info('OS: ${{runner.os}}');
 
-      - name: "Enable Local nuget feeds if caching"
-        if: startsWith(runner.name, 'buildagent-')
-        id: nuget-local-cache
-        shell: bash
-        run: |
-          {
-            echo "NUGET_BAGET_CACHE=${{vars.NUGET_BAGET_CACHE}}"
-            echo "PRERELEASE_BAGET_CACHE=${{vars.PRERELEASE_BAGET_CACHE}}"
-            echo "RELEASE_BAGET_CACHE=${{vars.RELEASE_BAGET_CACHE}}"
-          }>> "$GITHUB_OUTPUT"
-
       - name: "Build and deploy"
+        if: startsWith(runner.name, 'buildagent-')
         uses: ./.github/actions/build
         with:
           PRODUCTION_BUILD: True
@@ -106,9 +96,42 @@ jobs:
           NPM_CONTENT_PACKAGE_WALLET_PASSWORD: ${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}
           NPM_PACKAGE_STORE_SIGNING_WALLET: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
           NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
-          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{steps.nuget-local-cache.outputs.NUGET_BAGET_CACHE}}
+          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{vars.NUGET_BAGET_CACHE}}
           NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{steps.nuget-local-cache.outputs.RELEASE_BAGET_CACHE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{vars.RELEASE_BAGET_CACHE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ""
+          NUGET_PACK: ${{vars.NUGET_PACK}}
+          NUGET_FEED: ${{secrets.NUGET_FEED}}
+          NUGET_SYMBOL_FEED: ${{secrets.NUGET_SYMBOL_FEED}}
+          NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
+          SLEET_CONFIG: ${{secrets.SLEET_CONFIG}}
+          SLEET_FEED: "dotnet-release"
+          OCTOPUS_SERVER: ${{vars.OCTOPUS_SERVER}}
+          OCTOPUS_SPACE_NAME: ${{vars.OCTOPUS_SPACE}}
+          OCTOPUS_PROJECT: ${{vars.OCTOPUS_PROJECT}}
+          OCTOPUS_CHANNEL: ${{vars.OCTOPUS_RELEASE_CHANNEL}}
+          OCTOPUS_DEPLOY_TO: ${{vars.OCTOPUS_DEPLOYTO_RELEASE}}
+          OCTOPUS_API_KEY: ${{secrets.OCTOPUS_API_KEY}}
+          OCTOPUS_DEPLOY_PACKAGE: ${{vars.OCTOPUS_DEPLOY_PACKAGE}}
+          OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{vars.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
+          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
+          REPO_VISIBILITY: ${{env.REPO_STATUS}}
+          CREATE_RELEASE: true
+
+      - name: "Build and deploy"
+        if: startsWith(runner.name, 'buildagent-') != true
+        uses: ./.github/actions/build
+        with:
+          PRODUCTION_BUILD: True
+          NPM_PRODUCTION_PACKAGER_VERSION: ${{vars.PRODUCTION_PACKAGER_VERSION}}
+          NPM_CONTENT_PACKAGE_WALLET_PASSWORD: ${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}
+          NPM_PACKAGE_STORE_SIGNING_WALLET: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
+          NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
+          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{vars.NUGET_BAGET_CACHE}}
+          NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED}}
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{vars.RELEASE_BAGET_CACHE}}
           NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
           NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
           NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ""
