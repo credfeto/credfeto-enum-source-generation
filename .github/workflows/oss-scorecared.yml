@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: "Harden Security"
-        uses: step-security/harden-runner@v2.7.1
+        uses: step-security/harden-runner@v2.8.0
         with:
           egress-policy: block
           disable-sudo: true
