@@ -6,13 +6,13 @@ on:
   # https://github.com/ahmadnassri/action-dependabot-auto-merge/issues/60
   pull_request_target:
     types:
-    - opened
-    - edited
-    - reopened
-    - synchronize
-    - ready_for_review
+      - opened
+      - edited
+      - reopened
+      - synchronize
+      - ready_for_review
     branches:
-    - main
+      - main
 
 jobs:
   enable-auto-merge-github-actions:
