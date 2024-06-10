@@ -28,7 +28,7 @@ jobs:
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Harden Security"
-        uses: step-security/harden-runner@v2.8.0
+        uses: step-security/harden-runner@v2.8.1
         with:
           egress-policy: audit
           disable-sudo: true
@@ -86,7 +86,7 @@ jobs:
           echo "Requested dotnet version: ${{env.DOTNET_VERSION}}"
 
       - name: "Switch to version branch"
-        if: ${{env.DOTNET_VERSION}} < ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+        if: ${{env.DOTNET_VERSION < steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
         shell: bash
         run: |
           git checkout "depends/dotnet/${{env.NEW_DOTNET_VERSION}}" || git checkout -b "depends/dotnet/${{env.NEW_DOTNET_VERSION}}"
@@ -94,7 +94,7 @@ jobs:
           NEW_DOTNET_VERSION: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
 
       - name: "Update global.json to latest version"
-        if: ${{env.DOTNET_VERSION}} < ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+        if: ${{env.DOTNET_VERSION < steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
         shell: bash
         working-directory: src
         run: |
@@ -107,7 +107,7 @@ jobs:
           NEW_DOTNET_VERSION: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
 
       - name: "Commit changes to new branch"
-        if: ${{env.DOTNET_VERSION}} < ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+        if: ${{env.DOTNET_VERSION < steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
         uses: stefanzweifel/git-auto-commit-action@v5.0.1
         with:
           commit_message: "SDK - Update DotNet SDK to ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
