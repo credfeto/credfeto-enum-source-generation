@@ -196,12 +196,28 @@ roslynator_object_creation_type_style=implicit_when_type_is_obvious
 #roslynator_use_var_instead_of_implicit_object_creation = true|false
 roslynator_use_var_instead_of_implicit_object_creation=false
 
+# Enable GenerateDocumentationFile to enable Remove unnecessary usings/imports on build.. except this turns on xmlDocs
+dotnet_diagnostic.IDE0005.severity = none
+# Use Expression body for accessor
+dotnet_diagnostic.IDE0027.severity = none
+# 'if' statement can be simplified
+dotnet_diagnostic.IDE0046.severity = suggestion
+# Fix Formatting
+dotnet_diagnostic.IDE0055.severity = none
+# Expression value is never used
+dotnet_diagnostic.IDE0058.severity = suggestion
+# Using statement can be simplified
+dotnet_diagnostic.IDE0063.severity = none
+# Use block scoped namespace
+dotnet_diagnostic.IDE0160.severity = none
 # Use tuple to swap values
 dotnet_diagnostic.IDE0180.severity = error
 # Remove unnecessary lambda expression
 dotnet_diagnostic.IDE0200.severity = error
 # Use UTF-8 string literal
 dotnet_diagnostic.IDE0230.severity = error
+# Use Primary constructor
+dotnet_diagnostic.IDE0290.severity = none
 # Use collection expression for array
 dotnet_diagnostic.IDE0300.severity = error
 # Use collection expression for empty
