@@ -206,6 +206,8 @@ dotnet_diagnostic.IDE0046.severity = suggestion
 dotnet_diagnostic.IDE0055.severity = none
 # Expression value is never used
 dotnet_diagnostic.IDE0058.severity = suggestion
+# Remove unused parameter
+dotnet_diagnostic.IDE0060.severity = suggestion
 # Using statement can be simplified
 dotnet_diagnostic.IDE0063.severity = none
 # Use block scoped namespace
