@@ -198,6 +198,8 @@ roslynator_use_var_instead_of_implicit_object_creation=false
 
 # Enable GenerateDocumentationFile to enable Remove unnecessary usings/imports on build.. except this turns on xmlDocs
 dotnet_diagnostic.IDE0005.severity = none
+# Populate all cases of switch
+dotnet_diagnostic.IDE0010.severity = none
 # Use Expression body for accessor
 dotnet_diagnostic.IDE0027.severity = none
 # 'if' statement can be simplified
