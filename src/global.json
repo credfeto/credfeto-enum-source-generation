@@ -1,7 +1,7 @@
 {
   "sdk": {
-    "version": "8.0.300",
-    "allowPrerelease": false,
+    "version": "9.0.100-preview.6.24328.19",
+    "allowPrerelease": true,
     "rollForward": "latestPatch"
   }
 }
