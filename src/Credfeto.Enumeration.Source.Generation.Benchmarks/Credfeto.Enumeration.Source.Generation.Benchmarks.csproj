@@ -17,6 +17,8 @@
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <NoWarn />
     <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditLevel>low</NuGetAuditLevel>
+    <NuGetAuditMode>all</NuGetAuditMode>
     <Nullable>enable</Nullable>
     <OptimizationPreference>speed</OptimizationPreference>
     <OutputType>Exe</OutputType>

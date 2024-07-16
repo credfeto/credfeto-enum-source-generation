@@ -16,6 +16,8 @@
     <LangVersion>latest</LangVersion>
     <NoWarn />
     <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditLevel>high</NuGetAuditLevel>
+    <NuGetAuditMode>direct</NuGetAuditMode>
     <Nullable>enable</Nullable>
     <OptimizationPreference>speed</OptimizationPreference>
     <OutputType>Library</OutputType>
@@ -53,7 +55,6 @@
     <PackageReference Include="FunFair.Test.Common" Version="6.1.55.490" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageReference Include="NSubstitute" Version="5.1.0" />
-    <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.40" />
     <PackageReference Include="xunit" Version="2.8.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.0" />
   </ItemGroup>
