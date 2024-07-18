@@ -220,6 +220,8 @@ dotnet_diagnostic.IDE0160.severity = none
 dotnet_diagnostic.IDE0180.severity = error
 # Remove unnecessary lambda expression
 dotnet_diagnostic.IDE0200.severity = error
+# Convert to top level statements (Program.Main)
+dotnet_diagnostic.IDE0210.severity = none
 # Use UTF-8 string literal
 dotnet_diagnostic.IDE0230.severity = error
 # Use Primary constructor
