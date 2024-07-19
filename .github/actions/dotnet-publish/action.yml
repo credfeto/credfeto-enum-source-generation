@@ -52,6 +52,7 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
+      WarningsNotAsErrors: "NU1901;NU1902;NU1903;NU1904"
 
   - name: "Dotnet: Zip Packages for Octopus"
     working-directory: ${{github.workspace}}/src/server-dist/${{inputs.PLATFORM}}
