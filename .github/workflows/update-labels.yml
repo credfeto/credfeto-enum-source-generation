@@ -24,7 +24,7 @@ jobs:
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Harden Security"
-        uses: step-security/harden-runner@v2.8.1
+        uses: step-security/harden-runner@v2.9.0
         with:
           egress-policy: audit
           disable-sudo: true
