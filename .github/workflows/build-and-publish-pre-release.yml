@@ -70,6 +70,7 @@ jobs:
             dotnet-nuget.s3.eu-west-1.amazonaws.com:443
             dotnet-nuget-prerelease.s3.eu-west-1.amazonaws.com:443
             registry-1.docker.io:443
+            auth.docker.io:443
 
       - name: "Checkout Source"
         uses: actions/checkout@v4.1.1
