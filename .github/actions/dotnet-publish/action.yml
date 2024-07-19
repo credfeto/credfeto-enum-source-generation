@@ -38,7 +38,7 @@ runs:
   - name: "Dotnet: Pack For Octopus"
     working-directory: ${{github.workspace}}/src/${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
     shell: bash
-    run: dotnet publish -warnaserror --configuration:Release -r:${{inputs.PLATFORM}} --self-contained -p:NoWarn=NETSDK1179 -p:SuppressNETCoreSdkPreviewMessage=true -p:PublishSingleFile=true -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" -p:SolutionDir=..\\ --output ../server-dist/${{inputs.PLATFORM}} -nodeReuse:False ${{env.DOTNET_RELEASE_DEFINES}}
+    run: dotnet publish --no-build --no-restore -warnaserror --configuration:Release -r:${{inputs.PLATFORM}} --self-contained -p:NoWarn=NETSDK1179 -p:SuppressNETCoreSdkPreviewMessage=true -p:PublishSingleFile=true -p:PublishAot=false -p:PublishReadyToRun=False -p:PublishReadyToRunShowWarnings=True -p:DisableSwagger=False -p:TreatWarningsAsErrors=True "-p:Version=${{inputs.BUILD_VERSION}}" -p:IncludeNativeLibrariesForSelfExtract=false "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" "-p:FFPublishing:True" -p:SolutionDir=..\\ --output ../server-dist/${{inputs.PLATFORM}} -nodeReuse:False ${{env.DOTNET_RELEASE_DEFINES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -52,7 +52,6 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
-      WarningsNotAsErrors: "NU1901;NU1902;NU1903;NU1904"
 
   - name: "Dotnet: Zip Packages for Octopus"
     working-directory: ${{github.workspace}}/src/server-dist/${{inputs.PLATFORM}}
