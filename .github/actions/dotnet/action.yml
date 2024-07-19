@@ -121,7 +121,7 @@ runs:
   - name: "Dotnet: Test"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "-p:Version=${{inputs.BUILD_VERSION}}" "/p:IsProduction=${{inputs.PRODUCTION_BUILD}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results -nodeReuse:False -p:NoWarn=MSB4241 -p:SuppressNETCoreSdkPreviewMessage=true
+    run: dotnet test --no-build --no-restore -noConsoleLogger --configuration Release "-p:Version=${{inputs.BUILD_VERSION}}" "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" --filter FullyQualifiedName\!~Integration --logger:"trx;LogFilePrefix=testResults" --results-directory ../test-results -nodeReuse:False -p:NoWarn=MSB4241 -p:SuppressNETCoreSdkPreviewMessage=true
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -190,7 +190,7 @@ runs:
     if: inputs.NUGET_PACK == 'true'
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet pack --configuration Release "-p:Version=${{inputs.BUILD_VERSION}}" "/p:IsProduction=${{inputs.PRODUCTION_BUILD}}" --no-restore -nodeReuse:False -p:NoWarn=MSB4241
+    run: dotnet pack --configuration Release "-p:Version=${{inputs.BUILD_VERSION}}" "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" --no-restore -nodeReuse:False -p:NoWarn=MSB4241
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
