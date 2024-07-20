@@ -65,6 +65,7 @@ jobs:
             registry-1.docker.io:443
             auth.docker.io:443
             index.docker.io:443
+            dotnetbuilds.azureedge.net:443
 
           ## Ignore pre-release
           ## dotnet-nuget-prerelease.s3.eu-west-1.amazonaws.com:443
