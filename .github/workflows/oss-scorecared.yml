@@ -38,6 +38,8 @@ jobs:
             rekor.sigstore.dev:443
             tuf-repo-cdn.sigstore.dev:443
             www.bestpractices.dev:443
+            auth.docker.io:443
+            index.docker.io:443
 
       - name: "Checkout code"
         uses: actions/checkout@v4.1.1
