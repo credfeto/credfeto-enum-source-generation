@@ -123,6 +123,8 @@
         <Rule Id="CA1505" Action="Error"/>
         <!-- CA1506 - ?? -->
         <Rule Id="CA1506" Action="None"/>
+        <!-- CA1515 - Because an application's API isn't typically referenced from outside the assembly, types can be made internal -->
+        <Rule Id="CA1515" Action="Info"/>
         <!-- CA1600 - ?? -->
         <Rule Id="CA1600" Action="Error"/>
         <!-- CA1601 - ?? -->
@@ -486,6 +488,8 @@
         <Rule Id="RCS1234" Action="Error"/>
         <!-- RCS1235 - Optimize method call -->
         <Rule Id="RCS1235" Action="Error"/>
+        <!-- RCS1236 - Use Exception filter -->
+        <Rule Id="RCS1236" Action="Error"/>
         <!-- RCS1238 - Avoid nested ?: operators -->
         <Rule Id="RCS1238" Action="Error"/>
         <!-- RCS1240 - Operator is unnecessary -->
