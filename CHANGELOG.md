@@ -19,6 +19,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.30.0.95878
 - Dependencies - Updated ThisAssembly.AssemblyInfo to 1.5.0
 - Dependencies - Updated xunit.analyzers to 1.15.0
+- Dependencies - Updated xunit.runner.visualstudio to 2.8.2
 ### Removed
 ### Deployment Changes
 
