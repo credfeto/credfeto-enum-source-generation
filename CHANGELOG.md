@@ -17,6 +17,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.10.0
 - Dependencies - Updated Roslynator.Analyzers to 4.12.4
 - Dependencies - Updated SonarAnalyzer.CSharp to 9.30.0.95878
+- Dependencies - Updated ThisAssembly.AssemblyInfo to 1.5.0
 ### Removed
 ### Deployment Changes
 
