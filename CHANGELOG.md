@@ -21,6 +21,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit.runner.visualstudio to 2.8.2
 - Dependencies - Updated xunit to 2.9.0
 - Dependencies - Updated FunFair.Test.Common to 6.1.62.556
+- Dependencies - Updated Microsoft.NET.Test.Sdk to 17.10.0
 ### Removed
 ### Deployment Changes
 
