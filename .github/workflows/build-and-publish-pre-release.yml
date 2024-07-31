@@ -73,6 +73,7 @@ jobs:
             auth.docker.io:443
             index.docker.io:443
             dotnetbuilds.azureedge.net:443
+            production.cloudflare.docker.com:443
 
       - name: "Checkout Source"
         uses: actions/checkout@v4.1.1
