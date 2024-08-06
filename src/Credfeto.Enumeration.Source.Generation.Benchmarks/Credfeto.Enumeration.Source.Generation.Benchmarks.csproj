@@ -53,7 +53,7 @@
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation.Models\Credfeto.Enumeration.Source.Generation.Models.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All" ExcludeAssets="runtime" />
