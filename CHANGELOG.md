@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.20.512
 - Dependencies - Updated FunFair.Test.Common to 6.1.65.613
+- Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.11.0
 ### Removed
 ### Deployment Changes
 
