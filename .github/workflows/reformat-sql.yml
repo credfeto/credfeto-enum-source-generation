@@ -33,23 +33,6 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
-      - name: "Harden Security"
-        uses: step-security/harden-runner@v2.9.1
-        with:
-          egress-policy: audit
-          disable-sudo: true
-          allowed-endpoints: >
-            api.github.com:443
-            api.osv.dev:443
-            api.securityscorecards.dev:443
-            codeload.github.com:443
-            fulcio.sigstore.dev:443
-            github.com:443
-            oss-fuzz-build-logs.storage.googleapis.com:443
-            rekor.sigstore.dev:443
-            tuf-repo-cdn.sigstore.dev:443
-            www.bestpractices.dev:443
-
       - name: "Checkout Source"
         uses: actions/checkout@v4.1.1
         with:
