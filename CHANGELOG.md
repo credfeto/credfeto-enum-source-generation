@@ -10,8 +10,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.22.521
-- Dependencies - Updated FunFair.Test.Common to 6.1.67.620
 - Dependencies - Updated xunit.analyzers to 1.16.0
+- Dependencies - Updated FunFair.Test.Common to 6.1.68.628
 ### Removed
 ### Deployment Changes
 
