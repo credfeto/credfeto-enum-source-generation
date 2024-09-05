@@ -1,0 +1,70 @@
+--- # Build NPM
+name: 'Build NPM Docker'
+description: 'Builds a docker image and optionally pushes it to AWS ECR'
+inputs:
+  GITHUB_TOKEN:
+    description: 'github token for accessing github'
+    required: true
+    default: ${{github.token}}
+  BUILD_VERSION:
+    description: 'Build version'
+    required: true
+  APP_OWNER:
+    description: 'docker app owner'
+    required: true
+  APP_NAME:
+    description: 'docker app name'
+    required: true
+  AWS-CONTAINER-REGISTRY:
+    description: 'AWS Elastic Container Registry'
+    required: true
+    default: '117769150821.dkr.ecr.eu-west-1.amazonaws.com'
+  CONTAINER_SOURCE:
+    description: 'Location of app container source'
+    required: true
+  CONTAINER_PLATFORM:
+    description: 'Container platform'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Docker Trust Enable"
+      shell: bash
+      run: |
+        echo "DOCKER_CONTENT_TRUST_ORIGINAL=${{env.DOCKER_CONTENT_TRUST}}" >> "$GITHUB_ENV"
+        echo "DOCKER_CONTENT_TRUST=1" >> "$GITHUB_ENV"
+
+    - name: "Build and export docker container"
+      uses: docker/build-push-action@v5.1.0
+      with:
+        context: ${{inputs.CONTAINER_SOURCE}}
+        load: true
+        tags: ${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    ## Run docker image tests
+    - name: "Run docker image tests"
+      uses: ./.github/actions/docker-image-test
+      with:
+        APP_OWNER: ${{inputs.APP_OWNER}}
+        APP_NAME: ${{inputs.APP_NAME}}
+        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+
+    - name: "Docker: Build with tags"
+      uses: docker/build-push-action@v5.1.0
+      with:
+        context: ${{inputs.CONTAINER_SOURCE}}
+        platforms: ${{inputs.CONTAINER_PLATFORM}}
+        push: ${{inputs.DEPLOY}}
+        tags: |
+          ${{inputs.AWS-CONTAINER-REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:latest
+          ${{inputs.AWS-CONTAINER-REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:${{inputs.BUILD_VERSION}}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        provenance: false
+
+    - name: "Docker Trust Restore"
+      shell: bash
+      run: echo "DOCKER_CONTENT_TRUST=${{env.DOCKER_CONTENT_TRUST_ORIGINAL}}" >> "$GITHUB_ENV"
