@@ -1,6 +1,6 @@
---- # Build and deploy packages
-name: 'Build Dotnet'
-description: 'Builds and deploys the source'
+--- # Publishes a Dotnet app to an executable
+name: 'Publishes a Dotnet app to an executable'
+description: 'Publishes a Dotnet app to an executable'
 inputs:
   # General
   PRODUCTION_BUILD:
