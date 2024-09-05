@@ -11,7 +11,7 @@ inputs:
   AWS-REGION:
     description: 'AWS region'
     required: true
-  AWS-CONTAINER-REGISTRY:
+  AWS_CONTAINER_REGISTRY:
     description: 'AWS Elastic Container Registry'
     required: true
   DOCKER_USERNAME:
@@ -44,5 +44,5 @@ runs:
     - name: "Docker: Login to AWS ECR"
       uses: docker/login-action@v3.0.0
       with:
-        registry: ${{inputs.AWS-CONTAINER-REGISTRY}}
+        registry: ${{inputs.AWS_CONTAINER_REGISTRY}}
         ecr: true
