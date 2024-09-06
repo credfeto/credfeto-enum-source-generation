@@ -59,7 +59,7 @@ runs:
                 "-p:FFPublishing=True" \
                 "-p:SolutionDir=..\\" \
                 "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
-                --output ../server-dist/${{inputs.PLATFORM}} \
+                --output ${{github.workspace}}/server-dist/${{inputs.PLATFORM}} \
                 ${{env.DOTNET_RELEASE_DEFINES}}
     env:
       ReleaseNotes: ${{inputs.RELEASE_NOTES}}
@@ -76,6 +76,6 @@ runs:
       MSBUILDTERMINALLOGGER: "auto"
 
   - name: "Dotnet: Zip Packages for Octopus"
-    working-directory: ${{github.workspace}}/src/server-dist/${{inputs.PLATFORM}}
+    working-directory: ${{github.workspace}}/server-dist/${{inputs.PLATFORM}}
     shell: bash
     run: zip -9r "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{inputs.PLATFORM}}.${{inputs.BUILD_VERSION}}.zip" . -x -- *.pdb
