@@ -2,7 +2,7 @@
 name: 'Build and deploy'
 description: 'Builds and deploys the source'
 inputs:
-  # General
+  # GENERAL
   PRODUCTION_BUILD:
     description: 'Whether to build a production build'
     required: true
@@ -59,7 +59,7 @@ inputs:
     description: 'Sleet feed to push packages to'
     required: false
 
-  # Octopus
+  # OCTOPUS
   OCTOPUS_SERVER:
     description: 'octopus server'
     required: false
@@ -85,7 +85,40 @@ inputs:
     description: 'Package (root) to deploy when zipped'
     required: false
 
-  # RELEASE
+  # AWS
+  AWS_ACCESS_KEY_ID:
+    description: 'AWS Access key'
+    required: true
+  AWS_SECRET_ACCESS_KEY:
+    description: 'AWS Secret key'
+    required: true
+  AWS_REGION:
+    description: 'AWS region'
+    required: true
+  AWS_CONTAINER_REGISTRY:
+    description: 'AWS Elastic Container Registry'
+    required: true
+
+  # CLOUD FORMATION
+  CLOUD_FORMATION_STACK:
+    description: 'The Cloud Formation stack to deploy as'
+    required: true
+
+  # DOCKER
+  DOCKER_USERNAME:
+    description: 'Docker username'
+    required: true
+  DOCKER_ACCESS_TOKEN:
+    description: 'Docker access token'
+    required: true
+  DOCKER_APP_OWNER:
+    description: 'docker app owner'
+    required: true
+  DOCKER_APP_NAME:
+    description: 'docker app name'
+    required: true
+
+  # GITHUB
   GITHUB_TOKEN:
     description: 'Github Token'
     required: true
