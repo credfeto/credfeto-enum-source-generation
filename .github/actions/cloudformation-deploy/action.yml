@@ -40,7 +40,7 @@ runs:
         "${{github.workspace}}/build_scripts/build-template-parameters-wrapper" "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" > "${{github.workspace}}/TemplateParameters.json"
       env:
         ApplicationName: ${{inputs.CLOUD_FORMATION_STACK}}
-        ApplicationContainer: ${{inputs.DOCKER_APP_OWNER}}
+        ApplicationContainer: ${{inputs.DOCKER_APP_NAME}}
         ApplicationVersion: ${{inputs.BUILD_VERSION}}
         ApiPrefix: /${{inputs.DOCKER_APP_NAME}}
         ApiHost: ${{inputs.API_HOST}}
