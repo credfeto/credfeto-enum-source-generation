@@ -1,0 +1,63 @@
+--- # Deploy docker image using cloudformation template to aws
+name: 'Deploy to Cloudformation template'
+description: 'Deploy docker image using cloudformation template to aws'
+inputs:
+  CLOUD_FORMATION_STACK:
+    description: 'The Cloud Formation stack to deploy as'
+    required: true
+  CLOUD_FORMATION_TEMPLATE_FILE:
+    description: 'The Cloud Formation file to deploy'
+    required: true
+  DOCKER_APP_OWNER:
+    description: 'docker app owner'
+    required: true
+  DOCKER_APP_NAME:
+    description: 'docker app name'
+    required: true
+  API_HOST:
+    description: 'Api Host'
+    required: true
+  API_PREFIX:
+    description: 'API Prefix'
+    required: true
+  AWS_LOAD_BALANCER_HOSTNAME:
+    description: "AWS Load Balancer match hostname"
+    required: true
+  AWS_LOAD_BALANCER_PRIORITY:
+    description: "AWS Load Balancer match priority"
+    required: true
+  BUILD_VERSION:
+    description: "Build Version"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "Build TemplateParameters file"
+      shell: bash
+      run: |
+        "${{github.workspace}}/build_scripts/build-template-parameters-wrapper" "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" > "${{github.workspace}}/TemplateParameters.json"
+      env:
+        ApplicationName: ${{inputs.CLOUD_FORMATION_STACK}}
+        ApplicationContainer: ${{inputs.DOCKER_APP_OWNER}}
+        ApplicationVersion: ${{inputs.BUILD_VERSION}}
+        ApiPrefix: /${{inputs.DOCKER_APP_NAME}}
+        ApiHost: ${{inputs.API_HOST}}
+        LoadBalancerHostName: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
+        LoadBalancerPriority: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
+
+    - name: "show Validated TemplateParameters"
+      shell: bash
+      run: |
+        echo "Validated parameters:"
+        jq . "${{github.workspace}}/TemplateParameters.json"
+
+    - name: "AWS Cloudformation Deploy"
+      shell: bash
+      run: |
+        /usr/local/aws-cli/v2/current/bin/aws \
+                  cloudformation deploy \
+                        --template-file "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
+                        --stack-name "${{inputs.CLOUD_FORMATION_STACK}}" \
+                        --parameter-overrides file://TemplateParameters.json
