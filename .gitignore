@@ -368,3 +368,6 @@ src/Data
 
 # GitHub Copilot persisted chat sessions
 /copilot/chatSessions
+
+# Server packaging
+server-dist/
