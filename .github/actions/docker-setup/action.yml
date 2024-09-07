@@ -2,13 +2,13 @@
 name: 'Setup Docker'
 description: 'Setup docker'
 inputs:
-  AWS-ACCESS-KEY-ID:
+  AWS_ACCESS_KEY_ID:
     description: 'AWS Access key'
     required: true
-  AWS-SECRET-ACCESS-KEY:
+  AWS_SECRET_ACCESS_KEY:
     description: 'AWS Secret key'
     required: true
-  AWS-REGION:
+  AWS_REGION:
     description: 'AWS region'
     required: true
   AWS_CONTAINER_REGISTRY:
@@ -30,9 +30,9 @@ runs:
     - name: "Configure AWS Credentials"
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
-        aws-access-key-id: ${{inputs.AWS-ACCESS-KEY-ID}}
-        aws-secret-access-key: ${{inputs.AWS-SECRET-ACCESS-KEY}}
-        aws-region: ${{inputs.AWS-REGION}}
+        aws-access-key-id: ${{inputs.AWS_ACCESS_KEY_ID}}
+        aws-secret-access-key: ${{inputs.AWS_SECRET_ACCESS_KEY}}
+        aws-region: ${{inputs.AWS_REGION}}
 
     - name: "Docker: Login to Docker Hub"
       uses: docker/login-action@v3.0.0
