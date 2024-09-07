@@ -1,0 +1,82 @@
+--- # Run docker image tests
+name: 'Run docker image tests'
+description: 'Docker image tests'
+inputs:
+  APP_OWNER:
+    description: 'docker app owner'
+    required: true
+  APP_NAME:
+    description: 'docker app name'
+    required: true
+  GITHUB_TOKEN:
+    description: 'github token for accessing github'
+    required: true
+    default: ${{github.token}}
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Create SBOM"
+      uses: anchore/sbom-action@v0.15.10
+      with:
+        github-token: ${{inputs.GITHUB_TOKEN}}
+        format: spdx-json
+        output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
+        config: "${{ github.workspace }}.github/linters/syft.yml"
+
+    - name: "Scan SBOM"
+      uses: anchore/scan-action@v3.6.4
+      with:
+        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
+        fail-build: false
+        output-format: table
+        severity-cutoff: medium
+        only-fixed: true
+        add-cpes-if-none: false
+        by-cve: false
+
+    - name: "Run Grype vulnerability scanner"
+      if: always()
+      uses: anchore/scan-action@v3.6.4
+      with:
+        image: "${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:test"
+        fail-build: true
+        output-format: table
+        severity-cutoff: medium
+        only-fixed: true
+        add-cpes-if-none: false
+        by-cve: false
+
+#    - name: "Run Dockle vulnerability scanner"
+#      if: always()
+#      uses: erzz/dockle-action@v1.4.0
+#      with:
+#        image: "${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:test"
+#        report-format: json
+#        report-name: dockle-report
+#        failure-threshold: warn
+#        exit-code: 1
+#        dockle-version: latest
+#        accept-extensions: pem
+#        token: ${{inputs.GITHUB_TOKEN}}
+
+#    - name: "Upload dockle Report"
+#      uses: actions/upload-artifact@v3.1.3
+#      if: always()
+#      with:
+#        name: Dockle Report
+#        path: dockle-report.json
+
+# NOT SURE WHY THIS DOESN'T WORK
+# -- Tries to write to /github!
+#
+#    - name: "Run Trivy vulnerability scanner"
+#      if: always()
+#      uses: aquasecurity/trivy-action@0.16.1
+#      with:
+#        image-ref: "${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:test"
+#        format: 'table'
+#        exit-code: '1'
+#        ignore-unfixed: true
+#        vuln-type: 'os,library'
+#        severity: 'CRITICAL,HIGH'
