@@ -395,7 +395,7 @@ runs:
         inputs.CLOUD_FORMATION_DEPLOY == 'true' &&
         inputs.DOCKER_APP_NAME != '' &&
         env.DEPLOY == 'true'
-      uses: ./.github/actions/cloudformation_deploy
+      uses: ./.github/actions/cloudformation-deploy
       with:
         CLOUD_FORMATION_STACK: ${{inputs.CLOUD_FORMATION_STACK}}
         CLOUD_FORMATION_TEMPLATE_FILE: "${{github.workflow}}/cloudformation.json"
