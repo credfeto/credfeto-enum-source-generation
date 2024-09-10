@@ -26,6 +26,9 @@ inputs:
   AWS_LOAD_BALANCER_PRIORITY:
     description: "AWS Load Balancer match priority"
     required: true
+  AWS_CONTAINER_REGISTRY:
+    description: "AWS container registry to retrieve package from"
+    required: true
   BUILD_VERSION:
     description: "Build Version"
     required: true
@@ -64,10 +67,12 @@ runs:
           } > "${{github.workspace}}/TemplateParameters.json"
       env:
         ApplicationName: ${{inputs.CLOUD_FORMATION_STACK}}
+        ApplicationOwner: ${{inputs.DOCKER_APP_OWNER}}
         ApplicationContainer: ${{inputs.DOCKER_APP_NAME}}
         ApplicationVersion: ${{inputs.BUILD_VERSION}}
         ApiPrefix: /${{inputs.DOCKER_APP_NAME}}
         ApiHost: ${{inputs.API_HOST}}
+        AwsContainerRegistry: ${{inputs.AWS_CONTAINER_REGISTRY}}
         LoadBalancerHostName: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
         LoadBalancerPriority: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
 
