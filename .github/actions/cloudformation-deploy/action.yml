@@ -70,7 +70,7 @@ runs:
         ApplicationOwner: ${{inputs.DOCKER_APP_OWNER}}
         ApplicationContainer: ${{inputs.DOCKER_APP_NAME}}
         ApplicationVersion: ${{inputs.BUILD_VERSION}}
-        ApiPrefix: /${{inputs.DOCKER_APP_NAME}}
+        ApiPrefix: ${{inputs.API_PREFIX}}
         ApiHost: ${{inputs.API_HOST}}
         AwsContainerRegistry: ${{inputs.AWS_CONTAINER_REGISTRY}}
         LoadBalancerHostName: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
