@@ -371,6 +371,7 @@ runs:
       shell: bash
       run: |
         cp "${{github.workspace}}/Dockerfile" "${{github.workspace}}/server-dist/linux-arm64"
+        [ -f "${{github.workspace}}/healthcheck" ] && cp "${{github.workspace}}/healthcheck" "${{github.workspace}}/server-dist/linux-arm64"
 
     - name: "Dotnet: Build Docker Container"
       if: |-
