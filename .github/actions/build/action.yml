@@ -398,7 +398,7 @@ runs:
       uses: ./.github/actions/cloudformation-deploy
       with:
         CLOUD_FORMATION_STACK: ${{inputs.CLOUD_FORMATION_STACK}}
-        CLOUD_FORMATION_TEMPLATE_FILE: "${{github.workflow}}/cloudformation.json"
+        CLOUD_FORMATION_TEMPLATE_FILE: "${{github.workspace}}/cloudformation.json"
         BUILD_VERSION: ${{env.BUILD_VERSION}}
         DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
         DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}
