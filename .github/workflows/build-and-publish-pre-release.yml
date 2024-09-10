@@ -3,8 +3,9 @@ name: "Build: Pre-Release"
 on:
   push:
     paths:
-      - 'Dockerfile'
       - 'cloudformation.json'
+      - 'Dockerfile'
+      - 'healthcheck'
       - 'db/**/*'
       - 'src/**/*'
       - '.editorconfig'
