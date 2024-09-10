@@ -101,6 +101,18 @@ inputs:
   AWS_CONTAINER_REGISTRY:
     description: 'AWS Elastic Container Registry'
     required: true
+  AWS_LOAD_BALANCER_HOSTNAME:
+    description: 'LoadBalancer Hostname'
+    required: true
+  AWS_LOAD_BALANCER_PRIORITY:
+    description: 'LoadBalancer Priority'
+    required: true
+  API_HOST:
+    description: 'API Hostname'
+    required: true
+  API_PREFIX:
+    description: 'API prefix'
+    required: true
 
   # CLOUD FORMATION
   CLOUD_FORMATION_DEPLOY:
@@ -349,16 +361,6 @@ runs:
     ############################################################################################################
     # DEPLOY TO DOCKER
     ############################################################################################################
-
-    - name: "Deploy Cloud Formation"
-      shell: bash
-      run: |
-        echo ">>>>>>>>>>>>>>>> HERE 1 <<<<<<<<<<<<<<<<"
-        echo "csproj: ${{steps.check_files.outputs.CSPROJ_EXIST}}"
-        echo "sln: ${{steps.check_files.outputs.SLN_EXIST}}"
-        echo "sql: ${{steps.check_files.outputs.SQL_EXIST}}"
-        echo "app: >>${{inputs.DOCKER_APP_NAME}}>>"
-        echo "deploy: >>${{env.DEPLOY}}>>"
 
     - name: "Copy docker files"
       if: |-
