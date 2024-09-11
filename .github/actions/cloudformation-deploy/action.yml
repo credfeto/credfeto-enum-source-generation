@@ -8,6 +8,9 @@ inputs:
   CLOUD_FORMATION_TEMPLATE_FILE:
     description: 'The Cloud Formation file to deploy'
     required: true
+  CLOUDFORMATION_SNS_ARN:
+    description: 'SSN Notification ARN'
+    required: false
   DOCKER_APP_OWNER:
     description: 'docker app owner'
     required: true
@@ -82,7 +85,19 @@ runs:
         echo "Validated parameters:"
         jq . "${{github.workspace}}/TemplateParameters.json"
 
-    - name: "AWS Cloudformation Deploy"
+    - if: inputs.CLOUDFORMATION_SNS_ARN != ''
+      name: "AWS Cloudformation Deploy (With Notifications)"
+      shell: bash
+      run: |
+        /usr/local/aws-cli/v2/current/bin/aws \
+                  cloudformation deploy \
+                        --template-file "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
+                        --stack-name "${{inputs.CLOUD_FORMATION_STACK}}" \
+                        --parameter-overrides file://TemplateParameters.json \
+                        --notification-arns "${{inputs.CLOUDFORMATION_SNS_ARN}}"
+
+    - if: inputs.CLOUDFORMATION_SNS_ARN == ''
+      name: "AWS Cloudformation Deploy (No Notifications)"
       shell: bash
       run: |
         /usr/local/aws-cli/v2/current/bin/aws \
