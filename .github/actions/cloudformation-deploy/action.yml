@@ -43,14 +43,14 @@ runs:
       id: priorities
       shell: bash
       run: |
-        if [ "${{inputs.AWS_LOAD_BALANCER_PRIORITY}" -gt 0 ]; then
+        if [ "${{inputs.AWS_LOAD_BALANCER_PRIORITY}}" -gt 0 ]; then
           {
             MAIN=$((${{inputs.AWS_LOAD_BALANCER_PRIORITY}}))
-            DIRECT1=$((${{inputs.AWS_LOAD_BALANCER_PRIORITY}}+1))
-            DIRECT2=$((${{inputs.AWS_LOAD_BALANCER_PRIORITY}}+1))
+            DIRECT1=$(($MAIN+1))
+            DIRECT2=$(($MAIN+2))
             echo "MAIN=$MAIN"
-            echo "MAIN=$DIRECT1"
-            echo "MAIN=$DIRECT1"
+            echo "DIRECT1=$DIRECT1"
+            echo "DIRECT2=$DIRECT2"
           } >> "$GITHUB_OUTPUT"
         else
           {
