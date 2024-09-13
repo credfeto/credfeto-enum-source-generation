@@ -39,6 +39,26 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Add offset"
+      id: priorities
+      shell: bash
+      run: |
+        if [ "${{inputs.AWS_LOAD_BALANCER_PRIORITY}" -gt 0 ]; then
+          {
+            MAIN=$((${{inputs.AWS_LOAD_BALANCER_PRIORITY}}))
+            DIRECT1=$((${{inputs.AWS_LOAD_BALANCER_PRIORITY}}+1))
+            DIRECT2=$((${{inputs.AWS_LOAD_BALANCER_PRIORITY}}+1))
+            echo "MAIN=$MAIN"
+            echo "MAIN=$DIRECT1"
+            echo "MAIN=$DIRECT1"
+          } >> "$GITHUB_OUTPUT"
+        else
+          {
+            echo "MAIN=-1"
+            echo "DIRECT1=-1"
+            echo "DIRECT2=-1"
+          } >> "$GITHUB_OUTPUT"
+        fi
 
     - name: "Build TemplateParameters file"
       shell: bash
@@ -77,7 +97,9 @@ runs:
         ApiHost: ${{inputs.API_HOST}}
         AwsContainerRegistry: ${{inputs.AWS_CONTAINER_REGISTRY}}
         LoadBalancerHostName: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
-        LoadBalancerPriority: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
+        LoadBalancerPriority: ${{steps.priorities.outputs.MAIN}}
+        Direct1LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT1}}
+        Direct2LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT2}}
 
     - name: "show Validated TemplateParameters"
       shell: bash
