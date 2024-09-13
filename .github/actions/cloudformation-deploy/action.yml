@@ -105,3 +105,11 @@ runs:
                         --template-file "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
                         --stack-name "${{inputs.CLOUD_FORMATION_STACK}}" \
                         --parameter-overrides file://TemplateParameters.json
+
+    - name: "AWS Enable Stack termination protection"
+      shell: bash
+      run: |
+        /usr/local/aws-cli/v2/current/bin/aws \
+                  cloudformation update-termination-protection \
+                          --enable-termination-protection \
+                          --stack-name "${{inputs.CLOUD_FORMATION_STACK}}"
