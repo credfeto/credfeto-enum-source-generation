@@ -59,33 +59,9 @@ inputs:
     description: 'Sleet feed to push packages to'
     required: false
 
-  # OCTOPUS
-  OCTOPUS_DEPLOY:
-    description: 'Whether to deploy to octopus'
-    required: true
-  OCTOPUS_SERVER:
-    description: 'octopus server'
-    required: false
-  OCTOPUS_SPACE_NAME:
-    description: 'octopus space to deploy to'
-    required: false
-  OCTOPUS_PROJECT:
-    description: 'Octopus project to deploy to'
-    required: false
-  OCTOPUS_CHANNEL:
-    description: 'Octopus channel to deploy to'
-    required: false
-  OCTOPUS_DEPLOY_TO:
-    description: 'Octopus environment to deploy to'
-    required: false
-  OCTOPUS_API_KEY:
-    description: 'Octopus api key to talk to authenticate with'
-    required: false
-  OCTOPUS_DEPLOY_PACKAGE:
+  # DEPLOYMENT
+  PROJECT_TO_PUBLISH:
     description: 'Package (root) to deploy'
-    required: false
-  OCTOPUS_DEPLOY_PACKAGE_ZIP:
-    description: 'Package (root) to deploy when zipped'
     required: false
 
   # AWS
@@ -172,14 +148,7 @@ runs:
       uses: actions/github-script@v7.0.1
       with:
         script: |
-          core.info('OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}');
-          core.info('OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}');
-          core.info('OCTOPUS_PROJECT: ${{inputs.OCTOPUS_PROJECT}}');
-          core.info('OCTOPUS_CHANNEL: ${{inputs.OCTOPUS_CHANNEL}}');
-          core.info('OCTOPUS_DEPLOY_TO: ${{inputs.OCTOPUS_DEPLOY_TO}}');
-          core.info('OCTOPUS_SERVER: ${{inputs.OCTOPUS_SERVER}}');
-          core.info('OCTOPUS_API_KEY: ${{inputs.OCTOPUS_API_KEY}}');
-          core.info('OCTOPUS_SPACE_NAME: ${{inputs.OCTOPUS_SPACE}}');
+          core.info('PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}');
           core.info('NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}');
           core.info('NUGET_FEED: ${{inputs.NUGET_FEED}}');
           core.info('NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}');
@@ -309,12 +278,6 @@ runs:
         TOOL_NAME: FunFair.Content.PackageSigner.Cmd
         TOOL_VERSION: ${{inputs.NPM_PRODUCTION_PACKAGER_VERSION}}
 
-    - name: "Install Octopus Deploy CLI"
-      if: steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.OCTOPUS_DEPLOY_PACKAGE != ''
-      uses: OctopusDeploy/install-octopus-cli-action@v3.1.1
-      with:
-        version: latest
-
     - name: "Create Release Notes"
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
       shell: bash
@@ -358,8 +321,7 @@ runs:
         SLEET_FEED: ${{inputs.SLEET_FEED}}
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
         REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
-        OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
-        OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
+        PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}
 
     ############################################################################################################
     # NPM BUILD
@@ -375,8 +337,7 @@ runs:
         NPM_PACKAGE_STORE_SIGNING_WALLET: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
         NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
         NPM_SIGNING: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}
-        OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
-        OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
+        PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}
 
     ############################################################################################################
     # DEPLOY TO DOCKER
@@ -457,115 +418,6 @@ runs:
         API_PREFIX: ${{inputs.API_PREFIX}}
         AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
         AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
-
-    ############################################################################################################
-    # DEPLOY TO OCTOPUS
-    ############################################################################################################
-
-    - name: "Dotnet: Push package to Octopus (EXE and DB)"
-      if: |-
-        steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
-        steps.check_files.outputs.SLN_EXIST == 'true' &&
-        steps.check_files.outputs.SQL_EXIST == 'true' &&
-        inputs.OCTOPUS_DEPLOY == 'true' &&
-        inputs.OCTOPUS_DEPLOY_PACKAGE != '' &&
-        env.DEPLOY == 'true'
-      shell: bash
-      run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip" --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database.${{env.BUILD_VERSION}}.zip"
-      env:
-        OCTOPUS_URL: "${{inputs.OCTOPUS_SERVER}}"
-        OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
-        OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
-
-    - name: "Dotnet: Push package to Octopus (EXE ONLY)"
-      if: |-
-        steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
-        steps.check_files.outputs.SLN_EXIST == 'true' &&
-        steps.check_files.outputs.SQL_EXIST != 'true' &&
-        inputs.OCTOPUS_DEPLOY == 'true' &&
-        inputs.OCTOPUS_DEPLOY_PACKAGE != '' &&
-        env.DEPLOY == 'true'
-      shell: bash
-      run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64.${{env.BUILD_VERSION}}.zip" --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64.${{env.BUILD_VERSION}}.zip" --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64.${{env.BUILD_VERSION}}.zip"
-      env:
-        OCTOPUS_URL: "${{inputs.OCTOPUS_SERVER}}"
-        OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
-        OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
-
-    - name: "Dotnet: Push package to Octopus (NPM NUPKG ONLY)"
-      if: |-
-        steps.check_files.outputs.NPM_EXIST == 'true' &&
-        steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' &&
-        inputs.OCTOPUS_DEPLOY == 'true' &&
-        inputs.OCTOPUS_DEPLOY_PACKAGE != '' &&
-        env.DEPLOY == 'true'
-      shell: bash
-      run: octopus package upload --no-prompt --overwrite-mode=ignore --package="${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg"
-      env:
-        OCTOPUS_URL: "${{inputs.OCTOPUS_SERVER}}"
-        OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
-        OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
-
-    - name: "Dotnet: Create Octopus Release (EXE and DB)"
-      if: |-
-        steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
-        steps.check_files.outputs.SLN_EXIST == 'true' &&
-        steps.check_files.outputs.SQL_EXIST == 'true' &&
-        inputs.OCTOPUS_DEPLOY == 'true' &&
-        inputs.OCTOPUS_DEPLOY_PACKAGE != '' &&
-        inputs.OCTOPUS_CHANNEL != '' &&
-        env.DEPLOY == 'true'
-      shell: bash
-      run: octopus release create --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{inputs.OCTOPUS_CHANNEL}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
-      env:
-        OCTOPUS_URL: "${{inputs.OCTOPUS_SERVER}}"
-        OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
-        OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
-
-    - name: "Dotnet: Create Octopus Release (EXE ONLY)"
-      if: |-
-        steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
-        steps.check_files.outputs.SLN_EXIST == 'true' &&
-        steps.check_files.outputs.SQL_EXIST != 'true' &&
-        inputs.OCTOPUS_DEPLOY == 'true' &&
-        inputs.OCTOPUS_DEPLOY_PACKAGE != '' &&
-        inputs.OCTOPUS_CHANNEL != '' &&
-        env.DEPLOY == 'true'
-      shell: bash
-      run: octopus release create --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{inputs.OCTOPUS_CHANNEL}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-win-x64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-x64:${{env.BUILD_VERSION}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-linux-arm64:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
-      env:
-        OCTOPUS_URL: "${{inputs.OCTOPUS_SERVER}}"
-        OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
-        OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
-
-    - name: "Dotnet: Create Octopus Release (NPM ONLY)"
-      if: |-
-        steps.check_files.outputs.NPM_EXIST == 'true' &&
-        steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' &&
-        inputs.OCTOPUS_DEPLOY == 'true' &&
-        inputs.OCTOPUS_DEPLOY_PACKAGE != '' &&
-        env.DEPLOY == 'true'
-      shell: bash
-      run: octopus release create --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --channel="${{inputs.OCTOPUS_CHANNEL}}" --package="${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}:${{env.BUILD_VERSION}}" --release-notes-file="RELEASE_NOTES.md"
-      env:
-        OCTOPUS_URL: "${{inputs.OCTOPUS_SERVER}}"
-        OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
-        OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
-
-    - name: "Deploy Octopus Release"
-      if: |-
-        ((steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true') ||
-        (steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true')) &&
-        inputs.OCTOPUS_DEPLOY == 'true' &&
-        inputs.OCTOPUS_DEPLOY_PACKAGE != '' &&
-        inputs.OCTOPUS_CHANNEL != '' &&
-        env.DEPLOY == 'true'
-      shell: bash
-      run: octopus release deploy --no-prompt --project="${{inputs.OCTOPUS_PROJECT}}" --version="${{env.BUILD_VERSION}}" --environment="${{inputs.OCTOPUS_DEPLOY_TO}}"
-      env:
-        OCTOPUS_URL: "${{inputs.OCTOPUS_SERVER}}"
-        OCTOPUS_API_KEY: "${{inputs.OCTOPUS_API_KEY}}"
-        OCTOPUS_SPACE: "${{inputs.OCTOPUS_SPACE_NAME}}"
 
     ############################################################################################################
     # Create GitHub Release
