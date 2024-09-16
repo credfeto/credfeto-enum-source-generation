@@ -27,12 +27,9 @@ inputs:
     description: 'Visibility of the repo'
     required: true
 
-  # Octopus
-  OCTOPUS_DEPLOY_PACKAGE:
+  # DEPLOYMENT
+  PROJECT_TO_PUBLISH:
     description: 'Package (root) to deploy'
-    required: false
-  OCTOPUS_DEPLOY_PACKAGE_ZIP:
-    description: 'Package (root) to deploy when zipped'
     required: false
 
 runs:
@@ -87,7 +84,14 @@ runs:
   - if: inputs.NPM_SIGNING == 'true'
     name: "NPM: Build Package"
     shell: bash
-    run: dotnet buildcontentpackage -SourcePath "${{github.workspace}}/src/dist" -targetPath "${{github.workspace}}" -version "${{inputs.BUILD_VERSION}}" -WarningAsErrors false -Wallet "${{github.workspace}}/Wallet.json" -WalletPassword "${{inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD}}"
+    run: |
+        dotnet buildcontentpackage \
+            -SourcePath "${{github.workspace}}/src/dist" \
+            -targetPath "${{github.workspace}}" \
+            -version "${{inputs.BUILD_VERSION}}" \
+            -WarningAsErrors false \
+            -Wallet "${{github.workspace}}/Wallet.json" \
+            -WalletPassword "${{inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD}}"
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -107,7 +111,7 @@ runs:
     run: |
         ls -la "${{github.workspace}}"
         echo "-----------------------"
-        ls "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{env.BUILD_VERSION}}.nupkg"
+        ls "${{github.workspace}}/${{inputs.PROJECT_TO_PUBLISH}}-${{env.BUILD_VERSION}}.nupkg"
 
   - if: inputs.NPM_SIGNING == 'true'
     name: "NPM: Create Store Signing Wallet"
@@ -121,7 +125,13 @@ runs:
   - if: inputs.NPM_SIGNING == 'true'
     name: "NPM: Store Sign Package"
     shell: bash
-    run: dotnet signcontentpackage -Package "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{inputs.BUILD_VERSION}}.nupkg" -WarningAsErrors true -Wallet false -Wallet "${{steps.store-siging-wallet.outputs.file}}" -WalletPassword "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
+    run: |
+      dotnet signcontentpackage \
+          -Package "${{github.workspace}}/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg" \
+          -WarningAsErrors true \
+          -Wallet false \
+          -Wallet "${{steps.store-siging-wallet.outputs.file}}" \
+          -WalletPassword "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
