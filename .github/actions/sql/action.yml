@@ -7,14 +7,6 @@ inputs:
     description: 'Build version'
     required: true
 
-  # Octopus
-  OCTOPUS_DEPLOY_PACKAGE:
-    description: 'Package (root) to deploy'
-    required: false
-  OCTOPUS_DEPLOY_PACKAGE_ZIP:
-    description: 'Package (root) to deploy when zipped'
-    required: false
-
   DB_FOLDER:
     description: 'Folder where SQL Files live'
     required: true
@@ -78,12 +70,3 @@ runs:
       DB_REPORT: ${{github.workspace}}/update.xml
       DB_FILTER: ${{inputs.DB_FOLDER}}/Filter.scpf
       DOCKER_CONTENT_TRUST: 0
-
-  - name: "SQL: Zip DB for Octopus"
-    working-directory: ${{inputs.DB_FOLDER}}
-    shell: bash
-    run: |
-      mkdir -p ../package/db/state
-      cp -R -- * ../package/db/state
-      cd ../package
-      zip -9r "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-database.${{inputs.BUILD_VERSION}}.zip" .
