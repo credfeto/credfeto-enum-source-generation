@@ -150,6 +150,20 @@ inputs:
     description: 'Whether to create a release in github'
     required: true
 
+  # DATABASE
+  SQL_SERVER:
+    description: 'SQL Server to connect to'
+    required: false
+  SQL_DB:
+    description: 'Database to deploy to'
+    required: false
+  SQL_USER:
+    description: 'User to connect to the database as'
+    required: false
+  SQL_PASSWORD:
+    description: 'Password for SQL_USER'
+    required: false
+
 runs:
   using: "composite"
   steps:
@@ -335,6 +349,7 @@ runs:
         PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
         BUILD_VERSION: ${{env.BUILD_VERSION}}
         BUILD_SQL: ${{steps.check_files.outputs.SQL_EXIST}}
+        DB_FOLDER: ${{github.workspace}}/db
         NUGET_PACK: ${{inputs.NUGET_PACK}}
         NUGET_FEED: ${{inputs.NUGET_FEED}}
         NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}
@@ -404,6 +419,23 @@ runs:
         AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
         CONTAINER_SOURCE: ${{github.workspace}}/server-dist/linux-arm64
         CONTAINER_PLATFORM: linux/arm64
+
+    - name: "Dotnet: SQL Deploy"
+      if: |-
+        steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
+        steps.check_files.outputs.SLN_EXIST == 'true' &&
+        steps.check_files.outputs.SQL_EXIST == 'true' &&
+        inputs.CLOUD_FORMATION_DEPLOY == 'true' &&
+        inputs.DOCKER_APP_NAME != '' &&
+        env.DEPLOY == 'true'
+      uses: ./.github/actions/database-deploy-deploy
+      with:
+        BUILD_VERSION: ${{env.BUILD_VERSION}}
+        SQL_SERVER: ${{inputs.SQL_SERVER}}
+        SQL_DB: ${{inputs.SQL_DB}}
+        SQL_USER: ${{inputs.SQL_USER}}
+        SQL_PASSWORD: ${{inputs.SQL_PASSWORD}}
+        DB_FOLDER: ${{github.workspace}}/db
 
     - name: "Dotnet: Cloudformation Deploy"
       if: |-
