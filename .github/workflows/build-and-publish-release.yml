@@ -93,6 +93,10 @@ jobs:
           API_PREFIX: ${{vars.API_PREFIX}}
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_ACCESS_TOKEN: ${{secrets.DOCKER_ACCESS_TOKEN}}
+          SQL_SERVER: ${{vars.SQL_SERVER}}
+          SQL_DB: ${{vars.SQL_DB}}
+          SQL_USER: ${{vars.SQL_USER}}
+          SQL_PASSWORD: ${{secrets.SQL_PASSWORD}}
           CREATE_RELEASE: true
 
       - name: "Build and deploy"
@@ -142,6 +146,10 @@ jobs:
           API_PREFIX: ${{vars.API_PREFIX}}
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_ACCESS_TOKEN: ${{secrets.DOCKER_ACCESS_TOKEN}}
+          SQL_SERVER: ${{vars.SQL_SERVER}}
+          SQL_DB: ${{vars.SQL_DB}}
+          SQL_USER: ${{vars.SQL_USER}}
+          SQL_PASSWORD: ${{secrets.SQL_PASSWORD}}
           CREATE_RELEASE: true
 
       - name: "Build Version"
