@@ -15,6 +15,10 @@ inputs:
     description: 'Package (root) to deploy when zipped'
     required: false
 
+  DB_FOLDER:
+    description: 'Folder where SQL Files live'
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -27,7 +31,7 @@ runs:
 
   - name: "SQL: Lint SQL Files"
     shell: bash
-    run: dotnet tsqllint "${{github.workspace}}/db"
+    run: dotnet tsqllint "${{inputs.DB_FOLDER}}"
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -45,18 +49,38 @@ runs:
     shell: bash
     run: docker pull redgate/sqlcompare:latest
 
-  - name: "SQL: Build SQL change"
+  - name: "Build SQL change"
     shell: bash
-    run: docker run "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" --net=host --rm redgate/sqlcompare:latest /IAgreeToTheEULA /filter:"$DB_FILTER" /options:ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel /transactionIsolationLevel:SERIALIZABLE /include:staticData /scriptFile:"$DB_OUTPUT" /scripts1:"$DB_SOURCE" /showWarnings /include:Identical /report:"$DB_REPORT" /reportType:Xml /force /OutputWidth:1024 /out:"$DB_LOG" /empty2
+    run: |
+      docker run \
+             "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
+             --net=host \
+             --rm redgate/sqlcompare:latest \
+             /IAgreeToTheEULA \
+             /filter:"$DB_FILTER" \
+             /options:CaseSensitiveObjectDefinition,ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel \
+             /transactionIsolationLevel:SERIALIZABLE \
+             /include:staticData \
+             /scriptFile:"$DB_OUTPUT" \
+             /scripts1:"$DB_SOURCE" \
+             /showWarnings \
+             /include:Identical \
+             /report:"$DB_REPORT" \
+             /reportType:Xml \
+             /force \
+             /OutputWidth:1024 \
+             /empty2 \
+             /verbose
     env:
-      DB_SOURCE: ${{github.workspace}}/db
-      DB_OUTPUT: ${{github.workspace}}/update.sql
+      DB_SOURCE: ${{inputs.DB_FOLDER}}
+      DB_OUTPUT: ${{github.workspace}}/update.test.sql
       DB_LOG: ${{github.workspace}}/update.log
       DB_REPORT: ${{github.workspace}}/update.xml
-      DB_FILTER: ${{github.workspace}}/db/Filter.scpf
+      DB_FILTER: ${{inputs.DB_FOLDER}}/Filter.scpf
+      DOCKER_CONTENT_TRUST: 0
 
   - name: "SQL: Zip DB for Octopus"
-    working-directory: ${{github.workspace}}/db
+    working-directory: ${{inputs.DB_FOLDER}}
     shell: bash
     run: |
       mkdir -p ../package/db/state
