@@ -51,12 +51,9 @@ inputs:
     description: 'Visibility of the repo'
     required: true
 
-  # Octopus
-  OCTOPUS_DEPLOY_PACKAGE:
+  # DEPLOYMENT
+  PROJECT_TO_PUBLISH:
     description: 'Package (root) to deploy'
-    required: false
-  OCTOPUS_DEPLOY_PACKAGE_ZIP:
-    description: 'Package (root) to deploy when zipped'
     required: false
 
 runs:
@@ -148,44 +145,20 @@ runs:
     with:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
       DB_FOLDER: ${{inputs.DB_FOLDER}}
-      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
-      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
   ############################################################################################################
-  # Publish ready for deploy to octopus
+  # Publish ready for deploy
   ############################################################################################################
-  - name: "Dotnet: Pack Packages for Octopus (win-x64)"
-    if: inputs.OCTOPUS_DEPLOY_PACKAGE != ''
-    uses: ./.github/actions/dotnet-publish
-    with:
-      PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
-      BUILD_VERSION: ${{inputs.BUILD_VERSION}}
-      RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
-      PLATFORM: "win-x64"
-      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
-      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
-  - name: "Dotnet: Pack Packages for Octopus (linux-x64)"
-    if: inputs.OCTOPUS_DEPLOY_PACKAGE != ''
-    uses: ./.github/actions/dotnet-publish
-    with:
-      PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
-      BUILD_VERSION: ${{inputs.BUILD_VERSION}}
-      RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
-      PLATFORM: "linux-x64"
-      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
-      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
-
-  - name: "Dotnet: Pack Packages for Octopus (linux-arm64)"
-    if: inputs.OCTOPUS_DEPLOY_PACKAGE != ''
+  - name: "Dotnet: Publish Packages (linux-arm64)"
+    if: inputs.PROJECT_TO_PUBLISH != ''
     uses: ./.github/actions/dotnet-publish
     with:
       PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
       RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
       PLATFORM: "linux-arm64"
-      OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
-      OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
+      PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}
 
   ############################################################################################################
   # DOTNET PUSH TO NUGET
