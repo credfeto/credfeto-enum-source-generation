@@ -39,6 +39,9 @@ inputs:
   BUILD_SQL:
     description: 'Whether to build SQL DB'
     required: true
+  DB_FOLDER:
+    description: 'Folder where SQL Files live'
+    required: false
 
   # GENERAL
   GITHUB_TOKEN:
@@ -144,6 +147,7 @@ runs:
     uses: ./.github/actions/sql
     with:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
+      DB_FOLDER: ${{inputs.DB_FOLDER}}
       OCTOPUS_DEPLOY_PACKAGE: ${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
       OCTOPUS_DEPLOY_PACKAGE_ZIP: ${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}
 
