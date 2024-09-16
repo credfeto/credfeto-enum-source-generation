@@ -19,12 +19,8 @@ inputs:
     description: 'Release notes'
     required: true
 
-  # Octopus
-  OCTOPUS_DEPLOY_PACKAGE:
+  PROJECT_TO_PUBLISH:
     description: 'Package (root) to deploy'
-    required: false
-  OCTOPUS_DEPLOY_PACKAGE_ZIP:
-    description: 'Package (root) to deploy when zipped'
     required: false
 
 runs:
@@ -35,8 +31,8 @@ runs:
   #
   # -p:PublishAot=false
   # -p:PublishReadyToRun=False
-  - name: "Dotnet: Pack For Octopus"
-    working-directory: ${{github.workspace}}/src/${{inputs.OCTOPUS_DEPLOY_PACKAGE}}
+  - name: "Dotnet: Publish"
+    working-directory: ${{github.workspace}}/src/${{inputs.PROJECT_TO_PUBLISH}}
     shell: bash
     run: |
       dotnet publish \
@@ -74,8 +70,3 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
-
-  - name: "Dotnet: Zip Packages for Octopus"
-    working-directory: ${{github.workspace}}/server-dist/${{inputs.PLATFORM}}
-    shell: bash
-    run: zip -9r "${{github.workspace}}/${{inputs.OCTOPUS_DEPLOY_PACKAGE_ZIP}}-${{inputs.PLATFORM}}.${{inputs.BUILD_VERSION}}.zip" . -x -- *.pdb
