@@ -389,7 +389,7 @@ runs:
         inputs.CLOUD_FORMATION_DEPLOY == 'true' &&
         inputs.DOCKER_APP_NAME != '' &&
         env.DEPLOY == 'true'
-      uses: ./.github/actions/database-deploy-deploy
+      uses: ./.github/actions/database-deploy
       with:
         BUILD_VERSION: ${{env.BUILD_VERSION}}
         SQL_SERVER: ${{inputs.SQL_SERVER}}
