@@ -28,6 +28,7 @@ runs:
       uses: docker/setup-buildx-action@v3.0.0
 
     - name: "Configure AWS Credentials"
+      if: inputs.AWS_REGION != ''
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
         aws-access-key-id: ${{inputs.AWS_ACCESS_KEY_ID}}
