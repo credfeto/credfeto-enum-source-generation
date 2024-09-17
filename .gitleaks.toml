@@ -1,57 +1,73 @@
 title = "gitleaks config"
 
 [[rules]]
+    id = "GL-AWS-01"
     description = "AWS Manager ID"
     regex = '''(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
     tags = ["key", "AWS"]
 
 [[rules]]
+    id = "GL-AWS-02"
     description = "AWS Secret Key"
     regex = '''(?i)aws(.{0,20})?(?-i)[0-9a-zA-Z\/+]{40}'''
     tags = ["key", "AWS"]
 
 [[rules]]
+    id = "GL-AWS-03"
     description = "AWS MWS key"
     regex = '''amzn\.mws\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'''
     tags = ["key", "AWS", "MWS"]
 
 [[rules]]
+    id = "GL-GITHUB-01"
     description = "Github"
     regex = '''(?i)github(.{0,20})?(?-i)[0-9a-zA-Z]{35,40}'''
     tags = ["key", "Github"]
 
 [[rules]]
+    id = "GL-PRIVATEKEY-01"
     description = "Asymmetric Private Key"
     regex = '''-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'''
     tags = ["key", "AsymmetricPrivateKey"]
 
 [[rules]]
+    id = "GL-GOOGLE-01"
     description = "Google API key"
     regex = '''AIza[0-9A-Za-z\\-_]{35}'''
     tags = ["key", "Google"]
 
 [[rules]]
+    id = "GL-GOOGLE-02"
     description = "Google (GCP) Service Account"
     regex = '''"type": "service_account"'''
     tags = ["key", "Google"]
 
 [[rules]]
+    id = "GL-SENDGRID-01"
     description = "SendGrid API Key"
     regex = '''SG\.[\w_]{16,32}\.[\w_]{16,64}'''
     tags = ["key", "SendGrid"]
 
 [[rules]]
+    id = "GL-SLACK-01"
     description = "Slack Webhook"
     regex = '''https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8}/[a-zA-Z0-9_]{24}'''
     tags = ["key", "slack"]
 
 [[rules]]
+    id = "GL-TWILIO-01"
     description = "Twilio API key"
     regex = '''(?i)twilio(.{0,20})?SK[0-9a-f]{32}'''
     tags = ["key", "twilio"]
 
-[whitelist]
-    description = "Whitelisted"
+[[rules]]
+    id = "GL-ETHPK-01"
+    description = "Ethereum Private Key"
+    regex = '''"PrivateKey":\s*"0x[a-fA-F0-9]{64}"'''
+    tags = ["key", "ethereum", "private key"]
+
+[allowlist]
+    description = "Allow Listed"
     file = '''(^\.?gitleaks.toml$|(.*?)(jpg|gif|doc|pdf|bin)$)'''
     regexes = [
         '''(.*?)gitleaks:allow'''
