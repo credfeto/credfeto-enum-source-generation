@@ -12,7 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.23.533
 - Dependencies - Updated FunFair.Test.Common to 6.1.69.630
 - Dependencies - Updated Roslynator.Analyzers to 4.12.5
-- Dependencies - Updated Meziantou.Analyzer to 2.0.164
+- Dependencies - Updated Meziantou.Analyzer to 2.0.165
 ### Removed
 ### Deployment Changes
 
