@@ -204,6 +204,7 @@ runs:
         NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
 
     - name: "Configure Docker"
+      if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
       uses: ./.github/actions/docker-setup
       with:
         AWS_ACCESS_KEY_ID: ${{inputs.AWS_ACCESS_KEY_ID}}
