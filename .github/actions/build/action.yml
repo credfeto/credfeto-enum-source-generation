@@ -406,7 +406,7 @@ runs:
         inputs.CLOUD_FORMATION_DEPLOY == 'true' &&
         inputs.DOCKER_APP_NAME != '' &&
         env.DEPLOY == 'true'
-      uses: ./.github/actions/cloudformation-deploy
+      uses: ./.github/actions/dispatch-deploy
       with:
         CLOUD_FORMATION_STACK: ${{inputs.CLOUD_FORMATION_STACK}}
         CLOUD_FORMATION_TEMPLATE_FILE: "${{github.workspace}}/cloudformation.json"
@@ -414,7 +414,6 @@ runs:
         BUILD_VERSION: ${{env.BUILD_VERSION}}
         DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
         DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}
-        AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
         API_HOST: ${{inputs.API_HOST}}
         API_PREFIX: ${{inputs.API_PREFIX}}
         AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
