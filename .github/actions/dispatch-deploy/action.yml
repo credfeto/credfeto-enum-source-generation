@@ -32,6 +32,10 @@ inputs:
   BUILD_VERSION:
     description: "Build Version"
     required: true
+  GITHUB_TOKEN:
+    description: 'github token for accessing github'
+    required: true
+    default: ${{github.token}}
 
 runs:
   using: "composite"
