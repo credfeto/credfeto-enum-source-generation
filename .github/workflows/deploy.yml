@@ -36,7 +36,7 @@ on:
 
 # Don't cancel anything in progress
 concurrency:
-  group: ${{github.workflow}}
+  group: ${{github.workflow}}-${{inputs.CLOUD_FORMATION_STACK}}-${{inputs.BUILD_VERSION}}
   cancel-in-progress: false
 
 permissions:
@@ -56,7 +56,7 @@ jobs:
       - name: "Configure AWS Credentials"
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
-          aws-access-key-id: ${{inputs.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}
+          aws-access-key-id: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY}}
           aws-region: ${{vars.AWS_REGION}}
 
