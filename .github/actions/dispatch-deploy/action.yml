@@ -1,0 +1,63 @@
+--- # Dispatch to deploy workflow for deployment.
+name: 'Dispatch to deploy workflow'
+description: 'Dispatches deployment to a separate workflow'
+inputs:
+  CLOUD_FORMATION_STACK:
+    description: 'The Cloud Formation stack to deploy as'
+    required: true
+  CLOUD_FORMATION_TEMPLATE_FILE:
+    description: 'The Cloud Formation file to deploy'
+    required: true
+  CLOUDFORMATION_SNS_ARN:
+    description: 'SSN Notification ARN'
+    required: false
+  DOCKER_APP_OWNER:
+    description: 'docker app owner'
+    required: true
+  DOCKER_APP_NAME:
+    description: 'docker app name'
+    required: true
+  API_HOST:
+    description: 'Api Host'
+    required: true
+  API_PREFIX:
+    description: 'API Prefix'
+    required: true
+  AWS_LOAD_BALANCER_HOSTNAME:
+    description: "AWS Load Balancer match hostname"
+    required: true
+  AWS_LOAD_BALANCER_PRIORITY:
+    description: "AWS Load Balancer match priority"
+    required: true
+  BUILD_VERSION:
+    description: "Build Version"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "Trigger Deployment Workflow"
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ inputs.GITHUB_TOKEN }}
+        script: |
+          github.rest.actions.createWorkflowDispatch({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'deploy.yml',
+            ref: 'main',
+            inputs: {
+                CLOUD_FORMATION_STACK: "${{inputs.CLOUD_FORMATION_STACK}}",
+                CLOUD_FORMATION_TEMPLATE_FILE: "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}",
+                CLOUD_FORMATION_TEMPLATE_FILE: "${{github.workspace}}/deploy/${{inputs.APP_NAME}}.json",
+                DOCKER_APP_OWNER: "${{inputs.APP_OWNER}}",
+                DOCKER_APP_NAME: "${{inputs.APP_NAME}}",
+                BUILD_VERSION: "${{inputs.BUILD_VERSION}}",
+                API_HOST: 'dev.treasury.funfair.io',
+                API_PREFIX: "/${{inputs.APP_NAME}}",
+                AWS_LOAD_BALANCER_HOSTNAME: 'dev.treasury.funfair.io',
+                AWS_CONTAINER_REGISTRY: "${{inputs.AWS_CONTAINER_REGISTRY}}",
+                AWS_LOAD_BALANCER_PRIORITY: "${{inputs.AWS_LOAD_BALANCER_PRIORITY}}",
+              }
+          })
