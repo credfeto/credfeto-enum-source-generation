@@ -1,0 +1,77 @@
+name: "!!Deploy: Using Cloudformation"
+on:
+  workflow_dispatch:
+    # note MAX inputs = 10
+    inputs:
+      CLOUD_FORMATION_STACK:
+        description: '1. The Cloud Formation stack to deploy as'
+        required: true
+      CLOUD_FORMATION_TEMPLATE_FILE:
+        description: '2. The Cloud Formation file to deploy'
+        required: true
+      DOCKER_APP_OWNER:
+        description: '3. docker app owner'
+        required: true
+      DOCKER_APP_NAME:
+        description: '4. docker app name'
+        required: true
+      API_HOST:
+        description: '5. Api Host'
+        required: true
+      API_PREFIX:
+        description: '6. API Prefix'
+        required: true
+      AWS_LOAD_BALANCER_HOSTNAME:
+        description: "7. AWS Load Balancer match hostname"
+        required: true
+      AWS_LOAD_BALANCER_PRIORITY:
+        description: "8. AWS Load Balancer match priority"
+        required: true
+      AWS_CONTAINER_REGISTRY:
+        description: "9. AWS container registry to retrieve package from"
+        required: true
+      BUILD_VERSION:
+        description: "10. Build Version"
+        required: true
+
+# Don't cancel anything in progress
+concurrency:
+  group: ${{github.workflow}}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  security-events: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Hello World"
+        shell: bash
+        run: |
+          echo "Hello World: ${{inputs.CLOUD_FORMATION_STACK}}"
+
+      - name: "Configure AWS Credentials"
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{inputs.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY}}
+          aws-region: ${{vars.AWS_REGION}}
+
+      ## AWS_CONTAINER_REGISTRY: ${{vars.AWS_CONTAINER_REGISTRY}}
+      - name: "Cloudformation Deploy"
+        uses: ./.github/actions/cloudformation-deploy
+        with:
+          CLOUD_FORMATION_STACK: ${{inputs.CLOUD_FORMATION_STACK}}
+          CLOUDFORMATION_SNS_ARN: ${{inputs.CLOUDFORMATION_SNS_ARN}}
+          CLOUD_FORMATION_TEMPLATE_FILE: ${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}
+          DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
+          DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}
+          BUILD_VERSION: ${{inputs.BUILD_VERSION}}
+          API_HOST: ${{inputs.API_HOST}}
+          API_PREFIX: ${{inputs.API_PREFIX}}
+          AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
+          AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
+          AWS_CONTAINER_REGISTRY: ${{vars.AWS_CONTAINER_REGISTRY}}
