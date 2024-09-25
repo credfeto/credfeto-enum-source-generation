@@ -409,7 +409,7 @@ runs:
       uses: ./.github/actions/dispatch-deploy
       with:
         CLOUD_FORMATION_STACK: ${{inputs.CLOUD_FORMATION_STACK}}
-        CLOUD_FORMATION_TEMPLATE_FILE: "${{github.workspace}}/cloudformation.json"
+        CLOUD_FORMATION_TEMPLATE_FILE: "ridcloudformation.json"
         CLOUDFORMATION_SNS_ARN: ${{inputs.CLOUDFORMATION_SNS_ARN}}
         BUILD_VERSION: ${{env.BUILD_VERSION}}
         DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
