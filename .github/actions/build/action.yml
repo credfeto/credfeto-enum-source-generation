@@ -418,6 +418,7 @@ runs:
         API_PREFIX: ${{inputs.API_PREFIX}}
         AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
         AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
+        AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
 
     ############################################################################################################
