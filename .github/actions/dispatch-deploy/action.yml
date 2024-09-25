@@ -22,7 +22,7 @@ inputs:
     required: true
   API_PREFIX:
     description: 'API Prefix'
-    required: true
+    required: false
   AWS_LOAD_BALANCER_HOSTNAME:
     description: "AWS Load Balancer match hostname"
     required: true
@@ -43,7 +43,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-
     - name: "Log parameters"
       shell: bash
       run: |
