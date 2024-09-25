@@ -20,7 +20,7 @@ on:
         required: true
       API_PREFIX:
         description: '6. API Prefix'
-        required: true
+        required: false
       AWS_LOAD_BALANCER_HOSTNAME:
         description: "7. AWS Load Balancer match hostname"
         required: true
