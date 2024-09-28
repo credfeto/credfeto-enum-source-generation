@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated xunit to 2.9.2
+- SDK - Updated to Dotnet 9.0 RC1
 ### Removed
 ### Deployment Changes
 
