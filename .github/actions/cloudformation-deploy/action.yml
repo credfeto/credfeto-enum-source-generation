@@ -19,13 +19,13 @@ inputs:
     required: true
   API_HOST:
     description: 'Api Host'
-    required: true
+    required: false
   API_PREFIX:
     description: 'API Prefix'
     required: false
   AWS_LOAD_BALANCER_HOSTNAME:
     description: "AWS Load Balancer match hostname"
-    required: true
+    required: false
   AWS_LOAD_BALANCER_PRIORITY:
     description: "AWS Load Balancer match priority"
     required: true
