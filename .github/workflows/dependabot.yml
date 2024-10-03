@@ -14,7 +14,7 @@ jobs:
   auto-rebase:
     runs-on: ubuntu-latest
 
-    if: github.ref == 'refs/heads/main' || github.event == 'release'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
     timeout-minutes: 5
     steps:
       - name: "Initialise Workspace"
@@ -23,6 +23,6 @@ jobs:
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Rebase"
-        uses: bbeesley/gha-auto-dependabot-rebase@v1.3.345
+        uses: bbeesley/gha-auto-dependabot-rebase@v1.5.0
         env:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
