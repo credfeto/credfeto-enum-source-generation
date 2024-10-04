@@ -116,6 +116,8 @@ runs:
                         --template-file "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
                         --stack-name "${{inputs.CLOUD_FORMATION_STACK}}" \
                         --parameter-overrides file://TemplateParameters.json \
+                        --tags "App=${{inputs.CLOUD_FORMATION_STACK}}" \
+                               "Version=${{inputs.BUILD_VERSION}}" \
                         --notification-arns "${{inputs.CLOUDFORMATION_SNS_ARN}}"
 
     - if: inputs.CLOUDFORMATION_SNS_ARN == ''
@@ -126,7 +128,9 @@ runs:
                   cloudformation deploy \
                         --template-file "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
                         --stack-name "${{inputs.CLOUD_FORMATION_STACK}}" \
-                        --parameter-overrides file://TemplateParameters.json
+                        --parameter-overrides file://TemplateParameters.json \
+                        --tags "App=${{inputs.CLOUD_FORMATION_STACK}}" \
+                               "Version=${{inputs.BUILD_VERSION}}"
 
     - name: "AWS Enable Stack termination protection"
       shell: bash
