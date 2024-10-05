@@ -22,6 +22,9 @@ on:
       - completed
   status: { }
 
+permissions:
+  contents: read
+
 jobs:
   auto-merge-dependabot-github-actions:
     if: |-
