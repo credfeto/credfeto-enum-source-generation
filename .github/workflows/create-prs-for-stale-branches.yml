@@ -20,9 +20,6 @@ jobs:
   build-matrix:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-
     steps:
       - name: "Initialise Workspace"
         if: startsWith(runner.name, 'buildagent-')
