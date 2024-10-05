@@ -12,9 +12,14 @@ concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   update-labels-config:
 
+    permissions:
+      issues: write  # for crazy-max/ghaction-github-labeler to create, rename, update and delete label
     runs-on: ubuntu-latest
 
     steps:
