@@ -97,9 +97,9 @@ jobs:
         uses: actions/github-script@v7.0.1
         with:
           script: |
-            core.info('Application: \u001b[38;5;6m${{env.DOCKER_APP_OWNER}}\\${{env.DOCKER_APP_NAME}}');
-            core.info('Version: \u001b[38;5;6m${{env.BUILD_VERSION}}');
-            core.info('Stack: \u001b[38;5;6m${{env.CLOUD_FORMATION_STACK}}');
-            core.notice('Application: ${{env.DOCKER_APP_OWNER}}\\${{env.DOCKER_APP_NAME}}');
-            core.notice('Version: ${{env.BUILD_VERSION}}');
-            core.notice('Stack: ${{env.CLOUD_FORMATION_STACK}}');
+            core.info('Application: \u001b[38;5;6m${{inputs.DOCKER_APP_OWNER}}\\${{inputs.DOCKER_APP_NAME}}');
+            core.info('Version: \u001b[38;5;6m${{inputs.BUILD_VERSION}}');
+            core.info('Stack: \u001b[38;5;6m${{inputs.CLOUD_FORMATION_STACK}}');
+            core.notice('Application: ${{inputs.DOCKER_APP_OWNER}}\\${{inputs.DOCKER_APP_NAME}}');
+            core.notice('Version: ${{inputs.BUILD_VERSION}}');
+            core.notice('Stack: ${{inputs.CLOUD_FORMATION_STACK}}');
