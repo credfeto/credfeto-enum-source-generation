@@ -187,8 +187,7 @@ runs:
     shell: bash
     run: |
       shopt -s globstar
-      [ ! -d ../dist ] && mkdir ../dist
-      cp **/*.nupkg ../dist
+      cp **/*.nupkg "${{github.workspace}}/dist"
     working-directory: ${{github.workspace}}/src
 
   - name: "Dotnet: Publish Packages to Nuget (Without separate symbol feed)"
