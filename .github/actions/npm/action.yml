@@ -86,7 +86,9 @@ runs:
     shell: bash
     run: npm run build
 
-  - if: inputs.NPM_SIGNING == 'true'
+  - if: |
+      inputs.NPM_SIGNING == 'true' &&
+      inputs.PROJECT_TO_PUBLISH != ''
     name: "NPM: Build Package"
     shell: bash
     run: |
@@ -110,15 +112,19 @@ runs:
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
 
-  - if: inputs.NPM_SIGNING == 'true'
+  - if: |
+      inputs.NPM_SIGNING == 'true' &&
+      inputs.PROJECT_TO_PUBLISH != ''
     name: "NPM: Check Package"
     shell: bash
     run: |
         ls -la "${{github.workspace}}"
         echo "-----------------------"
-        ls "${{github.workspace}}/${{inputs.PROJECT_TO_PUBLISH}}-${{env.BUILD_VERSION}}.nupkg"
+        ls "${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{env.BUILD_VERSION}}.nupkg"
 
-  - if: inputs.NPM_SIGNING == 'true'
+  - if: |
+        inputs.NPM_SIGNING == 'true' &&
+        inputs.PROJECT_TO_PUBLISH != ''
     name: "NPM: Create Store Signing Wallet"
     #uses: ttd2089/secret-file-action@1.0.0
     uses: credfeto/secret-file-action@feat/fix-github-deprecations
@@ -127,7 +133,9 @@ runs:
       secret: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
       b64-decode: false
 
-  - if: inputs.NPM_SIGNING == 'true'
+  - if: |
+      inputs.NPM_SIGNING == 'true' &&
+      inputs.PROJECT_TO_PUBLISH != ''
     name: "NPM: Store Sign Package"
     shell: bash
     run: |
