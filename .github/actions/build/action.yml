@@ -192,6 +192,12 @@ runs:
       run: |
         [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
 
+    - name: "Prepare dist folder"
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: |
+        [ ! -d "${{github.workspace}}/dist" ] && mkdir "${{github.workspace}}/dist" || echo "dist created"
+
     - name: "Install Build tools"
       uses: ./.github/actions/build-tools
       with:
