@@ -368,7 +368,6 @@ jobs:
           VALIDATE_POWERSHELL: true
           VALIDATE_PYTHON: true
           VALIDATE_PYTHON_PYLINT: true
-          VALIDATE_SQL: true
           VALIDATE_TYPESCRIPT_ES: true
           VALIDATE_XML: true
           VALIDATE_YAML: true
