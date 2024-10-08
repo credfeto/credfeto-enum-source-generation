@@ -421,6 +421,17 @@ runs:
         AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
 
+    - name: "Dotnet: NPM Deploy"
+      if: |-
+        steps.check_files.outputs.NPM_EXIST == 'true' &&
+        steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' &&
+        inputs.CLOUD_FORMATION_DEPLOY == 'true' &&
+        env.DEPLOY == 'true'
+      uses: ./.github/actions/sleet
+      with:
+        SLEET_CONFIG: ${{inputs.SLEET_CONFIG}}
+        SLEET_FEED: ${{inputs.SLEET_FEED}}
+
     ############################################################################################################
     # Create GitHub Release
     ############################################################################################################
