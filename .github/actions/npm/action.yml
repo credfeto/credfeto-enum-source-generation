@@ -65,6 +65,11 @@ runs:
   #          core.notice('Cache Hit: ${{steps.npm-cache.outputs.cache-hit}}');
   ####################################################################################################################
 
+  - name: "NPM: Ensure dist folder exists"
+    shell: bash
+    run: |
+      [ ! -d ../dist ] && mkdir ../dist
+
   - name: "NPM: Install dependencies"
     working-directory: ${{github.workspace}}/src
     shell: bash
@@ -87,7 +92,7 @@ runs:
     run: |
         dotnet buildcontentpackage \
             -SourcePath "${{github.workspace}}/src/dist" \
-            -targetPath "${{github.workspace}}" \
+            -targetPath "${{github.workspace}}/dist" \
             -version "${{inputs.BUILD_VERSION}}" \
             -WarningAsErrors false \
             -Wallet "${{github.workspace}}/Wallet.json" \
@@ -127,7 +132,7 @@ runs:
     shell: bash
     run: |
       dotnet signcontentpackage \
-          -Package "${{github.workspace}}/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg" \
+          -Package "${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg" \
           -WarningAsErrors true \
           -Wallet false \
           -Wallet "${{steps.store-siging-wallet.outputs.file}}" \
