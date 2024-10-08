@@ -28,7 +28,7 @@ runs:
       uses: docker/setup-buildx-action@v3.0.0
 
     - name: "Configure AWS Credentials"
-      if: inputs.AWS_REGION != ''
+      if: inputs.AWS_ACCESS_KEY_ID != ''
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
         aws-access-key-id: ${{inputs.AWS_ACCESS_KEY_ID}}
@@ -36,6 +36,7 @@ runs:
         aws-region: ${{inputs.AWS_REGION}}
 
     - name: "Docker: Login to Docker Hub"
+      if: inputs.DOCKER_ACCESS_TOKEN != ''
       uses: docker/login-action@v3.0.0
       with:
         username: ${{inputs.DOCKER_USERNAME}}
@@ -43,6 +44,7 @@ runs:
         ecr: false
 
     - name: "Docker: Login to AWS ECR"
+      if: inputs.AWS_ACCESS_KEY_ID != ''
       uses: docker/login-action@v3.0.0
       with:
         registry: ${{inputs.AWS_CONTAINER_REGISTRY}}
