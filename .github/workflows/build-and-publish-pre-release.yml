@@ -120,7 +120,7 @@ jobs:
           NUGET_SYMBOL_FEED: ${{secrets.NUGET_SYMBOL_FEED}}
           NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
           SLEET_CONFIG: ${{secrets.SLEET_CONFIG}}
-          SLEET_FEED: "dotnet-prerelease"
+          SLEET_FEED: ${{vars.PRE_RELEASE_SLEET_FEED}}
           PROJECT_TO_PUBLISH: ${{vars.PROJECT_TO_PUBLISH}}
           DOCKER_APP_OWNER: ${{vars.DOCKER_APP_OWNER}}
           DOCKER_APP_NAME: ${{vars.DOCKER_APP_NAME}}
