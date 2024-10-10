@@ -81,6 +81,12 @@ runs:
     shell: bash
     run: npm run build
 
+  - name: "NPM: Build Package"
+    shell: bash
+    run: |
+      echo "SIGNING: ${{inputs.NPM_SIGNING}}"
+      echo "PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}"
+
   - if: |
       inputs.NPM_SIGNING == 'true' &&
       inputs.PROJECT_TO_PUBLISH != ''
