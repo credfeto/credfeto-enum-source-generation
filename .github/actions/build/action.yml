@@ -209,6 +209,10 @@ runs:
         NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
         NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
 
+    - name: "Set up QEMU"
+      if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
+      uses: docker/setup-qemu-action@v3.0.0
+
     - name: "Configure Docker"
       if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
       uses: ./.github/actions/docker-setup
