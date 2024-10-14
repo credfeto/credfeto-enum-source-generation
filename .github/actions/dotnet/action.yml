@@ -98,6 +98,7 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
   - name: "Dotnet: Build (Non-Release)"
     working-directory: ${{github.workspace}}/src
@@ -116,6 +117,7 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
   ## RUN TESTS
   - name: "Dotnet: Test"
@@ -135,6 +137,7 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
   # ############################################################################################################
   # # DATABASE BUILD
@@ -181,6 +184,7 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
   - name: "Dotnet: Copy packed to dist"
     if: inputs.NUGET_PACK == 'true'
@@ -210,6 +214,7 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
   - name: "Dotnet: Publish Packages to Nuget (With separate symbol feed)"
     if: |-
@@ -231,6 +236,7 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
   - name: "Dotnet: Publish Packages using sleet"
     if: |-
