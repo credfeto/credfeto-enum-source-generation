@@ -371,3 +371,6 @@ src/Data
 
 # Server packaging
 server-dist/
+
+# Nuget
+.nuget/
