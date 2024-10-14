@@ -43,6 +43,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     ### REMOVE FEEDS
     - name: "Dotnet: Remove cache nuget feed (NugetCache) if it exists"
@@ -62,6 +63,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Remove cache nuget feed (nuget.org) if it exists"
       shell: bash
@@ -80,6 +82,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Remove optional nuget feed (Additional1Cache) if it exists"
       shell: bash
@@ -98,6 +101,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Remove optional nuget feed (Additional2Cache) if it exists"
       shell: bash
@@ -116,6 +120,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Remove optional nuget feed (Additional1) if it exists"
       shell: bash
@@ -134,6 +139,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Remove optional nuget feed (Additional2) if it exists"
       shell: bash
@@ -152,6 +158,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     #### ADD FEEDS
     - name: "Dotnet: Add optional nuget feed (NugetCache)"
@@ -172,6 +179,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Add nuget feed (nuget.org)"
       shell: bash
@@ -190,6 +198,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Add optional nuget feed (Additional1Cache)"
       if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''
@@ -209,6 +218,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Add optional nuget feed (Additional2Cache)"
       if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''
@@ -228,6 +238,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Add optional nuget feed (Additional1)"
       if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''
@@ -247,6 +258,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Add optional nuget feed (Additional2)"
       if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''
@@ -266,6 +278,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Show sources (After)"
       shell: bash
@@ -284,6 +297,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Clear nuget cache"
       shell: bash
@@ -300,3 +314,4 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
