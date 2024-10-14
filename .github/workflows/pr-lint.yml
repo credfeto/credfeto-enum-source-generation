@@ -113,7 +113,7 @@ jobs:
         uses: actions/setup-dotnet@v4.0.1
         env:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+          DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
           DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
           DOTNET_MULTILEVEL_LOOKUP: "false"
           DOTNET_NOLOGO: "true"
@@ -124,7 +124,9 @@ jobs:
           DOTNET_TC_CallCountingDelayMs: "0"
           DOTNET_TieredPGO: "1"
           MSBUILDTERMINALLOGGER: "auto"
+          NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
         with:
+          cache: true
           dotnet-version: |
             6.0.*
             7.0.*
@@ -176,6 +178,7 @@ jobs:
           DOTNET_TC_CallCountingDelayMs: "0"
           DOTNET_TieredPGO: "1"
           MSBUILDTERMINALLOGGER: "auto"
+          NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
       - name: "Install Changelog tool"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
@@ -200,6 +203,7 @@ jobs:
           DOTNET_TC_CallCountingDelayMs: "0"
           DOTNET_TieredPGO: "1"
           MSBUILDTERMINALLOGGER: "auto"
+          NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
   does-not-contain-secrets:
     if: github.event.pull_request.draft == false
