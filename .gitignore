@@ -157,8 +157,6 @@ publish/
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
-# TODO: Comment the next line if you want to checkin your web deploy settings
-# but database connection strings (with potential passwords) will be unencrypted
 *.pubxml
 *.publishproj
 
@@ -168,7 +166,6 @@ publish/
 PublishScripts/
 
 # NuGet Packages
-*.nupkg
 # The packages folder can be ignored because of Package Restore
 **/packages/*
 # except build/, which is used as an MSBuild target.
@@ -312,7 +309,6 @@ src/Content
 src/Data
 
 /.gtm/
-.config
 
 # Redgate
 *.sdcs
@@ -374,3 +370,6 @@ server-dist/
 
 # Nuget
 .nuget/
+
+# Dotnet tool config
+.config/
