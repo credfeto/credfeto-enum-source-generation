@@ -23,8 +23,9 @@ runs:
       shell: bash
       run: |
         dotnet tool install \
-            --local \
+            --global \
             --no-http-cache \
+            --framework "$(dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort | tail -1)" \
             --source "${{inputs.NUGET_SOURCE}}" \
             "${{inputs.TOOL_NAME}}"
       env:
@@ -46,8 +47,9 @@ runs:
       shell: bash
       run: |
           dotnet tool install \
-              --local \
+              --global \
               --no-http-cache \
+              --framework "$(dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort | tail -1)" \
               --source "${{inputs.NUGET_SOURCE}}" \
               "${{inputs.TOOL_NAME}}" \
               --version ${{inputs.TOOL_VERSION}}
@@ -64,3 +66,8 @@ runs:
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
         NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+    - name: "Restore"
+      shell: bash
+      run: dotnet tool restore
+
