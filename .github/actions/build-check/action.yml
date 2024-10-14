@@ -27,6 +27,7 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Run build check (Release)"
       if: env.Release == 'true'
@@ -45,3 +46,4 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
