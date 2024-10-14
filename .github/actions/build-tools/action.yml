@@ -42,7 +42,7 @@ runs:
     shell: bash
 
   - name: "Install dotnet"
-    uses: actions/setup-dotnet@v4.0.0
+    uses: actions/setup-dotnet@v4.0.1
     env:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -56,7 +56,9 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     with:
+      cache: true
       dotnet-version: |
           6.0.*
           7.0.*
@@ -90,6 +92,7 @@ runs:
       DOTNET_TC_CallCountingDelayMs: "0"
       DOTNET_TieredPGO: "1"
       MSBUILDTERMINALLOGGER: "auto"
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
   - name: "Install Sleet package management tool"
     uses: ./.github/actions/dotnet-tool
