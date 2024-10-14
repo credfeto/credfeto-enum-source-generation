@@ -24,7 +24,6 @@ runs:
       run: |
         dotnet tool install \
             --local \
-            --ignore-failed-sources \
             --no-http-cache \
             --source "${{inputs.NUGET_SOURCE}}" \
             "${{inputs.TOOL_NAME}}"
@@ -48,7 +47,6 @@ runs:
       run: |
           dotnet tool install \
               --local \
-              --ignore-failed-sources \
               --no-http-cache \
               --source "${{inputs.NUGET_SOURCE}}" \
               "${{inputs.TOOL_NAME}}" \
