@@ -20,6 +20,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      REPO_STATUS: ${{vars.REPO_VISIBILITY}}
+
     steps:
       - name: "Initialise Workspace"
         if: startsWith(runner.name, 'buildagent-')
@@ -32,7 +35,8 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: "Check Repo Visibility"
+      - if: inputs.REPO_STATUS == ''
+        name: "Check Repo Visibility"
         uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
         with:
