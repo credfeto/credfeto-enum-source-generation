@@ -9,6 +9,10 @@ inputs:
     description: 'Tool version to install'
     required: false
     default: 'latest'
+  NUGET_SOURCE:
+    description: 'Nuget source'
+    required: false
+    default: 'https://api.nuget.org/v3/index.json'
 
 runs:
   using: "composite"
@@ -17,7 +21,13 @@ runs:
     - name: "Install dotnet tool (Latest)"
       if: inputs.TOOL_VERSION == 'latest'
       shell: bash
-      run: dotnet tool install --local --ignore-failed-sources ${{inputs.TOOL_NAME}}
+      run: |
+        dotnet tool install \
+            --local \
+            --ignore-failed-sources \
+            --no-http-cache \
+            --source "${{inputs.NUGET_SOURCE}}" \
+            "${{inputs.TOOL_NAME}}"
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
         DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -35,7 +45,14 @@ runs:
     - name: "Install dotnet tool (Specific Version)"
       if: inputs.TOOL_VERSION != 'latest'
       shell: bash
-      run: dotnet tool install --local --ignore-failed-sources ${{inputs.TOOL_NAME}} --version ${{inputs.TOOL_VERSION}}
+      run: |
+          dotnet tool install \
+              --local \
+              --ignore-failed-sources \
+              --no-http-cache \
+              --source "${{inputs.NUGET_SOURCE}}" \
+              "${{inputs.TOOL_NAME}}" \
+              --version ${{inputs.TOOL_VERSION}}
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
         DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
