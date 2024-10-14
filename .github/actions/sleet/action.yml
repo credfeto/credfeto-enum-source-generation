@@ -35,3 +35,4 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
