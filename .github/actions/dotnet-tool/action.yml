@@ -9,10 +9,6 @@ inputs:
     description: 'Tool version to install'
     required: false
     default: 'latest'
-  NUGET_SOURCE:
-    description: 'Nuget source'
-    required: false
-    default: 'https://api.nuget.org/v3/index.json'
 
 runs:
   using: "composite"
@@ -23,10 +19,8 @@ runs:
       shell: bash
       run: |
         dotnet tool install \
-            --global \
+            --local \
             --no-http-cache \
-            --framework "$(dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort | tail -1)" \
-            --source "${{inputs.NUGET_SOURCE}}" \
             "${{inputs.TOOL_NAME}}"
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -47,10 +41,8 @@ runs:
       shell: bash
       run: |
           dotnet tool install \
-              --global \
+              --local \
               --no-http-cache \
-              --framework "$(dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort | tail -1)" \
-              --source "${{inputs.NUGET_SOURCE}}" \
               "${{inputs.TOOL_NAME}}" \
               --version ${{inputs.TOOL_VERSION}}
       env:
