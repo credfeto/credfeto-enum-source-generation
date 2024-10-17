@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit to 2.9.2
 - SDK - Updated to Dotnet 9.0 RC1
 - SDK - Updated DotNet SDK to 9.0.100-rc.2.24474.11
+- Dependencies - Updated Meziantou.Analyzer to 2.0.170
 ### Removed
 ### Deployment Changes
 
