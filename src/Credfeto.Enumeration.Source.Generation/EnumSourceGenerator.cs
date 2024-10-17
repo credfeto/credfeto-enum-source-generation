@@ -28,7 +28,7 @@ public static class EnumSourceGenerator
 
         using (source.AppendLine("namespace " + enumDeclaration.Namespace + ";")
                      .AppendBlankLine()
-                     .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{VersionInformation.Version()}\")]")
+                     .AppendGeneratedCodeAttribute()
                      .StartBlock(ConvertAccessType(enumDeclaration.AccessType) + " static class " + className))
         {
             GenerateMethods(source: source, attribute: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
@@ -72,7 +72,7 @@ public static class EnumSourceGenerator
 
         using (source.AppendLine("namespace " + classDeclaration.Namespace + ";")
                      .AppendBlankLine()
-                     .AppendLine($"[GeneratedCode(tool: \"{typeof(EnumGenerator).FullName}\", version: \"{VersionInformation.Version()}\")]")
+                     .AppendGeneratedCodeAttribute()
                      .StartBlock(ConvertAccessType(classDeclaration.AccessType) + " static partial class " + className))
         {
             Func<EnumGeneration, string> classNameFormatter = ClassWithNamespaceFormatter;
