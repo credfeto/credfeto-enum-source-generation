@@ -25,7 +25,7 @@ updates:
   - dependency-name: "codecracker.CSharp"
   - dependency-name: "Credfeto.Database.*"
   - dependency-name: "Credfeto.Enumeration.*"
-  - dependency-name: "Credfeto.Version.*"
+  - dependency-name: "Credfeto.Version.Information.Generator"
   - dependency-name: "CSharpIsNullAnalyzer.*"
   - dependency-name: "DisableDateTimeNow"
   - dependency-name: "Discord.Net.Analyzers"
