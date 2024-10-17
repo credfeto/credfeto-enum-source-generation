@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using Credfeto.Enumeration.Source.Generation.Builders;
 using Credfeto.Enumeration.Source.Generation.Extensions;
-using Credfeto.Enumeration.Source.Generation.Helpers;
 using Credfeto.Enumeration.Source.Generation.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -24,7 +23,7 @@ public static class EnumSourceGenerator
     {
         string className = enumDeclaration.Name + "GeneratedExtensions";
 
-        source = AddUsingDeclarations(new());
+        source =  AddUsingDeclarations(new CodeBuilder().AppendFileHeader());
 
         using (source.AppendLine("namespace " + enumDeclaration.Namespace + ";")
                      .AppendBlankLine()
@@ -68,7 +67,7 @@ public static class EnumSourceGenerator
     {
         string className = classDeclaration.Name;
 
-        source = AddUsingDeclarations(new());
+        source = AddUsingDeclarations(new CodeBuilder().AppendFileHeader());
 
         using (source.AppendLine("namespace " + classDeclaration.Namespace + ";")
                      .AppendBlankLine()
