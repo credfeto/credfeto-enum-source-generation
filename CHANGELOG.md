@@ -16,6 +16,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 3.11.0
 - Dependencies - Updated Roslynator.Analyzers to 4.12.8
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.2.16
+- Dependencies - Updated FunFair.Test.Common to 6.1.71.731
 ### Removed
 ### Deployment Changes
 
