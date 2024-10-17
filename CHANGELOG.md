@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 2.0.170
 - Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 3.11.0
 - Dependencies - Updated Roslynator.Analyzers to 4.12.8
+- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.2.16
 ### Removed
 ### Deployment Changes
 
