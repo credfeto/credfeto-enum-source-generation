@@ -9,6 +9,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+### Removed
+### Deployment Changes
+
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+## [1.1.14] - 2024-10-18
+### Changed
 - Dependencies - Updated xunit to 2.9.2
 - SDK - Updated to Dotnet 9.0 RC1
 - SDK - Updated DotNet SDK to 9.0.100-rc.2.24474.11
@@ -17,12 +25,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.2.16
 - Dependencies - Updated FunFair.Test.Common to 6.1.71.731
 - Dependencies - Updated Meziantou.Analyzer to 2.0.172
-### Removed
-### Deployment Changes
 
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
 ## [1.1.13] - 2024-09-26
 ### Changed
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.23.533
