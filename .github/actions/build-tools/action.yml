@@ -36,7 +36,7 @@ runs:
     shell: bash
     working-directory: ${{ github.workspace }}
     run: |
-      [ -d "$HOME/.nuget" ] || mkdir "$HOME/.nuget
+      [ -d "$HOME/.nuget" ] || mkdir "$HOME/.nuget"
       rm -fr "$HOME/.nuget/packages"
       ln -sf "$HOME/.nuget/packages" "${{env.NUGET_PACKAGES}}"
       ls -la "$HOME/.nuget/packages"
