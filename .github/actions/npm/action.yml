@@ -92,8 +92,9 @@ runs:
       inputs.PROJECT_TO_PUBLISH != ''
     name: "NPM: Build Package"
     shell: bash
+    working-directory: ${{ github.workspace }}
     run: |
-        dotnet buildcontentpackage \
+        dotnet tool run buildcontentpackage \
             -SourcePath "${{github.workspace}}/src/dist" \
             -targetPath "${{github.workspace}}/dist" \
             -version "${{inputs.BUILD_VERSION}}" \
@@ -140,8 +141,9 @@ runs:
       inputs.PROJECT_TO_PUBLISH != ''
     name: "NPM: Store Sign Package"
     shell: bash
+    working-directory: ${{ github.workspace }}
     run: |
-      dotnet signcontentpackage \
+      dotnet tool run signcontentpackage \
           -Package "${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg" \
           -WarningAsErrors true \
           -Wallet false \
