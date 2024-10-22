@@ -19,7 +19,8 @@ runs:
 
     - name: "Set Define Build Version"
       shell: bash
-      run: dotnet buildversion --BuildNumber "${{steps.build-number.outputs.build_number}}"
+      working-directory: ${{ github.workspace }}
+      run: dotnet tool run buildversion --BuildNumber "${{steps.build-number.outputs.build_number}}"
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
         DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
