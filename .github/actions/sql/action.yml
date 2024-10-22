@@ -23,7 +23,8 @@ runs:
 
   - name: "SQL: Lint SQL Files"
     shell: bash
-    run: dotnet tsqllint "${{inputs.DB_FOLDER}}"
+    working-directory: ${{ github.workspace }}
+    run: dotnet tool run tsqllint "${{inputs.DB_FOLDER}}"
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
