@@ -76,6 +76,7 @@ runs:
 
   - name: "Enable dotnet tools"
     shell: bash
+    working-directory: ${{ github.workspace }}
     run: |
       [ ! -f .config/dotnet-tools.json ] && dotnet new tool-manifest
       dotnet tool restore || true
