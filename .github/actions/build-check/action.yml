@@ -14,7 +14,7 @@ runs:
       if: env.Release == 'false'
       working-directory: ${{github.workspace}}/src
       shell: bash
-      run: dotnet buildcheck -Solution "$(find . -type f -iname "*.sln" | head -1)" -WarningAsErrors true -PreReleaseBuild false
+      run: dotnet tool run buildcheck -Solution "$(find . -type f -iname "*.sln" | head -1)" -WarningAsErrors true -PreReleaseBuild false
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
         DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -33,7 +33,7 @@ runs:
       if: env.Release == 'true'
       working-directory: ${{github.workspace}}/src
       shell: bash
-      run: dotnet buildcheck -Solution "$(find . -type f -iname "*.sln" | head -1)" -WarningAsErrors true -PreReleaseBuild false
+      run: dotnet tool run buildcheck -Solution "$(find . -type f -iname "*.sln" | head -1)" -WarningAsErrors true -PreReleaseBuild false
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
         DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
