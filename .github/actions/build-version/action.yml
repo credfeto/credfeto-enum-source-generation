@@ -19,14 +19,13 @@ runs:
 
     - name: "Stable Build Numbers"
       shell: bash
-      run:
+      run: |
         echo "onyxmueller/build-tag-number: ${{steps.build-number.outputs.build_number}}"
         echo "Github Run ID: ${{github.run_id}}"
         echo "Github Run Number: ${{github.run_number}}"
         echo "Github Run Attempt: ${{github.run_attempt}}"
-        echo "Commit Count: $(git rev-list --count origin/main)"
-        echo "Commit Count/Nr/Attempt: $(git rev-list --count origin/main)"
-
+        echo "Commit Count (origin/main): $(git rev-list --count origin/main)"
+        echo "Commit Count: (${{github.ref}}) $(git rev-list --count "${{github.ref}}")"
 
     - name: "Set Define Build Version"
       shell: bash
