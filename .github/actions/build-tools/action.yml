@@ -31,6 +31,18 @@ runs:
   using: "composite"
   steps:
 
+    # Workaround for https://github.com/dotnet/sdk/issues/11432
+  - name: "Re-map users nuget package feed to temp folder"
+    shell: bash
+    working-directory: ${{ github.workspace }}
+    run: |
+      [ -d "$HOME/.nuget" ] || mkdir "$HOME/.nuget
+      rm -fr "$HOME/.nuget/packages"
+      ln -sf "$HOME/.nuget/packages" "${{env.NUGET_PACKAGES}}"
+      ls -la "$HOME/.nuget/packages"
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
   - name: "Determine dotnet version"
     uses: credfeto/action-dotnet-version-detect@v1.3.0
     with:
