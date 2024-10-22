@@ -86,7 +86,7 @@ jobs:
         run: echo "COMMIT_MSG=$(git log -1 --pretty=%B)" >> "$GITHUB_ENV"
 
       - name: "Check Repo Visibility"
-        if: steps.findPr.outputs.number == ''
+        if: env.REPO_STATUS == '' &&steps.findPr.outputs.number == ''
         uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
         with:
