@@ -292,7 +292,8 @@ runs:
     - name: "Create Release Notes"
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
       shell: bash
-      run: dotnet changelog --changelog CHANGELOG.md --extract RELEASE_NOTES.md --version "${{env.BUILD_VERSION}}"
+      working-directory: ${{ github.workspace }}
+      run: dotnet tool run changelog --changelog CHANGELOG.md --extract RELEASE_NOTES.md --version "${{env.BUILD_VERSION}}"
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
         DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
