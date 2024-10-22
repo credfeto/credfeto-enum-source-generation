@@ -164,6 +164,7 @@ jobs:
       - name: "Enable dotnet tools"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         shell: bash
+        working-directory: ${{ github.workspace }}
         run: dotnet new tool-manifest
         env:
           DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -189,7 +190,8 @@ jobs:
       - name: "Check Changelog"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         shell: bash
-        run: dotnet changelog --changelog CHANGELOG.md --check-insert "origin/${{github.base_ref}}"
+        working-directory: ${{ github.workspace }}
+        run: dotnet tool run changelog --changelog CHANGELOG.md --check-insert "origin/${{github.base_ref}}"
         env:
           DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
           DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
