@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - if: inputs.REPO_STATUS == ''
+      - if: env.REPO_STATUS == ''
         name: "Check Repo Visibility"
         uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
