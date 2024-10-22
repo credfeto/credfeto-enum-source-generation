@@ -17,6 +17,7 @@ runs:
     - name: "Install dotnet tool (Latest)"
       if: inputs.TOOL_VERSION == 'latest'
       shell: bash
+      working-directory: ${{ github.workspace }}
       run: dotnet tool install --local ${{inputs.TOOL_NAME}}
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -35,6 +36,7 @@ runs:
     - name: "Install dotnet tool (Specific Version)"
       if: inputs.TOOL_VERSION != 'latest'
       shell: bash
+      working-directory: ${{ github.workspace }}
       run: dotnet tool install --local ${{inputs.TOOL_NAME}} --version ${{inputs.TOOL_VERSION}}
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -52,5 +54,6 @@ runs:
 
     - name: "Restore"
       shell: bash
+      working-directory: ${{ github.workspace }}
       run: dotnet tool restore
 
