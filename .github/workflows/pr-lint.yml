@@ -16,6 +16,7 @@ concurrency:
 env:
   HEAD_REF: ${{github.head_ref}}
   BASE_REF: ${{github.base_ref}}
+  REPO_STATUS: private
 jobs:
   info:
     if: endsWith(github.repository, '-template')
@@ -296,7 +297,8 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
-      - name: "Check repo visibility"
+      - if: env.REPO_STATUS == ''
+        name: "Check repo visibility"
         uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
         with:
