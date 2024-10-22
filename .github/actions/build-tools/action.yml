@@ -36,10 +36,15 @@ runs:
     shell: bash
     working-directory: ${{ github.workspace }}
     run: |
+      echo "Ensure ~/.nuget folder exists"
       [ -d "$HOME/.nuget" ] || mkdir -p "$HOME/.nuget"
+      echo "Ensure NUGET_PACKAGES folder exists at ${{env.NUGET_PACKAGES}}"
       [ -d "${{env.NUGET_PACKAGES}}" ] || mkdir -p "${{env.NUGET_PACKAGES}}"
+      echo "Ensure ~/.nuget/packages doesn't exist"
       rm -fr "$HOME/.nuget/packages"
-      ln -sf "$HOME/.nuget/packages" "${{env.NUGET_PACKAGES}}"
+      echo "Link ~/.nuget/packages to ${{env.NUGET_PACKAGES}}"
+      ln -sf "${{env.NUGET_PACKAGES}}" "$HOME/.nuget/packages"
+      echo "Check ~/.nuget/packages"
       ls -la "$HOME/.nuget/packages"
     env:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
