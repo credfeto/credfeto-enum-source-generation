@@ -67,6 +67,7 @@ jobs:
       BRANCH: ${{matrix.branch}}
       CREATE_DRAFT: true
       REPO_STATUS: private
+
     steps:
       - name: "Initialise Workspace"
         if: startsWith(runner.name, 'buildagent-')
@@ -81,7 +82,8 @@ jobs:
           ref: main
           repository: ${{github.repository}}
 
-      - name: "Check Repo Visibility"
+      - if: env.REPO_STATUS == ''
+        name: "Check Repo Visibility"
         if: github.repository_owner != 'funfair-tech'
         uses: credfeto/action-repo-visibility@v1.2.0
         id: visibility
