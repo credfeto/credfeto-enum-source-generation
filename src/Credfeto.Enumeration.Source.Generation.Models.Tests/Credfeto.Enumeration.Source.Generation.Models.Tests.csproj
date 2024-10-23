@@ -1,10 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <CodeAnalysisRuleSet>$(SolutionDir)\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <Company>Mark Ridgwell</Company>
+    <Copyright>Mark Ridgwell</Copyright>
     <DebuggerSupport>true</DebuggerSupport>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>true</EnableMicrosoftExtensionsConfigurationBinderSourceGenerator>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnablePackageValidation>true</EnablePackageValidation>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
     <Features>strict;flow-analysis</Features>
     <GenerateNeutralResourcesLanguageAttribute>true</GenerateNeutralResourcesLanguageAttribute>
     <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
@@ -15,6 +24,7 @@
     <IsPublishable>false</IsPublishable>
     <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
     <LangVersion>latest</LangVersion>
+    <NeutralLanguage>en-GB</NeutralLanguage>
     <NoWarn />
     <NuGetAudit>true</NuGetAudit>
     <NuGetAuditLevel>high</NuGetAuditLevel>
@@ -22,6 +32,9 @@
     <Nullable>enable</Nullable>
     <OptimizationPreference>speed</OptimizationPreference>
     <OutputType>Library</OutputType>
+    <PackageLicense>https://raw.githubusercontent.com/credfeto/credfeto-enum-source-generation/main/LICENSE</PackageLicense>
+    <PackageReleaseNotes>$(ReleaseNotes)</PackageReleaseNotes>
+    <Product>Source Generation</Product>
     <RunAOTCompilation>false</RunAOTCompilation>
     <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
     <TieredCompilation>true</TieredCompilation>
@@ -30,23 +43,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
     <WarningsAsErrors />
-  </PropertyGroup>
-  <PropertyGroup>
-    <Company>Mark Ridgwell</Company>
-    <Copyright>Mark Ridgwell</Copyright>
-    <NeutralLanguage>en-GB</NeutralLanguage>
-    <PackageLicense>https://raw.githubusercontent.com/credfeto/credfeto-enum-source-generation/main/LICENSE</PackageLicense>
-    <PackageReleaseNotes>$(ReleaseNotes)</PackageReleaseNotes>
-    <Product>Source Generation</Product>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AnalysisLevel>latest</AnalysisLevel>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-    <CodeAnalysisRuleSet>$(SolutionDir)\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation.Models\Credfeto.Enumeration.Source.Generation.Models.csproj" />
