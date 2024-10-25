@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.4.57
+- Dependencies - Updated Roslynator.Analyzers to 4.12.9
 ### Removed
 ### Deployment Changes
 
