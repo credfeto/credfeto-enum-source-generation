@@ -131,7 +131,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
         context.ReportDiagnostic(diagnostic: Diagnostic.Create(new(id: "ENUM002",
                                                                    title: "Unhandled Exception",
                                                                    exception.Message + ' ' + exception.StackTrace,
-                                                                   category: "Credfeto.Enum.Source.Generation",
+                                                                   category: VersionInformation.Product,
                                                                    defaultSeverity: DiagnosticSeverity.Error,
                                                                    isEnabledByDefault: true),
                                                                location: location));
