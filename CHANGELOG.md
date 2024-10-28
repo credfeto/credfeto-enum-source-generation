@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.27.668
 - Dependencies - Updated FunFair.Test.Common to 6.1.232.927
+- Dependencies - Updated NSubstitute to 5.3.0
 ### Removed
 ### Deployment Changes
 
