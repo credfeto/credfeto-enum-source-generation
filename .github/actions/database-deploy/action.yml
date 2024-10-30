@@ -100,4 +100,4 @@ runs:
       with:
         connection-string: "Server=${{inputs.SQL_SERVER}};Database=${{inputs.SQL_DB}};User Id=${{inputs.SQL_USER}};Password=${{inputs.SQL_PASSWORD}};Connection Timeout=60;TrustServerCertificate=true;Application Name=Deploy Schema ${{inputs.BUILD_VERSION}}"
         path: ${{github.workspace}}/update.sql
-        arguments: -e
+        arguments: -e -b
