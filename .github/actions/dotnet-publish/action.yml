@@ -42,19 +42,20 @@ runs:
                 "-r:${{inputs.PLATFORM}}" \
                 --self-contained \
                 -nodeReuse:False \
-                -p:NoWarn=NETSDK1179 \
-                -p:SuppressNETCoreSdkPreviewMessage=true \
-                -p:PublishSingleFile=true \
-                -p:PublishAot=false \
-                -p:PublishReadyToRun=False \
-                -p:PublishReadyToRunShowWarnings=True \
-                -p:DisableSwagger=False \
-                -p:TreatWarningsAsErrors=True \
-                -p:IncludeNativeLibrariesForSelfExtract=false \
-                "-p:Version=${{inputs.BUILD_VERSION}}" \
+                "-p:DisableSwagger=${{env.RELEASE}}" \
                 "-p:FFPublishing=True" \
-                "-p:SolutionDir=..\\" \
+                "-p:IncludeNativeLibrariesForSelfExtract=false" \
                 "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
+                "-p:NoWarn=NETSDK1179" \
+                "-p:Optimize=true" \
+                "-p:PublishAot=false" \
+                "-p:PublishReadyToRun=True" \
+                "-p:PublishReadyToRunShowWarnings=True" \
+                "-p:PublishSingleFile=true" \
+                "-p:SolutionDir=..\\" \
+                "-p:SuppressNETCoreSdkPreviewMessage=true" \
+                "-p:TreatWarningsAsErrors=True" \
+                "-p:Version=${{inputs.BUILD_VERSION}}" \
                 --output ${{github.workspace}}/server-dist/${{inputs.PLATFORM}} \
                 ${{env.DOTNET_RELEASE_DEFINES}}
     env:
