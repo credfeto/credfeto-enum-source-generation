@@ -31,20 +31,21 @@ runs:
   #
   # -p:PublishAot=false
   # -p:PublishReadyToRun=False
+  ## Notes: NETSDK1094  can't use --no-restore
   - name: "Dotnet: Publish"
     working-directory: ${{github.workspace}}/src/${{inputs.PROJECT_TO_PUBLISH}}
     shell: bash
     run: |
       dotnet publish \
-                --no-restore \
                 -warnaserror \
                 --configuration:Release \
                 "-r:${{inputs.PLATFORM}}" \
                 --self-contained \
                 -nodeReuse:False \
+                "-p:Deterministic=True" \
                 "-p:DisableSwagger=${{env.RELEASE}}" \
                 "-p:FFPublishing=True" \
-                "-p:IncludeNativeLibrariesForSelfExtract=false" \
+                "-p:IncludeNativeLibrariesForSelfExtract=True" \
                 "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
                 "-p:NoWarn=NETSDK1179" \
                 "-p:Optimize=true" \
