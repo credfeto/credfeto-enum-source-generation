@@ -71,6 +71,6 @@
     <PackageReference Include="SonarAnalyzer.CSharp" Version="9.32.0.97167" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="ToStringWithoutOverrideAnalyzer" Version="0.6.0" PrivateAssets="All" ExcludeAssets="runtime" />
-    <PackageReference Include="xunit.analyzers" Version="1.16.0" PrivateAssets="All" ExcludeAssets="runtime" />
+    <PackageReference Include="xunit.analyzers" Version="1.17.0" PrivateAssets="All" ExcludeAssets="runtime" />
   </ItemGroup>
 </Project>
