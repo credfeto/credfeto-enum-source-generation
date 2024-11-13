@@ -42,6 +42,15 @@ inputs:
   DB_FOLDER:
     description: 'Folder where SQL Files live'
     required: false
+  REDGATE_EMAIL:
+    description: 'Redgate authentication email'
+    required: true
+  REDGATE_PAT:
+    description: 'Redgate authentication Personal Access Token'
+    required: true
+  SQLCOMPARE_VERSION:
+    description: 'Version of SQL Compare to use'
+    required: true
 
   # GENERAL
   GITHUB_TOKEN:
@@ -148,6 +157,9 @@ runs:
     with:
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
       DB_FOLDER: ${{inputs.DB_FOLDER}}
+      REDGATE_EMAIL: ${{inputs.REDGATE_EMAIL}}
+      REDGATE_PAT: ${{inputs.REDGATE_PAT}}
+      SQLCOMPARE_VERSION: ${{inputs.SQLCOMPARE_VERSION}}
 
   ############################################################################################################
   # Publish ready for deploy
