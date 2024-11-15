@@ -794,6 +794,8 @@
         <Rule Id="MA0127" Action="Error"/>
         <!-- MA0128 - Use 'is' operator instead of SequenceEqual -->
         <Rule Id="MA0128" Action="Error"/>
+        <!-- MA0159 - Opimise LINQ Usage -->
+        <Rule Id="MA0159" Action="Error"/>
     </Rules>
     <Rules AnalyzerId="Philips.CodeAnalysis.DuplicateCodeAnalyzer" RuleNamespace="Philips.CodeAnalysis.DuplicateCodeAnalyzer">
         <!-- See https://github.com/philips-software/roslyn-analyzers/blob/master/Philips.CodeAnalysis.DuplicateCodeAnalyzer/Philips.CodeAnalysis.DuplicateCodeAnalyzer.md -->
