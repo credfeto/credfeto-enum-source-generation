@@ -6,6 +6,4 @@ namespace Credfeto.Enumeration.Source.Generation.Models;
 
 [EnumText(typeof(HttpStatusCode))]
 [SuppressMessage(category: "ReSharper", checkId: "PartialTypeWithSinglePart", Justification = "Needed for generated code")]
-public static partial class EnumExtensions
-{
-}
+public static partial class EnumExtensions;

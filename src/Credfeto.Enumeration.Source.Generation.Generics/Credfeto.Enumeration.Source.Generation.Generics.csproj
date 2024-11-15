@@ -35,7 +35,7 @@
     <PackageReleaseNotes>$(ReleaseNotes)</PackageReleaseNotes>
     <Product>Source Generation</Product>
     <RunAOTCompilation>false</RunAOTCompilation>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <TieredCompilation>true</TieredCompilation>
     <TieredPGO>true</TieredPGO>
     <TreatSpecificWarningsAsErrors />
