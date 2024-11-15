@@ -18,6 +18,9 @@ inputs:
   NPM_SIGNING:
     description: 'Whether produce a signed package'
     required: false
+  NPM_REGISTRY:
+    description: 'The NPM Registry to use'
+    required: true
 
   # General
   BUILD_VERSION:
