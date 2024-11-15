@@ -20,6 +20,9 @@ inputs:
   NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD:
     description: 'Password to unlock NPM_PACKAGE_STORE_SIGNING_WALLET'
     required: false
+  NPM_REGISTRY:
+    description: 'The NPM Registry to use'
+    required: true
 
   # NUGET
   NUGET_PUBLIC_RESTORE_FEED_CACHE:
@@ -362,6 +365,7 @@ runs:
         NPM_PACKAGE_STORE_SIGNING_WALLET: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
         NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
         NPM_SIGNING: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}
+        NPM_REGISTRY: ${{inputs.NPM_REGISTRY}}
         PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}
 
     ############################################################################################################
