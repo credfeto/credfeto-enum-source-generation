@@ -5,12 +5,12 @@ inputs:
   CLOUD_FORMATION_STACK:
     description: 'The Cloud Formation stack to deploy as'
     required: true
-  CLOUD_FORMATION_TEMPLATE_FILE:
-    description: 'The Cloud Formation file to deploy'
-    required: true
   CLOUDFORMATION_SNS_ARN:
     description: 'SSN Notification ARN'
     required: false
+  CLOUD_FORMATION_TEMPLATE_FILE:
+    description: 'The Cloud Formation file to deploy'
+    required: true
   DOCKER_APP_OWNER:
     description: 'docker app owner'
     required: true
@@ -19,13 +19,13 @@ inputs:
     required: true
   API_HOST:
     description: 'Api Host'
-    required: false
+    required: true
   API_PREFIX:
     description: 'API Prefix'
     required: false
   AWS_LOAD_BALANCER_HOSTNAME:
     description: "AWS Load Balancer match hostname"
-    required: false
+    required: true
   AWS_LOAD_BALANCER_PRIORITY:
     description: "AWS Load Balancer match priority"
     required: true
@@ -39,26 +39,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Add offset"
-      id: priorities
-      shell: bash
-      run: |
-        if [ "${{inputs.AWS_LOAD_BALANCER_PRIORITY}}" -gt 0 ]; then
-          {
-            MAIN=$((${{inputs.AWS_LOAD_BALANCER_PRIORITY}}))
-            DIRECT1=$(($MAIN+1))
-            DIRECT2=$(($MAIN+2))
-            echo "MAIN=$MAIN"
-            echo "DIRECT1=$DIRECT1"
-            echo "DIRECT2=$DIRECT2"
-          } >> "$GITHUB_OUTPUT"
-        else
-          {
-            echo "MAIN=-1"
-            echo "DIRECT1=-1"
-            echo "DIRECT2=-1"
-          } >> "$GITHUB_OUTPUT"
-        fi
 
     - name: "Build TemplateParameters file"
       shell: bash
@@ -80,8 +60,9 @@ runs:
               [ "$FIRST" -eq 0 ] && echo "  ,"
               FIRST=0
 
-              # TODO: need a better way to do this that allows for escaping of characters that need to in json.
-              echo "  { \"ParameterKey\": \"$key\", \"ParameterValue\": \"$value\" }"
+              # TODO: need a better way to do this that allows for escaping of
+              #       characters that need to in json.
+              echo "  {\"ParameterKey\":\"$key\",\"ParameterValue\":\"$value\"}"
 
             fi
 
@@ -90,20 +71,18 @@ runs:
           } > "${{github.workspace}}/TemplateParameters.json"
       env:
         ApplicationName: ${{inputs.CLOUD_FORMATION_STACK}}
-        ApplicationOwner: ${{inputs.DOCKER_APP_OWNER}}
         ApplicationContainer: ${{inputs.DOCKER_APP_NAME}}
         ApplicationVersion: ${{inputs.BUILD_VERSION}}
-        ApiPrefix: ${{inputs.API_PREFIX}}
+        ApiPrefix: /${{inputs.DOCKER_APP_NAME}}
         ApiHost: ${{inputs.API_HOST}}
-        AwsContainerRegistry: ${{inputs.AWS_CONTAINER_REGISTRY}}
         LoadBalancerHostName: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
-        LoadBalancerPriority: ${{steps.priorities.outputs.MAIN}}
-        Direct1LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT1}}
-        Direct2LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT2}}
+        LoadBalancerPriority: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
+        AwsContainerRegistry: ${{inputs.AWS_CONTAINER_REGISTRY}}
 
     - name: "show Validated TemplateParameters"
       shell: bash
       run: |
+        echo "SNS ARN: ${{inputs.CLOUDFORMATION_SNS_ARN}}"
         echo "Validated parameters:"
         jq . "${{github.workspace}}/TemplateParameters.json"
 
@@ -113,12 +92,17 @@ runs:
       run: |
         /usr/local/aws-cli/v2/current/bin/aws \
                   cloudformation deploy \
-                        --template-file "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
-                        --stack-name "${{inputs.CLOUD_FORMATION_STACK}}" \
-                        --parameter-overrides file://TemplateParameters.json \
-                        --tags "App=${{inputs.CLOUD_FORMATION_STACK}}" \
-                               "Version=${{inputs.BUILD_VERSION}}" \
-                        --notification-arns "${{inputs.CLOUDFORMATION_SNS_ARN}}"
+                        --template-file \
+                              "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
+                        --stack-name \
+                              "${{inputs.CLOUD_FORMATION_STACK}}" \
+                        --parameter-overrides \
+                              file://TemplateParameters.json \
+                        --notification-arns \
+                              "${{inputs.CLOUDFORMATION_SNS_ARN}}" \
+                        --tags \
+                              "App=${{inputs.CLOUD_FORMATION_STACK}}" \
+                              "Version=${{inputs.BUILD_VERSION}}"
 
     - if: inputs.CLOUDFORMATION_SNS_ARN == ''
       name: "AWS Cloudformation Deploy (No Notifications)"
@@ -126,11 +110,15 @@ runs:
       run: |
         /usr/local/aws-cli/v2/current/bin/aws \
                   cloudformation deploy \
-                        --template-file "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
-                        --stack-name "${{inputs.CLOUD_FORMATION_STACK}}" \
-                        --parameter-overrides file://TemplateParameters.json \
-                        --tags "App=${{inputs.CLOUD_FORMATION_STACK}}" \
-                               "Version=${{inputs.BUILD_VERSION}}"
+                        --template-file \
+                              "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
+                        --stack-name \
+                              "${{inputs.CLOUD_FORMATION_STACK}}" \
+                        --parameter-overrides \
+                              file://TemplateParameters.json \
+                        --tags \
+                              "App=${{inputs.CLOUD_FORMATION_STACK}}" \
+                              "Version=${{inputs.BUILD_VERSION}}"
 
     - name: "AWS Enable Stack termination protection"
       shell: bash
