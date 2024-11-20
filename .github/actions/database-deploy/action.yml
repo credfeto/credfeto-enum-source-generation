@@ -36,11 +36,9 @@ runs:
 
     - name: "Get SQL Compare"
       shell: bash
-      run: docker pull redgate/sqlcompare:15.3.0
+      run: docker pull redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}
 
     # Need to get these to work
-    #  /email:"${{inputs.REDGATE_EMAIL}}" \
-    #  /token:"${{inputs.REDGATE_PAT}}" \
     - name: "Build SQL Diff change"
       shell: bash
       run: |
@@ -49,6 +47,8 @@ runs:
           --net=host \
           --rm \
           "redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}" \
+          /email:"${{inputs.REDGATE_EMAIL}}" \
+          /token:"${{inputs.REDGATE_PAT}}" \
           /IAgreeToTheEULA \
           /filter:"$DB_FILTER" \
           /options:CaseSensitiveObjectDefinition,ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel \
