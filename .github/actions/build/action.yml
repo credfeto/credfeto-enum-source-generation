@@ -100,9 +100,6 @@ inputs:
   CLOUD_FORMATION_STACK:
     description: 'The Cloud Formation stack to deploy as'
     required: true
-  CLOUDFORMATION_SNS_ARN:
-    description: 'SSN Notification ARN'
-    required: false
 
   # DOCKER
   DOCKER_USERNAME:
@@ -441,7 +438,6 @@ runs:
       with:
         CLOUD_FORMATION_STACK: ${{inputs.CLOUD_FORMATION_STACK}}
         CLOUD_FORMATION_TEMPLATE_FILE: "cloudformation.json"
-        CLOUDFORMATION_SNS_ARN: ${{inputs.CLOUDFORMATION_SNS_ARN}}
         BUILD_VERSION: ${{env.BUILD_VERSION}}
         DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
         DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}
