@@ -82,7 +82,7 @@ jobs:
         uses: ./.github/actions/cloudformation-deploy
         with:
           CLOUD_FORMATION_STACK: ${{inputs.CLOUD_FORMATION_STACK}}
-          CLOUDFORMATION_SNS_ARN: ${{inputs.CLOUDFORMATION_SNS_ARN}}
+          CLOUDFORMATION_SNS_ARN: ${{vars.CLOUDFORMATION_SNS_ARN}}
           CLOUD_FORMATION_TEMPLATE_FILE: "${{github.workspace}}/${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}"
           DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
           DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}
