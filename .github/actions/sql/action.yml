@@ -64,6 +64,8 @@ runs:
              --net=host \
              --rm \
              "redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}" \
+             /email:"${{inputs.REDGATE_EMAIL}}" \
+             /token:"${{inputs.REDGATE_PAT}}" \
              /IAgreeToTheEULA \
              /filter:"$DB_FILTER" \
              /options:CaseSensitiveObjectDefinition,ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel \
