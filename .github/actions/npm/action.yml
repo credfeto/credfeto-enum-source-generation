@@ -68,10 +68,19 @@ runs:
   #          core.notice('Cache Hit: ${{steps.npm-cache.outputs.cache-hit}}');
   ####################################################################################################################
 
+  - name: "Npm: Clear node modules"
+    shell: bash
+    run: rm -rf "${{github.workspace}}/node-modules"
+
   - name: "NPM: Install dependencies"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: npm ci --ignore-scripts
+    run: |
+      npm install \
+            --ignore-scripts \
+            --no-fund \
+            --no-audit \
+            --registry="${{env.NPM_REGISTRY}}"
 
   # Running tests doesn't work as they're crap
   # - name: "NPM: Test"
