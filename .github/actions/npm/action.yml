@@ -68,6 +68,14 @@ runs:
   #          core.notice('Cache Hit: ${{steps.npm-cache.outputs.cache-hit}}');
   ####################################################################################################################
 
+  - name: "Npm: Config"
+    shell: bash
+    run: |
+      npm config set loglevel error
+      npm config set fetch-retries 3
+      npm config set fetch-retry-mintimeout 15000
+      npm config set fetch-retry-maxtimeout 90000
+
   - name: "Npm: Clear node modules"
     shell: bash
     run: rm -rf "${{github.workspace}}/node-modules"
@@ -80,6 +88,8 @@ runs:
             --ignore-scripts \
             --no-fund \
             --no-audit \
+            --prefer-offline \
+            --no-progress \
             --registry="${{env.NPM_REGISTRY}}"
 
   # Running tests doesn't work as they're crap
