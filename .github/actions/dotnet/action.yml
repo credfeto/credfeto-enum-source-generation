@@ -26,6 +26,9 @@ inputs:
   SLEET_FEED:
     description: 'Sleet feed to push packages to'
     required: false
+  DOTNET_DOCKER_PLATFORM:
+    description: 'Dotnet docker platform (e.g. linux-arm64)'
+    required: false
 
   # General
   BUILD_VERSION:
@@ -94,7 +97,7 @@ runs:
   - name: "Dotnet: Restore packages"
     working-directory: ${{github.workspace}}/src
     shell: bash
-    run: dotnet restore -nodeReuse:False -p:NoWarn=MSB4241 || dotnet restore -nodeReuse:False -verbosity:d -p:NoWarn=MSB4241 -p:SuppressNETCoreSdkPreviewMessage=true
+    run: dotnet restore -nodeReuse:False -p:NoWarn=MSB4241 -p:SuppressNETCoreSdkPreviewMessage=true
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -165,14 +168,14 @@ runs:
   # Publish ready for deploy
   ############################################################################################################
 
-  - name: "Dotnet: Publish Packages (linux-arm64)"
+  - name: "Dotnet: Publish Packages"
     if: inputs.PROJECT_TO_PUBLISH != ''
     uses: ./.github/actions/dotnet-publish
     with:
       PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
       BUILD_VERSION: ${{inputs.BUILD_VERSION}}
       RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
-      PLATFORM: "linux-arm64"
+      PLATFORM: ${{inputs.DOTNET_DOCKER_PLATFORM}}
       PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}
 
   ############################################################################################################
