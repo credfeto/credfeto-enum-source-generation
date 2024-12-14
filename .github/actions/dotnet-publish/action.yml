@@ -26,6 +26,14 @@ inputs:
 runs:
   using: "composite"
   steps:
+  - name: "Dotnet: Check Variables"
+    shell: bash
+    run: |
+      [ -z "$PLATFORM" ] || echo "Missing Platform" && exit 1
+      [ -z "$PLATFORM" ] || exit 1
+    env:
+      PLATFORM: ${{inputs.PLATFORM}}
+
   # TODO: Investigate changing the settings for these to be project settings like with "-p:PublishTrimmed=False" so can
   #       optimise the projects that better suit the settings.
   #
