@@ -377,6 +377,18 @@ runs:
     # DEPLOY TO DOCKER
     ############################################################################################################
 
+    - name: "Docker"
+      shell: bash
+      run: |
+        echo "CSPROJ_EXIST: ${{steps.check_files.outputs.CSPROJ_EXIST}}"
+        echo "SLN_EXIST: ${{steps.check_files.outputs.SLN_EXIST}}"
+        echo "DOCKERFILE_EXIST: ${{steps.check_files.outputs.DOCKERFILE_EXIST}}"
+        echo "HEALTHCHECK_EXIST: ${{steps.check_files.outputs.HEALTHCHECK_EXIST}}"
+        echo "DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}"
+        echo "DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}"
+        echo "DEPLOY: ${{env.DEPLOY}}"
+        ecjo "Registry: ${{inputs.AWS_CONTAINER_REGISTRY}}
+
     - name: "Copy docker: Dockerfile"
       if: |-
         steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
@@ -385,7 +397,7 @@ runs:
         inputs.DOCKER_APP_NAME != '' &&
         env.DEPLOY == 'true'
       shell: bash
-      run: cp "${{github.workspace}}/Dockerfile" "${{github.workspace}}/server-dist/linux-arm64"
+      run: cp "${{github.workspace}}/Dockerfile" "${{github.workspace}}/server-dist/${{inputs.DOTNET_DOCKER_PLATFORM}}"
 
     - name: "Copy docker: healthcheck"
       if: |-
@@ -395,7 +407,7 @@ runs:
         inputs.DOCKER_APP_NAME != '' &&
         env.DEPLOY == 'true'
       shell: bash
-      run: cp "${{github.workspace}}/healthcheck" "${{github.workspace}}/server-dist/linux-arm64"
+      run: cp "${{github.workspace}}/healthcheck" "${{github.workspace}}/server-dist/${{inputs.DOTNET_DOCKER_PLATFORM}}"
 
     - name: "Dotnet: Build Docker Container"
       if: |-
@@ -412,7 +424,7 @@ runs:
         APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
         APP_NAME: ${{inputs.DOCKER_APP_NAME}}
         AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
-        CONTAINER_SOURCE: ${{github.workspace}}/server-dist/linux-arm64
+        CONTAINER_SOURCE: ${{github.workspace}}/server-dist/${{inputs.DOTNET_DOCKER_PLATFORM}}
         CONTAINER_PLATFORM: ${{inputs.DOTNET_CONTAINER_PLATFORM}}
 
     - name: "Dotnet: SQL Deploy"
