@@ -23,6 +23,7 @@ jobs:
     env:
       REPO_STATUS: ${{vars.REPO_VISIBILITY}}
       SQLCOMPARE_VERSION: latest
+      USE_NUGET_CACHE: ${{vars.USE_NUGET_CACHE}}
 
     steps:
       - name: "Initialise Workspace"
@@ -35,6 +36,16 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+
+      - if: env.USE_NUGET_CACHE == ''
+        name: "Setup Nuget Cache"
+        shell: bash
+        run: echo "USE_NUGET_CACHE=false" >> "$GITHUB_ENV"
+
+      - if: startsWith(runner.name, 'buildagent-') != true
+        name: "Ensure on github agents nuget cache is disabled"
+        shell: bash
+        run: echo "USE_NUGET_CACHE=false" >> "$GITHUB_ENV"
 
       - if: env.REPO_STATUS == ''
         name: "Check Repo Visibility"
@@ -52,7 +63,7 @@ jobs:
             core.info('OS: ${{runner.os}}');
 
       - name: "Build and deploy"
-        if: startsWith(runner.name, 'buildagent-')
+        if: env.USE_NUGET_CACHE == 'true'
         uses: ./.github/actions/build
         with:
           PRODUCTION_BUILD: True
@@ -61,9 +72,7 @@ jobs:
           NPM_PACKAGE_STORE_SIGNING_WALLET: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
           NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
           NPM_REGISTRY: ${{vars.NPM_CACHE}}
-          # not sure why restoring packages does not work on this sometimes
-          # NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{vars.NUGET_BAGET_CACHE}}
-          NUGET_PUBLIC_RESTORE_FEED_CACHE: ""
+          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{vars.NUGET_BAGET_CACHE}}
           NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED}}
           NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{vars.RELEASE_BAGET_CACHE}}
           NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
@@ -92,6 +101,8 @@ jobs:
           API_PREFIX: ${{vars.API_PREFIX}}
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_ACCESS_TOKEN: ${{secrets.DOCKER_ACCESS_TOKEN}}
+          DOTNET_DOCKER_PLATFORM: ${{vars.DOTNET_DOCKER_PLATFORM}}
+          DOTNET_CONTAINER_PLATFORM: ${{vars.DOTNET_CONTAINER_PLATFORM}}
           SQL_SERVER: ${{vars.SQL_SERVER}}
           SQL_DB: ${{vars.SQL_DB}}
           SQL_USER: ${{vars.SQL_USER}}
@@ -140,6 +151,8 @@ jobs:
           API_PREFIX: ${{vars.API_PREFIX}}
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_ACCESS_TOKEN: ${{secrets.DOCKER_ACCESS_TOKEN}}
+          DOTNET_DOCKER_PLATFORM: ${{vars.DOTNET_DOCKER_PLATFORM}}
+          DOTNET_CONTAINER_PLATFORM: ${{vars.DOTNET_CONTAINER_PLATFORM}}
           SQL_SERVER: ${{vars.SQL_SERVER}}
           SQL_DB: ${{vars.SQL_DB}}
           SQL_USER: ${{vars.SQL_USER}}
