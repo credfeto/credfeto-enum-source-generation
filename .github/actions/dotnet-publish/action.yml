@@ -29,7 +29,11 @@ runs:
   - name: "Dotnet: Check Variables"
     shell: bash
     run: |
-      [ -z "$PLATFORM" ] && echo "Missing Platform" && exit 1
+      echo "Platform: $PLATFORM"
+      if [ -z "$PLATFORM" ]; then
+        echo "Missing Platform";
+        exit 1
+      fi
     env:
       PLATFORM: ${{inputs.PLATFORM}}
 
