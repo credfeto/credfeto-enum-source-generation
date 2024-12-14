@@ -61,6 +61,12 @@ inputs:
   SLEET_FEED:
     description: 'Sleet feed to push packages to'
     required: false
+  DOTNET_DOCKER_PLATFORM:
+    description: 'Dotnet docker platform (e.g. linux-arm64)'
+    required: false
+  DOTNET_CONTAINER_PLATFORM:
+    description: 'Docker container platform (e.g. linux/arm64)'
+    required: false
 
   # DEPLOYMENT
   PROJECT_TO_PUBLISH:
@@ -184,6 +190,7 @@ runs:
         [[ -f Wallet.json ]] && echo 'NPM_SIGNING_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'NPM_SIGNING_EXIST=false' >> "$GITHUB_OUTPUT"
         [[ -f Dockerfile && '${{hashfiles('Dockerfile')}}' != '' ]] && echo 'DOCKERFILE_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'DOCKERFILE_EXIST=false' >> "$GITHUB_OUTPUT"
         [[ -f healthcheck && '${{hashfiles('healthcheck')}}' != '' ]] && echo 'HEALTHCHECK_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'HEALTHCHECK_EXIST=false' >> "$GITHUB_OUTPUT"
+        [[ -f healthcheck && '${{hashfiles('cloudformation.json')}}' != '' ]] && echo 'CLOUDFORMATION_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'CLOUDFORMATION_EXIST=false' >> "$GITHUB_OUTPUT"
 
     - name: "Check Files Results"
       uses: actions/github-script@v7.0.1
@@ -347,6 +354,7 @@ runs:
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
         REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
         PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}
+        DOTNET_DOCKER_PLATFORM: ${{inputs.DOTNET_DOCKER_PLATFORM}}
 
     ############################################################################################################
     # NPM BUILD
@@ -405,7 +413,7 @@ runs:
         APP_NAME: ${{inputs.DOCKER_APP_NAME}}
         AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
         CONTAINER_SOURCE: ${{github.workspace}}/server-dist/linux-arm64
-        CONTAINER_PLATFORM: linux/arm64
+        CONTAINER_PLATFORM: ${{inputs.DOTNET_CONTAINER_PLATFORM}}
 
     - name: "Dotnet: SQL Deploy"
       if: |-
@@ -431,6 +439,7 @@ runs:
       if: |-
         steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
         steps.check_files.outputs.SLN_EXIST == 'true' &&
+        steps.check_files.outputs.CLOUDFORMATION_EXIST == 'true' &&
         inputs.CLOUD_FORMATION_DEPLOY == 'true' &&
         inputs.DOCKER_APP_NAME != '' &&
         env.DEPLOY == 'true'
