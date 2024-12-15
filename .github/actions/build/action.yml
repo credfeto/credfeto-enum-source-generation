@@ -387,7 +387,7 @@ runs:
         echo "DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}"
         echo "DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}"
         echo "DEPLOY: ${{env.DEPLOY}}"
-        ecjo "Registry: ${{inputs.AWS_CONTAINER_REGISTRY}}"
+        echo "Registry: ${{inputs.AWS_CONTAINER_REGISTRY}}"
 
     - name: "Copy docker: Dockerfile"
       if: |-
