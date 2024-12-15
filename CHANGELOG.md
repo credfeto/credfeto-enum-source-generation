@@ -9,15 +9,18 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.28.176
-- Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.12.0
-- SDK - Updated DotNet SDK to 9.0.101
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.2.41] - 2024-12-15
+### Changed
+- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.28.176
+- Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.12.0
+- SDK - Updated DotNet SDK to 9.0.101
+
 ## [1.2.40] - 2024-12-03
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.27.174
