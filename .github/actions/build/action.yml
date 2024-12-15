@@ -387,7 +387,7 @@ runs:
         echo "DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}"
         echo "DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}"
         echo "DEPLOY: ${{env.DEPLOY}}"
-        ecjo "Registry: ${{inputs.AWS_CONTAINER_REGISTRY}}
+        ecjo "Registry: ${{inputs.AWS_CONTAINER_REGISTRY}}"
 
     - name: "Copy docker: Dockerfile"
       if: |-
@@ -413,7 +413,9 @@ runs:
       if: |-
         steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
         steps.check_files.outputs.SLN_EXIST == 'true' &&
-        inputs.CLOUD_FORMATION_DEPLOY == 'true' &&
+        steps.check_files.outputs.DOCKERFILE_EXIST == 'true' &&
+        inputs.AWS_CONTAINER_REGISTRY != '' &&
+        inputs.DOCKER_APP_OWNER != '' &&
         inputs.DOCKER_APP_NAME != '' &&
         env.DEPLOY == 'true'
       uses: ./.github/actions/docker-build-to-registry
