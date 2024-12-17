@@ -33,6 +33,7 @@ updates:
   - dependency-name: "Meziantou.Analyzer"
   - dependency-name: "Microsoft.CodeAnalysis.Analyzers"
   - dependency-name: "Microsoft.CodeAnalysis.CSharp.*"
+  - dependency-name: "Microsoft.Sbom.Targets.*"
   - dependency-name: "Microsoft.VisualStudio.Threading.Analyzers"
   - dependency-name: "Nullable.Extended.Analyzer"
   - dependency-name: "NSubstitute.Analyzers.CSharp"
