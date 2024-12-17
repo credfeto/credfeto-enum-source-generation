@@ -113,7 +113,7 @@ jobs:
           CREATE_RELEASE: true
 
       - name: "Build and deploy"
-        if: startsWith(runner.name, 'buildagent-') != true
+        if: env.USE_NUGET_CACHE != 'true'
         uses: ./.github/actions/build
         with:
           PRODUCTION_BUILD: True
