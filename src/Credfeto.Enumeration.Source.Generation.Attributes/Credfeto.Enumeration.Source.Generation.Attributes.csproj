@@ -52,6 +52,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
     <WarningsAsErrors />
+    <GenerateSBOM>true</GenerateSBOM>
   </PropertyGroup>
   <PropertyGroup Condition="$(TargetFramework) != 'netstandard2.0'">
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
@@ -85,5 +86,6 @@
     <PackageReference Include="SonarAnalyzer.CSharp" Version="10.3.0.106239" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="ToStringWithoutOverrideAnalyzer" Version="0.6.0" PrivateAssets="All" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Sbom.Targets" Version="3.0.0" PrivateAssets="All"/>
   </ItemGroup>
 </Project>
