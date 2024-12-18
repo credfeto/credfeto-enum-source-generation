@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated xunit.analyzers to 1.18.0
 - Dependencies - Updated xunit.runner.visualstudio to 3.0.0
+- Dependencies - Updated Roslynator.Analyzers to 4.12.10
 ### Removed
 ### Deployment Changes
 
