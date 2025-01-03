@@ -68,7 +68,7 @@ runs:
     shell: bash
 
   - name: "Install dotnet"
-    uses: actions/setup-dotnet@v4.1.0
+    uses: actions/setup-dotnet@v4.2.0
     env:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
