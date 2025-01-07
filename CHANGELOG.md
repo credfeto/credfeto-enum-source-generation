@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated Microsoft.Sbom.Targets to 3.0.1
+- Dependencies - Updated FunFair.CodeAnalysis to 7.0.53.833
 ### Removed
 ### Deployment Changes
 
