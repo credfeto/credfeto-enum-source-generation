@@ -45,7 +45,7 @@ jobs:
         uses: credfeto/action-yaml-format@v1.3.2
 
       - name: "Commit Changes"
-        uses: stefanzweifel/git-auto-commit-action@v5.0.1
+        uses: stefanzweifel/git-auto-commit-action@v5.1.0
         with:
           commit_message: "[Reformat] YAML Files to common format"
           file_pattern: "*.yml"
