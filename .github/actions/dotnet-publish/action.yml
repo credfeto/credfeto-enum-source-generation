@@ -52,6 +52,7 @@ runs:
                 --configuration:Release \
                 "-r:${{inputs.PLATFORM}}" \
                 --self-contained \
+                --ignore-failed-sources \
                 -nodeReuse:False \
                 "-p:Deterministic=True" \
                 "-p:DisableSwagger=${{env.RELEASE}}" \
