@@ -10,8 +10,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.44.283
-- Dependencies - Updated FunFair.Test.Common to 6.1.248.1085
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.59.864
+- Dependencies - Updated FunFair.Test.Common to 6.1.249.1087
 ### Removed
 ### Deployment Changes
 
