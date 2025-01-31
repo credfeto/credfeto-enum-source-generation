@@ -17,49 +17,49 @@ runs:
       shell: bash
       run: echo "Create SBOM..."
 
-    - name: "Create SBOM"
-      uses: anchore/sbom-action@v0.15.10
-      with:
-        github-token: ${{inputs.GITHUB_TOKEN}}
-        format: spdx-json
-        output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
-        config: "${{ github.workspace }}.github/linters/syft.yml"
-
-    - name: "Log SBOM filename"
-      shell: bash
-      run: |
-        echo "Output ${{ github.event.repository.name }}-sbom.spdx.json"
-        ls "${{ github.event.repository.name }}-sbom.spdx.json"
-
-    - name: "Scan SBOM (public Repo)"
-      if: inputs.REPO_VISIBILITY == 'public'
-      uses: anchore/scan-action@v3.6.4
-      id: sbom
-      with:
-        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
-        fail-build: false
-        output-format: sarif
-        only-fixed: true
-        add-cpes-if-none: false
-        by-cve: false
-
-    - name: "Copy SBOM to sarif (public Repo)"
-      if: |-
-        inputs.REPO_VISIBILITY == 'public' &&
-        steps.sbom.outputs.sarif != ''
-      shell: bash
-      run: |
-        echo "SBOM: ${{ steps.sbom.outputs.sarif }}"
-        cp "${{ steps.sbom.outputs.sarif }}" "${{ github.workspace }}/results/${{ github.event.repository.name }}-sbom.sarif"
-        cat "${{ steps.sbom.outputs.sarif }}"
-
-    - name: "Scan SBOM (private repo)"
-      uses: anchore/scan-action@v3.6.4
-      if: inputs.REPO_VISIBILITY == 'private'
-      with:
-        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
-        fail-build: false
-        output-format: table
-        only-fixed: true
-        add-cpes-if-none: false
-        by-cve: false
+#    - name: "Create SBOM"
+#      uses: anchore/sbom-action@v0.15.10
+#      with:
+#        github-token: ${{inputs.GITHUB_TOKEN}}
+#        format: spdx-json
+#        output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
+#        config: "${{ github.workspace }}.github/linters/syft.yml"
+#
+#    - name: "Log SBOM filename"
+#      shell: bash
+#      run: |
+#        echo "Output ${{ github.event.repository.name }}-sbom.spdx.json"
+#        ls "${{ github.event.repository.name }}-sbom.spdx.json"
+#
+#    - name: "Scan SBOM (public Repo)"
+#      if: inputs.REPO_VISIBILITY == 'public'
+#      uses: anchore/scan-action@v3.6.4
+#      id: sbom
+#      with:
+#        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
+#        fail-build: false
+#        output-format: sarif
+#        only-fixed: true
+#        add-cpes-if-none: false
+#        by-cve: false
+#
+#    - name: "Copy SBOM to sarif (public Repo)"
+#      if: |-
+#        inputs.REPO_VISIBILITY == 'public' &&
+#        steps.sbom.outputs.sarif != ''
+#      shell: bash
+#      run: |
+#        echo "SBOM: ${{ steps.sbom.outputs.sarif }}"
+#        cp "${{ steps.sbom.outputs.sarif }}" "${{ github.workspace }}/results/${{ github.event.repository.name }}-sbom.sarif"
+#        cat "${{ steps.sbom.outputs.sarif }}"
+#
+#    - name: "Scan SBOM (private repo)"
+#      uses: anchore/scan-action@v3.6.4
+#      if: inputs.REPO_VISIBILITY == 'private'
+#      with:
+#        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
+#        fail-build: false
+#        output-format: table
+#        only-fixed: true
+#        add-cpes-if-none: false
+#        by-cve: false
