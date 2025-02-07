@@ -21,6 +21,9 @@ inputs:
   NPM_REGISTRY:
     description: 'The NPM Registry to use'
     required: true
+  NPM_CACHE_CERT:
+    description: 'The NPM Registry cert'
+    required: false
 
   # General
   BUILD_VERSION:
@@ -75,6 +78,15 @@ runs:
       npm config set fetch-retries 3
       npm config set fetch-retry-mintimeout 15000
       npm config set fetch-retry-maxtimeout 90000
+
+  - name: "Npm: Local Cert"
+    if: inputs.NPM_CACHE_CERT != ''
+    shell: bash
+    run: |
+      echo "$NPM_CACHE_CERT" > "${{github.workspace}}/npm.crt"
+      npm config set cafile "${{github.workspace}}/npm.crt"
+    env:
+      NPM_CACHE_CERT: ${{inputs.NPM_CACHE_CERT}}
 
   - name: "Npm: Clear node modules"
     shell: bash
