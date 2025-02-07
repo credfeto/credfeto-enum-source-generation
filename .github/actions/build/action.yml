@@ -23,6 +23,9 @@ inputs:
   NPM_REGISTRY:
     description: 'The NPM Registry to use'
     required: true
+  NPM_CACHE_CERT:
+    description: 'The NPM Registry cert'
+    required: false
 
   # NUGET
   NUGET_PUBLIC_RESTORE_FEED_CACHE:
@@ -371,6 +374,7 @@ runs:
         NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
         NPM_SIGNING: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}
         NPM_REGISTRY: ${{inputs.NPM_REGISTRY}}
+        NPM_CACHE_CERT: ${{inputs.NPM_CACHE_CERT}}
         PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}
 
     ############################################################################################################
