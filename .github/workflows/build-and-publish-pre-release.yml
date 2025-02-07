@@ -33,6 +33,8 @@ jobs:
       REPO_STATUS: ${{vars.REPO_VISIBILITY}}
       SQLCOMPARE_VERSION: latest
       USE_NUGET_CACHE: ${{vars.USE_NUGET_CACHE}}
+      NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
+      NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
 
     steps:
       - name: "Initialise Workspace"
@@ -71,58 +73,22 @@ jobs:
             core.info('Name: ${{runner.name}}');
             core.info('OS: ${{runner.os}}');
 
-      - name: "Build and deploy"
+      - name: "Enable Local nuget/npm feeds if caching"
         if: env.USE_NUGET_CACHE == 'true'
-        uses: ./.github/actions/build
-        with:
-          PRODUCTION_BUILD: False
-          NPM_PRODUCTION_PACKAGER_VERSION: ${{vars.PRODUCTION_PACKAGER_VERSION}}
-          NPM_CONTENT_PACKAGE_WALLET_PASSWORD: ${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}
-          NPM_PACKAGE_STORE_SIGNING_WALLET: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
-          NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
-          NPM_REGISTRY: ${{vars.NPM_CACHE}}
-          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{vars.NUGET_BAGET_CACHE}}
-          NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{vars.RELEASE_BAGET_CACHE}}
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{vars.PRERELEASE_BAGET_CACHE}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
-          NUGET_PACK: ${{vars.NUGET_PACK}}
-          NUGET_FEED: ${{secrets.NUGET_FEED}}
-          NUGET_SYMBOL_FEED: ${{secrets.NUGET_SYMBOL_FEED}}
-          NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
-          SLEET_CONFIG: ${{secrets.SLEET_CONFIG}}
-          SLEET_FEED: ${{vars.PRE_RELEASE_SLEET_FEED}}
-          PROJECT_TO_PUBLISH: ${{vars.PROJECT_TO_PUBLISH}}
-          DOCKER_APP_OWNER: ${{vars.DOCKER_APP_OWNER}}
-          DOCKER_APP_NAME: ${{vars.DOCKER_APP_NAME}}
-          CLOUD_FORMATION_DEPLOY: ${{vars.CLOUD_FORMATION_DEPLOY}}
-          CLOUD_FORMATION_STACK: ${{vars.CLOUD_FORMATION_STACK}}
-          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          REPO_VISIBILITY: ${{env.REPO_STATUS}}
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY}}
-          AWS_REGION: ${{vars.AWS_REGION}}
-          AWS_CONTAINER_REGISTRY: ${{vars.AWS_CONTAINER_REGISTRY}}
-          AWS_LOAD_BALANCER_HOSTNAME: ${{vars.AWS_LOAD_BALANCER_HOSTNAME_DEV}}
-          AWS_LOAD_BALANCER_PRIORITY: ${{vars.AWS_LOAD_BALANCER_PRIORITY_DEV}}
-          API_HOST: ${{vars.AWS_LOAD_BALANCER_HOSTNAME_DEV}}
-          API_PREFIX: ${{vars.API_PREFIX}}
-          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-          DOCKER_ACCESS_TOKEN: ${{secrets.DOCKER_ACCESS_TOKEN}}
-          DOTNET_DOCKER_PLATFORM: ${{vars.DOTNET_DOCKER_PLATFORM}}
-          DOTNET_CONTAINER_PLATFORM: ${{vars.DOTNET_CONTAINER_PLATFORM}}
-          SQL_SERVER: ${{vars.SQL_SERVER}}
-          SQL_DB: ${{vars.SQL_DB}}
-          SQL_USER: ${{vars.SQL_USER}}
-          SQL_PASSWORD: ${{secrets.SQL_PASSWORD}}
-          REDGATE_EMAIL: ${{secrets.REDGATE_EMAIL}}
-          REDGATE_PAT: ${{secrets.REDGATE_PAT}}
-          SQLCOMPARE_VERSION: ${{env.SQLCOMPARE_VERSION}}
-          CREATE_RELEASE: false
+        id: nuget-local-cache
+        shell: bash
+        run: |
+          {
+            echo "NUGET_BAGET_CACHE=${{vars.NUGET_BAGET_CACHE}}"
+            echo "PRERELEASE_BAGET_CACHE=${{vars.PRERELEASE_BAGET_CACHE}}"
+            echo "RELEASE_BAGET_CACHE=${{vars.RELEASE_BAGET_CACHE}}"
+          }>> "$GITHUB_OUTPUT"
+          {
+            [[ -n "${{vars.NPM_CACHE}}" ]] \
+                        && echo "NPM_REGISTRY=${{vars.NPM_CACHE}}"
+          }>> "$GITHUB_ENV"
 
       - name: "Build and deploy"
-        if: env.USE_NUGET_CACHE != 'true'
         uses: ./.github/actions/build
         with:
           PRODUCTION_BUILD: False
@@ -131,10 +97,11 @@ jobs:
           NPM_PACKAGE_STORE_SIGNING_WALLET: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
           NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
           NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
-          NUGET_PUBLIC_RESTORE_FEED_CACHE: ""
+          NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
+          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{env.NUGET_BAGET_CACHE}}
           NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ""
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{env.RELEASE_BAGET_CACHE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{env.PRERELEASE_BAGET_CACHE}}
           NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
           NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
           NUGET_PACK: ${{vars.NUGET_PACK}}
