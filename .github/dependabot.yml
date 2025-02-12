@@ -26,6 +26,7 @@ updates:
   - dependency-name: "Credfeto.Database.*"
   - dependency-name: "Credfeto.Enumeration.*"
   - dependency-name: "Credfeto.Version.Information.Generator"
+  - dependency-name: "CSharpier.MSBuild"
   - dependency-name: "CSharpIsNullAnalyzer.*"
   - dependency-name: "DisableDateTimeNow"
   - dependency-name: "Discord.Net.Analyzers"
