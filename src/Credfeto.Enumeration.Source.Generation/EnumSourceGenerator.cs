@@ -253,7 +253,7 @@ public static class EnumSourceGenerator
     {
         HashSet<string> names = UniqueEnumMemberNames(enumDeclaration);
 
-        return enumDeclaration.Members.Where(member => !IsSkipEnumValue(member: member, names: names) && !member.HasObsoleteAttribute())
+        return [..enumDeclaration.Members.Where(member => !IsSkipEnumValue(member: member, names: names) && !member.HasObsoleteAttribute())
                               .Select(member => (member, description: member.GetAttributes()
                                                                             .FirstOrDefault(SymbolExtensions.IsDescriptionAttribute)))
                               .Where(item => item.description is not null)
@@ -265,7 +265,7 @@ public static class EnumSourceGenerator
                                                            classNameFormatter: classNameFormatter,
                                                            member: item.member,
                                                            attributeText: item.attributeText))
-                              .ToArray();
+                              ];
 
         static (IFieldSymbol member, AttributeData description) EnsureNotNullDescription((IFieldSymbol member, AttributeData? description) item)
         {
