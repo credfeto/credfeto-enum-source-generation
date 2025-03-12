@@ -224,7 +224,7 @@ jobs:
           fetch-tags: true
 
       - name: "Check for leaks"
-        uses: DariuszPorowski/github-action-gitleaks@v2.0.9
+        uses: DariuszPorowski/github-action-gitleaks@v2.1.0
         id: gitleaks
         with:
           config: .gitleaks.toml
