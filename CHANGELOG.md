@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated Microsoft.VisualStudio.Threading.Analyzers to 17.13.61
 - SDK - Updated DotNet SDK to 9.0.201
+- Dependencies - Updated FunFair.CodeAnalysis to 7.0.70.968
 ### Removed
 ### Deployment Changes
 
