@@ -38,6 +38,7 @@ updates:
   - dependency-name: "Credfeto.ChangeLog.*"
   - dependency-name: "Credfeto.Database.*"
   - dependency-name: "Credfeto.Date.*"
+  - dependency-name: "Credfeto.Docker.HealthCheck.Http.Client"
   - dependency-name: "Credfeto.Enumeration.*"
   - dependency-name: "Credfeto.Extensions.Configuration.Typed.Json"
   - dependency-name: "Credfeto.Extensions.Linq"
