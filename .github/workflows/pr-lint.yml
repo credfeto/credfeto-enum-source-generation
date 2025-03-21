@@ -250,7 +250,7 @@ jobs:
           fetch-tags: true
 
       - name: "Check for merge conflicts"
-        uses: olivernybroe/action-conflict-finder@v4.0
+        uses: olivernybroe/action-conflict-finder@v4.1
 
   has-no-file-or-folder-case-sensitivity-issues:
     if: github.event.pull_request.draft == false
