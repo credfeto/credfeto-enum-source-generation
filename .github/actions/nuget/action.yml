@@ -182,6 +182,7 @@ runs:
         NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Add nuget feed (nuget.org)"
+      if: inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE == ''
       shell: bash
       run: |
         echo "Adding nuget.org NuGet feed..."
@@ -241,7 +242,7 @@ runs:
         NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Add optional nuget feed (Additional1)"
-      if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != ''
+      if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != '' && inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE == ''
       shell: bash
       run: |
         echo "Adding Additional1 NuGet feed..."
@@ -261,7 +262,7 @@ runs:
         NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Add optional nuget feed (Additional2)"
-      if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != ''
+      if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != '' && inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRE_RELEASE_CACHE == ''
       shell: bash
       run: |
         echo "Adding Additional2 NuGet feed..."
