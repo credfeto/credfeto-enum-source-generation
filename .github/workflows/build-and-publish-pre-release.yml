@@ -35,6 +35,9 @@ jobs:
       USE_NUGET_CACHE: ${{vars.USE_NUGET_CACHE}}
       NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
       NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
+      NUGET_BAGET_CACHE: ''
+      PRERELEASE_BAGET_CACHE: ''
+      RELEASE_BAGET_CACHE: ''
 
     steps:
       - name: "Initialise Workspace"
@@ -75,15 +78,12 @@ jobs:
 
       - name: "Enable Local nuget/npm feeds if caching"
         if: env.USE_NUGET_CACHE == 'true'
-        id: nuget-local-cache
         shell: bash
         run: |
           {
             echo "NUGET_BAGET_CACHE=${{vars.NUGET_BAGET_CACHE}}"
             echo "PRERELEASE_BAGET_CACHE=${{vars.PRERELEASE_BAGET_CACHE}}"
             echo "RELEASE_BAGET_CACHE=${{vars.RELEASE_BAGET_CACHE}}"
-          }>> "$GITHUB_OUTPUT"
-          {
             [[ -n "${{vars.NPM_CACHE}}" ]] \
                         && echo "NPM_REGISTRY=${{vars.NPM_CACHE}}"
           }>> "$GITHUB_ENV"
