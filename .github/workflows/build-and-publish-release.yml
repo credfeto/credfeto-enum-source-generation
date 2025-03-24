@@ -43,7 +43,7 @@ jobs:
           fetch-tags: true
 
       - if: env.USE_NUGET_CACHE == ''
-        name: "Setup Nuget Cache"
+        name: "Setup Nuget Cache (Cache disabled)"
         shell: bash
         run: echo "USE_NUGET_CACHE=false" >> "$GITHUB_ENV"
 
