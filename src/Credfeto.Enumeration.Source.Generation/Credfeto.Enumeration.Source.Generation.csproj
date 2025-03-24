@@ -71,7 +71,7 @@
     <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Credfeto.Version.Information.Generator" Version="1.0.57.416" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="CSharpIsNullAnalyzer" Version="0.1.593" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="FunFair.CodeAnalysis" Version="7.0.73.978" PrivateAssets="All" ExcludeAssets="runtime" />
+    <PackageReference Include="FunFair.CodeAnalysis" Version="7.0.74.984" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Meziantou.Analyzer" Version="2.0.189" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" PrivateAssets="all" ExcludeAssets="runtime">
