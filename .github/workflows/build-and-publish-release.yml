@@ -21,11 +21,15 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      # Optimisation for repo visibility check
       REPO_STATUS: ${{vars.REPO_VISIBILITY}}
+      # SQL Compare
       SQLCOMPARE_VERSION: latest
-      USE_NUGET_CACHE: ${{vars.USE_NUGET_CACHE}}
+      # Which NPM Registry to use
       NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
       NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
+      # Nuget caching
+      USE_NUGET_CACHE: ${{vars.USE_NUGET_CACHE}}
       NUGET_BAGET_CACHE: ''
       PRERELEASE_BAGET_CACHE: ''
       RELEASE_BAGET_CACHE: ''
