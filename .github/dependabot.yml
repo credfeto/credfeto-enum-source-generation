@@ -100,6 +100,7 @@ updates:
   - dependency-name: "Microsoft.IO.RecyclableMemoryStream.*"
   - dependency-name: "Microsoft.NET.Test.Sdk"
   - dependency-name: "Microsoft.Sbom.Targets.*"
+  - dependency-name: "Microsoft.Testing.Extensions.CodeCoverage"
   - dependency-name: "Microsoft.Toolkit.HighPerformance"
   - dependency-name: "Microsoft.VisualStudio.Threading"
   - dependency-name: "Microsoft.VisualStudio.Threading.Analyzers"
