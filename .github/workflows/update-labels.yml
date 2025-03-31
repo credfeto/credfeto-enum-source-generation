@@ -38,7 +38,7 @@ jobs:
 
       - name: "Update Github label config"
         if: success()
-        uses: crazy-max/ghaction-github-labeler@v5.2.0
+        uses: crazy-max/ghaction-github-labeler@v5.3.0
         with:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           yaml-file: .github/labels.yml
