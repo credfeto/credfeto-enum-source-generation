@@ -1,0 +1,72 @@
+--- # Create a new branch for anything that has a changelog entry, but no branch
+name: "Repo: Create missing releases"
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/missing-releases.yml"
+      - "CHANGELOG.md"
+  schedule:
+    - cron: "0 1 * * *"
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  missing-releases:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Initialise Workspace"
+        if: startsWith(runner.name, 'buildagent-')
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{secrets.SOURCE_PUSH_TOKEN}}
+
+      - name: "Check for missing releases"
+        shell: bash
+        run: |
+          REGEX_CHANGELOG="^([0-9a-zA-Z]*)\s.*Changelog\sfor\s([0-9]*\.[0-9]*\.[0-9]*)$"
+          matchingBranch() {
+            CHANGE_RELEASE=$1
+            SEARCH_BRANCH="origin/release/$CHANGE_RELEASE"
+            git branch --remote | while read -r BRANCH; do
+            #echo "SRC: $BRANCH"
+            if [[ "$BRANCH" = "$SEARCH_BRANCH" ]]; then
+            echo "Y"
+            break
+            fi
+            done
+          }
+
+          git log --oneline | while read -r CHANGE; do
+            if [[ $CHANGE =~ $REGEX_CHANGELOG ]]; then
+              CHANGE_HASH="${BASH_REMATCH[1]}"
+              CHANGE_RELEASE="${BASH_REMATCH[2]}"
+
+              # Check to see if branch exists
+              FOUND=$(matchingBranch "$CHANGE_RELEASE")
+              if [ "$FOUND" = "Y" ]; then
+                echo "* Found Release $CHANGE_RELEASE at in release/$CHANGE_RELEASE at $CHANGE_HASH"
+              else
+                echo "- Missing Release $CHANGE_RELEASE in $CHANGE_HASH"
+                git checkout "$CHANGE_HASH"
+                git checkout -b "release/$CHANGE_RELEASE"
+                git push
+                git switch main || echo "Switching to Main"
+                echo "+++ Created branch release/$CHANGE_RELEASE"
+              fi
+            fi
+          done && echo "OK" || echo "Failed"
+
