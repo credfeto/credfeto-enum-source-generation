@@ -99,6 +99,14 @@ runs:
     shell: bash
     run: rm -rf "${{github.workspace}}/node-modules"
 
+  - name: "NPM: Force registry before restore"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: |
+      sed -i "s|https://registry.npmjs.org/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
+      sed -i "s|http://npm.local:5554/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
+      sed -i "s|https://npm.local:5555/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
+
   - name: "NPM: Install dependencies"
     working-directory: ${{github.workspace}}/src
     shell: bash
