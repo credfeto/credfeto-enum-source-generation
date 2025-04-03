@@ -71,6 +71,13 @@ runs:
   #          core.notice('Cache Hit: ${{steps.npm-cache.outputs.cache-hit}}');
   ####################################################################################################################
 
+  - name: "NPM: Show Config"
+    working-directory: ${{github.workspace}}/src
+    shell: bash
+    run: |
+      echo "NPM_REGISTRY: ${{inputs.NPM_REGISTRY}}"
+      echo "NPM_CACHE_CERT: ${{inputs.NPM_CACHE_CERT}}"
+
   - name: "Npm: Config"
     shell: bash
     run: |
