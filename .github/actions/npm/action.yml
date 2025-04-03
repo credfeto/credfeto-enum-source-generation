@@ -102,7 +102,7 @@ runs:
             --no-audit \
             --prefer-offline \
             --no-progress \
-            --registry="${{vars.NPM_REGISTRY}}"
+            --registry="${{inputs.NPM_REGISTRY}}"
 
   # Running tests doesn't work as they're crap
   # - name: "NPM: Test"
