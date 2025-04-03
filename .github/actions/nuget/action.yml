@@ -267,7 +267,7 @@ runs:
         NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Add optional nuget feed (Additional2)"
-      if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != '' && inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRE_RELEASE_CACHE == ''
+      if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != '' && inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE == ''
       shell: bash
       run: |
         echo "Adding Additional2 NuGet feed..."
