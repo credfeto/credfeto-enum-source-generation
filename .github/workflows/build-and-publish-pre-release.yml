@@ -36,7 +36,7 @@ jobs:
       SQLCOMPARE_VERSION: latest
       # Which NPM Registry to use
       NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
-      NPM_CACHE_CERT: ''
+      NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
       # Nuget caching
       USE_NUGET_CACHE: ${{vars.USE_NUGET_CACHE}}
       NUGET_BAGET_CACHE: ''
@@ -90,9 +90,6 @@ jobs:
             echo "RELEASE_BAGET_CACHE=${{vars.RELEASE_BAGET_CACHE}}"
             [[ -n "${{vars.NPM_CACHE}}" ]] \
                         && echo "NPM_REGISTRY=${{vars.NPM_CACHE}}"
-            [[ -n "${{vars.NPM_CACHE}}" ]] \
-              [[ -n "${{vars.NPM_CACHE_CERT}}" ]] \\
-                        && echo "NPM_CACHE_CERT=${{vars.NPM_CACHE_CERT}}"
           }>> "$GITHUB_ENV"
 
       - name: "Build and deploy"
