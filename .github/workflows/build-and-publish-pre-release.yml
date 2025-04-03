@@ -36,7 +36,7 @@ jobs:
       SQLCOMPARE_VERSION: latest
       # Which NPM Registry to use
       NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
-      NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
+      NPM_CACHE_CERT: ''
       # Nuget caching
       USE_NUGET_CACHE: ${{vars.USE_NUGET_CACHE}}
       NUGET_BAGET_CACHE: ''
@@ -90,6 +90,9 @@ jobs:
             echo "RELEASE_BAGET_CACHE=${{vars.RELEASE_BAGET_CACHE}}"
             [[ -n "${{vars.NPM_CACHE}}" ]] \
                         && echo "NPM_REGISTRY=${{vars.NPM_CACHE}}"
+            [[ -n "${{vars.NPM_CACHE}}" ]] \
+              [[ -n "${{vars.NPM_CACHE_CERT}}" ]] \\
+                        && echo "NPM_CACHE_CERT=${{vars.NPM_CACHE_CERT}}"
           }>> "$GITHUB_ENV"
 
       - name: "Build and deploy"
@@ -100,8 +103,8 @@ jobs:
           NPM_CONTENT_PACKAGE_WALLET_PASSWORD: ${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}
           NPM_PACKAGE_STORE_SIGNING_WALLET: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
           NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
-          NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
-          NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
+          NPM_REGISTRY: ${{env.NPM_REGISTRY}}
+          NPM_CACHE_CERT: ${{env.NPM_CACHE_CERT}}
           NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{env.NUGET_BAGET_CACHE}}
           NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED}}
           NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{env.RELEASE_BAGET_CACHE}}
