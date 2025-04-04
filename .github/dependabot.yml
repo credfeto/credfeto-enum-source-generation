@@ -55,6 +55,8 @@ updates:
   - dependency-name: "Discord.Net"
   - dependency-name: "Discord.Net.Analyzers"
   - dependency-name: "dotnetstandard-bip39"
+  - dependency-name: "ErikEJ.DacFX.SqlServer.Rules"
+  - dependency-name: "ErikEJ.DacFX.TSQLSmellSCA"
   - dependency-name: "Evo.Keccak"
   - dependency-name: "FluentValidation.*"
   - dependency-name: "FunFair.Authentication.*"
