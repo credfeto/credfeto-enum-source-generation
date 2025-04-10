@@ -63,7 +63,7 @@ jobs:
                 echo "- Missing Release $CHANGE_RELEASE in $CHANGE_HASH"
                 git checkout "$CHANGE_HASH"
                 git checkout -b "release/$CHANGE_RELEASE"
-                git push
+                git push --set-upstream origin "release/$CHANGE_RELEASE"
                 git switch main || echo "Switching to Main"
                 echo "+++ Created branch release/$CHANGE_RELEASE"
               fi
