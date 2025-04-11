@@ -9,7 +9,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated FunFair.Test.Common to 6.1.265.1215
 - SDK - Updated DotNet SDK to 9.0.203
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.58.459
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.76.1027
@@ -17,6 +16,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.8.0.113526
 - Dependencies - Updated xunit.analyzers to 1.21.0
 - Dependencies - Updated xunit.v3 to 2.0.1
+- Dependencies - Updated FunFair.Test.Common to 6.1.266.1250
 ### Removed
 ### Deployment Changes
 
