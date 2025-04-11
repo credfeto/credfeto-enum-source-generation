@@ -4,7 +4,9 @@ using System.Runtime.InteropServices;
 namespace Credfeto.Enumeration.Source.Generation.Models;
 
 [StructLayout(LayoutKind.Auto)]
-[DebuggerDisplay("DoesNotReturn: {HasDoesNotReturnAttribute}, UnreachableException: {SupportsUnreachableException}")]
+[DebuggerDisplay(
+    "DoesNotReturn: {HasDoesNotReturnAttribute}, UnreachableException: {SupportsUnreachableException}"
+)]
 public readonly record struct GenerationOptions
 {
     public GenerationOptions(bool hasDoesNotReturnAttribute, bool supportsUnreachableException)

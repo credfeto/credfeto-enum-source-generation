@@ -14,13 +14,14 @@ public sealed class EnumTextAttribute : Attribute
 
     private static Type ValidateEnumType(Type enumType)
     {
-        return enumType.IsEnum
-            ? enumType
-            : NotAnEnum(enumType);
+        return enumType.IsEnum ? enumType : NotAnEnum(enumType);
     }
 
     private static Type NotAnEnum(Type enumType)
     {
-        throw new ArgumentException($"The type ({enumType.FullName}) must be an enum.", nameof(enumType));
+        throw new ArgumentException(
+            $"The type ({enumType.FullName}) must be an enum.",
+            nameof(enumType)
+        );
     }
 }

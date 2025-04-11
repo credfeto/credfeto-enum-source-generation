@@ -15,8 +15,16 @@ public static class EnumHelpers
 
     private static readonly ConcurrentDictionary<Enum, bool> CachedDefined = new();
 
-    [SuppressMessage(category: "Credfeto.Enumeration.Source.Generation", checkId: "ENUM001: Use GetName", Justification = "Enum is a value type")]
-    [SuppressMessage(category: "ToStringWithoutOverrideAnalyzer", checkId: "ExplicitToStringWithoutOverrideAnalyzer: Use GetName", Justification = "Enum is a value type")]
+    [SuppressMessage(
+        category: "Credfeto.Enumeration.Source.Generation",
+        checkId: "ENUM001: Use GetName",
+        Justification = "Enum is a value type"
+    )]
+    [SuppressMessage(
+        category: "ToStringWithoutOverrideAnalyzer",
+        checkId: "ExplicitToStringWithoutOverrideAnalyzer: Use GetName",
+        Justification = "Enum is a value type"
+    )]
     public static string GetNameToString<T>(this T value)
         where T : Enum
     {
@@ -44,11 +52,11 @@ public static class EnumHelpers
         where T : Enum
     {
         string valueAsString = value.GetNameReflection();
-        FieldInfo? m = value.GetType()
-                            .GetField(valueAsString);
+        FieldInfo? m = value.GetType().GetField(valueAsString);
 
-        return m?.GetCustomAttributes(typeof(DescriptionAttribute), inherit: false)
-                .SingleOrDefault() is not DescriptionAttribute attribute
+        return
+            m?.GetCustomAttributes(typeof(DescriptionAttribute), inherit: false).SingleOrDefault()
+                is not DescriptionAttribute attribute
             ? valueAsString
             : attribute.Description;
     }

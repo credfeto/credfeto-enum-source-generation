@@ -12,8 +12,7 @@ public static class SymbolExtensions
 
     public static bool HasObsoleteAttribute(this ISymbol symbol)
     {
-        return symbol.GetAttributes()
-                     .Any(IsObsoleteAttribute);
+        return symbol.GetAttributes().Any(IsObsoleteAttribute);
     }
 
     public static bool IsObsoleteAttribute(this AttributeData attributeData)
@@ -43,6 +42,10 @@ public static class SymbolExtensions
 
     private static bool MatchesType(Type type, INamedTypeSymbol symbol)
     {
-        return StringComparer.Ordinal.Equals(x: symbol.Name, y: type.Name) && StringComparer.Ordinal.Equals(symbol.ContainingNamespace.ToDisplayString(), y: type.Namespace);
+        return StringComparer.Ordinal.Equals(x: symbol.Name, y: type.Name)
+            && StringComparer.Ordinal.Equals(
+                symbol.ContainingNamespace.ToDisplayString(),
+                y: type.Namespace
+            );
     }
 }

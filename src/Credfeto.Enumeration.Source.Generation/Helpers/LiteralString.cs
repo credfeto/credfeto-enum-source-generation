@@ -18,7 +18,11 @@ internal sealed class LiteralString : LocalizableString
         return this._value;
     }
 
-    [SuppressMessage(category: "Meziantou.Analyzer", checkId: "MA0021:Use String Comparer to compute hash codes", Justification = "Not in net stabdard 2.0")]
+    [SuppressMessage(
+        category: "Meziantou.Analyzer",
+        checkId: "MA0021:Use String Comparer to compute hash codes",
+        Justification = "Not in net stabdard 2.0"
+    )]
     protected override int GetHash()
     {
         return this._value.GetHashCode();
@@ -26,6 +30,10 @@ internal sealed class LiteralString : LocalizableString
 
     protected override bool AreEqual(object? other)
     {
-        return other is LiteralString otherResourceString && StringComparer.OrdinalIgnoreCase.Equals(x: this._value, y: otherResourceString._value);
+        return other is LiteralString otherResourceString
+            && StringComparer.OrdinalIgnoreCase.Equals(
+                x: this._value,
+                y: otherResourceString._value
+            );
     }
 }

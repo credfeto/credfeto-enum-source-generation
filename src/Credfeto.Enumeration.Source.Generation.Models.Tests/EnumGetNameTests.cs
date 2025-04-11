@@ -6,7 +6,11 @@ using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
 
-[SuppressMessage(category: "FunFair.CodeAnalysis", checkId: "FFS0013: Test classes should be derived from TestBase", Justification = "Not in this case")]
+[SuppressMessage(
+    category: "FunFair.CodeAnalysis",
+    checkId: "FFS0013: Test classes should be derived from TestBase",
+    Justification = "Not in this case"
+)]
 public sealed class EnumGetNameTests
 {
     [Theory]

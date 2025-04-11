@@ -18,63 +18,99 @@ public sealed class EnumGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(ExtractClasses(context), action: GenerateClasses);
     }
 
-    private static IncrementalValuesProvider<(ClassEnumGeneration? classInfo, ErrorInfo? errorInfo)> ExtractClasses(in IncrementalGeneratorInitializationContext context)
+    private static IncrementalValuesProvider<(
+        ClassEnumGeneration? classInfo,
+        ErrorInfo? errorInfo
+    )> ExtractClasses(in IncrementalGeneratorInitializationContext context)
     {
-        return context.SyntaxProvider.CreateSyntaxProvider(predicate: static (n, _) => n is ClassDeclarationSyntax, transform: GetClassDetails);
+        return context.SyntaxProvider.CreateSyntaxProvider(
+            predicate: static (n, _) => n is ClassDeclarationSyntax,
+            transform: GetClassDetails
+        );
     }
 
-    private static IncrementalValuesProvider<(EnumGeneration? enumInfo, ErrorInfo? errorInfo)> ExtractEnums(in IncrementalGeneratorInitializationContext context)
+    private static IncrementalValuesProvider<(
+        EnumGeneration? enumInfo,
+        ErrorInfo? errorInfo
+    )> ExtractEnums(in IncrementalGeneratorInitializationContext context)
     {
-        return context.SyntaxProvider.CreateSyntaxProvider(predicate: static (n, _) => n is EnumDeclarationSyntax, transform: GetEnumDetails);
+        return context.SyntaxProvider.CreateSyntaxProvider(
+            predicate: static (n, _) => n is EnumDeclarationSyntax,
+            transform: GetEnumDetails
+        );
     }
 
-    private static (ClassEnumGeneration? classInfo, ErrorInfo? errorInfo) GetClassDetails(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
+    private static (ClassEnumGeneration? classInfo, ErrorInfo? errorInfo) GetClassDetails(
+        GeneratorSyntaxContext generatorSyntaxContext,
+        CancellationToken cancellationToken
+    )
     {
         if (generatorSyntaxContext.Node is ClassDeclarationSyntax classDeclarationSyntax)
         {
             try
             {
-                ClassEnumGeneration? classInfo =
-                    SyntaxExtractor.ExtractClass(context: generatorSyntaxContext, classDeclarationSyntax: classDeclarationSyntax, cancellationToken: cancellationToken);
+                ClassEnumGeneration? classInfo = SyntaxExtractor.ExtractClass(
+                    context: generatorSyntaxContext,
+                    classDeclarationSyntax: classDeclarationSyntax,
+                    cancellationToken: cancellationToken
+                );
 
                 return (classInfo, null);
             }
             catch (Exception exception)
             {
-                return (null, new ErrorInfo(classDeclarationSyntax.GetLocation(), exception: exception));
+                return (
+                    null,
+                    new ErrorInfo(classDeclarationSyntax.GetLocation(), exception: exception)
+                );
             }
         }
 
         return (null, null);
     }
 
-    private static (EnumGeneration? enumInfo, ErrorInfo? errorInfo) GetEnumDetails(GeneratorSyntaxContext generatorSyntaxContext, CancellationToken cancellationToken)
+    private static (EnumGeneration? enumInfo, ErrorInfo? errorInfo) GetEnumDetails(
+        GeneratorSyntaxContext generatorSyntaxContext,
+        CancellationToken cancellationToken
+    )
     {
         if (generatorSyntaxContext.Node is EnumDeclarationSyntax enumDeclarationSyntax)
         {
             try
             {
-                EnumGeneration? enumInfo = SyntaxExtractor.ExtractEnum(context: generatorSyntaxContext,
-                                                                       enumDeclarationSyntax: enumDeclarationSyntax,
-                                                                       cancellationToken: cancellationToken);
+                EnumGeneration? enumInfo = SyntaxExtractor.ExtractEnum(
+                    context: generatorSyntaxContext,
+                    enumDeclarationSyntax: enumDeclarationSyntax,
+                    cancellationToken: cancellationToken
+                );
 
                 return (enumInfo, null);
             }
             catch (Exception exception)
             {
-                return (null, new ErrorInfo(enumDeclarationSyntax.GetLocation(), exception: exception));
+                return (
+                    null,
+                    new ErrorInfo(enumDeclarationSyntax.GetLocation(), exception: exception)
+                );
             }
         }
 
         return (null, null);
     }
 
-    private static void GenerateClasses(SourceProductionContext sourceProductionContext, (ClassEnumGeneration? classInfo, ErrorInfo? errorInfo) classEnumGeneration)
+    private static void GenerateClasses(
+        SourceProductionContext sourceProductionContext,
+        (ClassEnumGeneration? classInfo, ErrorInfo? errorInfo) classEnumGeneration
+    )
     {
         if (classEnumGeneration.errorInfo is not null)
         {
             ErrorInfo ei = classEnumGeneration.errorInfo.Value;
-            ReportException(location: ei.Location, context: sourceProductionContext, exception: ei.Exception);
+            ReportException(
+                location: ei.Location,
+                context: sourceProductionContext,
+                exception: ei.Exception
+            );
 
             return;
         }
@@ -86,25 +122,41 @@ public sealed class EnumGenerator : IIncrementalGenerator
 
         try
         {
-            string className = EnumSourceGenerator.GenerateClassForClass(classDeclaration: classEnumGeneration.classInfo.Value,
-                                                                         hasDoesNotReturn: false,
-                                                                         supportsUnreachableException: false,
-                                                                         out CodeBuilder? codeBuilder);
+            string className = EnumSourceGenerator.GenerateClassForClass(
+                classDeclaration: classEnumGeneration.classInfo.Value,
+                hasDoesNotReturn: false,
+                supportsUnreachableException: false,
+                out CodeBuilder? codeBuilder
+            );
 
-            sourceProductionContext.AddSource(classEnumGeneration.classInfo.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
+            sourceProductionContext.AddSource(
+                classEnumGeneration.classInfo.Value.Namespace + "." + className + ".generated.cs",
+                sourceText: codeBuilder.Text
+            );
         }
         catch (Exception exception)
         {
-            ReportException(location: classEnumGeneration.classInfo.Value.Location, context: sourceProductionContext, exception: exception);
+            ReportException(
+                location: classEnumGeneration.classInfo.Value.Location,
+                context: sourceProductionContext,
+                exception: exception
+            );
         }
     }
 
-    private static void GenerateEnums(SourceProductionContext sourceProductionContext, (EnumGeneration? enumInfo, ErrorInfo? errorInfo) enumGeneration)
+    private static void GenerateEnums(
+        SourceProductionContext sourceProductionContext,
+        (EnumGeneration? enumInfo, ErrorInfo? errorInfo) enumGeneration
+    )
     {
         if (enumGeneration.errorInfo is not null)
         {
             ErrorInfo ei = enumGeneration.errorInfo.Value;
-            ReportException(location: ei.Location, context: sourceProductionContext, exception: ei.Exception);
+            ReportException(
+                location: ei.Location,
+                context: sourceProductionContext,
+                exception: ei.Exception
+            );
 
             return;
         }
@@ -116,24 +168,44 @@ public sealed class EnumGenerator : IIncrementalGenerator
 
         try
         {
-            string className = EnumSourceGenerator.GenerateClassForEnum(enumDeclaration: enumGeneration.enumInfo.Value, out CodeBuilder codeBuilder);
+            string className = EnumSourceGenerator.GenerateClassForEnum(
+                enumDeclaration: enumGeneration.enumInfo.Value,
+                out CodeBuilder codeBuilder
+            );
 
-            sourceProductionContext.AddSource(enumGeneration.enumInfo.Value.Namespace + "." + className + ".generated.cs", sourceText: codeBuilder.Text);
+            sourceProductionContext.AddSource(
+                enumGeneration.enumInfo.Value.Namespace + "." + className + ".generated.cs",
+                sourceText: codeBuilder.Text
+            );
         }
         catch (Exception exception)
         {
-            ReportException(location: enumGeneration.enumInfo.Value.Location, context: sourceProductionContext, exception: exception);
+            ReportException(
+                location: enumGeneration.enumInfo.Value.Location,
+                context: sourceProductionContext,
+                exception: exception
+            );
         }
     }
 
-    private static void ReportException(Location location, in SourceProductionContext context, Exception exception)
+    private static void ReportException(
+        Location location,
+        in SourceProductionContext context,
+        Exception exception
+    )
     {
-        context.ReportDiagnostic(diagnostic: Diagnostic.Create(new(id: "ENUM002",
-                                                                   title: "Unhandled Exception",
-                                                                   exception.Message + ' ' + exception.StackTrace,
-                                                                   category: VersionInformation.Product,
-                                                                   defaultSeverity: DiagnosticSeverity.Error,
-                                                                   isEnabledByDefault: true),
-                                                               location: location));
+        context.ReportDiagnostic(
+            diagnostic: Diagnostic.Create(
+                new(
+                    id: "ENUM002",
+                    title: "Unhandled Exception",
+                    exception.Message + ' ' + exception.StackTrace,
+                    category: VersionInformation.Product,
+                    defaultSeverity: DiagnosticSeverity.Error,
+                    isEnabledByDefault: true
+                ),
+                location: location
+            )
+        );
     }
 }

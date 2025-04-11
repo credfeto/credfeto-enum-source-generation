@@ -39,9 +39,7 @@ public static class TypeDeclarationSyntaxExtensions
 
         if (isProtected)
         {
-            return isInternal
-                ? AccessType.PROTECTED_INTERNAL
-                : AccessType.PROTECTED;
+            return isInternal ? AccessType.PROTECTED_INTERNAL : AccessType.PROTECTED;
         }
 
         return AccessType.INTERNAL;

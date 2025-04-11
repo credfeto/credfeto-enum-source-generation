@@ -8,5 +8,5 @@ public enum AccessType
     PRIVATE = SyntaxKind.PrivateKeyword,
     PROTECTED = SyntaxKind.ProtectedKeyword,
     PROTECTED_INTERNAL = SyntaxKind.ProtectedKeyword | SyntaxKind.InternalKeyword,
-    INTERNAL = SyntaxKind.InternalKeyword
+    INTERNAL = SyntaxKind.InternalKeyword,
 }

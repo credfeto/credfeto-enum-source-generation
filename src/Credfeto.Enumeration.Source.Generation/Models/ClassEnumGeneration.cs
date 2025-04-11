@@ -7,7 +7,13 @@ namespace Credfeto.Enumeration.Source.Generation.Models;
 [DebuggerDisplay("{AccessType} {Namespace}.{Name}")]
 public readonly record struct ClassEnumGeneration
 {
-    public ClassEnumGeneration(AccessType accessType, string name, string @namespace, in IReadOnlyList<EnumGeneration> enums, Location location)
+    public ClassEnumGeneration(
+        AccessType accessType,
+        string name,
+        string @namespace,
+        in IReadOnlyList<EnumGeneration> enums,
+        Location location
+    )
     {
         this.AccessType = accessType;
         this.Name = name;
