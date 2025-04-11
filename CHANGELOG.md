@@ -9,6 +9,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+### Removed
+### Deployment Changes
+
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+## [1.2.72] - 2025-04-11
+### Changed
 - SDK - Updated DotNet SDK to 9.0.203
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.58.459
 - Dependencies - Updated FunFair.CodeAnalysis to 7.0.76.1027
@@ -17,12 +25,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit.analyzers to 1.21.0
 - Dependencies - Updated xunit.v3 to 2.0.1
 - Dependencies - Updated FunFair.Test.Common to 6.1.266.1250
-### Removed
-### Deployment Changes
 
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
 ## [1.2.71] - 2025-03-23
 ### Changed
 - Dependencies - Updated Meziantou.Analyzer to 2.0.189
