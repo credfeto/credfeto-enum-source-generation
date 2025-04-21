@@ -69,7 +69,7 @@
   <ItemGroup>
     <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="All" ExcludeAssets="runtime" />
-    <PackageReference Include="Credfeto.Version.Information.Generator" Version="1.0.62.480" PrivateAssets="All" ExcludeAssets="runtime" />
+    <PackageReference Include="Credfeto.Version.Information.Generator" Version="1.0.63.485" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="CSharpier.MSBuild" Version="0.30.6" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="CSharpIsNullAnalyzer" Version="0.1.593" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="FunFair.CodeAnalysis" Version="7.0.79.1041" PrivateAssets="All" ExcludeAssets="runtime" />
