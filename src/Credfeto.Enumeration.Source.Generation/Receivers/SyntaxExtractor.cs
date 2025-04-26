@@ -39,10 +39,7 @@ internal static class SyntaxExtractor
             return null;
         }
 
-        GenerationOptions options = DetectGenerationOptions(
-            context: context,
-            cancellationToken: cancellationToken
-        );
+        GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
 
         IReadOnlyList<EnumGeneration> attributesForGeneration = GetEnumsToGenerateForClass(
             context: context,
@@ -116,10 +113,7 @@ internal static class SyntaxExtractor
 
             TypedConstant constructorArguments = item.ConstructorArguments[0];
 
-            if (
-                constructorArguments is
-                { Kind: TypedConstantKind.Type, Value: INamedTypeSymbol type }
-            )
+            if (constructorArguments is { Kind: TypedConstantKind.Type, Value: INamedTypeSymbol type })
             {
                 IReadOnlyList<IFieldSymbol> members = [.. type.GetMembers().OfType<IFieldSymbol>()];
 
@@ -190,10 +184,7 @@ internal static class SyntaxExtractor
             cancellationToken.ThrowIfCancellationRequested();
 
             if (
-                context.SemanticModel.GetDeclaredSymbol(
-                    declaration: member,
-                    cancellationToken: CancellationToken.None
-                )
+                context.SemanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: CancellationToken.None)
                 is IFieldSymbol fieldSymbol
             )
             {
@@ -203,10 +194,7 @@ internal static class SyntaxExtractor
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        GenerationOptions options = DetectGenerationOptions(
-            context: context,
-            cancellationToken: cancellationToken
-        );
+        GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
 
         return new(
             accessType: accessType,
@@ -229,10 +217,7 @@ internal static class SyntaxExtractor
         );
 
         cancellationToken.ThrowIfCancellationRequested();
-        bool hasUnreachableException = !HasAttribute(
-            context: context,
-            name: "System.Diagnostics.UnreachableException"
-        );
+        bool hasUnreachableException = !HasAttribute(context: context, name: "System.Diagnostics.UnreachableException");
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -244,8 +229,6 @@ internal static class SyntaxExtractor
 
     private static bool HasAttribute(in GeneratorSyntaxContext context, string name)
     {
-        return context
-            .SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: name)
-            .IsEmpty;
+        return context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: name).IsEmpty;
     }
 }
