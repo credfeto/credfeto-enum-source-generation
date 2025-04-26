@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using Credfeto.Enumeration.Source.Generation.Builders;
 using Credfeto.Enumeration.Source.Generation.Models;
@@ -18,10 +18,9 @@ public sealed class EnumGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(ExtractClasses(context), action: GenerateClasses);
     }
 
-    private static IncrementalValuesProvider<(
-        ClassEnumGeneration? classInfo,
-        ErrorInfo? errorInfo
-    )> ExtractClasses(in IncrementalGeneratorInitializationContext context)
+    private static IncrementalValuesProvider<(ClassEnumGeneration? classInfo, ErrorInfo? errorInfo)> ExtractClasses(
+        in IncrementalGeneratorInitializationContext context
+    )
     {
         return context.SyntaxProvider.CreateSyntaxProvider(
             predicate: static (n, _) => n is ClassDeclarationSyntax,
@@ -29,10 +28,9 @@ public sealed class EnumGenerator : IIncrementalGenerator
         );
     }
 
-    private static IncrementalValuesProvider<(
-        EnumGeneration? enumInfo,
-        ErrorInfo? errorInfo
-    )> ExtractEnums(in IncrementalGeneratorInitializationContext context)
+    private static IncrementalValuesProvider<(EnumGeneration? enumInfo, ErrorInfo? errorInfo)> ExtractEnums(
+        in IncrementalGeneratorInitializationContext context
+    )
     {
         return context.SyntaxProvider.CreateSyntaxProvider(
             predicate: static (n, _) => n is EnumDeclarationSyntax,
@@ -59,10 +57,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
             }
             catch (Exception exception)
             {
-                return (
-                    null,
-                    new ErrorInfo(classDeclarationSyntax.GetLocation(), exception: exception)
-                );
+                return (null, new ErrorInfo(classDeclarationSyntax.GetLocation(), exception: exception));
             }
         }
 
@@ -88,10 +83,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
             }
             catch (Exception exception)
             {
-                return (
-                    null,
-                    new ErrorInfo(enumDeclarationSyntax.GetLocation(), exception: exception)
-                );
+                return (null, new ErrorInfo(enumDeclarationSyntax.GetLocation(), exception: exception));
             }
         }
 
@@ -106,11 +98,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
         if (classEnumGeneration.errorInfo is not null)
         {
             ErrorInfo ei = classEnumGeneration.errorInfo.Value;
-            ReportException(
-                location: ei.Location,
-                context: sourceProductionContext,
-                exception: ei.Exception
-            );
+            ReportException(location: ei.Location, context: sourceProductionContext, exception: ei.Exception);
 
             return;
         }
@@ -152,11 +140,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
         if (enumGeneration.errorInfo is not null)
         {
             ErrorInfo ei = enumGeneration.errorInfo.Value;
-            ReportException(
-                location: ei.Location,
-                context: sourceProductionContext,
-                exception: ei.Exception
-            );
+            ReportException(location: ei.Location, context: sourceProductionContext, exception: ei.Exception);
 
             return;
         }
@@ -188,11 +172,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
         }
     }
 
-    private static void ReportException(
-        Location location,
-        in SourceProductionContext context,
-        Exception exception
-    )
+    private static void ReportException(Location location, in SourceProductionContext context, Exception exception)
     {
         context.ReportDiagnostic(
             diagnostic: Diagnostic.Create(
