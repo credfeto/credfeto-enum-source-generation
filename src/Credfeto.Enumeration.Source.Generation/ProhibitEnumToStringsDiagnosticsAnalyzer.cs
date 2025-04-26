@@ -20,14 +20,11 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         message: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead"
     );
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        SupportedDiagnosticsList.Build(Rule);
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => SupportedDiagnosticsList.Build(Rule);
 
     public override void Initialize(AnalysisContext context)
     {
-        context.ConfigureGeneratedCodeAnalysis(
-            GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.None
-        );
+        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
 
         context.RegisterCompilationStartAction(PerformCheck);
@@ -51,14 +48,9 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         LookForBannedInStringConcatenation(syntaxNodeAnalysisContext);
     }
 
-    private static void LookForExplicitBannedMethods(
-        in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
-    )
+    private static void LookForExplicitBannedMethods(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        if (
-            syntaxNodeAnalysisContext.Node
-            is MemberAccessExpressionSyntax memberAccessExpressionSyntax
-        )
+        if (syntaxNodeAnalysisContext.Node is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
         {
             LookForBannedMethod(
                 memberAccessExpressionSyntax: memberAccessExpressionSyntax,
@@ -88,17 +80,9 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
             return;
         }
 
-        if (
-            StringComparer.Ordinal.Equals(
-                memberAccessExpressionSyntax.Name.Identifier.ToString(),
-                nameof(ToString)
-            )
-        )
+        if (StringComparer.Ordinal.Equals(memberAccessExpressionSyntax.Name.Identifier.ToString(), nameof(ToString)))
         {
-            ReportDiagnostic(
-                expressionSyntax: memberAccessExpressionSyntax,
-                context: syntaxNodeAnalysisContext
-            );
+            ReportDiagnostic(expressionSyntax: memberAccessExpressionSyntax, context: syntaxNodeAnalysisContext);
         }
     }
 
@@ -122,10 +106,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
             return null;
         }
 
-        INamedTypeSymbol? typeInfo = GetNamedType(
-            syntaxNodeAnalysisContext: syntaxNodeAnalysisContext,
-            e: e
-        );
+        INamedTypeSymbol? typeInfo = GetNamedType(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, e: e);
 
         if (typeInfo?.ConstructedFrom is null)
         {
@@ -148,14 +129,9 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
                 .Type as INamedTypeSymbol;
     }
 
-    private static void LookForBannedInInterpolatedStrings(
-        in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
-    )
+    private static void LookForBannedInInterpolatedStrings(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        if (
-            syntaxNodeAnalysisContext.Node
-            is InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax
-        )
+        if (syntaxNodeAnalysisContext.Node is InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax)
         {
             LookForBannedInInterpolatedStrings(
                 interpolatedStringExpressionSyntax: interpolatedStringExpressionSyntax,
@@ -169,9 +145,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
     )
     {
-        foreach (
-            InterpolationSyntax part in interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>()
-        )
+        foreach (InterpolationSyntax part in interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>())
         {
             if (
                 !syntaxNodeAnalysisContext
@@ -186,21 +160,13 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
                 continue;
             }
 
-            ReportDiagnostic(
-                expressionSyntax: interpolatedStringExpressionSyntax,
-                context: syntaxNodeAnalysisContext
-            );
+            ReportDiagnostic(expressionSyntax: interpolatedStringExpressionSyntax, context: syntaxNodeAnalysisContext);
         }
     }
 
-    private static void ReportDiagnostic(
-        ExpressionSyntax expressionSyntax,
-        in SyntaxNodeAnalysisContext context
-    )
+    private static void ReportDiagnostic(ExpressionSyntax expressionSyntax, in SyntaxNodeAnalysisContext context)
     {
-        context.ReportDiagnostic(
-            Diagnostic.Create(descriptor: Rule, expressionSyntax.GetLocation())
-        );
+        context.ReportDiagnostic(Diagnostic.Create(descriptor: Rule, expressionSyntax.GetLocation()));
     }
 
     private static bool IsAddExpression(BinaryExpressionSyntax node)
@@ -232,9 +198,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         return false;
     }
 
-    private static void LookForBannedInStringConcatenation(
-        in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
-    )
+    private static void LookForBannedInStringConcatenation(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
         if (
             syntaxNodeAnalysisContext.Node is BinaryExpressionSyntax binaryExpressionSyntax
@@ -265,17 +229,11 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
         if (left.IsString() && right.IsEnum())
         {
-            ReportDiagnostic(
-                expressionSyntax: binaryExpressionSyntax.Left,
-                context: syntaxNodeAnalysisContext
-            );
+            ReportDiagnostic(expressionSyntax: binaryExpressionSyntax.Left, context: syntaxNodeAnalysisContext);
         }
         else if (right.IsString() && left.IsEnum())
         {
-            ReportDiagnostic(
-                expressionSyntax: binaryExpressionSyntax.Right,
-                context: syntaxNodeAnalysisContext
-            );
+            ReportDiagnostic(expressionSyntax: binaryExpressionSyntax.Right, context: syntaxNodeAnalysisContext);
         }
     }
 }
