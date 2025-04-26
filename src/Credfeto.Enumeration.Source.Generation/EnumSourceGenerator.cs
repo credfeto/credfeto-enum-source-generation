@@ -19,10 +19,7 @@ public static class EnumSourceGenerator
     private const string GET_DESCRIPTION_METHOD_NAME = "GetDescription";
     private const string INVALID_ENUM_MEMBER_METHOD_NAME = "ThrowInvalidEnumMemberException";
 
-    public static string GenerateClassForEnum(
-        in EnumGeneration enumDeclaration,
-        out CodeBuilder source
-    )
+    public static string GenerateClassForEnum(in EnumGeneration enumDeclaration, out CodeBuilder source)
     {
         string className = enumDeclaration.Name + "GeneratedExtensions";
 
@@ -33,16 +30,10 @@ public static class EnumSourceGenerator
                 .AppendLine("namespace " + enumDeclaration.Namespace + ";")
                 .AppendBlankLine()
                 .AppendGeneratedCodeAttribute()
-                .StartBlock(
-                    ConvertAccessType(enumDeclaration.AccessType) + " static class " + className
-                )
+                .StartBlock(ConvertAccessType(enumDeclaration.AccessType) + " static class " + className)
         )
         {
-            GenerateMethods(
-                source: source,
-                attribute: enumDeclaration,
-                classNameFormatter: ClassNameOnlyFormatter
-            );
+            GenerateMethods(source: source, attribute: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
         }
 
         return className;
@@ -94,11 +85,7 @@ public static class EnumSourceGenerator
                 .AppendLine("namespace " + classDeclaration.Namespace + ";")
                 .AppendBlankLine()
                 .AppendGeneratedCodeAttribute()
-                .StartBlock(
-                    ConvertAccessType(classDeclaration.AccessType)
-                        + " static partial class "
-                        + className
-                )
+                .StartBlock(ConvertAccessType(classDeclaration.AccessType) + " static partial class " + className)
         )
         {
             Func<EnumGeneration, string> classNameFormatter = ClassWithNamespaceFormatter;
@@ -116,11 +103,7 @@ public static class EnumSourceGenerator
                     source.AppendBlankLine();
                 }
 
-                GenerateMethods(
-                    source: source,
-                    attribute: attribute,
-                    classNameFormatter: classNameFormatter
-                );
+                GenerateMethods(source: source, attribute: attribute, classNameFormatter: classNameFormatter);
             }
         }
 
@@ -133,29 +116,13 @@ public static class EnumSourceGenerator
         Func<EnumGeneration, string> classNameFormatter
     )
     {
-        GenerateGetName(
-            source: source,
-            enumDeclaration: attribute,
-            classNameFormatter: classNameFormatter
-        );
+        GenerateGetName(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
-        GenerateGetDescription(
-            source: source,
-            enumDeclaration: attribute,
-            classNameFormatter: classNameFormatter
-        );
+        GenerateGetDescription(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
-        GenerateIsDefined(
-            source: source,
-            enumDeclaration: attribute,
-            classNameFormatter: classNameFormatter
-        );
+        GenerateIsDefined(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
         source.AppendBlankLine();
-        GenerateThrowNotFound(
-            source: source,
-            enumDeclaration: attribute,
-            classNameFormatter: classNameFormatter
-        );
+        GenerateThrowNotFound(source: source, enumDeclaration: attribute, classNameFormatter: classNameFormatter);
     }
 
     private static void GenerateThrowNotFound(
@@ -173,11 +140,7 @@ public static class EnumSourceGenerator
 
         using (
             source.StartBlock(
-                "public static string "
-                    + INVALID_ENUM_MEMBER_METHOD_NAME
-                    + "(this "
-                    + className
-                    + " value)"
+                "public static string " + INVALID_ENUM_MEMBER_METHOD_NAME + "(this " + className + " value)"
             )
         )
         {
@@ -203,15 +166,10 @@ public static class EnumSourceGenerator
         );
     }
 
-    private static void IssueUnreachableException(
-        CodeBuilder source,
-        in EnumGeneration enumDeclaration
-    )
+    private static void IssueUnreachableException(CodeBuilder source, in EnumGeneration enumDeclaration)
     {
         source.AppendLine(
-            "throw new UnreachableException(message: \""
-                + enumDeclaration.Name
-                + ": Unknown enum member\");"
+            "throw new UnreachableException(message: \"" + enumDeclaration.Name + ": Unknown enum member\");"
         );
     }
 
@@ -226,13 +184,7 @@ public static class EnumSourceGenerator
         using (
             source
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                .StartBlock(
-                    "public static string "
-                        + GET_NAME_METHOD_NAME
-                        + "(this "
-                        + className
-                        + " value)"
-                )
+                .StartBlock("public static string " + GET_NAME_METHOD_NAME + "(this " + className + " value)")
         )
         {
             IReadOnlyList<string> members = GetUniqueMemberNames(enumDeclaration);
@@ -250,14 +202,7 @@ public static class EnumSourceGenerator
                             seed: source,
                             func: (current, memberName) =>
                                 current.AppendLine(
-                                    className
-                                        + "."
-                                        + memberName
-                                        + " => nameof("
-                                        + className
-                                        + "."
-                                        + memberName
-                                        + "),"
+                                    className + "." + memberName + " => nameof(" + className + "." + memberName + "),"
                                 )
                         )
                         .AppendLine("_ => " + INVALID_ENUM_MEMBER_METHOD_NAME + "(value: value)");
@@ -271,10 +216,7 @@ public static class EnumSourceGenerator
         return [.. UniqueMembers(enumDeclaration).Select(member => member.Name)];
     }
 
-    private static IReadOnlyList<string> GetUniqueMemberNames(
-        in EnumGeneration enumDeclaration,
-        string className
-    )
+    private static IReadOnlyList<string> GetUniqueMemberNames(in EnumGeneration enumDeclaration, string className)
     {
         return
         [
@@ -299,13 +241,7 @@ public static class EnumSourceGenerator
         using (
             source
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                .StartBlock(
-                    "public static bool "
-                        + IS_DEFINED_METHOD_NAME
-                        + "(this "
-                        + className
-                        + " value)"
-                )
+                .StartBlock("public static bool " + IS_DEFINED_METHOD_NAME + "(this " + className + " value)")
         )
         {
             IReadOnlyList<string> members = GetUniqueMemberNames(
@@ -328,14 +264,11 @@ public static class EnumSourceGenerator
     {
         HashSet<string> names = UniqueEnumMemberNames(enumDeclaration);
 
-        return enumDeclaration.Members.Where(member =>
-            !IsSkippedOrObsolete(fieldSymbol: member, names: names)
-        );
+        return enumDeclaration.Members.Where(member => !IsSkippedOrObsolete(fieldSymbol: member, names: names));
 
         static bool IsSkippedOrObsolete(IFieldSymbol fieldSymbol, HashSet<string> names)
         {
-            return IsSkipEnumValue(member: fieldSymbol, names: names)
-                || fieldSymbol.HasObsoleteAttribute();
+            return IsSkipEnumValue(member: fieldSymbol, names: names) || fieldSymbol.HasObsoleteAttribute();
         }
     }
 
@@ -350,13 +283,7 @@ public static class EnumSourceGenerator
         using (
             source
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                .StartBlock(
-                    "public static string "
-                        + GET_DESCRIPTION_METHOD_NAME
-                        + "(this "
-                        + className
-                        + " value)"
-                )
+                .StartBlock("public static string " + GET_DESCRIPTION_METHOD_NAME + "(this " + className + " value)")
         )
         {
             IReadOnlyList<string> items = GetDescriptionCaseOptions(
@@ -399,24 +326,14 @@ public static class EnumSourceGenerator
                 .Select(member =>
                     (
                         member,
-                        description: member
-                            .GetAttributes()
-                            .FirstOrDefault(SymbolExtensions.IsDescriptionAttribute)
+                        description: member.GetAttributes().FirstOrDefault(SymbolExtensions.IsDescriptionAttribute)
                     )
                 )
                 .Where(item => item.description is not null)
                 .Select(EnsureNotNullDescription)
+                .Select(item => (item.member, typedConstant: item.description.ConstructorArguments.FirstOrDefault()))
                 .Select(item =>
-                    (
-                        item.member,
-                        typedConstant: item.description.ConstructorArguments.FirstOrDefault()
-                    )
-                )
-                .Select(item =>
-                    (
-                        item.member,
-                        attributeText: ((TypedConstant?)item.typedConstant).Value.ToCSharpString()
-                    )
+                    (item.member, attributeText: ((TypedConstant?)item.typedConstant).Value.ToCSharpString())
                 )
                 .Where(item => !string.IsNullOrWhiteSpace(item.attributeText))
                 .Select(item =>
@@ -445,12 +362,7 @@ public static class EnumSourceGenerator
         string attributeText
     )
     {
-        return classNameFormatter(enumDeclaration)
-            + "."
-            + member.Name
-            + " => "
-            + attributeText
-            + ",";
+        return classNameFormatter(enumDeclaration) + "." + member.Name + " => " + attributeText + ",";
     }
 
     private static bool IsSkipEnumValue(IFieldSymbol member, HashSet<string> names)
