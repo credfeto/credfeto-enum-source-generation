@@ -31,9 +31,6 @@ internal sealed class LiteralString : LocalizableString
     protected override bool AreEqual(object? other)
     {
         return other is LiteralString otherResourceString
-            && StringComparer.OrdinalIgnoreCase.Equals(
-                x: this._value,
-                y: otherResourceString._value
-            );
+            && StringComparer.OrdinalIgnoreCase.Equals(x: this._value, y: otherResourceString._value);
     }
 }
