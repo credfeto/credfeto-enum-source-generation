@@ -212,28 +212,16 @@ runs:
       cp **/*.nupkg "${{github.workspace}}/dist"
     working-directory: ${{github.workspace}}/src
 
-  - name: "Dotnet: Publish Packages to Nuget (Without separate symbol feed)"
+  - name: "Dotnet: Publish Packages to Nuget (With integrated symbol feed)"
     if: |-
       inputs.NUGET_API_KEY != '' &&
       inputs.NUGET_API_KEY != 'SLEET' &&
       inputs.NUGET_PACK == 'true' &&
       (inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')
-    shell: bash
-    working-directory: ${{ github.workspace }}
-    run: dotnet tool run pushpackages --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}}
-    env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_MULTILEVEL_LOOKUP: "false"
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_JitCollect64BitCounts: "1"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TC_CallCountingDelayMs: "0"
-      DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "auto"
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    uses: ./.github/actions/nuget-push-integrated-symbol-feed
+    with:
+      NUGET_FEED: ${{inputs.NUGET_FEED}}
+      NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
 
   - name: "Dotnet: Publish Packages to Nuget (With separate symbol feed)"
     if: |-
@@ -241,22 +229,11 @@ runs:
       inputs.NUGET_API_KEY != 'SLEET' &&
       inputs.NUGET_PACK == 'true' &&
       !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')
-    shell: bash
-    working-directory: ${{ github.workspace }}
-    run: dotnet tool run pushpackages --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}} --symbol-source ${{inputs.NUGET_SYMBOL_FEED}}
-    env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_MULTILEVEL_LOOKUP: "false"
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_JitCollect64BitCounts: "1"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TC_CallCountingDelayMs: "0"
-      DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "auto"
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    uses: ./.github/actions/nuget-push-separate-symbol-feed
+    with:
+      NUGET_FEED: ${{inputs.NUGET_FEED}}
+      NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}
+      NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
 
   - name: "Dotnet: Publish Packages using sleet"
     if: |-
