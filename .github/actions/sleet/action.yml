@@ -21,6 +21,7 @@ runs:
         write_mode: overwrite
 
     - name: "Sleet: Publish Packages to Nuget (Using Sleet)"
+      if: always()
       shell: bash
       working-directory: ${{ github.workspace }}
       run: dotnet tool run sleet push "${{github.workspace}}/dist" --config sleet.json --source ${{inputs.SLEET_FEED}}
