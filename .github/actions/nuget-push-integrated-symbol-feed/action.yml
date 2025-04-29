@@ -1,0 +1,33 @@
+--- # Build and deploy packages
+name: 'Publish to nuget using multi-push (With integrated symbol feed)'
+description: 'Publishes Nuget packages with multi-push (With integrated symbol feed)'
+inputs:
+  NUGET_FEED:
+    description: 'Nuget feed to push packages to'
+    required: false
+  NUGET_API_KEY:
+    description: 'API key to authenticate when pushing packages'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "NuGet Push with Symbols"
+      if: always()
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: dotnet tool run pushpackages --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}}
+      env:
+        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_MULTILEVEL_LOOKUP: "false"
+        DOTNET_NOLOGO: "true"
+        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+        DOTNET_JitCollect64BitCounts: "1"
+        DOTNET_ReadyToRun: "0"
+        DOTNET_TC_QuickJitForLoops: "1"
+        DOTNET_TC_CallCountingDelayMs: "0"
+        DOTNET_TieredPGO: "1"
+        MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
