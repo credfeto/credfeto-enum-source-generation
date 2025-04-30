@@ -9,6 +9,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+- Dependencies - Updated Nullable.Extended.Analyzer to 1.15.6581
 ### Removed
 ### Deployment Changes
 
