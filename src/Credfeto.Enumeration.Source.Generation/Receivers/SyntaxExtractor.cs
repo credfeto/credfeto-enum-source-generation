@@ -13,7 +13,11 @@ namespace Credfeto.Enumeration.Source.Generation.Receivers;
 
 internal static class SyntaxExtractor
 {
-    public static ClassEnumGeneration? ExtractClass(in GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclarationSyntax, CancellationToken cancellationToken)
+    public static ClassEnumGeneration? ExtractClass(
+        in GeneratorSyntaxContext context,
+        ClassDeclarationSyntax classDeclarationSyntax,
+        CancellationToken cancellationToken
+    )
     {
         bool isStatic = classDeclarationSyntax.Modifiers.Any(SyntaxKind.StaticKeyword);
 
@@ -42,7 +46,8 @@ internal static class SyntaxExtractor
             context: context,
             classDeclarationSyntax: classDeclarationSyntax,
             options: options,
-            cancellationToken: cancellationToken);
+            cancellationToken: cancellationToken
+        );
 
         if (attributesForGeneration.Count == 0)
         {
@@ -51,20 +56,40 @@ internal static class SyntaxExtractor
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: CancellationToken.None) is INamedTypeSymbol classSymbol)
+        if (
+            context.SemanticModel.GetDeclaredSymbol(
+                declaration: classDeclarationSyntax,
+                cancellationToken: CancellationToken.None
+            )
+            is INamedTypeSymbol classSymbol
+        )
         {
-            return new(accessType: accessType, name: classSymbol.Name, classSymbol.ContainingNamespace.ToDisplayString(), enums: attributesForGeneration, classDeclarationSyntax.GetLocation());
+            return new(
+                accessType: accessType,
+                name: classSymbol.Name,
+                classSymbol.ContainingNamespace.ToDisplayString(),
+                enums: attributesForGeneration,
+                classDeclarationSyntax.GetLocation()
+            );
         }
 
         return null;
     }
 
-    private static IReadOnlyList<EnumGeneration> GetEnumsToGenerateForClass(in GeneratorSyntaxContext context,
-                                                                            ClassDeclarationSyntax classDeclarationSyntax,
-                                                                            in GenerationOptions options,
-                                                                            CancellationToken cancellationToken)
+    private static IReadOnlyList<EnumGeneration> GetEnumsToGenerateForClass(
+        in GeneratorSyntaxContext context,
+        ClassDeclarationSyntax classDeclarationSyntax,
+        in GenerationOptions options,
+        CancellationToken cancellationToken
+    )
     {
-        if (context.SemanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: cancellationToken) is not INamedTypeSymbol classSymbol)
+        if (
+            context.SemanticModel.GetDeclaredSymbol(
+                declaration: classDeclarationSyntax,
+                cancellationToken: cancellationToken
+            )
+            is not INamedTypeSymbol classSymbol
+        )
         {
             return [];
         }
@@ -91,18 +116,16 @@ internal static class SyntaxExtractor
 
             if (constructorArguments is { Kind: TypedConstantKind.Type, Value: INamedTypeSymbol type })
             {
-                IReadOnlyList<IFieldSymbol> members =
-                [
-                    .. type.GetMembers()
-                           .OfType<IFieldSymbol>()
-                ];
+                IReadOnlyList<IFieldSymbol> members = [.. type.GetMembers().OfType<IFieldSymbol>()];
 
-                EnumGeneration enumGen = new(accessType: AccessType.PUBLIC,
-                                             name: type.Name,
-                                             type.ContainingNamespace.ToDisplayString(),
-                                             members: members,
-                                             classDeclarationSyntax.GetLocation(),
-                                             options: options);
+                EnumGeneration enumGen = new(
+                    accessType: AccessType.PUBLIC,
+                    name: type.Name,
+                    type.ContainingNamespace.ToDisplayString(),
+                    members: members,
+                    classDeclarationSyntax.GetLocation(),
+                    options: options
+                );
 
                 attributesForGeneration.Add(item: enumGen);
             }
@@ -118,13 +141,25 @@ internal static class SyntaxExtractor
             return false;
         }
 
-        return StringComparer.Ordinal.Equals(item.AttributeClass.ContainingNamespace.ToDisplayString(), y: "Credfeto.Enumeration.Source.Generation.Attributes") &&
-               StringComparer.Ordinal.Equals(x: item.AttributeClass.Name, y: "EnumTextAttribute");
+        return StringComparer.Ordinal.Equals(
+                item.AttributeClass.ContainingNamespace.ToDisplayString(),
+                y: "Credfeto.Enumeration.Source.Generation.Attributes"
+            ) && StringComparer.Ordinal.Equals(x: item.AttributeClass.Name, y: "EnumTextAttribute");
     }
 
-    public static EnumGeneration? ExtractEnum(GeneratorSyntaxContext context, EnumDeclarationSyntax enumDeclarationSyntax, CancellationToken cancellationToken)
+    public static EnumGeneration? ExtractEnum(
+        GeneratorSyntaxContext context,
+        EnumDeclarationSyntax enumDeclarationSyntax,
+        CancellationToken cancellationToken
+    )
     {
-        if (context.SemanticModel.GetDeclaredSymbol(declaration: enumDeclarationSyntax, cancellationToken: CancellationToken.None) is not INamedTypeSymbol enumSymbol)
+        if (
+            context.SemanticModel.GetDeclaredSymbol(
+                declaration: enumDeclarationSyntax,
+                cancellationToken: CancellationToken.None
+            )
+            is not INamedTypeSymbol enumSymbol
+        )
         {
             return null;
         }
@@ -145,37 +180,56 @@ internal static class SyntaxExtractor
 
         IReadOnlyList<IFieldSymbol> members =
         [
-            .. enumDeclarationSyntax.Members.Select(member =>
-                                                    {
-                                                        cancellationToken.ThrowIfCancellationRequested();
+            .. enumDeclarationSyntax
+                .Members.Select(member =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                                                        return context.SemanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: cancellationToken) as IFieldSymbol;
-                                                    })
-                                    .RemoveNulls()
+                    return context.SemanticModel.GetDeclaredSymbol(
+                            declaration: member,
+                            cancellationToken: cancellationToken
+                        ) as IFieldSymbol;
+                })
+                .RemoveNulls(),
         ];
 
         cancellationToken.ThrowIfCancellationRequested();
 
         GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
 
-        return new(accessType: accessType, name: enumSymbol.Name, enumSymbol.ContainingNamespace.ToDisplayString(), members: members, enumDeclarationSyntax.GetLocation(), options: options);
+        return new(
+            accessType: accessType,
+            name: enumSymbol.Name,
+            enumSymbol.ContainingNamespace.ToDisplayString(),
+            members: members,
+            enumDeclarationSyntax.GetLocation(),
+            options: options
+        );
     }
 
-    private static GenerationOptions DetectGenerationOptions(in GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    private static GenerationOptions DetectGenerationOptions(
+        in GeneratorSyntaxContext context,
+        CancellationToken cancellationToken
+    )
     {
-        bool hasDoesNotReturnAttribute = !HasAttribute(context: context, name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute");
+        bool hasDoesNotReturnAttribute = !HasAttribute(
+            context: context,
+            name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute"
+        );
 
         cancellationToken.ThrowIfCancellationRequested();
         bool hasUnreachableException = !HasAttribute(context: context, name: "System.Diagnostics.UnreachableException");
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        return new(hasDoesNotReturnAttribute: hasDoesNotReturnAttribute, supportsUnreachableException: hasUnreachableException);
+        return new(
+            hasDoesNotReturnAttribute: hasDoesNotReturnAttribute,
+            supportsUnreachableException: hasUnreachableException
+        );
     }
 
     private static bool HasAttribute(in GeneratorSyntaxContext context, string name)
     {
-        return context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: name)
-                      .IsEmpty;
+        return context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: name).IsEmpty;
     }
 }
