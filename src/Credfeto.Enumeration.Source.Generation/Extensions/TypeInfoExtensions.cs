@@ -11,11 +11,6 @@ public static class TypeInfoExtensions
 
     public static bool IsEnum(in this TypeInfo typeInfo)
     {
-        if (typeInfo.Type is not INamedTypeSymbol type)
-        {
-            return false;
-        }
-
-        return type.EnumUnderlyingType is not null;
+        return typeInfo.Type is INamedTypeSymbol { EnumUnderlyingType: not null };
     }
 }
