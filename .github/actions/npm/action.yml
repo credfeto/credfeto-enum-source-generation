@@ -178,12 +178,10 @@ runs:
         inputs.NPM_SIGNING == 'true' &&
         inputs.PROJECT_TO_PUBLISH != ''
     name: "NPM: Create Store Signing Wallet"
-    #uses: ttd2089/secret-file-action@1.0.0
-    uses: credfeto/secret-file-action@feat/fix-github-deprecations
-    id: store-siging-wallet
+    uses: ./.github/actions/save-secret-as-file
+    id: store-signing-wallet
     with:
       secret: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
-      b64-decode: false
 
   - if: |
       inputs.NPM_SIGNING == 'true' &&
@@ -196,7 +194,7 @@ runs:
           -Package "${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg" \
           -WarningAsErrors true \
           -Wallet false \
-          -Wallet "${{steps.store-siging-wallet.outputs.file}}" \
+          -Wallet "${{steps.store-signing-wallet.outputs.file}}" \
           -WalletPassword "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
