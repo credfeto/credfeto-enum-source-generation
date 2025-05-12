@@ -1,0 +1,23 @@
+--- # Save a secret to file
+name: 'Save Secret To File'
+description: 'Saves a secret to a file'
+inputs:
+  secret:
+    description: 'Secret value to write'
+    required: true
+outputs:
+  file:
+    description: "The file the secret was written to"
+    value: ${{ steps.write-file.outputs.file }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Write secret to file"
+      shell: bash
+      id: write-file
+      run: |
+        FILE="$(openssl rand -base64 40 | tr '/+' '_-' | tr -d '=')"
+        echo "${{ inputs.SECRET }}" > "${FILE}"
+        echo "file=${FILE}" >> "${GITHUB_OUTPUT}"
+
