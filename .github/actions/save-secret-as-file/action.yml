@@ -8,16 +8,25 @@ inputs:
 outputs:
   file:
     description: "The file the secret was written to"
-    value: ${{ steps.write-file.outputs.file }}
+    value: ${{ steps.generate-filename.outputs.file }}
 
 runs:
   using: "composite"
   steps:
     - name: "Write secret to file"
       shell: bash
+      id: generate-filename
+      run: |
+        echo "file=$WORKSPACE/$(openssl rand -base64 40 | tr '/+' '_-' | tr -d '=').tmp" >> "${GITHUB_OUTPUT}"
+      env:
+        WORKSPACE: ${{github.workspace}}
+
+    - name: "Write secret to file"
+      shell: bash
       id: write-file
       run: |
-        FILE="$(openssl rand -base64 40 | tr '/+' '_-' | tr -d '=')"
-        echo "${{ inputs.SECRET }}" > "${FILE}"
-        echo "file=${FILE}" >> "${GITHUB_OUTPUT}"
+        echo "$VALUE" > "${FILE}"
+      env:
+        FILE: "${{steps.generate-filename.outputs.file}}"
+        VALUE: "${{ inputs.SECRET }}"
 
