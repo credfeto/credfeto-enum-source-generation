@@ -16,6 +16,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.CodeAnalysis to 7.1.0.1124
 - Dependencies - Updated Microsoft.Sbom.Targets to 4.0.2
 - SDK - Updated DotNet SDK to 9.0.300
+- Dependencies - Updated Microsoft.VisualStudio.Threading.Analyzers to 17.14.15
 ### Removed
 ### Deployment Changes
 
