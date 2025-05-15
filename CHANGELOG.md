@@ -9,6 +9,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+- Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 4.14.0
 ### Removed
 ### Deployment Changes
 
