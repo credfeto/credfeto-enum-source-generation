@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 4.14.0
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 4.14.0
+- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.71.550
 ### Removed
 ### Deployment Changes
 
