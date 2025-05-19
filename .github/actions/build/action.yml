@@ -186,14 +186,16 @@ runs:
       id: check_files
       shell: bash
       run: |
-        [[ -d src && -f src/global.json && '${{hashfiles('**/*.csproj', '**/*.cs')}}' != '' ]] && echo 'CSPROJ_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'CSPROJ_EXIST=false' >> "$GITHUB_OUTPUT"
-        [[ -d src && -f src/global.json && '${{hashfiles('**/*.sln')}}' != '' ]] && echo 'SLN_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SLN_EXIST=false' >> "$GITHUB_OUTPUT"
-        [[ -d db && '${{hashfiles('**/*.sql')}}' != '' ]] && echo 'SQL_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'SQL_EXIST=false' >> "$GITHUB_OUTPUT"
-        [[ -d src && -f src/package.json && src/package-lock.json && '${{hashfiles('src/package.json', 'src/package-lock.json')}}' != '' ]] && echo 'NPM_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'NPM_EXIST=false' >> "$GITHUB_OUTPUT"
-        [[ -f Wallet.json ]] && echo 'NPM_SIGNING_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'NPM_SIGNING_EXIST=false' >> "$GITHUB_OUTPUT"
-        [[ -f Dockerfile && '${{hashfiles('Dockerfile')}}' != '' ]] && echo 'DOCKERFILE_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'DOCKERFILE_EXIST=false' >> "$GITHUB_OUTPUT"
-        [[ -f healthcheck && '${{hashfiles('healthcheck')}}' != '' ]] && echo 'HEALTHCHECK_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'HEALTHCHECK_EXIST=false' >> "$GITHUB_OUTPUT"
-        [[ -f healthcheck && '${{hashfiles('cloudformation.json')}}' != '' ]] && echo 'CLOUDFORMATION_EXIST=true' >> "$GITHUB_OUTPUT" || echo 'CLOUDFORMATION_EXIST=false' >> "$GITHUB_OUTPUT"
+        {
+        [[ -d src && -f src/global.json && '${{hashfiles('**/*.csproj', '**/*.cs')}}' != '' ]] && echo 'CSPROJ_EXIST=true' || echo 'CSPROJ_EXIST=false';
+        [[ -d src && -f src/global.json && '${{hashfiles('**/*.sln')}}' != '' ]] && echo 'SLN_EXIST=true' || echo 'SLN_EXIST=false';
+        [[ -d db && '${{hashfiles('**/*.sql')}}' != '' ]] && echo 'SQL_EXIST=true' || echo 'SQL_EXIST=false';
+        [[ -d src && -f src/package.json && src/package-lock.json && '${{hashfiles('src/package.json', 'src/package-lock.json')}}' != '' ]] && echo 'NPM_EXIST=true' || echo 'NPM_EXIST=false';
+        [[ -f Wallet.json ]] && echo 'NPM_SIGNING_EXIST=true' || echo 'NPM_SIGNING_EXIST=false';
+        [[ -f Dockerfile && '${{hashfiles('Dockerfile')}}' != '' ]] && echo 'DOCKERFILE_EXIST=true' || echo 'DOCKERFILE_EXIST=false';
+        [[ -f healthcheck && '${{hashfiles('healthcheck')}}' != '' ]] && echo 'HEALTHCHECK_EXIST=true' || echo 'HEALTHCHECK_EXIST=false';
+        [[ -f healthcheck && '${{hashfiles('cloudformation.json')}}' != '' ]] && echo 'CLOUDFORMATION_EXIST=true'  || echo 'CLOUDFORMATION_EXIST=false'
+        } >> "$GITHUB_OUTPUT"
 
     - name: "Check Files Results"
       uses: actions/github-script@v7.0.1
@@ -204,6 +206,9 @@ runs:
           core.info('SQL_EXIST: ${{steps.check_files.outputs.SQL_EXIST}}');
           core.info('NPM_EXIST: ${{steps.check_files.outputs.NPM_EXIST}}');
           core.info('NPM_SIGNING_EXIST: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}');
+          core.info('DOCKERFILE_EXIST: ${{steps.check_files.outputs.DOCKERFILE_EXIST}}');
+          core.info('HEALTHCHECK_EXIST: ${{steps.check_files.outputs.HEALTHCHECK_EXIST}}');
+          core.info('CLOUDFORMATION_EXIST: ${{steps.check_files.outputs.CLOUDFORMATION_EXIST}}');
 
     - name: "Prepare build Results folder"
       working-directory: ${{github.workspace}}
@@ -452,6 +457,17 @@ runs:
         REDGATE_EMAIL: ${{inputs.REDGATE_EMAIL}}
         REDGATE_PAT: ${{inputs.REDGATE_PAT}}
         SQLCOMPARE_VERSION: ${{inputs.SQLCOMPARE_VERSION}}
+
+    - name: "Dotnet: Deploy Check"
+      shell: bash
+      run: |
+        echo ">>Deploy Config Check<<"
+        echo "CSPROJ_EXIST: ${{steps.check_files.outputs.CSPROJ_EXIST}}"
+        echo "SLN_EXIST: ${{steps.check_files.outputs.SLN_EXIST}}"
+        echo "CLOUDFORMATION_EXIST: ${{steps.check_files.outputs.CLOUDFORMATION_EXIST}}"
+        echo "CLOUD_FORMATION_DEPLOY: ${{inputs.CLOUD_FORMATION_DEPLOY}}"
+        echo "DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}"
+        echo "DEPLOY: ${{env.DEPLOY}}"
 
     - name: "Dotnet: Cloudformation Deploy"
       if: |-
