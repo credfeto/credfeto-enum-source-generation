@@ -194,7 +194,7 @@ runs:
         [[ -f Wallet.json ]] && echo 'NPM_SIGNING_EXIST=true' || echo 'NPM_SIGNING_EXIST=false';
         [[ -f Dockerfile && '${{hashfiles('Dockerfile')}}' != '' ]] && echo 'DOCKERFILE_EXIST=true' || echo 'DOCKERFILE_EXIST=false';
         [[ -f healthcheck && '${{hashfiles('healthcheck')}}' != '' ]] && echo 'HEALTHCHECK_EXIST=true' || echo 'HEALTHCHECK_EXIST=false';
-        [[ -f healthcheck && '${{hashfiles('cloudformation.json')}}' != '' ]] && echo 'CLOUDFORMATION_EXIST=true'  || echo 'CLOUDFORMATION_EXIST=false'
+        [[ -f cloudformation.json && '${{hashfiles('cloudformation.json')}}' != '' ]] && echo 'CLOUDFORMATION_EXIST=true'  || echo 'CLOUDFORMATION_EXIST=false'
         } >> "$GITHUB_OUTPUT"
 
     - name: "Check Files Results"
