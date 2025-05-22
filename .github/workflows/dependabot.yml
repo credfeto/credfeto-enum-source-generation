@@ -10,6 +10,7 @@ concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
+
 jobs:
   auto-rebase:
     runs-on: ubuntu-latest
@@ -21,6 +22,15 @@ jobs:
         if: startsWith(runner.name, 'buildagent-')
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+          echo "ACTIVE_HOSTNAME=$HOSTNAME"
+          echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
 
       - name: "Rebase"
         uses: bbeesley/gha-auto-dependabot-rebase@v1.5.140
