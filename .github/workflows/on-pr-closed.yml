@@ -14,6 +14,15 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+          echo "ACTIVE_HOSTNAME=$HOSTNAME"
+          echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
       - name: "Install extensions"
         run: gh extension install actions/gh-actions-cache
         env:
