@@ -17,6 +17,7 @@ on:
 permissions:
   contents: read
 
+
 jobs:
   enable-auto-merge-github-actions:
     if: |-
@@ -28,6 +29,7 @@ jobs:
       contents: write
       pull-requests: write
 
+
     # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
 
     steps:
@@ -36,6 +38,15 @@ jobs:
       if: startsWith(runner.name, 'buildagent-')
       shell: bash
       run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+    - name: "Set Active Environment"
+      shell: bash
+      run: |
+        {
+          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+          echo "ACTIVE_HOSTNAME=$HOSTNAME"
+          echo "ACTIVE_USER=$USER"
+        } >> "$GITHUB_ENV"
 
     - name: "Check Repo Owner"
       uses: actions/github-script@v7.0.1
@@ -67,6 +78,15 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+          echo "ACTIVE_HOSTNAME=$HOSTNAME"
+          echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
       - name: "Check Repo Owner"
         uses: actions/github-script@v7.0.1
         with:
@@ -95,6 +115,15 @@ jobs:
       shell: bash
       run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
+    - name: "Set Active Environment"
+      shell: bash
+      run: |
+        {
+          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+          echo "ACTIVE_HOSTNAME=$HOSTNAME"
+          echo "ACTIVE_USER=$USER"
+        } >> "$GITHUB_ENV"
+
     - name: "Check Repo Owner"
       uses: actions/github-script@v7.0.1
       with:
@@ -121,6 +150,15 @@ jobs:
         if: startsWith(runner.name, 'buildagent-')
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+          echo "ACTIVE_HOSTNAME=$HOSTNAME"
+          echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
 
       - name: "Check Repo Owner"
         uses: actions/github-script@v7.0.1
