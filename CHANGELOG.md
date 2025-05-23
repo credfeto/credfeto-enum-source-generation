@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated BenchmarkDotNet to 0.15.0
+- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.77.577
 ### Removed
 ### Deployment Changes
 
