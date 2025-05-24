@@ -104,7 +104,7 @@
 
  - name: "npm"
    color: "e99695"
-   description: "npm package upate"
+   description: "npm package update"
 
  - name: "Powershell"
    color: "23bc12"
