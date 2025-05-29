@@ -42,12 +42,21 @@ runs:
   using: "composite"
   steps:
 
-  - name: "NPM: Setup Node.js"
-    uses: actions/setup-node@v4.0.2
+  - if: hashfiles('${{github.workspace}}/.nvmrc') != ''
+    name: "NPM: Setup Node.js (from nvm)"
+    uses: actions/setup-node@v4.4.0
+    with:
+      node-version-file: '${{github.workspace}}/.nvmrc'
+      check-latest: false
+
+  - if: hashfiles('${{github.workspace}}/.nvmrc') == ''
+    name: "NPM: Setup Node.js (node version)"
+    uses: actions/setup-node@v4.4.0
     with:
       node-version: '20'
+      check-latest: true
 
-  ####################################################################################################################
+    ####################################################################################################################
   # DO NOT USE NPM CACHE...  As it is SLOWER than pulling the packages down npm!
   ####################################################################################################################
   #    - name: "Get npm cache directory"
