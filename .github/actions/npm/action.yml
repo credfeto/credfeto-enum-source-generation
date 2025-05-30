@@ -42,21 +42,29 @@ runs:
   using: "composite"
   steps:
 
-  - if: hashfiles('${{github.workspace}}/.nvmrc') != ''
-    name: "NPM: Setup Node.js (from nvm)"
-    uses: actions/setup-node@v4.4.0
-    with:
-      node-version-file: '${{github.workspace}}/.nvmrc'
-      check-latest: false
+    - name: "Check node file"
+      id: node_files
+      shell: bash
+      run: |
+        {
+          [[ -d src && -f .nvmrc && '${{hashfiles('.nvmrc')}}' != '' ]] && echo 'NVMRC_EXIST=true' || echo 'NVMRC_EXIST=false'
+        }>> "$GITHUB_OUTPUT"
 
-  - if: hashfiles('${{github.workspace}}/.nvmrc') == ''
-    name: "NPM: Setup Node.js (node version)"
-    uses: actions/setup-node@v4.4.0
-    with:
-      node-version: '20'
-      check-latest: true
+    - if: steps.node_files.outputs.NVMRC_EXIST == 'true'
+      name: "NPM: Setup Node.js (from nvm)"
+      uses: actions/setup-node@v4.4.0
+      with:
+        node-version-file: .nvmrc
+        check-latest: false
 
-    ####################################################################################################################
+    - if: steps.node_files.outputs.NVMRC_EXIST == 'false'
+      name: "NPM: Setup Node.js (node version)"
+      uses: actions/setup-node@v4.4.0
+      with:
+        node-version: '20'
+        check-latest: true
+
+  ####################################################################################################################
   # DO NOT USE NPM CACHE...  As it is SLOWER than pulling the packages down npm!
   ####################################################################################################################
   #    - name: "Get npm cache directory"
