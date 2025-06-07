@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.93.624
 - Dependencies - Updated xunit.analyzers to 1.22.0
+- Dependencies - Updated xunit.v3 to 2.0.3
 ### Removed
 ### Deployment Changes
 
