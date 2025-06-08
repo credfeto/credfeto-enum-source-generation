@@ -11,7 +11,6 @@ assignees: ''
 # RULES:
 
 * **ENGLISH ONLY** - this issue tracker is English-only. Please respect the people who take time to help you with your problems.
-* Search existing issues first: https://github.com/Eugeny/tabby/issues
 -->
 
 **Is your feature request related to a problem? Please describe.**
