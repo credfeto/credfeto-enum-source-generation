@@ -9,14 +9,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated BenchmarkDotNet to 0.15.1
-- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.96.632
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.2.109] - 2025-06-09
+### Changed
+- Dependencies - Updated BenchmarkDotNet to 0.15.1
+- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.96.632
+
 ## [1.2.108] - 2025-06-09
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.95.630
