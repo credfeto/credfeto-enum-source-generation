@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.99.647
+- SDK - Updated DotNet SDK to 9.0.301
 ### Removed
 ### Deployment Changes
 
