@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.101.652
 - Dependencies - Updated Meziantou.Analyzer to 2.0.202
+- Dependencies - Updated BenchmarkDotNet to 0.15.2
 ### Removed
 ### Deployment Changes
 
