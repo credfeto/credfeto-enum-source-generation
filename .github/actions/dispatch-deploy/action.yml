@@ -59,7 +59,7 @@ runs:
       with:
         github-token: ${{ inputs.GITHUB_TOKEN }}
         script: |
-          github.rest.actions.createWorkflowDispatch({
+          const id = await github.rest.actions.createWorkflowDispatch({
             owner: context.repo.owner,
             repo: context.repo.repo,
             workflow_id: 'deploy.yml',
@@ -76,4 +76,6 @@ runs:
                 AWS_CONTAINER_REGISTRY: "${{inputs.AWS_CONTAINER_REGISTRY}}",
                 AWS_LOAD_BALANCER_PRIORITY: "${{inputs.AWS_LOAD_BALANCER_PRIORITY}}",
               }
-          })
+          });
+
+          console.log(`Result: ${JSON.stringify(id)}`);
