@@ -196,24 +196,107 @@ roslynator_object_creation_type_style=implicit_when_type_is_obvious
 #roslynator_use_var_instead_of_implicit_object_creation = true|false
 roslynator_use_var_instead_of_implicit_object_creation=false
 
+
+#Simplify name (IDE0001)
+dotnet_diagnostic.IDE0001.severity = error
+#Simplify member access (IDE0002)
+dotnet_diagnostic.IDE0002.severity = error
+#Remove unnecessary cast (IDE0004)
+dotnet_diagnostic.IDE0004.severity = error
 # Enable GenerateDocumentationFile to enable Remove unnecessary usings/imports on build.. except this turns on xmlDocs
 dotnet_diagnostic.IDE0005.severity = none
 # Populate all cases of switch
 dotnet_diagnostic.IDE0010.severity = none
-# Use Expression body for accessor
+#Use throw expression (IDE0016)
+dotnet_diagnostic.IDE0016.severity = none
+#Inline variable declaration (IDE0018)
+dotnet_diagnostic.IDE0018.severity = none
+#Use object initializers (IDE0017)
 dotnet_diagnostic.IDE0027.severity = none
-# 'if' statement can be simplified
+#Use collection initializers (IDE0028)
+dotnet_diagnostic.IDE0028.severity = error
+#Null check can be simplified (IDE0029)
+dotnet_diagnostic.IDE0029.severity = error
+#Null check can be simplified (IDE0030)
+dotnet_diagnostic.IDE0030.severity = error
+#Use null propagation (IDE0031)
+dotnet_diagnostic.IDE0031.severity = error
+#Use auto-implemented property (IDE0032)
+dotnet_diagnostic.IDE0032.severity = error
+#Use explicitly provided tuple name (IDE0033)
+dotnet_diagnostic.IDE0033.severity = error
+#Simplify 'default' expression (IDE0034)
+dotnet_diagnostic.IDE0034.severity = error
+#Remove unreachable code (IDE0035)
+dotnet_diagnostic.IDE0035.severity = error
+#Use inferred member names (IDE0037)
+dotnet_diagnostic.IDE0037.severity = error
+#Use local function instead of lambda (IDE0039)
+dotnet_diagnostic.IDE0041.severity = error
+#Use 'is null' check (IDE0041)
+dotnet_diagnostic.IDE0041.severity = suggestion
+#Deconstruct variable declaration (IDE0042)
+dotnet_diagnostic.IDE0042.severity = error
+#Use conditional expression for assignment (IDE0045)
+dotnet_diagnostic.IDE0045.severity = suggestion
+#Use conditional expression for return (IDE0046)
 dotnet_diagnostic.IDE0046.severity = suggestion
+#Convert anonymous type to tuple (IDE0050)
+dotnet_diagnostic.IDE0050.severity = suggestion
+#Remove unused private member (IDE0051)
+dotnet_diagnostic.IDE0051.severity = suggestion
+#Remove unread private member (IDE0052)
+dotnet_diagnostic.IDE0052.severity = suggestion
+#Use compound assignment (IDE0054)
+dotnet_diagnostic.IDE0054.severity = suggestion
 # Fix Formatting
 dotnet_diagnostic.IDE0055.severity = none
-# Expression value is never used
+#Use index operator (IDE0056)
+dotnet_diagnostic.IDE0056.severity = error
+#Use range operator (IDE0057)
+dotnet_diagnostic.IDE0057.severity = error
+#Remove unnecessary expression value (IDE0058)
 dotnet_diagnostic.IDE0058.severity = suggestion
+#Remove unnecessary value assignment (IDE0059)
+dotnet_diagnostic.IDE0059.severity = suggestion
 # Remove unused parameter
 dotnet_diagnostic.IDE0060.severity = suggestion
 # Using statement can be simplified
 dotnet_diagnostic.IDE0063.severity = none
-# Populate all cases of switch
+#Use 'System.HashCode.Combine' (IDE0070)
+dotnet_diagnostic.IDE0070.severity = error
+#Simplify interpolation (IDE0071)
+dotnet_diagnostic.IDE0071.severity = error
+#Add missing cases to switch expression (IDE0072)
 dotnet_diagnostic.IDE0072.severity = none
+#Use compound assignment (IDE0074)
+dotnet_diagnostic.IDE0074.severity = error
+#Simplify conditional expression (IDE0075)
+dotnet_diagnostic.IDE0075.severity = error
+# Use pattern matching
+dotnet_diagnostic.IDE0078.severity = error
+# Remove unnecessary suppression
+dotnet_diagnostic.IDE0079.severity = error
+#Remove unnecessary suppression operator (IDE0080)
+dotnet_diagnostic.IDE0080.severity = error
+#Convert typeof to nameof (IDE0082)
+dotnet_diagnostic.IDE0082.severity = error
+#Simplify new expression (IDE0090)
+dotnet_diagnostic.IDE0090.severity = error
+#Remove unnecessary equality operator (IDE0100)
+dotnet_diagnostic.IDE0100.severity = error
+#Remove unnecessary discard (IDE0110)
+dotnet_diagnostic.IDE0110.severity = error
+#Simplify LINQ expression (IDE0120)
+dotnet_diagnostic.IDE0120.severity = error
+#Simplify LINQ type check and cast (IDE0121)
+dotnet_diagnostic.IDE0121.severity = error
+#Namespace does not match folder structure (IDE0130)
+dotnet_diagnostic.IDE0130.severity = error
+#Prefer 'null' check over type check (IDE0150)
+dotnet_diagnostic.IDE0150.severity = error
+#Use tuple to swap values (IDE0180)
+dotnet_diagnostic.IDE0180.severity = error
 # Use block scoped namespace
 dotnet_diagnostic.IDE0160.severity = none
 # Use tuple to swap values
@@ -222,7 +305,33 @@ dotnet_diagnostic.IDE0180.severity = error
 dotnet_diagnostic.IDE0200.severity = error
 # Convert to top level statements (Program.Main)
 dotnet_diagnostic.IDE0210.severity = none
-# Use UTF-8 string literal
+#Add explicit cast in foreach loop (IDE0220)
+dotnet_diagnostic.IDE0220.severity = error
+#Use UTF-8 string literal (IDE0230)
+dotnet_diagnostic.IDE0230.severity = error
+#Nullable directive is redundant (IDE0240)
+dotnet_diagnostic.IDE0240.severity = error
+#Nullable directive is unnecessary (IDE0241)
+dotnet_diagnostic.IDE0241.severity = error
+#Use collection expression for array (IDE0300)
+dotnet_diagnostic.IDE0300).severity = error
+#Use collection expression for empty (IDE0301)
+dotnet_diagnostic.IDE0301.severity = error
+#Use collection expression for stack alloc (IDE0302)
+dotnet_diagnostic.IDE0302.severity = error
+#Use collection expression for Create() (IDE0303)
+dotnet_diagnostic.IDE0303.severity = error
+#Use collection expression for builder (IDE0304)
+dotnet_diagnostic.IDE0304.severity = error
+#Use collection expression for fluent (IDE0305)
+dotnet_diagnostic.IDE0305.severity = error
+#Use collection expression for new (IDE0306)
+dotnet_diagnostic.IDE0306.severity = error
+#Use unbound generic type (IDE0340)
+dotnet_diagnostic.IDE0340.severity = error
+#Use implicitly typed lambda (IDE0350)
+dotnet_diagnostic.IDE0350.severity = error
+#Null check can be simplified (IDE0270)
 dotnet_diagnostic.IDE0230.severity = error
 # Use Primary constructor
 dotnet_diagnostic.IDE0290.severity = none
