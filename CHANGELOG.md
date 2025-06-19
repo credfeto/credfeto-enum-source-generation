@@ -9,14 +9,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated FunFair.CodeAnalysis to 7.1.2.1228
-- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.103.663
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.2.116] - 2025-06-19
+### Changed
+- Dependencies - Updated FunFair.CodeAnalysis to 7.1.2.1228
+- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.103.663
+
 ## [1.2.115] - 2025-06-18
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.102.657
