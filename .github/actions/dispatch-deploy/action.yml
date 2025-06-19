@@ -54,6 +54,18 @@ runs:
         echo "AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}"
         echo "AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}"
 
+    - name: "Create tag"
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ inputs.GITHUB_TOKEN }}
+        script: |
+          github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: 'refs/tags/${{inputs.DOCKER_APP_NAME}}/v${{inputs.BUILD_VERSION}}',
+            sha: context.sha
+          })
+
     - name: "Trigger Deployment Workflow"
       uses: actions/github-script@v6
       with:
@@ -63,7 +75,7 @@ runs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             workflow_id: 'deploy.yml',
-            ref: 'main',
+            ref: '${{inputs.DOCKER_APP_NAME}}/v${{inputs.BUILD_VERSION}}',
             inputs: {
                 CLOUD_FORMATION_STACK: "${{inputs.CLOUD_FORMATION_STACK}}",
                 CLOUD_FORMATION_TEMPLATE_FILE: "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}",
