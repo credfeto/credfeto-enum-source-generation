@@ -58,7 +58,7 @@
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation.Models\Credfeto.Enumeration.Source.Generation.Models.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FunFair.Test.Common" Version="6.1.272.1478" />
+    <PackageReference Include="FunFair.Test.Common" Version="6.1.273.1481" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
     <PackageReference Include="xunit.v3" Version="2.0.3" />
   </ItemGroup>
