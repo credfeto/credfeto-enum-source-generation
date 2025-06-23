@@ -30,7 +30,7 @@ runs:
       shell: bash
       run: |
         echo "List current nuget feeds (before)"
-        dotnet nuget list source
+        dotnet nuget list source || rm -f "$HOME/.nuget/NuGet/NuGet.Config"
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
         DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -45,246 +45,79 @@ runs:
         MSBUILDTERMINALLOGGER: "auto"
         NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
-    ### REMOVE FEEDS
-    - name: "Dotnet: Remove cache nuget feed (NugetCache) if it exists"
+    - name: "Dotnet: Build Config"
       shell: bash
-      run: |
-        echo "Removing NugetCache NuGet Feed"
-        [ "$(dotnet nuget list source | grep NugetCache | tr -s ' ' | cut -d ' ' -f 3)" == "NugetCache" ] && dotnet nuget remove source NugetCache || echo "NugetCache NuGet Feed is Not Registered"
       env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}
+        NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
+      run: |
+        # Conf settings
+        NUGET_CONF_DIR="$HOME/.nuget/NuGet"
+        NUGET_CONF_FILE="$HOME/.nuget/NuGet/NuGet.Config"
 
-    - name: "Dotnet: Remove cache nuget feed (nuget.org) if it exists"
-      shell: bash
-      run: |
-        echo "Removing nuget.org NuGet Feed"
-        [ "$(dotnet nuget list source | grep nuget | tr -s ' ' | cut -d ' ' -f 3)" == "nuget.org" ] && dotnet nuget remove source nuget.org || echo "nuget.org NuGet Feed is Not Registered"
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        [ -d "$NUGET_CONF_DIR" ] && mkdir -p "$NUGET_CONF_DIR"
+        echo "NuGet.Config: $NUGET_CONF_FILE"
 
-    - name: "Dotnet: Remove optional nuget feed (Additional1Cache) if it exists"
-      shell: bash
-      run: |
-        echo "Removing Additional1Cache NuGet Feed"
-        [ "$(dotnet nuget list source | grep Additional1Cache | tr -s ' ' | cut -d ' ' -f 3)" == "Additional1Cache" ] && dotnet nuget remove source Additional1Cache || echo "Additional1Cache NuGet Feed is Not Registered"
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        NAMES=()
+        URLS=()
 
-    - name: "Dotnet: Remove optional nuget feed (Additional2Cache) if it exists"
-      shell: bash
-      run: |
-        echo "Removing Additional2Cache NuGet Feed"
-        [ "$(dotnet nuget list source | grep Additional2Cache | tr -s ' ' | cut -d ' ' -f 3)" == "Additional2Cache" ] && dotnet nuget remove source Additional2Cache || echo "Additional2Cache NuGet Feed is Not Registered"
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        # Nuget.org cache
+        if [ -n "$NUGET_PUBLIC_RESTORE_FEED_CACHE" ]; then
+          echo "Adding Cached nuget.org feed"
+          NAMES+=("Cache: nuget.org")
+          URLS+=("$NUGET_PUBLIC_RESTORE_FEED_CACHE")
+        elif [ -n "$NUGET_PUBLIC_RESTORE_FEED" ]; then
+          echo "Adding nuget.org feed"
+          NAMES+=("nuget.org")
+          URLS+=("$NUGET_PUBLIC_RESTORE_FEED")
+        else
+          echo "No nuget.org feed"
+        fi
 
-    - name: "Dotnet: Remove optional nuget feed (Additional1) if it exists"
-      shell: bash
-      run: |
-        echo "Removing Additional1 NuGet Feed"
-        [ "$(dotnet nuget list source | grep Additional1 | tr -s ' ' | cut -d ' ' -f 3)" == "Additional1" ] && dotnet nuget remove source Additional1 || echo "Additional1 NuGet Feed is Not Registered"
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        # Release Packages Feed
+        if [ -n "NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE" ]; then
+          echo "Adding Cached Release feed"
+          NAMES+=("Cache: Additional: Release")
+          URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE")
+        elif [ -n "$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE" ]; then
+          echo "Adding Release feed"
+          NAMES+=("Additional: Release")
+          URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE")
+        else
+          echo "No Release feed"
+        fi
 
-    - name: "Dotnet: Remove optional nuget feed (Additional2) if it exists"
-      shell: bash
-      run: |
-        echo "Removing Additional2 NuGet Feed"
-        [ "$(dotnet nuget list source | grep Additional2 | tr -s ' ' | cut -d ' ' -f 3)" == "Additional2" ] && dotnet nuget remove source Additional2 || echo "Additional2 NuGet Feed is Not Registered"
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        # Pre-Release Packages Feed
+        if [ -n "$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE" ]; then
+          echo "Adding Cached Pre-Release feed"
+          NAMES+=("Cache: Additional: Release")
+          URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE")
+        elif [ -n "$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE" ]; then
+          echo "Adding Pre-Release feed"
+          NAMES+=("Additional: Release")
+          URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE")
+        else
+          echo "No Pre-Release feed"
+        fi
 
-    ####################################################################################################################
-    #  ADD CACHED FEEDS
-    ####################################################################################################################
-    - name: "Dotnet: Add optional nuget feed (NugetCache)"
-      if: inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE != ''
-      shell: bash
-      run: |
-        echo "Adding NugetCache NuGet feed..."
-        dotnet nuget add source --name NugetCache "${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}" --protocol-version 3
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        {
+          echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+          echo "<configuration>"
+          echo "  <packageSources>"
+          for index in ${!NAMES[@]}; do
+            NAME=${NAMES[$index]}
+            URL=${URLS[$index]}
+            echo "    <add key=\"$NAME\" value=\"$URL\" protocolVersion=\"3\" />"
+          done
+          echo "  </packageSources>"
+          echo "</configuration>"
+        } > "$NUGET_CONF_FILE"
 
-    - name: "Dotnet: Add optional nuget feed (Additional1Cache)"
-      if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE != ''
-      shell: bash
-      run: |
-        echo "Adding Additional1Cache NuGet feed..."
-        dotnet nuget add source --name Additional1Cache "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}" --protocol-version 3
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-
-    - name: "Dotnet: Add optional nuget feed (Additional2Cache)"
-      if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE != ''
-      shell: bash
-      run: |
-        echo "Adding Additional2Cache NuGet feed..."
-        dotnet nuget add source --name Additional2Cache "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}" --protocol-version 3
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-
-    ####################################################################################################################
-    #  ADD NON-CACHED/DIRECT FEEDS
-    ####################################################################################################################
-    - name: "Dotnet: Add nuget feed (nuget.org)"
-      if: inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE == ''
-      shell: bash
-      run: |
-        echo "Adding nuget.org NuGet feed..."
-        dotnet nuget add source --name nuget.org "${{inputs.NUGET_PUBLIC_RESTORE_FEED}}" --protocol-version 3
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-
-    - name: "Dotnet: Add optional nuget feed (Additional1)"
-      if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE != '' && inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE == ''
-      shell: bash
-      run: |
-        echo "Adding Additional1 NuGet feed..."
-        dotnet nuget add source --name Additional1 "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}" --protocol-version 3
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-
-    - name: "Dotnet: Add optional nuget feed (Additional2)"
-      if: inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE != '' && inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE == ''
-      shell: bash
-      run: |
-        echo "Adding Additional2 NuGet feed..."
-        dotnet nuget add source --name Additional2 "${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}" --protocol-version 3
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        cat "$NUGET_CONF_FILE"
 
     - name: "Dotnet: Show sources (After)"
       shell: bash
