@@ -108,6 +108,7 @@ runs:
           echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
           echo "<configuration>"
           echo "  <packageSources>"
+          echo "    <clear />"
           for index in ${!NAMES[@]}; do
             NAME=${NAMES[$index]}
             URL=${URLS[$index]}
