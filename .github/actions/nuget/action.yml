@@ -79,7 +79,7 @@ runs:
         fi
 
         # Release Packages Feed
-        if [ -n "NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE" ]; then
+        if [ -n "$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE" ]; then
           echo "Adding Cached Release feed"
           NAMES+=("Cache: Additional: Release")
           URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE")
