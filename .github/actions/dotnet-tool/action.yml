@@ -18,7 +18,7 @@ runs:
       if: inputs.TOOL_VERSION == 'latest'
       shell: bash
       working-directory: ${{ github.workspace }}
-      run: (r=3;while ! dotnet tool install --local ${{inputs.TOOL_NAME}} ; do ((--r))||exit 1;sleep 30;done)
+      run: (r=5;while ! dotnet tool install --local ${{inputs.TOOL_NAME}} --ignore-failed-sources --verbosity diag ; do ((--r))||exit 1;sleep 30;done)
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
         DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -37,7 +37,7 @@ runs:
       if: inputs.TOOL_VERSION != 'latest'
       shell: bash
       working-directory: ${{ github.workspace }}
-      run: (r=3;while ! dotnet tool install --local ${{inputs.TOOL_NAME}} --version ${{inputs.TOOL_VERSION}} ; do ((--r))||exit 1;sleep 30;done)
+      run: (r=5;while ! dotnet tool install --local ${{inputs.TOOL_NAME}} --version ${{inputs.TOOL_VERSION}} --ignore-failed-sources --verbosity diag ; do ((--r))||exit 1;sleep 30;done)
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
         DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
