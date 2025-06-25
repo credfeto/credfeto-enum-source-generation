@@ -32,8 +32,8 @@ runs:
         NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}
         NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}
         NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
         NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
         NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
       run: |
         # Conf settings
@@ -75,11 +75,11 @@ runs:
         # Pre-Release Packages Feed
         if [ -n "$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE" ]; then
           echo "Adding Cached Pre-Release feed"
-          NAMES+=("Cache: Additional: Release")
+          NAMES+=("Cache: Additional: Pre-Release")
           URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE")
         elif [ -n "$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE" ]; then
           echo "Adding Pre-Release feed"
-          NAMES+=("Additional: Release")
+          NAMES+=("Additional: Pre-Release")
           URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE")
         else
           echo "No Pre-Release feed"
