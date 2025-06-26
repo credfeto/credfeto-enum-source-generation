@@ -40,7 +40,7 @@ runs:
         NUGET_CONF_DIR="$HOME/.nuget/NuGet"
         NUGET_CONF_FILE="$HOME/.nuget/NuGet/NuGet.Config"
 
-        [ -d "$NUGET_CONF_DIR" ] && mkdir -p "$NUGET_CONF_DIR"
+        [ -d "$NUGET_CONF_DIR" ] || mkdir -p "$NUGET_CONF_DIR"
         echo "NuGet.Config: $NUGET_CONF_FILE"
 
         NAMES=()
