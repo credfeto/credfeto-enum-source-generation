@@ -9,7 +9,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.6.0
+- Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.6.1
 ### Removed
 ### Deployment Changes
 
