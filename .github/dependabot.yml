@@ -44,6 +44,7 @@ updates:
   - dependency-name: "Credfeto.Package.*"
   - dependency-name: "Credfeto.Random"
   - dependency-name: "Credfeto.Services.Startup.*"
+  - dependency-name: "Credfeto.Tsql.Formatter.*"
   - dependency-name: "Credfeto.Version.Information.Generator"
   - dependency-name: "Cryptography.ECDSA.Secp256K1"
   - dependency-name: "CSharpier.*"
