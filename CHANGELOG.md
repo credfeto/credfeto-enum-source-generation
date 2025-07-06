@@ -10,7 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.6.2
-- Dependencies - Updated Meziantou.Analyzer to 2.0.203
+- Dependencies - Updated Meziantou.Analyzer to 2.0.204
 ### Removed
 ### Deployment Changes
 
