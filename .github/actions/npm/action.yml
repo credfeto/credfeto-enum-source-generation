@@ -61,7 +61,7 @@ runs:
     name: "NPM: Setup Node.js (node version)"
     uses: actions/setup-node@v4.4.0
     with:
-      node-version: '20'
+      node-version: '22'
       check-latest: true
 
   ####################################################################################################################
