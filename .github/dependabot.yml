@@ -69,6 +69,7 @@ updates:
   - dependency-name: "FunFair.Content.Package.Management.*"
   - dependency-name: "FunFair.Ethereum.*"
   - dependency-name: "FunFair.Geo.Logic"
+  - dependency-name: "FunFair.Keccak"
   - dependency-name: "FunFair.Random"
   - dependency-name: "FunFair.RateLimit"
   - dependency-name: "FunFair.Server.Ethereum.Accounts.*"
