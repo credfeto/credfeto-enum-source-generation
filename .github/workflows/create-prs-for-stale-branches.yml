@@ -139,7 +139,7 @@ jobs:
 
       - name: "Find Existing PR"
         if: steps.detection.outputs.defaultbranch != matrix.branch
-        uses: juliangruber/find-pull-request-action@v1.9.0
+        uses: juliangruber/find-pull-request-action@v1.10.0
         id: find-pull-request
         with:
           branch: "${{env.BRANCH}}"
