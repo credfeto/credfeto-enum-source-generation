@@ -22,6 +22,10 @@
    color: "53fcd4"
    description: "Changelog tracking file"
 
+ - name: "Changelog Not Required"
+   color: "08f5f8"
+   description: "Changelog Not Required"
+
  - name: "Config Change"
    color: "d8bb50"
    description: "Configuration files changes"
