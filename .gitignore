@@ -373,3 +373,6 @@ server-dist/
 
 # Dotnet tool config
 .config/
+
+# Test output
+/test-output
