@@ -67,6 +67,7 @@ updates:
   - dependency-name: "FunFair.CodeAnalysis"
   - dependency-name: "FunFair.Common.*"
   - dependency-name: "FunFair.Content.Package.Management.*"
+  - dependency-name: "FunFair.Content.Provider.*"
   - dependency-name: "FunFair.Ethereum.*"
   - dependency-name: "FunFair.Geo.Logic"
   - dependency-name: "FunFair.Keccak"
