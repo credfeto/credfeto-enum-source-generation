@@ -467,6 +467,7 @@ runs:
         echo "CLOUDFORMATION_EXIST: ${{steps.check_files.outputs.CLOUDFORMATION_EXIST}}"
         echo "CLOUD_FORMATION_DEPLOY: ${{inputs.CLOUD_FORMATION_DEPLOY}}"
         echo "DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}"
+        echo "NPM_SIGNING_EXIST: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}"
         echo "DEPLOY: ${{env.DEPLOY}}"
 
     - name: "Dotnet: Cloudformation Deploy"
@@ -495,7 +496,6 @@ runs:
       if: |-
         steps.check_files.outputs.NPM_EXIST == 'true' &&
         steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' &&
-        inputs.CLOUD_FORMATION_DEPLOY == 'true' &&
         env.DEPLOY == 'true'
       uses: ./.github/actions/sleet
       with:
