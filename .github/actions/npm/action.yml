@@ -165,7 +165,7 @@ runs:
             --target-path "$OUTPUT_FOLDER" \
             --version "${{inputs.BUILD_VERSION}}" \
             --wallet "$WALLET_FILE" \
-            --wallet-password "${{ secrets.NPM_CONTENT_PACKAGE_WALLET_PASSWORD }}"
+            --wallet-password "${{ inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD }}"
     env:
       SOURCE_FOLDER: "${{github.workspace}}/src/dist"
       OUTPUT_FOLDER: "${{github.workspace}}/dist"
