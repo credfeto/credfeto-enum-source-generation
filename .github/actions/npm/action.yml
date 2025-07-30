@@ -212,8 +212,9 @@ runs:
     run: |
       dotnet tool run signcontentpackage sign \
           --package "$PACKAGE_FILENAME" \
-          -wallet "$WALLET_FILE" \
-          -wallet-password "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
+          --package "$PACKAGE_FILENAME" \
+          --wallet "$WALLET_FILE" \
+          --wallet-password "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
