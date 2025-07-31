@@ -40,6 +40,27 @@ runs:
   using: "composite"
   steps:
 
+    - name: "Add offsets for direct connections"
+      id: priorities
+      shell: bash
+      run: |
+        if [ "${{inputs.AWS_LOAD_BALANCER_PRIORITY}}" -gt 0 ]; then
+          {
+            MAIN=$((${{inputs.AWS_LOAD_BALANCER_PRIORITY}}))
+            DIRECT1=$(($MAIN+1))
+            DIRECT2=$(($MAIN+2))
+            echo "MAIN=$MAIN"
+            echo "DIRECT1=$DIRECT1"
+            echo "DIRECT2=$DIRECT2"
+          } >> "$GITHUB_OUTPUT"
+        else
+          {
+            echo "MAIN=-1"
+            echo "DIRECT1=-1"
+            echo "DIRECT2=-1"
+          } >> "$GITHUB_OUTPUT"
+        fi
+
     - name: "Build TemplateParameters file"
       shell: bash
       run: |
@@ -76,7 +97,9 @@ runs:
         ApiPrefix: /${{inputs.DOCKER_APP_NAME}}
         ApiHost: ${{inputs.API_HOST}}
         LoadBalancerHostName: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
-        LoadBalancerPriority: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
+        LoadBalancerPriority: ${{steps.priorities.outputs.MAIN}}
+        Direct1LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT1}}
+        Direct2LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT2}}
         AwsContainerRegistry: ${{inputs.AWS_CONTAINER_REGISTRY}}
 
     - name: "show Validated TemplateParameters"
