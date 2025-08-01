@@ -165,7 +165,9 @@ runs:
             --target-path "$OUTPUT_FOLDER" \
             --version "${{inputs.BUILD_VERSION}}" \
             --wallet "$WALLET_FILE" \
-            --wallet-password "${{ inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD }}"
+            --wallet-password "${{ inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD }}" \
+            --optimise \
+            --warnings-as-error
     env:
       SOURCE_FOLDER: "${{github.workspace}}/src/dist"
       OUTPUT_FOLDER: "${{github.workspace}}/dist"
@@ -214,7 +216,8 @@ runs:
           --package "$PACKAGE_FILENAME" \
           --package "$PACKAGE_FILENAME" \
           --wallet "$WALLET_FILE" \
-          --wallet-password "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
+          --wallet-password "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}" \
+          --warnings-as-error
     env:
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
       DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
