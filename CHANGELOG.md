@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - SDK - Updated DotNet SDK to 9.0.303
 - Dependencies - Updated FunFair.CodeAnalysis to 7.1.13.1330
 - Dependencies - Updated Meziantou.Analyzer to 2.0.210
+- Dependencies - Updated Microsoft.Sbom.Targets to 4.1.0
 ### Removed
 ### Deployment Changes
 
