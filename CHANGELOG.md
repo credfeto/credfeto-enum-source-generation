@@ -9,6 +9,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+- Dependencies - Updated FunFair.CodeAnalysis to 7.1.18.1350
 ### Removed
 ### Deployment Changes
 
