@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated FunFair.CodeAnalysis to 7.1.18.1350
+- Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.7.0
 ### Removed
 ### Deployment Changes
 
