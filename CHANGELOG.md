@@ -9,15 +9,18 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated FunFair.Test.Common to 6.1.284.1617
-- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.112.779
-- Dependencies - Updated FunFair.CodeAnalysis to 7.1.20.1362
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.2.127] - 2025-08-11
+### Changed
+- Dependencies - Updated FunFair.Test.Common to 6.1.284.1617
+- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.112.779
+- Dependencies - Updated FunFair.CodeAnalysis to 7.1.20.1362
+
 ## [1.2.126] - 2025-08-10
 ### Changed
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.7.0
