@@ -48,7 +48,7 @@ runs:
     shell: bash
     run: |
       dotnet publish \
-                -warnaserror \
+                --warnaserror  \
                 --configuration:Release \
                 "-r:${{inputs.PLATFORM}}" \
                 --self-contained \
