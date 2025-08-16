@@ -41,8 +41,8 @@
     <TreatSpecificWarningsAsErrors />
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
-    <WarningsAsErrors />
     <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+    <WarningsAsErrors />
   </PropertyGroup>
   <ItemGroup>
     <!-- error NU1903: Warning As Error: Package 'System.Private.Uri' 4.3.0 has a known high severity vulnerability -->
