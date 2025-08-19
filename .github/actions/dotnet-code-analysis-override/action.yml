@@ -1,0 +1,49 @@
+--- # Override Code Dotnet Analysis settings
+name: 'Override Code Dotnet Analysis settings'
+description: 'Override Code Dotnet Analysis settings'
+inputs:
+  # GENERAL
+  GITHUB_TOKEN:
+    description: 'Github Token'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Dotnet: Override code analysis settings (Pre-Release)"
+      if: env.Release == 'false'
+      working-directory: ${{github.workspace}}/src
+      shell: bash
+      run: dotnet tool run code-analysis ruleset --ruleset "${{github.workspace}}/src/CodeAnalysis.ruleset" --changes "${{github.workspace}}/src/pre-release.rule-settings.json"
+      env:
+        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_MULTILEVEL_LOOKUP: "false"
+        DOTNET_NOLOGO: "true"
+        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+        DOTNET_JitCollect64BitCounts: "1"
+        DOTNET_ReadyToRun: "0"
+        DOTNET_TC_QuickJitForLoops: "1"
+        DOTNET_TC_CallCountingDelayMs: "0"
+        DOTNET_TieredPGO: "1"
+        MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+    - name: "Dotnet: Override code analysis settings (Release)"
+      if: env.Release == 'true'
+      working-directory: ${{github.workspace}}/src
+      shell: bash
+      run: dotnet tool run code-analysis ruleset --ruleset "${{github.workspace}}/src/CodeAnalysis.ruleset" --changes "${{github.workspace}}/src/release.rule-settings.json"
+      env:
+        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_MULTILEVEL_LOOKUP: "false"
+        DOTNET_NOLOGO: "true"
+        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+        DOTNET_JitCollect64BitCounts: "1"
+        DOTNET_ReadyToRun: "0"
+        DOTNET_TC_QuickJitForLoops: "1"
+        DOTNET_TC_CallCountingDelayMs: "0"
+        DOTNET_TieredPGO: "1"
+        MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
