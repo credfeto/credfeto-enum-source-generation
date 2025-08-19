@@ -1,0 +1,38 @@
+[
+  {
+    "ruleSet": "SonarAnalyzer.CSharp",
+    "rule": "S125",
+    "state": "Error",
+    "description": "No commented out code"
+  },
+  {
+    "ruleSet": "FunFair.CodeAnalysis",
+    "rule": "FFS0008",
+    "state": "Error",
+    "description": "Use of non-whitelisted #pragma warning"
+  },
+  {
+    "ruleSet": "FunFair.CodeAnalysis",
+    "rule": "FFS0040",
+    "state": "Error",
+    "description": "Filename must match typename"
+  },
+  {
+    "ruleSet": "FunFair.CodeAnalysis",
+    "rule": "FFS0042",
+    "state": "Error",
+    "description": "Do not have TODO's in SuppressMessage"
+  },
+  {
+    "ruleSet": "Meziantou.Analyzer",
+    "rule": "MA0026",
+    "state": "Error",
+    "description": "Do not leave TODO's scattered around"
+  },
+  {
+    "ruleSet": "oslynator.Analyzers",
+    "rule": "MA0026",
+    "state": "Error",
+    "description": "File With no code"
+  }
+]
