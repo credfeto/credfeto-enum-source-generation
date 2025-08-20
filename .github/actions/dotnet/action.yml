@@ -35,6 +35,10 @@ inputs:
     description: 'Build version'
     required: true
 
+  RELEASE:
+    description: 'Is this a release build'
+    required: true
+
   RELEASE_NOTES:
     description: 'Release notes'
     required: false
@@ -77,28 +81,28 @@ runs:
     ############################################################################################################
 
     - name: "Dotnet: Define Master build settings"
-      if: env.Release == 'false'
+      if: inputs.RELEASE == 'false'
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: echo "DOTNET_RELEASE_DEFINES=-p:IsProduction=false" >> "$GITHUB_ENV"
 
     - name: "Dotnet: Define Release build settings"
-      if: env.Release == 'false'
+      if: inputs.RELEASE == 'false'
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: echo "DOTNET_RELEASE_DEFINES=-p:IsProduction=True" >> "$GITHUB_ENV"
 
-    - name: "Dotnet: Run build check (Pre-Release)"
+    - name: "Dotnet: Run build check"
       if: ${{ (!endsWith(github.repository, 'funfair-dotnet-build-check')) && (!endsWith(github.repository, '-template')) }}
       uses: ./.github/actions/dotnet-build-check
       with:
-        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+        RELEASE: ${{inputs.RELEASE}}
 
-    - name: "Dotnet: Run build check (Pre-Release)"
+    - name: "Dotnet: Override code analysis rules"
       if: ${{ !endsWith(github.repository, '-template') }}
       uses: ./.github/actions/dotnet-code-analysis-override
       with:
-        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+        RELEASE: ${{inputs.RELEASE}}
 
     - name: "Dotnet: Restore packages"
       working-directory: ${{github.workspace}}/src
