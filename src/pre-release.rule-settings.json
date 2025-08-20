@@ -30,7 +30,7 @@
     "description": "Do not leave TODO's scattered around"
   },
   {
-    "ruleSet": "oslynator.Analyzers",
+    "ruleSet": "Roslynator.Analyzers",
     "rule": "MA0026",
     "state": "None",
     "description": "File With no code"
