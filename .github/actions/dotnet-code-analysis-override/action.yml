@@ -3,15 +3,15 @@ name: 'Override Code Dotnet Analysis settings'
 description: 'Override Code Dotnet Analysis settings'
 inputs:
   # GENERAL
-  GITHUB_TOKEN:
-    description: 'Github Token'
+  RELEASE:
+    description: 'Is this a release build'
     required: true
 
 runs:
   using: "composite"
   steps:
     - name: "Dotnet: Override code analysis settings (Pre-Release)"
-      if: env.Release == 'false'
+      if: inputs.RELEASE == 'false'
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: dotnet tool run code-analysis ruleset --ruleset "${{github.workspace}}/src/CodeAnalysis.ruleset" --changes "${{github.workspace}}/src/pre-release.rule-settings.json"
@@ -30,7 +30,7 @@ runs:
         NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Override code analysis settings (Release)"
-      if: env.Release == 'true'
+      if: inputs.RELEASE == 'true'
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: dotnet tool run code-analysis ruleset --ruleset "${{github.workspace}}/src/CodeAnalysis.ruleset" --changes "${{github.workspace}}/src/release.rule-settings.json"
