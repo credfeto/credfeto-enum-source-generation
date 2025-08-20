@@ -3,15 +3,15 @@ name: 'Dotnet Build Check'
 description: 'Dotnet Build Check'
 inputs:
   # GENERAL
-  GITHUB_TOKEN:
-    description: 'Github Token'
+  RELEASE:
+    description: 'Is this a release build'
     required: true
 
 runs:
   using: "composite"
   steps:
     - name: "Dotnet: Run build check (Pre-Release)"
-      if: env.Release == 'false'
+      if: inputs.RELEASE == 'false'
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: dotnet tool run buildcheck -Solution "$(find . -type f -iname "*.sln" | head -1)" -WarningAsErrors true -PreReleaseBuild false
@@ -30,7 +30,7 @@ runs:
         NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Dotnet: Run build check (Release)"
-      if: env.Release == 'true'
+      if: inputs.RELEASE == 'true'
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: dotnet tool run buildcheck -Solution "$(find . -type f -iname "*.sln" | head -1)" -WarningAsErrors true -PreReleaseBuild false
