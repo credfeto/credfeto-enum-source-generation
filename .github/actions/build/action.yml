@@ -348,6 +348,7 @@ runs:
       with:
         PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
         BUILD_VERSION: ${{env.BUILD_VERSION}}
+        RELEASE: ${{env.RELEASE}}
         BUILD_SQL: ${{steps.check_files.outputs.SQL_EXIST}}
         DB_FOLDER: ${{github.workspace}}/db
         REDGATE_EMAIL: ${{inputs.REDGATE_EMAIL}}
