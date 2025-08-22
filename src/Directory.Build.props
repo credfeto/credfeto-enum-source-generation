@@ -10,4 +10,45 @@
     <PropertyGroup Condition="$(EnableSarif)=='True' And !$(MSBuildProjectName.EndsWith('.Tests'))">
         <ReportAnalyzer>true</ReportAnalyzer>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <IsPacking>False</IsPacking>
+        <IsPacking Condition="$(IsPackable) == 'true' OR $(IsPublishable) == 'true'">True</IsPacking>
+    </PropertyGroup>
+
+    <!-- Package Icon -->
+    <PropertyGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)packageicon.png')">
+        <PackageIcon>packageicon.png</PackageIcon>
+        <PackageIconUrl>https://avatars.githubusercontent.com/u/29401895</PackageIconUrl>
+    </PropertyGroup>
+    <ItemGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)packageicon.png')">
+        <None Include="$(SolutionDir)packageicon.png" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <!-- License -->
+    <PropertyGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)..\LICENSE')">
+        <PackageLicense>LICENSE</PackageLicense>
+        <PackageLicenseUrl>$(RepositoryUrl)/blob/master/LICENSE.md</PackageLicenseUrl>
+    </PropertyGroup>
+    <ItemGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)..\LICENSE')">
+        <None Include="$(SolutionDir)..\LICENSE" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <!-- Readme -->
+    <PropertyGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)..\README.md')">
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+    <ItemGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)..\README.md')">
+        <None Include="$(SolutionDir)..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <!-- Disable Nuget errors on publishing -->
+    <PropertyGroup Condition="$(IsPublishing) == 'True'">
+        <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+    </PropertyGroup>
+
+    <!-- Enable SBOM generation in production builds -->
+    <PropertyGroup Condition="$(IsPacking) == 'True' AND $(IsProduction) == 'True">
+        <EnableSbom>true</EnableSbom>
+    </PropertyGroup>
 </Project>
