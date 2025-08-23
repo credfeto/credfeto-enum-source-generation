@@ -48,7 +48,7 @@
     </PropertyGroup>
 
     <!-- Enable SBOM generation in production builds -->
-    <PropertyGroup Condition="$(IsPacking) == 'True' AND $(IsProduction) == 'True">
+    <PropertyGroup Condition="$(IsPacking) == 'True' AND $(IsProduction) == 'True'">
         <EnableSbom>true</EnableSbom>
     </PropertyGroup>
 </Project>
