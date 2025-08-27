@@ -368,7 +368,7 @@ jobs:
 
       - name: 'Dependency Review'
         if: steps.visibility.outputs.is_public == 'true'
-        uses: actions/dependency-review-action@v4.7.3
+        uses: actions/dependency-review-action@v4.7.2
 
   no-merge-commits:
     # Check that there are no merge commits in the PR
