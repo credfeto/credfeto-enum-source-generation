@@ -509,13 +509,14 @@ runs:
     - name: "Create Release"
       if: steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.CREATE_RELEASE == 'true'
       id: create_release
-      uses: ncipollo/release-action@v1.16.0
+      uses: ncipollo/release-action@v1.19.2
       with:
         tag: v${{env.BUILD_VERSION}}
         name:  Release ${{env.BUILD_VERSION}}
         bodyFile: "RELEASE_NOTES.md"
         draft: false
         prerelease: false
+        immutableCreate: true
         generateReleaseNotes: true
         token: ${{inputs.GITHUB_TOKEN}}
 
