@@ -117,7 +117,7 @@ jobs:
 
       - name: "Install dotnet"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
-        uses: actions/setup-dotnet@v4.3.1
+        uses: actions/setup-dotnet@v5.0.0
         env:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
           DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
