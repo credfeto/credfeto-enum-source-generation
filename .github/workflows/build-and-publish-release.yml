@@ -76,7 +76,7 @@ jobs:
           token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
       - name: "Check Runner details"
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v8.0.0
         with:
           script: |
             core.info('Name: ${{runner.name}}');
@@ -145,7 +145,7 @@ jobs:
           CREATE_RELEASE: true
 
       - name: "Build Version"
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@v8.0.0
         with:
           script: |
             core.info('Version: \u001b[38;5;6m${{env.BUILD_VERSION}}');
