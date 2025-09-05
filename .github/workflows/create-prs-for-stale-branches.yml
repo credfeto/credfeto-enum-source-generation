@@ -227,7 +227,7 @@ jobs:
 
       - name: "Update PR Labels"
         if: steps.open-pr.outputs.pr_number != ''
-        uses: actions/labeler@v5
+        uses: actions/labeler@v6
         with:
           repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           configuration-path: .github/labeler.yml
