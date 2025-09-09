@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 2.0.215
 - Dependencies - Updated Microsoft.Sbom.Targets to 4.1.2
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.9.1
+- Dependencies - Updated xunit.analyzers to 1.24.0
 ### Removed
 ### Deployment Changes
 
