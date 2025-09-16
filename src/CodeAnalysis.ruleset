@@ -574,8 +574,8 @@
         <Rule Id="MA0016" Action="Info"/>
         <!-- MA0017	- Abstract types should not have public or internal constructors -->
         <Rule Id="MA0017" Action="Error"/>
-        <!-- MA0018	- Do not declare static members on generic types -->
-        <Rule Id="MA0018" Action="Error"/>
+        <!-- MA0018	- Do not declare static members on generic types (note Use CA1000 instead) -->
+        <Rule Id="MA0018" Action="None"/>
         <!-- MA0019	- Use EventArgs.Empty	warning	heavy_check_mark -->
         <Rule Id="MA0019" Action="Error"/>
         <!-- MA0020	- Use direct methods instead of LINQ methods -->
