@@ -133,6 +133,7 @@ jobs:
           MSBUILDTERMINALLOGGER: "auto"
           NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
         with:
+          cache: false
           dotnet-version: |
             6.0.*
             7.0.*
