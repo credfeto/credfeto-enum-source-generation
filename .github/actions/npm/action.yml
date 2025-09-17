@@ -52,17 +52,21 @@ runs:
 
   - if: steps.node_files.outputs.NVMRC_EXIST == 'true'
     name: "NPM: Setup Node.js (from nvm)"
-    uses: actions/setup-node@v4.4.0
+    uses: actions/setup-node@v5.0.0
     with:
       node-version-file: .nvmrc
       check-latest: false
+      registry-url: ${{inputs.NPM_REGISTRY}}
+      package-manager-cache: false
 
   - if: steps.node_files.outputs.NVMRC_EXIST == 'false'
     name: "NPM: Setup Node.js (node version)"
-    uses: actions/setup-node@v4.4.0
+    uses: actions/setup-node@v5.0.0
     with:
       node-version: '22'
       check-latest: true
+      registry-url: ${{inputs.NPM_REGISTRY}}
+      package-manager-cache: false
 
   ####################################################################################################################
   # DO NOT USE NPM CACHE...  As it is SLOWER than pulling the packages down npm!
