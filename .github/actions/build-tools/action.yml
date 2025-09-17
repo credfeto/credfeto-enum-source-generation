@@ -68,7 +68,7 @@ runs:
     shell: bash
 
   - name: "Install dotnet"
-    uses: actions/setup-dotnet@v4.2.0
+    uses: actions/setup-dotnet@v5.0.0
     env:
       GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
@@ -84,6 +84,7 @@ runs:
       MSBUILDTERMINALLOGGER: "auto"
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     with:
+      cache: false
       dotnet-version: |
           8.0.*
           9.0.*
