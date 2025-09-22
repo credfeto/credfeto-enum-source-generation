@@ -188,7 +188,7 @@ runs:
       run: |
         {
         [[ -d src && -f src/global.json && '${{hashfiles('**/*.csproj', '**/*.cs')}}' != '' ]] && echo 'CSPROJ_EXIST=true' || echo 'CSPROJ_EXIST=false';
-        [[ -d src && -f src/global.json && '${{hashfiles('**/*.sln')}}' != '' ]] && echo 'SLN_EXIST=true' || echo 'SLN_EXIST=false';
+        [[ -d src && -f src/global.json && '${{hashfiles('**/*.sln', '**/*.slnx')}}' != '' ]] && echo 'SLN_EXIST=true' || echo 'SLN_EXIST=false';
         [[ -d db && '${{hashfiles('**/*.sql')}}' != '' ]] && echo 'SQL_EXIST=true' || echo 'SQL_EXIST=false';
         [[ -d src && -f src/package.json && src/package-lock.json && '${{hashfiles('src/package.json', 'src/package-lock.json')}}' != '' ]] && echo 'NPM_EXIST=true' || echo 'NPM_EXIST=false';
         [[ -f Wallet.json ]] && echo 'NPM_SIGNING_EXIST=true' || echo 'NPM_SIGNING_EXIST=false';
