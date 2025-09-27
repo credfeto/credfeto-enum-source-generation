@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Config/">
+    <File Path="../.github/workflows/build-and-publish-pre-release.yml" />
+    <File Path="../.github/workflows/build-and-publish-release.yml" />
+    <File Path="../CHANGELOG.md" />
+    <File Path="../README.md" />
+    <File Path="CodeAnalysis.ruleset" />
+    <File Path="global.json" />
+    <File Path="KeepGeneratedFiles.props" />
+    <File Path="SourceGenerator.props" />
+  </Folder>
+  <Project Path="Credfeto.Enumeration.Source.Generation.Attributes/Credfeto.Enumeration.Source.Generation.Attributes.csproj" />
+  <Project Path="Credfeto.Enumeration.Source.Generation.Benchmarks/Credfeto.Enumeration.Source.Generation.Benchmarks.csproj" />
+  <Project Path="Credfeto.Enumeration.Source.Generation.Generics/Credfeto.Enumeration.Source.Generation.Generics.csproj" />
+  <Project Path="Credfeto.Enumeration.Source.Generation.Models.Tests/Credfeto.Enumeration.Source.Generation.Models.Tests.csproj" />
+  <Project Path="Credfeto.Enumeration.Source.Generation.Models/Credfeto.Enumeration.Source.Generation.Models.csproj" />
+  <Project Path="Credfeto.Enumeration.Source.Generation/Credfeto.Enumeration.Source.Generation.csproj" />
+</Solution>
