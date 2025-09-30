@@ -5,7 +5,7 @@
 "C# Project":
  - any: [ './**/*.csproj' ]
 "C# Solution":
- - any: [ './**/*.sln' ]
+ - any: [ './**/*.sln', './**/*.slnx' ]
 "Change Log":
  - any: [ 'CHANGELOG.md' ]
 "Config Change":
