@@ -12,6 +12,9 @@ inputs:
   BUILD_VERSION:
     description: 'Build version'
     required: true
+  BUILD_TAG:
+    description: 'Build tag'
+    required: true
   APP_OWNER:
     description: 'docker app owner'
     required: true
@@ -62,7 +65,7 @@ runs:
         platforms: ${{inputs.CONTAINER_PLATFORM}}
         push: ${{inputs.DEPLOY}}
         tags: |
-          ${{inputs.AWS_CONTAINER_REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:latest
+          ${{inputs.AWS_CONTAINER_REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:${{inputs.BUILD_TAG}}
           ${{inputs.AWS_CONTAINER_REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:${{inputs.BUILD_VERSION}}
 #        cache-from: type=gha
 #        cache-to: type=gha,mode=max
