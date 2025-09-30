@@ -123,6 +123,9 @@ inputs:
   DOCKER_APP_NAME:
     description: 'docker app name'
     required: true
+  BUILD_TAG:
+    description: 'Build tag'
+    required: true
 
   # GITHUB
   GITHUB_TOKEN:
@@ -433,6 +436,7 @@ runs:
         DEPLOY: ${{env.DEPLOY}}
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
         BUILD_VERSION: ${{env.BUILD_VERSION}}
+        BUILD_TAG: ${{inputs.BUILD_TAG}}
         APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
         APP_NAME: ${{inputs.DOCKER_APP_NAME}}
         AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
