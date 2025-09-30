@@ -119,6 +119,7 @@ jobs:
           PROJECT_TO_PUBLISH: ${{vars.PROJECT_TO_PUBLISH}}
           DOCKER_APP_OWNER: ${{vars.DOCKER_APP_OWNER}}
           DOCKER_APP_NAME: ${{vars.DOCKER_APP_NAME}}
+          BUILD_TAG: stable
           CLOUD_FORMATION_DEPLOY: ${{vars.CLOUD_FORMATION_DEPLOY}}
           CLOUD_FORMATION_STACK: ${{vars.CLOUD_FORMATION_STACK}}
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
