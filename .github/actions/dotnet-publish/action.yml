@@ -69,6 +69,7 @@ runs:
                 "-p:SuppressNETCoreSdkPreviewMessage=true" \
                 "-p:TreatWarningsAsErrors=True" \
                 "-p:Version=${{inputs.BUILD_VERSION}}" \
+                "-p:ContinuousIntegrationBuild=true" \
                 --output ${{github.workspace}}/server-dist/${{inputs.PLATFORM}} \
                 ${{env.DOTNET_RELEASE_DEFINES}}
     env:
