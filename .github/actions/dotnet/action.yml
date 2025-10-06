@@ -175,7 +175,7 @@ runs:
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: |
-        dotnet test
+        dotnet test \
                   --warnaserror \
                   --no-build \
                   --no-restore \
