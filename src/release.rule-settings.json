@@ -31,7 +31,7 @@
   },
   {
     "ruleSet": "Meziantou.Analyzer",
-    "rule": "MA0026",
+    "rule": "RCS1093",
     "state": "Error",
     "description": "File With no code"
   }
