@@ -34,82 +34,86 @@ runs:
   using: "composite"
   steps:
 
-    - name: "Get SQL Compare"
+    - name: "Do nothing"
       shell: bash
-      run: docker pull redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}
+      run: echo "Disabled redgate"
 
-    # Need to get these to work
-    - name: "Build SQL Diff change"
-      shell: bash
-      run: |
-        docker run \
-          "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
-          --net=host \
-          --rm \
-          "redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}" \
-          /email:"${{inputs.REDGATE_EMAIL}}" \
-          /token:"${{inputs.REDGATE_PAT}}" \
-          /IAgreeToTheEULA \
-          /filter:"$DB_FILTER" \
-          /options:CaseSensitiveObjectDefinition,ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel \
-          /transactionIsolationLevel:SERIALIZABLE \
-          /include:staticData \
-          /Include:Identical \
-          /scriptFile:"$DB_OUTPUT" \
-          /scripts1:"$DB_SOURCE" \
-          /showWarnings \
-          /include:Identical \
-          /report:"$DB_REPORT" \
-          /reportType:Xml \
-          /force \
-          /OutputWidth:1024 \
-          "/server2:$SQL_SERVER" \
-          "/database2:$SQL_DB" \
-          "/username2:$SQL_USER" \
-          "/password2:$SQL_PASSWORD" \
-          /verbose
-      env:
-        DB_SOURCE: ${{inputs.DB_FOLDER}}
-        DB_OUTPUT: ${{github.workspace}}/update.sql
-        DB_LOG: ${{github.workspace}}/update.log
-        DB_REPORT: ${{github.workspace}}/update.xml
-        DB_FILTER: ${{inputs.DB_FOLDER}}/Filter.scpf
-        DOCKER_CONTENT_TRUST: 0
-        SQL_SERVER: "${{inputs.SQL_SERVER}}"
-        SQL_DB: "${{inputs.SQL_DB}}"
-        SQL_USER: "${{inputs.SQL_USER}}"
-        SQL_PASSWORD: "${{inputs.SQL_PASSWORD}}"
-
-    - name: "Check SQL Diff Output status"
-      id: sql
-      shell: bash
-      run: |
-        {
-          [ -f "$DB_LOG" ] && echo "log=true" || echo "log=false"
-          [ -f "$DB_OUTPUT" ] && echo "script=true" || echo "script=false"
-        } >> "$GITHUB_OUTPUT"
-      env:
-        DB_OUTPUT: ${{github.workspace}}/update.sql
-        DB_LOG: ${{github.workspace}}/update.log
-
-    - name: "Log Script"
-      if: ${{steps.sql.outputs.script == 'true'}}
-      shell: bash
-      run: cat "$DB_OUTPUT"
-      env:
-        DB_OUTPUT: ${{github.workspace}}/update.sql
-
-    - name: "Log Output"
-      if: ${{steps.sql.outputs.log == 'true'}}
-      shell: bash
-      run: cat "DB_LOG"
-      env:
-        DB_LOG: ${{github.workspace}}/update.log
-
-    - name: "Deploy schema"
-      if: ${{steps.sql.outputs.script == 'true'}}
-      uses: azure/sql-action@v2.3
-      with:
-        connection-string: "Server=${{inputs.SQL_SERVER}};Database=${{inputs.SQL_DB}};User Id=${{inputs.SQL_USER}};Password=${{inputs.SQL_PASSWORD}};Connection Timeout=60;TrustServerCertificate=true;Application Name=Deploy Schema ${{inputs.BUILD_VERSION}}"
-        path: ${{github.workspace}}/update.sql
-        arguments: -e -b
+#    - name: "Get SQL Compare"
+#      shell: bash
+#      run: docker pull redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}
+#
+#    # Need to get these to work
+#    - name: "Build SQL Diff change"
+#      shell: bash
+#      run: |
+#        docker run \
+#          "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
+#          --net=host \
+#          --rm \
+#          "redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}" \
+#          /email:"${{inputs.REDGATE_EMAIL}}" \
+#          /token:"${{inputs.REDGATE_PAT}}" \
+#          /IAgreeToTheEULA \
+#          /filter:"$DB_FILTER" \
+#          /options:CaseSensitiveObjectDefinition,ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel \
+#          /transactionIsolationLevel:SERIALIZABLE \
+#          /include:staticData \
+#          /Include:Identical \
+#          /scriptFile:"$DB_OUTPUT" \
+#          /scripts1:"$DB_SOURCE" \
+#          /showWarnings \
+#          /include:Identical \
+#          /report:"$DB_REPORT" \
+#          /reportType:Xml \
+#          /force \
+#          /OutputWidth:1024 \
+#          "/server2:$SQL_SERVER" \
+#          "/database2:$SQL_DB" \
+#          "/username2:$SQL_USER" \
+#          "/password2:$SQL_PASSWORD" \
+#          /verbose
+#      env:
+#        DB_SOURCE: ${{inputs.DB_FOLDER}}
+#        DB_OUTPUT: ${{github.workspace}}/update.sql
+#        DB_LOG: ${{github.workspace}}/update.log
+#        DB_REPORT: ${{github.workspace}}/update.xml
+#        DB_FILTER: ${{inputs.DB_FOLDER}}/Filter.scpf
+#        DOCKER_CONTENT_TRUST: 0
+#        SQL_SERVER: "${{inputs.SQL_SERVER}}"
+#        SQL_DB: "${{inputs.SQL_DB}}"
+#        SQL_USER: "${{inputs.SQL_USER}}"
+#        SQL_PASSWORD: "${{inputs.SQL_PASSWORD}}"
+#
+#    - name: "Check SQL Diff Output status"
+#      id: sql
+#      shell: bash
+#      run: |
+#        {
+#          [ -f "$DB_LOG" ] && echo "log=true" || echo "log=false"
+#          [ -f "$DB_OUTPUT" ] && echo "script=true" || echo "script=false"
+#        } >> "$GITHUB_OUTPUT"
+#      env:
+#        DB_OUTPUT: ${{github.workspace}}/update.sql
+#        DB_LOG: ${{github.workspace}}/update.log
+#
+#    - name: "Log Script"
+#      if: ${{steps.sql.outputs.script == 'true'}}
+#      shell: bash
+#      run: cat "$DB_OUTPUT"
+#      env:
+#        DB_OUTPUT: ${{github.workspace}}/update.sql
+#
+#    - name: "Log Output"
+#      if: ${{steps.sql.outputs.log == 'true'}}
+#      shell: bash
+#      run: cat "DB_LOG"
+#      env:
+#        DB_LOG: ${{github.workspace}}/update.log
+#
+#    - name: "Deploy schema"
+#      if: ${{steps.sql.outputs.script == 'true'}}
+#      uses: azure/sql-action@v2.3
+#      with:
+#        connection-string: "Server=${{inputs.SQL_SERVER}};Database=${{inputs.SQL_DB}};User Id=${{inputs.SQL_USER}};Password=${{inputs.SQL_PASSWORD}};Connection Timeout=60;TrustServerCertificate=true;Application Name=Deploy Schema ${{inputs.BUILD_VERSION}}"
+#        path: ${{github.workspace}}/update.sql
+#        arguments: -e -b
