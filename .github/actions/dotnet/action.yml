@@ -147,13 +147,13 @@ runs:
                   --warnaserror \
                   --no-restore \
                   --configuration Release \
-                  "-p:Version=${{inputs.BUILD_VERSION}}" \
+                  "-p:ContinuousIntegrationBuild=true" \
                   "-p:EnableSarif=True" \
                   "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
-                  -nodeReuse:False \
                   "-p:NoWarn=MSB4241" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
-                  "-p:ContinuousIntegrationBuild=true" \
+                  "-p:Version=${{inputs.BUILD_VERSION}}" \
+                  -nodeReuse:False \
                   ${{env.DOTNET_RELEASE_DEFINES}}
       env:
         ReleaseNotes: ${{inputs.RELEASE_NOTES}}
@@ -177,19 +177,14 @@ runs:
       run: |
         dotnet test \
                   --warnaserror \
-                  --no-build \
-                  --no-restore \
-                  -noConsoleLogger \
                   --configuration Release \
-                  "-p:Version=${{inputs.BUILD_VERSION}}" \
-                  "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
                   --filter FullyQualifiedName\!~Integration \
-                  --logger:"trx;LogFilePrefix=testResults" \
-                  --results-directory ../test-results \
-                  -nodeReuse:False \
+                  "-p:ContinuousIntegrationBuild=true" \
+                  "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
                   "-p:NoWarn=MSB4241" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
-                  "-p:ContinuousIntegrationBuild=true"
+                  "-p:Version=${{inputs.BUILD_VERSION}}" \
+                  -nodeReuse:False
       env:
         ReleaseNotes: ${{inputs.RELEASE_NOTES}}
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
