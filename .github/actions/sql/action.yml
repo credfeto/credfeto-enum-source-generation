@@ -49,42 +49,42 @@ runs:
       MSBUILDTERMINALLOGGER: "auto"
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
-  - name: "SQL: Get SQL Compare"
-    shell: bash
-    run: docker pull "redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}"
+#  - name: "SQL: Get SQL Compare"
+#    shell: bash
+#    run: docker pull "redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}"
 
-    # Need to get these to work
-    #  /email:"${{inputs.REDGATE_EMAIL}}" \
-    #  /token:"${{inputs.REDGATE_PAT}}" \
-  - name: "Build SQL change"
-    shell: bash
-    run: |
-      docker run \
-             "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
-             --net=host \
-             --rm \
-             "redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}" \
-             /email:"${{inputs.REDGATE_EMAIL}}" \
-             /token:"${{inputs.REDGATE_PAT}}" \
-             /IAgreeToTheEULA \
-             /filter:"$DB_FILTER" \
-             /options:CaseSensitiveObjectDefinition,ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel \
-             /transactionIsolationLevel:SERIALIZABLE \
-             /include:staticData \
-             /scriptFile:"$DB_OUTPUT" \
-             /scripts1:"$DB_SOURCE" \
-             /showWarnings \
-             /include:Identical \
-             /report:"$DB_REPORT" \
-             /reportType:Xml \
-             /force \
-             /OutputWidth:1024 \
-             /empty2 \
-             /verbose
-    env:
-      DB_SOURCE: ${{inputs.DB_FOLDER}}
-      DB_OUTPUT: ${{github.workspace}}/update.test.sql
-      DB_LOG: ${{github.workspace}}/update.log
-      DB_REPORT: ${{github.workspace}}/update.xml
-      DB_FILTER: ${{inputs.DB_FOLDER}}/Filter.scpf
-      DOCKER_CONTENT_TRUST: 0
+#    # Need to get these to work
+#    #  /email:"${{inputs.REDGATE_EMAIL}}" \
+#    #  /token:"${{inputs.REDGATE_PAT}}" \
+#  - name: "Build SQL change"
+#    shell: bash
+#    run: |
+#      docker run \
+#             "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
+#             --net=host \
+#             --rm \
+#             "redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}" \
+#             /email:"${{inputs.REDGATE_EMAIL}}" \
+#             /token:"${{inputs.REDGATE_PAT}}" \
+#             /IAgreeToTheEULA \
+#             /filter:"$DB_FILTER" \
+#             /options:CaseSensitiveObjectDefinition,ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel \
+#             /transactionIsolationLevel:SERIALIZABLE \
+#             /include:staticData \
+#             /scriptFile:"$DB_OUTPUT" \
+#             /scripts1:"$DB_SOURCE" \
+#             /showWarnings \
+#             /include:Identical \
+#             /report:"$DB_REPORT" \
+#             /reportType:Xml \
+#             /force \
+#             /OutputWidth:1024 \
+#             /empty2 \
+#             /verbose
+#    env:
+#      DB_SOURCE: ${{inputs.DB_FOLDER}}
+#      DB_OUTPUT: ${{github.workspace}}/update.test.sql
+#      DB_LOG: ${{github.workspace}}/update.log
+#      DB_REPORT: ${{github.workspace}}/update.xml
+#      DB_FILTER: ${{inputs.DB_FOLDER}}/Filter.scpf
+#      DOCKER_CONTENT_TRUST: 0
