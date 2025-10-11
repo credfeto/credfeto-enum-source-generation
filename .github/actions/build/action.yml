@@ -513,7 +513,7 @@ runs:
     - name: "Create Release"
       if: steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.CREATE_RELEASE == 'true'
       id: create_release
-      uses: ncipollo/release-action@v1.19.2
+      uses: ncipollo/release-action@v1.20.0
       with:
         tag: v${{env.BUILD_VERSION}}
         name:  Release ${{env.BUILD_VERSION}}
