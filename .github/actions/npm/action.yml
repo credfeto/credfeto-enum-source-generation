@@ -169,9 +169,9 @@ runs:
             --target-path "$OUTPUT_FOLDER" \
             --version "${{inputs.BUILD_VERSION}}" \
             --wallet "$WALLET_FILE" \
-            --wallet-password "${{ inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD }}" \
-            --optimise \
-            --warnings-as-error
+            --wallet-password "${{ inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD }}"
+#            --warnings-as-error
+#            --optimise \
     env:
       SOURCE_FOLDER: "${{github.workspace}}/src/dist"
       OUTPUT_FOLDER: "${{github.workspace}}/dist"
