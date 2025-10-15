@@ -33,6 +33,6 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Rebase"
-        uses: bbeesley/gha-auto-dependabot-rebase@v1.5.222
+        uses: bbeesley/gha-auto-dependabot-rebase@v1.5.224
         env:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
