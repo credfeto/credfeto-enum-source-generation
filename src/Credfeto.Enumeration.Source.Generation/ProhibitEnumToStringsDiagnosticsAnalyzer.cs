@@ -146,16 +146,16 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
     )
     {
         interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>()
-                                          .Where(part => IsAnEnum(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, part: part))
+                                          .Where(interpolationSyntax => IsAnEnum(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, interpolationSyntax: interpolationSyntax))
                                           .ForEach(_ => ReportDiagnostic(expressionSyntax: interpolatedStringExpressionSyntax, context: syntaxNodeAnalysisContext));
 
     }
 
-    private static bool IsAnEnum(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InterpolationSyntax part)
+    private static bool IsAnEnum(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InterpolationSyntax interpolationSyntax)
     {
         return syntaxNodeAnalysisContext
                 .SemanticModel.GetTypeInfo(
-                    expression: part.Expression,
+                    expression: interpolationSyntax.Expression,
                     cancellationToken: syntaxNodeAnalysisContext.CancellationToken
                 )
                 .IsEnum();
