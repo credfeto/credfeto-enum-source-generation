@@ -70,12 +70,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
             syntaxNodeAnalysisContext: syntaxNodeAnalysisContext
         );
 
-        if (typeInfo is null)
-        {
-            return;
-        }
-
-        if (typeInfo.EnumUnderlyingType is null)
+        if (typeInfo?.EnumUnderlyingType is null)
         {
             // not an enum
             return;
