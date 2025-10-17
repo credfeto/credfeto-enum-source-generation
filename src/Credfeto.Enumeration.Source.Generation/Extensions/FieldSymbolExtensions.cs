@@ -13,11 +13,7 @@ internal static class FieldSymbolExtensions
         return $"{className}.{member.Name}";
     }
 
-    public static string FormatMember(
-        this IFieldSymbol member,
-        string attributeText,
-        IFormatConfig formatConfig
-    )
+    public static string FormatMember(this IFieldSymbol member, string attributeText, IFormatConfig formatConfig)
     {
         return $"{formatConfig.ClassName}.{member.Name} => {attributeText},";
     }
@@ -46,8 +42,6 @@ internal static class FieldSymbolExtensions
 
     private static EnumMemberDeclarationSyntax? FindEnumMemberDeclarationSyntax(IFieldSymbol member)
     {
-        return member.DeclaringSyntaxReferences.Select(dsr => dsr.GetDeclaredSyntax())
-                     .RemoveNulls()
-                     .FirstOrDefault();
+        return member.DeclaringSyntaxReferences.Select(dsr => dsr.GetDeclaredSyntax()).RemoveNulls().FirstOrDefault();
     }
 }
