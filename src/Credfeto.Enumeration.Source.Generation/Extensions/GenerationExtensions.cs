@@ -16,41 +16,62 @@ internal static class GenerationExtensions
 
     private const string INVALID_ENUM_MEMBER_METHOD_NAME = "ThrowInvalidEnumMemberException";
 
-    public static CodeBuilder GenerateMethods(this CodeBuilder source, in EnumGeneration attribute, IFormatConfig formatConfig)
+    public static CodeBuilder GenerateMethods(
+        this CodeBuilder source,
+        in EnumGeneration attribute,
+        IFormatConfig formatConfig
+    )
     {
-        return source.GenerateGetName(enumDeclaration: attribute, formatConfig: formatConfig)
-                     .AppendBlankLine()
-                     .GenerateGetDescription(enumDeclaration: attribute, formatConfig: formatConfig)
-                     .AppendBlankLine()
-                     .GenerateIsDefined(enumDeclaration: attribute, formatConfig: formatConfig)
-                     .AppendBlankLine()
-                     .GenerateThrowNotFound(enumDeclaration: attribute, formatConfig: formatConfig);
+        return source
+            .GenerateGetName(enumDeclaration: attribute, formatConfig: formatConfig)
+            .AppendBlankLine()
+            .GenerateGetDescription(enumDeclaration: attribute, formatConfig: formatConfig)
+            .AppendBlankLine()
+            .GenerateIsDefined(enumDeclaration: attribute, formatConfig: formatConfig)
+            .AppendBlankLine()
+            .GenerateThrowNotFound(enumDeclaration: attribute, formatConfig: formatConfig);
     }
 
-    private static CodeBuilder GenerateIsDefined(this CodeBuilder source, in EnumGeneration enumDeclaration, IFormatConfig formatConfig)
+    private static CodeBuilder GenerateIsDefined(
+        this CodeBuilder source,
+        in EnumGeneration enumDeclaration,
+        IFormatConfig formatConfig
+    )
     {
         string className = formatConfig.ClassName;
 
-        using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                     .StartBlock($"public static bool {IS_DEFINED_METHOD_NAME}(this {className} value)"))
+        using (
+            source
+                .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+                .StartBlock($"public static bool {IS_DEFINED_METHOD_NAME}(this {className} value)")
+        )
         {
             IReadOnlyList<string> members = enumDeclaration.GetUniqueMemberNames(className: className);
 
-            return source.AppendLine(members.Count switch
-            {
-                0 => "return false;",
-                1 => $"return value == {members[0]};",
-                _ => $"return value is {string.Join(separator: " or ", values: members)};"
-            });
+            return source.AppendLine(
+                members.Count switch
+                {
+                    0 => "return false;",
+                    1 => $"return value == {members[0]};",
+                    _ => $"return value is {string.Join(separator: " or ", values: members)};",
+                }
+            );
         }
     }
 
-    private static CodeBuilder GenerateGetName(this CodeBuilder source, in EnumGeneration enumDeclaration, IFormatConfig formatConfig)
+    private static CodeBuilder GenerateGetName(
+        this CodeBuilder source,
+        in EnumGeneration enumDeclaration,
+        IFormatConfig formatConfig
+    )
     {
         string className = formatConfig.ClassName;
 
-        using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                     .StartBlock($"public static string {GET_NAME_METHOD_NAME}(this {className} value)"))
+        using (
+            source
+                .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+                .StartBlock($"public static string {GET_NAME_METHOD_NAME}(this {className} value)")
+        )
         {
             IReadOnlyList<string> members = enumDeclaration.GetUniqueMemberNames();
 
@@ -61,15 +82,23 @@ internal static class GenerationExtensions
 
             using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
             {
-                return members.Aggregate(seed: source, func: (current, memberName) => current.AppendLine($"{className}.{memberName} => nameof({className}.{memberName}),"))
-                              .AppendLine($"_ => {INVALID_ENUM_MEMBER_METHOD_NAME}(value: value)");
+                return members
+                    .Aggregate(
+                        seed: source,
+                        func: (current, memberName) =>
+                            current.AppendLine($"{className}.{memberName} => nameof({className}.{memberName}),")
+                    )
+                    .AppendLine($"_ => {INVALID_ENUM_MEMBER_METHOD_NAME}(value: value)");
             }
         }
     }
 
-    private static CodeBuilder GenerateThrowNotFound(this CodeBuilder source, in EnumGeneration enumDeclaration, IFormatConfig formatConfig)
+    private static CodeBuilder GenerateThrowNotFound(
+        this CodeBuilder source,
+        in EnumGeneration enumDeclaration,
+        IFormatConfig formatConfig
+    )
     {
-
         if (enumDeclaration.Options.HasDoesNotReturnAttribute)
         {
             source = source.AppendLine("[DoesNotReturn]");
@@ -80,30 +109,42 @@ internal static class GenerationExtensions
         {
             return enumDeclaration.Options.SupportsUnreachableException
                 ? source.IssueUnreachableException(enumDeclaration)
-                : source.AppendLine("#if NET7_0_OR_GREATER")
-                        .IssueUnreachableException(enumDeclaration: enumDeclaration)
-                        .AppendLine("#else")
-                        .IssueArgumentOutOfRangeException()
-                        .AppendLine("#endif");
+                : source
+                    .AppendLine("#if NET7_0_OR_GREATER")
+                    .IssueUnreachableException(enumDeclaration: enumDeclaration)
+                    .AppendLine("#else")
+                    .IssueArgumentOutOfRangeException()
+                    .AppendLine("#endif");
         }
     }
 
     private static CodeBuilder IssueArgumentOutOfRangeException(this CodeBuilder source)
     {
-        return source.AppendLine("throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: \"Unknown enum member\");");
+        return source.AppendLine(
+            "throw new ArgumentOutOfRangeException(nameof(value), actualValue: value, message: \"Unknown enum member\");"
+        );
     }
 
     private static CodeBuilder IssueUnreachableException(this CodeBuilder source, in EnumGeneration enumDeclaration)
     {
-        return source.AppendLine($"throw new UnreachableException(message: \"{enumDeclaration.Name}: Unknown enum member\");");
+        return source.AppendLine(
+            $"throw new UnreachableException(message: \"{enumDeclaration.Name}: Unknown enum member\");"
+        );
     }
 
-    private static CodeBuilder GenerateGetDescription(this CodeBuilder source, in EnumGeneration enumDeclaration, IFormatConfig formatConfig)
+    private static CodeBuilder GenerateGetDescription(
+        this CodeBuilder source,
+        in EnumGeneration enumDeclaration,
+        IFormatConfig formatConfig
+    )
     {
         string className = formatConfig.ClassName;
 
-        using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                     .StartBlock($"public static string {GET_DESCRIPTION_METHOD_NAME}(this {className} value)"))
+        using (
+            source
+                .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+                .StartBlock($"public static string {GET_DESCRIPTION_METHOD_NAME}(this {className} value)")
+        )
         {
             IReadOnlyList<string> items = enumDeclaration.GetDescriptionCaseOptions(formatConfig);
 
@@ -114,28 +155,21 @@ internal static class GenerationExtensions
 
             using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
             {
-                return items.Aggregate(seed: source, func: (current, line) => current.AppendLine(line))
-                            .AppendLine($"_ => {GET_NAME_METHOD_NAME}(value)");
+                return items
+                    .Aggregate(seed: source, func: (current, line) => current.AppendLine(line))
+                    .AppendLine($"_ => {GET_NAME_METHOD_NAME}(value)");
             }
         }
     }
 
     private static IReadOnlyList<string> GetUniqueMemberNames(this in EnumGeneration enumDeclaration)
     {
-        return
-        [
-            .. UniqueMembers(enumDeclaration)
-                .Select(member => member.Name)
-        ];
+        return [.. UniqueMembers(enumDeclaration).Select(member => member.Name)];
     }
 
     private static IReadOnlyList<string> GetUniqueMemberNames(this in EnumGeneration enumDeclaration, string className)
     {
-        return
-        [
-            .. UniqueMembers(enumDeclaration)
-                .Select(member => member.BuildClassMemberName(className: className))
-        ];
+        return [.. UniqueMembers(enumDeclaration).Select(member => member.BuildClassMemberName(className: className))];
     }
 
     private static IEnumerable<IFieldSymbol> UniqueMembers(in EnumGeneration enumDeclaration)
@@ -152,8 +186,9 @@ internal static class GenerationExtensions
 
     public static HashSet<string> UniqueEnumMemberNames(this in EnumGeneration enumDeclaration)
     {
-        return new(enumDeclaration.Members.Select(m => m.Name)
-                                  .Distinct(StringComparer.Ordinal),
-                   comparer: StringComparer.Ordinal);
+        return new(
+            enumDeclaration.Members.Select(m => m.Name).Distinct(StringComparer.Ordinal),
+            comparer: StringComparer.Ordinal
+        );
     }
 }
