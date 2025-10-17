@@ -171,7 +171,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static bool IsAddExpression(BinaryExpressionSyntax node)
     {
-        return node.Kind() == SyntaxKind.AddExpression;
+        return node.IsKind(SyntaxKind.AddExpression);
     }
 
     private static bool IsAttributeArgument(BinaryExpressionSyntax node)
@@ -182,17 +182,12 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         {
             SyntaxNode? parent = checkNode.Parent;
 
-            if (parent is null)
+            switch (parent)
             {
-                return false;
+                case null: return false;
+                case AttributeArgumentSyntax: return true;
+                default: checkNode = parent; break;
             }
-
-            if (parent is AttributeArgumentSyntax)
-            {
-                return true;
-            }
-
-            checkNode = parent;
         } while (checkNode is BinaryExpressionSyntax);
 
         return false;
@@ -200,16 +195,14 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static void LookForBannedInStringConcatenation(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        if (
-            syntaxNodeAnalysisContext.Node is BinaryExpressionSyntax binaryExpressionSyntax
-            && IsAddExpression(binaryExpressionSyntax)
-            && !IsAttributeArgument(binaryExpressionSyntax)
-        )
+        if (syntaxNodeAnalysisContext.Node is not BinaryExpressionSyntax binaryExpressionSyntax)
         {
-            LookForBannedInStringConcatenation(
-                binaryExpressionSyntax: binaryExpressionSyntax,
-                syntaxNodeAnalysisContext: syntaxNodeAnalysisContext
-            );
+            return;
+        }
+
+        if (IsAddExpression(binaryExpressionSyntax) && !IsAttributeArgument(binaryExpressionSyntax))
+        {
+            LookForBannedInStringConcatenation(binaryExpressionSyntax: binaryExpressionSyntax, syntaxNodeAnalysisContext: syntaxNodeAnalysisContext);
         }
     }
 
