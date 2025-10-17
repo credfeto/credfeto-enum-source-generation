@@ -241,7 +241,7 @@ public static class EnumSourceGenerator
         using (
             source
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                .StartBlock("public static bool " + IS_DEFINED_METHOD_NAME + "(this " + className + " value)")
+                .StartBlock($"public static bool {IS_DEFINED_METHOD_NAME}(this {className} value)")
         )
         {
             IReadOnlyList<string> members = GetUniqueMemberNames(
@@ -283,7 +283,7 @@ public static class EnumSourceGenerator
         using (
             source
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                .StartBlock("public static string " + GET_DESCRIPTION_METHOD_NAME + "(this " + className + " value)")
+                .StartBlock($"public static string {GET_DESCRIPTION_METHOD_NAME}(this {className} value)")
         )
         {
             IReadOnlyList<string> items = GetDescriptionCaseOptions(
@@ -293,18 +293,14 @@ public static class EnumSourceGenerator
 
             if (items.Count == 0)
             {
-                source.AppendLine("return " + GET_NAME_METHOD_NAME + "(value);");
+                source.AppendLine($"return {GET_NAME_METHOD_NAME}(value);");
             }
             else
             {
                 using (source.StartBlock(text: "return value switch", start: "{", end: "};"))
                 {
-                    foreach (string line in items)
-                    {
-                        source.AppendLine(line);
-                    }
-
-                    source.AppendLine("_ => " + GET_NAME_METHOD_NAME + "(value)");
+                    items.Aggregate(source, (current, line) => current.AppendLine(line))
+                                  .AppendLine($"_ => {GET_NAME_METHOD_NAME}(value)");
                 }
             }
         }
