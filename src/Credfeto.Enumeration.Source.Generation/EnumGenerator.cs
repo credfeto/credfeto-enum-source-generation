@@ -112,8 +112,6 @@ public sealed class EnumGenerator : IIncrementalGenerator
         {
             string className = EnumSourceGenerator.GenerateClassForClass(
                 classDeclaration: classEnumGeneration.classInfo.Value,
-                hasDoesNotReturn: false,
-                supportsUnreachableException: false,
                 out CodeBuilder? codeBuilder
             );
 

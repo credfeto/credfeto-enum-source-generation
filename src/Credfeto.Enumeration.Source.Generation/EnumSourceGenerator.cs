@@ -28,11 +28,6 @@ public static class EnumSourceGenerator
         return className;
     }
 
-
-
-
-
-
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source)
     {
         return AddUsingDeclarations(source: source, "System", "System.CodeDom.Compiler", "System.Diagnostics", "System.Diagnostics.CodeAnalysis", "System.Runtime.CompilerServices");
@@ -45,36 +40,43 @@ public static class EnumSourceGenerator
                          .AppendBlankLine();
     }
 
-    public static string GenerateClassForClass(in ClassEnumGeneration classDeclaration, bool hasDoesNotReturn, bool supportsUnreachableException, out CodeBuilder source)
+    public static string GenerateClassForClass(in ClassEnumGeneration classDeclaration, out CodeBuilder source)
     {
         string className = classDeclaration.Name;
 
-        source = AddUsingDeclarations(new CodeBuilder().AppendFileHeader());
+        source = AddUsingDeclarations(new CodeBuilder().AppendFileHeader())
+                 .AppendLine($"namespace {classDeclaration.Namespace};")
+                 .AppendBlankLine()
+                 .AppendGeneratedCodeAttribute();
 
-        using (source.AppendLine($"namespace {classDeclaration.Namespace};")
-                     .AppendBlankLine()
-                     .AppendGeneratedCodeAttribute()
-                     .StartBlock($"{classDeclaration.AccessType.ConvertAccessType()} static partial class {className}"))
+        using (source.StartBlock($"{classDeclaration.AccessType.ConvertAccessType()} static partial class {className}"))
         {
-
-
             bool isFirst = true;
 
-            foreach (EnumGeneration attribute in classDeclaration.Enums)
-            {
-                if (isFirst)
-                {
-                    isFirst = false;
-                }
-                else
-                {
-                    source = source.AppendBlankLine();
-                }
-
-                source = source.GenerateMethods(attribute: attribute, formatConfig: new ClassWithNamespaceFormatter(attribute));
-            }
+            source = classDeclaration.Enums.Aggregate(seed: source,
+                                                      func: (builder, enumGeneration) =>
+                                                            {
+                                                                try
+                                                                {
+                                                                    return GenerateMethodsForEnum(builder: builder, enumGeneration: enumGeneration, isFirst: isFirst);
+                                                                }
+                                                                finally
+                                                                {
+                                                                    isFirst = false;
+                                                                }
+                                                            });
         }
 
         return className;
+    }
+
+    private static CodeBuilder GenerateMethodsForEnum(CodeBuilder builder, in EnumGeneration enumGeneration, bool isFirst)
+    {
+        IFormatConfig formatConfig = new ClassWithNamespaceFormatter(enumGeneration);
+
+        return isFirst
+            ? builder.AppendBlankLine()
+                     .GenerateMethods(attribute: enumGeneration, formatConfig: formatConfig)
+            : builder.GenerateMethods(attribute: enumGeneration, formatConfig: formatConfig);
     }
 }
