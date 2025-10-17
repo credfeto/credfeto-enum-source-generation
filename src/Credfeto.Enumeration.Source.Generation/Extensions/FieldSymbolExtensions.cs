@@ -12,6 +12,15 @@ internal static class FieldSymbolExtensions
         return $"{className}.{member.Name}";
     }
 
+    public static string FormatMember(
+        this IFieldSymbol member,
+        string attributeText,
+        IFormatConfig formatConfig
+    )
+    {
+        return $"{formatConfig.ClassName}.{member.Name} => {attributeText},";
+    }
+
     public static bool IsSkipEnumValue(this IFieldSymbol member, HashSet<string> names)
     {
         EnumMemberDeclarationSyntax? syntax = FindEnumMemberDeclarationSyntax(member);
