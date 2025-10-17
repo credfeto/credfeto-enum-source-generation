@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Builders;
+using Credfeto.Enumeration.Source.Generation.Formatting;
 using Credfeto.Enumeration.Source.Generation.Models;
 using Microsoft.CodeAnalysis;
 

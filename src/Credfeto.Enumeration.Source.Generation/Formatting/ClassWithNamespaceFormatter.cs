@@ -1,6 +1,6 @@
 using Credfeto.Enumeration.Source.Generation.Models;
 
-namespace Credfeto.Enumeration.Source.Generation;
+namespace Credfeto.Enumeration.Source.Generation.Formatting;
 
 internal sealed class ClassWithNamespaceFormatter : IFormatConfig
 {

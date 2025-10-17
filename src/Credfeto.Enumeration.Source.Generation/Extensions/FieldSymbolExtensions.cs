@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Credfeto.Enumeration.Source.Generation.Formatting;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
