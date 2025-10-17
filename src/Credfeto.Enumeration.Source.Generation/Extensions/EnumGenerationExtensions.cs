@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Models;
@@ -11,17 +10,17 @@ internal static class EnumGenerationExtensions
 {
     public static string FormatMember(
         this in EnumGeneration enumDeclaration,
-        Func<EnumGeneration, string> classNameFormatter,
+        IFormatConfig formatConfig,
         IFieldSymbol member,
         string attributeText
     )
     {
-        return classNameFormatter(enumDeclaration) + "." + member.Name + " => " + attributeText + ",";
+        return formatConfig.ClassName + "." + member.Name + " => " + attributeText + ",";
     }
 
     public static IReadOnlyList<string> GetDescriptionCaseOptions(
         this EnumGeneration enumDeclaration,
-        Func<EnumGeneration, string> classNameFormatter
+        IFormatConfig formatConfig
     )
     {
         HashSet<string> names = enumDeclaration.UniqueEnumMemberNames();
@@ -47,7 +46,7 @@ internal static class EnumGenerationExtensions
                .Where(item => !string.IsNullOrWhiteSpace(item.attributeText))
                .Select(item =>
                            enumDeclaration.FormatMember(
-                               classNameFormatter: classNameFormatter,
+                               formatConfig: formatConfig,
                                member: item.member,
                                attributeText: item.attributeText
                            )

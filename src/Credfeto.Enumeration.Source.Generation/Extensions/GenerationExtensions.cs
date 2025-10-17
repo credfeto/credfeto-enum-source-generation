@@ -15,20 +15,20 @@ internal static class GenerationExtensions
 
     private const string INVALID_ENUM_MEMBER_METHOD_NAME = "ThrowInvalidEnumMemberException";
 
-    public static CodeBuilder GenerateMethods(this CodeBuilder source, in EnumGeneration attribute, Func<EnumGeneration, string> classNameFormatter)
+    public static CodeBuilder GenerateMethods(this CodeBuilder source, in EnumGeneration attribute, IFormatConfig formatConfig)
     {
-        return source.GenerateGetName(enumDeclaration: attribute, classNameFormatter: classNameFormatter)
+        return source.GenerateGetName(enumDeclaration: attribute, formatConfig: formatConfig)
                      .AppendBlankLine()
-                     .GenerateGetDescription(enumDeclaration: attribute, classNameFormatter: classNameFormatter)
+                     .GenerateGetDescription(enumDeclaration: attribute, formatConfig: formatConfig)
                      .AppendBlankLine()
-                     .GenerateIsDefined(enumDeclaration: attribute, classNameFormatter: classNameFormatter)
+                     .GenerateIsDefined(enumDeclaration: attribute, formatConfig: formatConfig)
                      .AppendBlankLine()
-                     .GenerateThrowNotFound(enumDeclaration: attribute, classNameFormatter: classNameFormatter);
+                     .GenerateThrowNotFound(enumDeclaration: attribute, formatConfig: formatConfig);
     }
 
-    private static CodeBuilder GenerateIsDefined(this CodeBuilder source, in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    private static CodeBuilder GenerateIsDefined(this CodeBuilder source, in EnumGeneration enumDeclaration, IFormatConfig formatConfig)
     {
-        string className = classNameFormatter(enumDeclaration);
+        string className = formatConfig.ClassName;
 
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                      .StartBlock($"public static bool {IS_DEFINED_METHOD_NAME}(this {className} value)"))
@@ -44,9 +44,9 @@ internal static class GenerationExtensions
         }
     }
 
-    private static CodeBuilder GenerateGetName(this CodeBuilder source, in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    private static CodeBuilder GenerateGetName(this CodeBuilder source, in EnumGeneration enumDeclaration, IFormatConfig formatConfig)
     {
-        string className = classNameFormatter(enumDeclaration);
+        string className = formatConfig.ClassName;
 
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                      .StartBlock($"public static string {GET_NAME_METHOD_NAME}(this {className} value)"))
@@ -66,7 +66,7 @@ internal static class GenerationExtensions
         }
     }
 
-    private static CodeBuilder GenerateThrowNotFound(this CodeBuilder source, in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    private static CodeBuilder GenerateThrowNotFound(this CodeBuilder source, in EnumGeneration enumDeclaration, IFormatConfig formatConfig)
     {
 
         if (enumDeclaration.Options.HasDoesNotReturnAttribute)
@@ -74,7 +74,7 @@ internal static class GenerationExtensions
             source = source.AppendLine("[DoesNotReturn]");
         }
 
-        string className = classNameFormatter(enumDeclaration);
+        string className = formatConfig.ClassName;
         using (source.StartBlock($"public static string {INVALID_ENUM_MEMBER_METHOD_NAME}(this {className} value)"))
         {
             return enumDeclaration.Options.SupportsUnreachableException
@@ -97,14 +97,14 @@ internal static class GenerationExtensions
         return source.AppendLine($"throw new UnreachableException(message: \"{enumDeclaration.Name}: Unknown enum member\");");
     }
 
-    private static CodeBuilder GenerateGetDescription(this CodeBuilder source, in EnumGeneration enumDeclaration, Func<EnumGeneration, string> classNameFormatter)
+    private static CodeBuilder GenerateGetDescription(this CodeBuilder source, in EnumGeneration enumDeclaration, IFormatConfig formatConfig)
     {
-        string className = classNameFormatter(enumDeclaration);
+        string className = formatConfig.ClassName;
 
         using (source.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                      .StartBlock($"public static string {GET_DESCRIPTION_METHOD_NAME}(this {className} value)"))
         {
-            IReadOnlyList<string> items = enumDeclaration.GetDescriptionCaseOptions(classNameFormatter: classNameFormatter);
+            IReadOnlyList<string> items = enumDeclaration.GetDescriptionCaseOptions(formatConfig);
 
             if (items.Count == 0)
             {

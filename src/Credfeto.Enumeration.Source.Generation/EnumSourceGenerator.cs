@@ -19,21 +19,18 @@ public static class EnumSourceGenerator
                      .AppendGeneratedCodeAttribute()
                      .StartBlock(enumDeclaration.AccessType.ConvertAccessType() + " static class " + className))
         {
-            source = source.GenerateMethods(attribute: enumDeclaration, classNameFormatter: ClassNameOnlyFormatter);
+            ClassNameOnlyFormatter classNameOnlyFormatter = new(enumDeclaration);
+
+            source = source.GenerateMethods(attribute: enumDeclaration, formatConfig: classNameOnlyFormatter);
         }
 
         return className;
     }
 
-    private static string ClassNameOnlyFormatter(EnumGeneration d)
-    {
-        return d.Name;
-    }
 
-    private static string ClassWithNamespaceFormatter(EnumGeneration d)
-    {
-        return string.Join(separator: ".", d.Namespace, d.Name);
-    }
+
+
+
 
     private static CodeBuilder AddUsingDeclarations(CodeBuilder source)
     {
@@ -53,12 +50,12 @@ public static class EnumSourceGenerator
 
         source = AddUsingDeclarations(new CodeBuilder().AppendFileHeader());
 
-        using (source.AppendLine("namespace " + classDeclaration.Namespace + ";")
+        using (source.AppendLine($"namespace {classDeclaration.Namespace};")
                      .AppendBlankLine()
                      .AppendGeneratedCodeAttribute()
-                     .StartBlock(classDeclaration.AccessType.ConvertAccessType() + " static partial class " + className))
+                     .StartBlock($"{classDeclaration.AccessType.ConvertAccessType()} static partial class {className}"))
         {
-            Func<EnumGeneration, string> classNameFormatter = ClassWithNamespaceFormatter;
+
 
             bool isFirst = true;
 
@@ -73,7 +70,7 @@ public static class EnumSourceGenerator
                     source = source.AppendBlankLine();
                 }
 
-                source = source.GenerateMethods(attribute: attribute, classNameFormatter: classNameFormatter);
+                source = source.GenerateMethods(attribute: attribute, formatConfig: new ClassWithNamespaceFormatter(attribute));
             }
         }
 
