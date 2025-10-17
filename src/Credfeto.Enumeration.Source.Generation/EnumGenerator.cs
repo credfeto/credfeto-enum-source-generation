@@ -115,9 +115,8 @@ public sealed class EnumGenerator : IIncrementalGenerator
                 out CodeBuilder? codeBuilder
             );
 
-            sourceProductionContext.AddSource(
-                classEnumGeneration.classInfo.Value.Namespace + "." + className + ".generated.cs",
-                sourceText: codeBuilder.Text
+            sourceProductionContext.AddSource($"{classEnumGeneration.classInfo.Value.Namespace}.{className}.generated.cs",
+                                              sourceText: codeBuilder.Text
             );
         }
         catch (Exception exception)
@@ -176,7 +175,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
                 new(
                     id: "ENUM002",
                     title: "Unhandled Exception",
-                    exception.Message + ' ' + exception.StackTrace,
+                    $"{exception.Message} {exception.StackTrace}",
                     category: VersionInformation.Product,
                     defaultSeverity: DiagnosticSeverity.Error,
                     isEnabledByDefault: true
