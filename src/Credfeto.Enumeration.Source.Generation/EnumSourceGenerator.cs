@@ -369,25 +369,22 @@ public static class EnumSourceGenerator
     {
         EnumMemberDeclarationSyntax? syntax = FindEnumMemberDeclarationSyntax(member);
 
-        if (syntax?.EqualsValue is not null)
+        if (syntax?.EqualsValue is null || !IsSkipEnumValue(expressionSyntax: syntax.EqualsValue.Value, names: names))
         {
-            ExpressionSyntax ev = syntax.EqualsValue.Value;
-
-            if (ev.Kind() == SyntaxKind.IdentifierName)
-            {
-                bool found = names.Contains(ev.ToString());
-
-                if (found)
-                {
-                    // note deliberately ignoring the return value here as we need to record the integer value as being skipped too
-                    IsSkipConstantValue(member: member, names: names);
-
-                    return true;
-                }
-            }
+            return IsSkipConstantValue(member: member, names: names);
         }
 
-        return IsSkipConstantValue(member: member, names: names);
+        // note deliberately ignoring the return value here as we need to record the integer value as being skipped too
+        _ = IsSkipConstantValue(member: member, names: names);
+
+        return true;
+
+
+    }
+
+    private static bool IsSkipEnumValue(ExpressionSyntax expressionSyntax, HashSet<string> names)
+    {
+        return expressionSyntax.IsKind(SyntaxKind.IdentifierName) && names.Contains(expressionSyntax.ToString());
     }
 
     private static bool IsSkipConstantValue(IFieldSymbol member, HashSet<string> names)
@@ -404,19 +401,9 @@ public static class EnumSourceGenerator
 
     private static EnumMemberDeclarationSyntax? FindEnumMemberDeclarationSyntax(ISymbol member)
     {
-        EnumMemberDeclarationSyntax? syntax = null;
-
-        foreach (SyntaxReference dsr in member.DeclaringSyntaxReferences)
-        {
-            syntax = GetSyntax(dsr);
-
-            if (syntax is not null)
-            {
-                break;
-            }
-        }
-
-        return syntax;
+        return member.DeclaringSyntaxReferences.Select(GetSyntax)
+                     .RemoveNulls()
+                     .FirstOrDefault();
     }
 
     [SuppressMessage(
