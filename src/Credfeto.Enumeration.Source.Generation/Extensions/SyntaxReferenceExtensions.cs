@@ -16,5 +16,4 @@ internal static class SyntaxReferenceExtensions
     {
         return syntaxReference.GetSyntax(CancellationToken.None) as EnumMemberDeclarationSyntax;
     }
-
 }
