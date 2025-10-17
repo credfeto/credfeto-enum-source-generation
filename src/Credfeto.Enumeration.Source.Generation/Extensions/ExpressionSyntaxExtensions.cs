@@ -11,5 +11,4 @@ internal static class ExpressionSyntaxExtensions
     {
         return expressionSyntax.IsKind(SyntaxKind.IdentifierName) && names.Contains(expressionSyntax.ToString());
     }
-   
 }
