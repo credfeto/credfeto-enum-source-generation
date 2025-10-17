@@ -155,9 +155,8 @@ public sealed class EnumGenerator : IIncrementalGenerator
                 out CodeBuilder codeBuilder
             );
 
-            sourceProductionContext.AddSource(
-                enumGeneration.enumInfo.Value.Namespace + "." + className + ".generated.cs",
-                sourceText: codeBuilder.Text
+            sourceProductionContext.AddSource($"{enumGeneration.enumInfo.Value.Namespace}.{className}.generated.cs",
+                                              sourceText: codeBuilder.Text
             );
         }
         catch (Exception exception)
