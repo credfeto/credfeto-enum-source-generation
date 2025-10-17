@@ -9,23 +9,37 @@ namespace Credfeto.Enumeration.Source.Generation.Extensions;
 
 internal static class EnumGenerationExtensions
 {
-    public static IReadOnlyList<string> GetDescriptionCaseOptions(in this EnumGeneration enumDeclaration, IFormatConfig formatConfig)
+    public static IReadOnlyList<string> GetDescriptionCaseOptions(
+        in this EnumGeneration enumDeclaration,
+        IFormatConfig formatConfig
+    )
     {
-        return GetDescriptionCaseOptionsQuery(enumDeclaration: enumDeclaration, formatConfig: formatConfig, enumDeclaration.UniqueEnumMemberNames());
+        return GetDescriptionCaseOptionsQuery(
+            enumDeclaration: enumDeclaration,
+            formatConfig: formatConfig,
+            enumDeclaration.UniqueEnumMemberNames()
+        );
     }
 
-    private static IReadOnlyList<string> GetDescriptionCaseOptionsQuery(in EnumGeneration enumDeclaration, IFormatConfig formatConfig, HashSet<string> names)
+    private static IReadOnlyList<string> GetDescriptionCaseOptionsQuery(
+        in EnumGeneration enumDeclaration,
+        IFormatConfig formatConfig,
+        HashSet<string> names
+    )
     {
         return
         [
-            .. enumDeclaration.Members.Where(member => IsUsable(member: member, names: names))
-                              .Select(MemberDescription)
-                              .Where(item => item.description is not null)
-                              .Select(EnsureNotNullDescription)
-                              .Select(MemberDescriptionText)
-                              .Select(MemberAttributeText)
-                              .Where(IsValidText)
-                              .Select(item => item.member.FormatMember(attributeText: item.attributeText, formatConfig: formatConfig))
+            .. enumDeclaration
+                .Members.Where(member => IsUsable(member: member, names: names))
+                .Select(MemberDescription)
+                .Where(item => item.description is not null)
+                .Select(EnsureNotNullDescription)
+                .Select(MemberDescriptionText)
+                .Select(MemberAttributeText)
+                .Where(IsValidText)
+                .Select(item =>
+                    item.member.FormatMember(attributeText: item.attributeText, formatConfig: formatConfig)
+                ),
         ];
     }
 
@@ -34,12 +48,16 @@ internal static class EnumGenerationExtensions
         return !string.IsNullOrWhiteSpace(item.attributeText);
     }
 
-    private static (IFieldSymbol member, string attributeText) MemberAttributeText((IFieldSymbol member, TypedConstant typedConstant) item)
+    private static (IFieldSymbol member, string attributeText) MemberAttributeText(
+        (IFieldSymbol member, TypedConstant typedConstant) item
+    )
     {
         return (item.member, attributeText: ((TypedConstant?)item.typedConstant).Value.ToCSharpString());
     }
 
-    private static (IFieldSymbol member, TypedConstant typedConstant) MemberDescriptionText((IFieldSymbol member, AttributeData description) item)
+    private static (IFieldSymbol member, TypedConstant typedConstant) MemberDescriptionText(
+        (IFieldSymbol member, AttributeData description) item
+    )
     {
         return (item.member, typedConstant: item.description.ConstructorArguments.FirstOrDefault());
     }
@@ -51,11 +69,12 @@ internal static class EnumGenerationExtensions
 
     private static (IFieldSymbol member, AttributeData? description) MemberDescription(IFieldSymbol member)
     {
-        return (member, description: member.GetAttributes()
-                                           .FirstOrDefault(SymbolExtensions.IsDescriptionAttribute));
+        return (member, description: member.GetAttributes().FirstOrDefault(SymbolExtensions.IsDescriptionAttribute));
     }
 
-    private static (IFieldSymbol member, AttributeData description) EnsureNotNullDescription((IFieldSymbol member, AttributeData? description) item)
+    private static (IFieldSymbol member, AttributeData description) EnsureNotNullDescription(
+        (IFieldSymbol member, AttributeData? description) item
+    )
     {
         // ! item.description nullability has been excluded in the where before this.
         return (item.member, description: item.description!);
