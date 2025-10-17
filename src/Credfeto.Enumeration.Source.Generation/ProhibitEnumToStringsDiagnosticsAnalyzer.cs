@@ -32,6 +32,7 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static void PerformCheck(CompilationStartAnalysisContext compilationStartContext)
     {
+
         compilationStartContext.RegisterSyntaxNodeAction(
             action: LookForBannedMethods,
             SyntaxKind.PointerMemberAccessExpression,
@@ -91,39 +92,38 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
         in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
     )
     {
-        ExpressionSyntax e;
+        ExpressionSyntax? expressionSyntax = GetExpression(invocation);
 
-        if (invocation.Expression is MemberAccessExpressionSyntax syntax)
-        {
-            e = syntax;
-        }
-        else if (invocation.Expression is IdentifierNameSyntax expression)
-        {
-            e = expression;
-        }
-        else
+        if (expressionSyntax is null)
         {
             return null;
         }
 
-        INamedTypeSymbol? typeInfo = GetNamedType(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, e: e);
+        INamedTypeSymbol? typeInfo = GetNamedType(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, expressionSyntax: expressionSyntax);
 
-        if (typeInfo?.ConstructedFrom is null)
+        return typeInfo?.ConstructedFrom is null
+            ? null
+            : typeInfo;
+    }
+
+    private static ExpressionSyntax? GetExpression(MemberAccessExpressionSyntax invocation)
+    {
+        return invocation.Expression switch
         {
-            return null;
-        }
-
-        return typeInfo;
+            MemberAccessExpressionSyntax syntax => syntax,
+            IdentifierNameSyntax expression => expression,
+            _ => null
+        };
     }
 
     private static INamedTypeSymbol? GetNamedType(
         in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext,
-        ExpressionSyntax e
+        ExpressionSyntax expressionSyntax
     )
     {
         return syntaxNodeAnalysisContext
                 .SemanticModel.GetTypeInfo(
-                    expression: e,
+                    expression: expressionSyntax,
                     cancellationToken: syntaxNodeAnalysisContext.CancellationToken
                 )
                 .Type as INamedTypeSymbol;
@@ -142,26 +142,23 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static void LookForBannedInInterpolatedStrings(
         InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax,
-        in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
+        SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
     )
     {
-        foreach (InterpolationSyntax part in interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>())
-        {
-            if (
-                !syntaxNodeAnalysisContext
-                    .SemanticModel.GetTypeInfo(
-                        expression: part.Expression,
-                        cancellationToken: syntaxNodeAnalysisContext.CancellationToken
-                    )
-                    .IsEnum()
-            )
-            {
-                // not an enum
-                continue;
-            }
+        interpolatedStringExpressionSyntax.Contents.OfType<InterpolationSyntax>()
+                                          .Where(part => IsAnEnum(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, part: part))
+                                          .ForEach(_ => ReportDiagnostic(expressionSyntax: interpolatedStringExpressionSyntax, context: syntaxNodeAnalysisContext));
 
-            ReportDiagnostic(expressionSyntax: interpolatedStringExpressionSyntax, context: syntaxNodeAnalysisContext);
-        }
+    }
+
+    private static bool IsAnEnum(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InterpolationSyntax part)
+    {
+        return syntaxNodeAnalysisContext
+                .SemanticModel.GetTypeInfo(
+                    expression: part.Expression,
+                    cancellationToken: syntaxNodeAnalysisContext.CancellationToken
+                )
+                .IsEnum();
     }
 
     private static void ReportDiagnostic(ExpressionSyntax expressionSyntax, in SyntaxNodeAnalysisContext context)
