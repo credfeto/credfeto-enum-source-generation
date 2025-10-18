@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Extensions;
 using Credfeto.Enumeration.Source.Generation.Helpers;
@@ -13,12 +14,10 @@ namespace Credfeto.Enumeration.Source.Generation;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyzer
 {
-    private static readonly DiagnosticDescriptor Rule = RuleHelpers.CreateRule(
-        code: "ENUM001",
-        category: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
-        title: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
-        message: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead"
-    );
+    private static readonly DiagnosticDescriptor Rule = RuleHelpers.CreateRule(code: "ENUM001",
+                                                                               category: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                                                               title: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead",
+                                                                               message: "Do not use ToString() on an enum use EnumHelpers.GetName(this Enum value) instead");
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => SupportedDiagnosticsList.Build(Rule);
 
@@ -32,210 +31,95 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzer : DiagnosticAnalyze
 
     private static void PerformCheck(CompilationStartAnalysisContext compilationStartContext)
     {
-        compilationStartContext.RegisterSyntaxNodeAction(
-            action: LookForBannedMethods,
-            SyntaxKind.PointerMemberAccessExpression,
-            SyntaxKind.SimpleMemberAccessExpression,
-            SyntaxKind.InterpolatedStringExpression,
-            SyntaxKind.AddExpression
-        );
+        compilationStartContext.RegisterSyntaxNodeAction(action: LookForBannedMethods,
+                                                         SyntaxKind.PointerMemberAccessExpression,
+                                                         SyntaxKind.SimpleMemberAccessExpression,
+                                                         SyntaxKind.InterpolatedStringExpression,
+                                                         SyntaxKind.AddExpression);
     }
 
     private static void LookForBannedMethods(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        LookForExplicitBannedMethods(syntaxNodeAnalysisContext);
-        LookForBannedInInterpolatedStrings(syntaxNodeAnalysisContext);
-        LookForBannedInStringConcatenation(syntaxNodeAnalysisContext);
-    }
-
-    private static void LookForExplicitBannedMethods(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
-    {
-        if (syntaxNodeAnalysisContext.Node is MemberAccessExpressionSyntax memberAccessExpressionSyntax)
+        switch (syntaxNodeAnalysisContext.Node.Kind())
         {
-            LookForBannedMethod(
-                memberAccessExpressionSyntax: memberAccessExpressionSyntax,
-                syntaxNodeAnalysisContext: syntaxNodeAnalysisContext
-            );
+            case SyntaxKind.SimpleMemberAccessExpression:
+            case SyntaxKind.PointerMemberAccessExpression: CheckMemberAccessExpression(syntaxNodeAnalysisContext); break;
+
+            case SyntaxKind.InterpolatedStringExpression: CheckInterpolatedStringExpression(syntaxNodeAnalysisContext); break;
+
+            case SyntaxKind.AddExpression: CheckAddExpression(syntaxNodeAnalysisContext); break;
+
+            default:
+                Debug.WriteLine("Unexpected syntax kind in ProhibitEnumToStringsDiagnosticsAnalyzer: " + syntaxNodeAnalysisContext.Node.Kind());
+                break;
         }
     }
 
-    private static void LookForBannedMethod(
-        MemberAccessExpressionSyntax memberAccessExpressionSyntax,
-        in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
-    )
+    private static void CheckAddExpression(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
     {
-        INamedTypeSymbol? typeInfo = ExtractExpressionSyntax(
-            invocation: memberAccessExpressionSyntax,
-            syntaxNodeAnalysisContext: syntaxNodeAnalysisContext
-        );
-
-        if (typeInfo?.EnumUnderlyingType is null)
-        {
-            // not an enum
-            return;
-        }
-
-        if (StringComparer.Ordinal.Equals(memberAccessExpressionSyntax.Name.Identifier.ToString(), nameof(ToString)))
-        {
-            ReportDiagnostic(expressionSyntax: memberAccessExpressionSyntax, context: syntaxNodeAnalysisContext);
-        }
-    }
-
-    private static INamedTypeSymbol? ExtractExpressionSyntax(
-        MemberAccessExpressionSyntax invocation,
-        in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
-    )
-    {
-        ExpressionSyntax? expressionSyntax = GetExpression(invocation);
-
-        if (expressionSyntax is null)
-        {
-            return null;
-        }
-
-        INamedTypeSymbol? typeInfo = GetNamedType(
-            syntaxNodeAnalysisContext: syntaxNodeAnalysisContext,
-            expressionSyntax: expressionSyntax
-        );
-
-        return typeInfo?.ConstructedFrom is null ? null : typeInfo;
-    }
-
-    private static ExpressionSyntax? GetExpression(MemberAccessExpressionSyntax invocation)
-    {
-        return invocation.Expression switch
-        {
-            MemberAccessExpressionSyntax syntax => syntax,
-            IdentifierNameSyntax expression => expression,
-            _ => null,
-        };
-    }
-
-    private static INamedTypeSymbol? GetNamedType(
-        in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext,
-        ExpressionSyntax expressionSyntax
-    )
-    {
-        return syntaxNodeAnalysisContext
-                .SemanticModel.GetTypeInfo(
-                    expression: expressionSyntax,
-                    cancellationToken: syntaxNodeAnalysisContext.CancellationToken
-                )
-                .Type as INamedTypeSymbol;
-    }
-
-    private static void LookForBannedInInterpolatedStrings(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
-    {
-        if (syntaxNodeAnalysisContext.Node is InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax)
-        {
-            LookForBannedInInterpolatedStrings(
-                interpolatedStringExpressionSyntax: interpolatedStringExpressionSyntax,
-                syntaxNodeAnalysisContext: syntaxNodeAnalysisContext
-            );
-        }
-    }
-
-    private static void LookForBannedInInterpolatedStrings(
-        InterpolatedStringExpressionSyntax interpolatedStringExpressionSyntax,
-        SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
-    )
-    {
-        interpolatedStringExpressionSyntax
-            .Contents.OfType<InterpolationSyntax>()
-            .Where(interpolationSyntax =>
-                IsAnEnum(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, interpolationSyntax: interpolationSyntax)
-            )
-            .ForEach(_ =>
-                ReportDiagnostic(
-                    expressionSyntax: interpolatedStringExpressionSyntax,
-                    context: syntaxNodeAnalysisContext
-                )
-            );
-    }
-
-    private static bool IsAnEnum(
-        in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext,
-        InterpolationSyntax interpolationSyntax
-    )
-    {
-        return syntaxNodeAnalysisContext
-            .SemanticModel.GetTypeInfo(
-                expression: interpolationSyntax.Expression,
-                cancellationToken: syntaxNodeAnalysisContext.CancellationToken
-            )
-            .IsEnum();
-    }
-
-    private static void ReportDiagnostic(ExpressionSyntax expressionSyntax, in SyntaxNodeAnalysisContext context)
-    {
-        context.ReportDiagnostic(Diagnostic.Create(descriptor: Rule, expressionSyntax.GetLocation()));
-    }
-
-    private static bool IsAddExpression(BinaryExpressionSyntax node)
-    {
-        return node.IsKind(SyntaxKind.AddExpression);
-    }
-
-    private static bool IsAttributeArgument(BinaryExpressionSyntax node)
-    {
-        SyntaxNode checkNode = node;
-
-        do
-        {
-            SyntaxNode? parent = checkNode.Parent;
-
-            switch (parent)
-            {
-                case null:
-                    return false;
-                case AttributeArgumentSyntax:
-                    return true;
-                default:
-                    checkNode = parent;
-                    break;
-            }
-        } while (checkNode is BinaryExpressionSyntax);
-
-        return false;
-    }
-
-    private static void LookForBannedInStringConcatenation(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
-    {
-        if (syntaxNodeAnalysisContext.Node is not BinaryExpressionSyntax binaryExpressionSyntax)
+        if (syntaxNodeAnalysisContext.Node is not BinaryExpressionSyntax binary || !binary.IsKind(SyntaxKind.AddExpression) || binary.Ancestors()
+                                                                                                               .OfType<AttributeArgumentSyntax>()
+                                                                                                               .Any())
         {
             return;
         }
 
-        if (IsAddExpression(binaryExpressionSyntax) && !IsAttributeArgument(binaryExpressionSyntax))
+        TypeInfo leftInfo = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(node: binary.Left, cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
+        TypeInfo rightInfo = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(node: binary.Right, cancellationToken: syntaxNodeAnalysisContext.CancellationToken);
+
+        if (leftInfo.IsString() && rightInfo.IsEnum())
         {
-            LookForBannedInStringConcatenation(
-                binaryExpressionSyntax: binaryExpressionSyntax,
-                syntaxNodeAnalysisContext: syntaxNodeAnalysisContext
-            );
+            RaiseError(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, syntaxNode: binary.Left);
+        }
+        else if (rightInfo.IsString() && leftInfo.IsEnum())
+        {
+            RaiseError(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, syntaxNode: binary.Right);
         }
     }
 
-    private static void LookForBannedInStringConcatenation(
-        BinaryExpressionSyntax binaryExpressionSyntax,
-        in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext
-    )
+    private static void RaiseError(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, SyntaxNode syntaxNode)
     {
-        TypeInfo left = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(
-            expression: binaryExpressionSyntax.Left,
-            cancellationToken: syntaxNodeAnalysisContext.CancellationToken
-        );
-        TypeInfo right = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(
-            expression: binaryExpressionSyntax.Right,
-            cancellationToken: syntaxNodeAnalysisContext.CancellationToken
-        );
+        RaiseError(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, location: syntaxNode.GetLocation());
+    }
 
-        if (left.IsString() && right.IsEnum())
+    private static void RaiseError(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, Location location)
+    {
+        syntaxNodeAnalysisContext.ReportDiagnostic(Diagnostic.Create(descriptor: Rule, location: location));
+    }
+
+    private static void CheckInterpolatedStringExpression(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    {
+        if (syntaxNodeAnalysisContext.Node is not InterpolatedStringExpressionSyntax interpolated)
         {
-            ReportDiagnostic(expressionSyntax: binaryExpressionSyntax.Left, context: syntaxNodeAnalysisContext);
+            return;
         }
-        else if (right.IsString() && left.IsEnum())
+
+        if (HasEnumInterpolation(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, interpolated: interpolated))
         {
-            ReportDiagnostic(expressionSyntax: binaryExpressionSyntax.Right, context: syntaxNodeAnalysisContext);
+            RaiseError(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, syntaxNode: interpolated);
+        }
+    }
+
+    private static bool HasEnumInterpolation(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext, InterpolatedStringExpressionSyntax interpolated)
+    {
+        return interpolated.Contents.OfType<InterpolationSyntax>()
+                           .Any(i => syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(node: i.Expression, cancellationToken: syntaxNodeAnalysisContext.CancellationToken)
+                                        .IsEnum());
+    }
+
+    private static void CheckMemberAccessExpression(in SyntaxNodeAnalysisContext syntaxNodeAnalysisContext)
+    {
+        if (syntaxNodeAnalysisContext.Node is not MemberAccessExpressionSyntax memberAccess || !StringComparer.Ordinal.Equals(x: memberAccess.Name?.Identifier.ValueText, nameof(ToString)))
+        {
+            return;
+        }
+
+        INamedTypeSymbol? type = syntaxNodeAnalysisContext.SemanticModel.GetTypeInfo(node: memberAccess.Expression, cancellationToken: syntaxNodeAnalysisContext.CancellationToken)
+                                    .Type as INamedTypeSymbol;
+
+        if (type?.EnumUnderlyingType is not null)
+        {
+            RaiseError(syntaxNodeAnalysisContext: syntaxNodeAnalysisContext, syntaxNode: memberAccess);
         }
     }
 }
