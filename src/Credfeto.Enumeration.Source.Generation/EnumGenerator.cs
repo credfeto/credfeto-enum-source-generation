@@ -69,25 +69,25 @@ public sealed class EnumGenerator : IIncrementalGenerator
         CancellationToken cancellationToken
     )
     {
-        if (generatorSyntaxContext.Node is EnumDeclarationSyntax enumDeclarationSyntax)
+        if (generatorSyntaxContext.Node is not EnumDeclarationSyntax enumDeclarationSyntax)
         {
-            try
-            {
-                EnumGeneration? enumInfo = SyntaxExtractor.ExtractEnum(
-                    context: generatorSyntaxContext,
-                    enumDeclarationSyntax: enumDeclarationSyntax,
-                    cancellationToken: cancellationToken
-                );
-
-                return (enumInfo, null);
-            }
-            catch (Exception exception)
-            {
-                return (null, new ErrorInfo(enumDeclarationSyntax.GetLocation(), exception: exception));
-            }
+            return (null, null);
         }
 
-        return (null, null);
+        try
+        {
+            EnumGeneration? enumInfo = SyntaxExtractor.ExtractEnum(
+                context: generatorSyntaxContext,
+                enumDeclarationSyntax: enumDeclarationSyntax,
+                cancellationToken: cancellationToken
+            );
+
+            return (enumInfo, null);
+        }
+        catch (Exception exception)
+        {
+            return (null, new ErrorInfo(enumDeclarationSyntax.GetLocation(), exception: exception));
+        }
     }
 
     private static void GenerateClasses(
