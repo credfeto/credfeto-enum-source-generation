@@ -60,7 +60,7 @@
   <ItemGroup>
     <PackageReference Include="FunFair.Test.Common" Version="6.1.285.1620" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
-    <PackageReference Include="xunit.v3" Version="3.0.1" />
+    <PackageReference Include="xunit.v3" Version="3.1.0" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All" ExcludeAssets="runtime" />
@@ -73,7 +73,7 @@
     <PackageReference Include="Nullable.Extended.Analyzer" Version="1.15.6581" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Philips.CodeAnalysis.DuplicateCodeAnalyzer" Version="1.6.4" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Philips.CodeAnalysis.MaintainabilityAnalyzers" Version="1.9.1" PrivateAssets="All" ExcludeAssets="runtime" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.14.0" PrivateAssets="All" ExcludeAssets="runtime" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.14.1" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="SmartAnalyzers.CSharpExtensions.Annotations" Version="4.2.11" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="SonarAnalyzer.CSharp" Version="10.15.0.120848" PrivateAssets="All" ExcludeAssets="runtime" />
