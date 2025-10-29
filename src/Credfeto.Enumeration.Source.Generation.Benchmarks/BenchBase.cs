@@ -15,7 +15,7 @@ public abstract class BenchBase
         checkId: "CA1822:Mark methods static",
         Justification = "Benchmark"
     )]
-    [SuppressMessage(category: "ReSharper", checkId: "UnusedParameter.Global", Justification = "Simplifies benchmarks")]
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void Test<T>(T value)
     {
