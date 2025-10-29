@@ -276,7 +276,8 @@ dotnet_diagnostic.IDE0074.severity = error
 dotnet_diagnostic.IDE0075.severity = error
 # Use pattern matching
 dotnet_diagnostic.IDE0078.severity = error
-# Remove unnecessary suppression
+# Remove Unnecessary suppressions
+dotnet_remove_unnecessary_suppression_exclusions = none
 dotnet_diagnostic.IDE0079.severity = error
 #Remove unnecessary suppression operator (IDE0080)
 dotnet_diagnostic.IDE0080.severity = error
