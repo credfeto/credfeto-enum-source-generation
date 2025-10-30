@@ -19,7 +19,6 @@ public enum ExampleEnumValues
         Justification = "Used in tests"
     )]
     [Obsolete("This value is deprecated, use " + nameof(THREE) + " instead.")]
-    
     TWO = 2,
 
     [Description("Two but one better!")]
