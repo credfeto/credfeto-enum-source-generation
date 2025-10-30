@@ -19,7 +19,7 @@ public enum ExampleEnumValues
         Justification = "Used in tests"
     )]
     [Obsolete("This value is deprecated, use " + nameof(THREE) + " instead.")]
-    [SuppressMessage(category: "ReSharper", checkId: "UnusedMember.Global", Justification = "Used in tests")]
+    
     TWO = 2,
 
     [Description("Two but one better!")]
