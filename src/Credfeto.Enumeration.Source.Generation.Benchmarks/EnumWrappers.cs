@@ -7,7 +7,6 @@ namespace Credfeto.Enumeration.Source.Generation.Benchmarks;
 
 internal static class EnumWrappers
 {
-    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string GetNameReflectionCached<T>(this T value)
         where T : Enum
@@ -15,7 +14,6 @@ internal static class EnumWrappers
         return EnumHelpers.GetName(value);
     }
 
-    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string GetDescriptionReflectionCached<T>(this T value)
         where T : Enum
@@ -23,7 +21,6 @@ internal static class EnumWrappers
         return EnumHelpers.GetDescription(value);
     }
 
-    
     [SuppressMessage(
         category: "Philips.CodeAnalysis.MaintainabilityAnalyzers",
         checkId: "PH2073: Call as instance",
