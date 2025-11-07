@@ -21,7 +21,7 @@ inputs:
   APP_NAME:
     description: 'docker app name'
     required: true
-  AWS_CONTAINER_REGISTRY:
+  DOCKER_CONTAINER_REGISTRY:
     description: 'AWS Elastic Container Registry'
     required: true
     default: '117769150821.dkr.ecr.eu-west-1.amazonaws.com'
@@ -65,8 +65,8 @@ runs:
         platforms: ${{inputs.CONTAINER_PLATFORM}}
         push: ${{inputs.DEPLOY}}
         tags: |
-          ${{inputs.AWS_CONTAINER_REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:${{inputs.BUILD_TAG}}
-          ${{inputs.AWS_CONTAINER_REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:${{inputs.BUILD_VERSION}}
+          ${{inputs.DOCKER_CONTAINER_REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:${{inputs.BUILD_TAG}}
+          ${{inputs.DOCKER_CONTAINER_REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:${{inputs.BUILD_VERSION}}
 #        cache-from: type=gha
 #        cache-to: type=gha,mode=max
         provenance: false
