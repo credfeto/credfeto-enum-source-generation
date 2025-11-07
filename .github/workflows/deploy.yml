@@ -27,7 +27,7 @@ on:
       AWS_LOAD_BALANCER_PRIORITY:
         description: "8. AWS Load Balancer match priority"
         required: true
-      AWS_CONTAINER_REGISTRY:
+      DOCKER_CONTAINER_REGISTRY:
         description: "9. AWS container registry to retrieve package from"
         required: true
       BUILD_VERSION:
@@ -63,6 +63,7 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
@@ -77,7 +78,7 @@ jobs:
           echo "API_HOST: ${{inputs.API_HOST}}"
           echo "API_PREFIX: ${{inputs.API_PREFIX}}"
           echo "AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}"
-          echo "AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}"
+          echo "DOCKER_CONTAINER_REGISTRY: ${{inputs.DOCKER_CONTAINER_REGISTRY}}"
           echo "AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}"
 
       - name: "Configure AWS Credentials"
@@ -100,7 +101,7 @@ jobs:
           API_PREFIX: ${{inputs.API_PREFIX}}
           AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
           AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
-          AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
+          DOCKER_CONTAINER_REGISTRY: ${{inputs.DOCKER_CONTAINER_REGISTRY}}
 
       - name: "Log Build Version"
         uses: actions/github-script@v8.0.0
