@@ -29,7 +29,7 @@ inputs:
   AWS_LOAD_BALANCER_PRIORITY:
     description: "AWS Load Balancer match priority"
     required: true
-  AWS_CONTAINER_REGISTRY:
+  DOCKER_CONTAINER_REGISTRY:
     description: "AWS container registry to retrieve package from"
     required: true
   BUILD_VERSION:
@@ -100,7 +100,7 @@ runs:
         LoadBalancerPriority: ${{steps.priorities.outputs.MAIN}}
         Direct1LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT1}}
         Direct2LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT2}}
-        AwsContainerRegistry: ${{inputs.AWS_CONTAINER_REGISTRY}}
+        AwsContainerRegistry: ${{inputs.DOCKER_CONTAINER_REGISTRY}}
 
     - name: "show Validated TemplateParameters"
       shell: bash
