@@ -86,8 +86,8 @@ inputs:
   AWS_REGION:
     description: 'AWS region'
     required: true
-  AWS_CONTAINER_REGISTRY:
-    description: 'AWS Elastic Container Registry'
+  DOCKER_CONTAINER_REGISTRY:
+    description: 'Docker Container Registry'
     required: true
   AWS_LOAD_BALANCER_HOSTNAME:
     description: 'LoadBalancer Hostname'
@@ -247,7 +247,7 @@ runs:
         AWS_ACCESS_KEY_ID: ${{inputs.AWS_ACCESS_KEY_ID}}
         AWS_SECRET_ACCESS_KEY: ${{inputs.AWS_SECRET_ACCESS_KEY}}
         AWS_REGION: ${{inputs.AWS_REGION}}
-        AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
+        DOCKER_CONTAINER_REGISTRY: ${{inputs.DOCKER_CONTAINER_REGISTRY}}
         DOCKER_USERNAME: ${{inputs.DOCKER_USERNAME}}
         DOCKER_ACCESS_TOKEN: ${{inputs.DOCKER_ACCESS_TOKEN}}
 
@@ -400,7 +400,7 @@ runs:
         echo "DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}"
         echo "DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}"
         echo "DEPLOY: ${{env.DEPLOY}}"
-        echo "Registry: ${{inputs.AWS_CONTAINER_REGISTRY}}"
+        echo "Registry: ${{inputs.DOCKER_CONTAINER_REGISTRY}}"
 
     - name: "Copy docker: Dockerfile"
       if: |-
@@ -427,7 +427,7 @@ runs:
         steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
         steps.check_files.outputs.SLN_EXIST == 'true' &&
         steps.check_files.outputs.DOCKERFILE_EXIST == 'true' &&
-        inputs.AWS_CONTAINER_REGISTRY != '' &&
+        inputs.DOCKER_CONTAINER_REGISTRY != '' &&
         inputs.DOCKER_APP_OWNER != '' &&
         inputs.DOCKER_APP_NAME != '' &&
         env.DEPLOY == 'true'
@@ -439,7 +439,7 @@ runs:
         BUILD_TAG: ${{inputs.BUILD_TAG}}
         APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
         APP_NAME: ${{inputs.DOCKER_APP_NAME}}
-        AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
+        DOCKER_CONTAINER_REGISTRY: ${{inputs.DOCKER_CONTAINER_REGISTRY}}
         CONTAINER_SOURCE: ${{github.workspace}}/server-dist/${{inputs.DOTNET_DOCKER_PLATFORM}}
         CONTAINER_PLATFORM: ${{inputs.DOTNET_CONTAINER_PLATFORM}}
 
@@ -494,7 +494,7 @@ runs:
         API_PREFIX: ${{inputs.API_PREFIX}}
         AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
         AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
-        AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}
+        DOCKER_CONTAINER_REGISTRY: ${{inputs.DOCKER_CONTAINER_REGISTRY}}
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
 
     - name: "Dotnet: NPM Deploy"
