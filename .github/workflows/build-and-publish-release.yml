@@ -54,6 +54,7 @@ jobs:
       - name: "Checkout Source"
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
@@ -127,7 +128,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY}}
           AWS_REGION: ${{vars.AWS_REGION}}
-          AWS_CONTAINER_REGISTRY: ${{vars.AWS_CONTAINER_REGISTRY}}
+          DOCKER_CONTAINER_REGISTRY: ${{vars.DOCKER_CONTAINER_REGISTRY_RELEASE}}
           AWS_LOAD_BALANCER_HOSTNAME: ${{vars.AWS_LOAD_BALANCER_HOSTNAME_PROD}}
           AWS_LOAD_BALANCER_PRIORITY: ${{vars.AWS_LOAD_BALANCER_PRIORITY_PROD}}
           API_HOST: ${{vars.AWS_LOAD_BALANCER_HOSTNAME_DEV}}
