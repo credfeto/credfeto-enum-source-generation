@@ -26,7 +26,7 @@ inputs:
   AWS_LOAD_BALANCER_PRIORITY:
     description: "AWS Load Balancer match priority"
     required: true
-  AWS_CONTAINER_REGISTRY:
+  DOCKER_CONTAINER_REGISTRY:
     description: "AWS container registry to retrieve package from"
     required: true
   BUILD_VERSION:
@@ -51,7 +51,7 @@ runs:
         echo "API_HOST: ${{inputs.API_HOST}}"
         echo "API_PREFIX: ${{inputs.API_PREFIX}}"
         echo "AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}"
-        echo "AWS_CONTAINER_REGISTRY: ${{inputs.AWS_CONTAINER_REGISTRY}}"
+        echo "DOCKER_CONTAINER_REGISTRY: ${{inputs.DOCKER_CONTAINER_REGISTRY}}"
         echo "AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}"
 
     - name: "Create tag"
@@ -85,7 +85,7 @@ runs:
                 API_HOST: "${{inputs.API_HOST}}",
                 API_PREFIX: "${{inputs.API_PREFIX}}",
                 AWS_LOAD_BALANCER_HOSTNAME: "${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}",
-                AWS_CONTAINER_REGISTRY: "${{inputs.AWS_CONTAINER_REGISTRY}}",
+                DOCKER_CONTAINER_REGISTRY: "${{inputs.DOCKER_CONTAINER_REGISTRY}}",
                 AWS_LOAD_BALANCER_PRIORITY: "${{inputs.AWS_LOAD_BALANCER_PRIORITY}}",
               }
           });
