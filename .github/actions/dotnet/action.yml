@@ -176,15 +176,13 @@ runs:
       shell: bash
       run: |
         dotnet test \
-                  --warnaserror \
                   --configuration Release \
-                  --filter FullyQualifiedName\!~Integration \
                   "-p:ContinuousIntegrationBuild=true" \
                   "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
                   "-p:NoWarn=MSB4241" \
+                  "-p:Optimize=true" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
-                  "-p:Version=${{inputs.BUILD_VERSION}}" \
-                  -nodeReuse:False
+                  "-p:Version=${{inputs.BUILD_VERSION}}"
       env:
         ReleaseNotes: ${{inputs.RELEASE_NOTES}}
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
