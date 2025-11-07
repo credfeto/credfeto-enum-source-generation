@@ -68,6 +68,7 @@ jobs:
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
@@ -105,6 +106,7 @@ jobs:
       - name: "Checkout Source"
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
@@ -236,6 +238,7 @@ jobs:
       - name: "Checkout Source"
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
@@ -271,6 +274,7 @@ jobs:
       - name: "Checkout Source"
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
@@ -298,6 +302,7 @@ jobs:
       - name: "Checkout Source"
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
@@ -325,6 +330,7 @@ jobs:
       - name: "Checkout Source"
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
@@ -364,6 +370,7 @@ jobs:
         if: steps.visibility.outputs.is_public == 'true'
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
@@ -393,6 +400,7 @@ jobs:
       - name: "Checkout Source"
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
@@ -422,6 +430,7 @@ jobs:
       - name: "Checkout Source"
         uses: actions/checkout@v5.0.0
         with:
+          clean: true
           fetch-depth: 0
           fetch-tags: true
 
