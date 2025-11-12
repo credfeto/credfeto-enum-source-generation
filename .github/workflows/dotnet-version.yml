@@ -82,8 +82,15 @@ jobs:
           echo "Latest installed dotnet version: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
           echo "Requested dotnet version: ${{env.DOTNET_VERSION}}"
 
+      - name: "Check if Latest is newer than the current defined"
+        id: upgrade_check
+        run: |
+          VER=$(echo "${{env.DOTNET_VERSION}} ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}" | tr ' ' '\n' | uniq | sort --version-sort | tail -1)
+          echo "Latest Version: $VER"
+          [[ "$VER" == "${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}" ]] && echo "NEW_VERSION=true" >> "$GITHUB_OUTPUT" || echo "NEW_VERSION=false" >> "$GITHUB_OUTPUT"
+
       - name: "Switch to version branch"
-        if: ${{env.DOTNET_VERSION < steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+        if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
         shell: bash
         run: |
           git checkout "depends/dotnet/${{env.NEW_DOTNET_VERSION}}" || git checkout -b "depends/dotnet/${{env.NEW_DOTNET_VERSION}}"
@@ -91,7 +98,7 @@ jobs:
           NEW_DOTNET_VERSION: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
 
       - name: "Update global.json to latest version"
-        if: ${{env.DOTNET_VERSION < steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+        if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
         shell: bash
         working-directory: src
         run: |
@@ -104,7 +111,7 @@ jobs:
           NEW_DOTNET_VERSION: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
 
       - name: "Commit changes to new branch"
-        if: ${{env.DOTNET_VERSION < steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
+        if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
         uses: stefanzweifel/git-auto-commit-action@v7.0.0
         with:
           commit_message: "SDK - Update DotNet SDK to ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
