@@ -11,6 +11,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated Meziantou.Analyzer to 2.0.252
 - Dependencies - Updated Microsoft.Sbom.Targets to 4.1.3
+- Dependencies - Updated BenchmarkDotNet to 0.15.6
 ### Removed
 ### Deployment Changes
 
