@@ -58,6 +58,7 @@ updates:
   - dependency-name: "ErikEJ.DacFX.SqlServer.Rules"
   - dependency-name: "ErikEJ.DacFX.TSQLSmellSCA"
   - dependency-name: "Evo.Keccak"
+  - dependency-name: "Figgle.*"
   - dependency-name: "FluentValidation.*"
   - dependency-name: "FunFair.Authentication.*"
   - dependency-name: "FunFair.Balance.Bot.Client"
