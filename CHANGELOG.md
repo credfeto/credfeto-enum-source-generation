@@ -9,17 +9,20 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.117.912
-- Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 5.0.0
-- Dependencies - Updated FunFair.Test.Common to 6.2.8.1869
-- Dependencies - Updated Meziantou.Analyzer to 2.0.254
-- Dependencies - Updated FunFair.CodeAnalysis to 7.1.27.1625
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.2.133] - 2025-11-24
+### Changed
+- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.117.912
+- Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 5.0.0
+- Dependencies - Updated FunFair.Test.Common to 6.2.8.1869
+- Dependencies - Updated Meziantou.Analyzer to 2.0.254
+- Dependencies - Updated FunFair.CodeAnalysis to 7.1.27.1625
+
 ## [1.2.132] - 2025-11-16
 ### Changed
 - Dependencies - Updated Microsoft.Sbom.Targets to 4.1.3
