@@ -1,13 +1,15 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BenchmarkDotNet.Attributes;
 using Credfeto.Enumeration.Source.Generation.Generics;
 using Credfeto.Enumeration.Source.Generation.Models;
 
-namespace Credfeto.Enumeration.Source.Generation.Benchmarks;
+namespace Credfeto.Enumeration.Source.Generation.Benchmarks.Bench;
 
 [SimpleJob]
 [MemoryDiagnoser(false)]
-public abstract class EnumBench : BenchBase
+[SuppressMessage(category: "FunFair.CodeAnalysis", checkId: "FFS0012: Make sealed static or abstract", Justification = "Benchmark")]
+public class EnumBench : BenchBase
 {
     [Benchmark]
     public void GetNameToString()
