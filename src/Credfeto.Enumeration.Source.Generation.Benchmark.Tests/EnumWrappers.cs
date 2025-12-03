@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Credfeto.Enumeration.Source.Generation.Generics;
 
-namespace Credfeto.Enumeration.Source.Generation.Benchmarks;
+namespace Credfeto.Enumeration.Source.Generation.Benchmark.Tests;
 
 internal static class EnumWrappers
 {

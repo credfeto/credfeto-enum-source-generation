@@ -1,10 +1,10 @@
 ﻿using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
-using Credfeto.Enumeration.Source.Generation.Benchmarks.Bench;
+using Credfeto.Enumeration.Source.Generation.Benchmark.Tests.Bench;
 using FunFair.Test.Common;
 using Xunit;
 
-namespace Credfeto.Enumeration.Source.Generation.Benchmarks;
+namespace Credfeto.Enumeration.Source.Generation.Benchmark.Tests;
 
 public sealed class EnumTests : LoggingTestBase
 {
