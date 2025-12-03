@@ -4,7 +4,8 @@
     <File Path="../.github/workflows/build-and-publish-release.yml" />
     <File Path="../CHANGELOG.md" />
     <File Path="../README.md" />
-    <File Path="CodeAnalysis.ruleset" />
+    <File Path="../.editorconfig" />
+    <File Path="../.globalconfig" />
     <File Path="global.json" />
     <File Path="KeepGeneratedFiles.props" />
     <File Path="SourceGenerator.props" />
