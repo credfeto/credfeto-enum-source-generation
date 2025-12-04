@@ -47,7 +47,7 @@ jobs:
         run: sudo apt install -y jq
 
       - name: "Checkout Source"
-        uses: actions/checkout@v6.0.0
+        uses: actions/checkout@v6.0.1
         with:
           clean: true
           fetch-depth: 0
@@ -95,7 +95,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v6.0.0
+        uses: actions/checkout@v6.0.1
         with:
           clean: true
           fetch-depth: 0
