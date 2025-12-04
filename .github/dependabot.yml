@@ -80,6 +80,7 @@ updates:
   - dependency-name: "FunFair.SinglePayout.*"
   - dependency-name: "FunFair.Swagger.*"
   - dependency-name: "FunFair.Test.Common"
+  - dependency-name: "FunFair.Test.Source.Generator"
   - dependency-name: "HexMate"
   - dependency-name: "HtmlAgilityPack"
   - dependency-name: "IPAddressRange"
