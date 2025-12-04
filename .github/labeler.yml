@@ -14,8 +14,8 @@
  - any: [ 'src/$Credfeto.Enumeration.Source.Generation/**/*' ]
 "credfeto-enumeration-source-generation-attributes":
  - any: [ 'src/$Credfeto.Enumeration.Source.Generation.Attributes/**/*' ]
-"credfeto-enumeration-source-generation-benchmarks":
- - any: [ 'src/$Credfeto.Enumeration.Source.Generation.Benchmarks/**/*' ]
+"credfeto-enumeration-source-generation-benchmark-tests":
+ - any: [ 'src/$Credfeto.Enumeration.Source.Generation.Benchmark.Tests/**/*' ]
 "credfeto-enumeration-source-generation-generics":
  - any: [ 'src/$Credfeto.Enumeration.Source.Generation.Generics/**/*' ]
 "credfeto-enumeration-source-generation-models":
