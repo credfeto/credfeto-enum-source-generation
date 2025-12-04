@@ -177,6 +177,8 @@ runs:
       run: |
         dotnet test \
                   --configuration Release \
+                  --long-running 10 \
+                  --report-github \
                   "-p:ContinuousIntegrationBuild=true" \
                   "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
                   "-p:NoWarn=MSB4241" \
