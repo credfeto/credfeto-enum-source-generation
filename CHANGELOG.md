@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Microsoft.Sbom.Targets to 4.1.4
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.16.0.128591
 - Dependencies - Updated FunFair.Test.Common to 6.2.9.1881
+- SDK - Updated DotNet SDK to 10.0.101
 ### Removed
 ### Deployment Changes
 
