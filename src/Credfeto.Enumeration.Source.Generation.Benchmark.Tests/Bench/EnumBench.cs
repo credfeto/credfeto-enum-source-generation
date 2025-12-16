@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BenchmarkDotNet.Attributes;
 using Credfeto.Enumeration.Source.Generation.Generics;

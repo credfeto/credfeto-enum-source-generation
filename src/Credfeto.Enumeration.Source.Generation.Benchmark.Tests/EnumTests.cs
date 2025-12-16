@@ -1,4 +1,4 @@
-﻿using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
 using Credfeto.Enumeration.Source.Generation.Benchmark.Tests.Bench;
 using FunFair.Test.Common;
