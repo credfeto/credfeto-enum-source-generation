@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using BenchmarkDotNet.Attributes;
 using Credfeto.Enumeration.Source.Generation.Generics;
@@ -8,17 +8,13 @@ namespace Credfeto.Enumeration.Source.Generation.Benchmark.Tests.Bench;
 
 [SimpleJob]
 [MemoryDiagnoser(false)]
+[SuppressMessage(category: "codecracker.CSharp", checkId: "CC0091:MarkMembersAsStatic", Justification = "Benchmark")]
+[SuppressMessage(category: "Microsoft.Performance", checkId: "CA1822:Mark methods static", Justification = "Benchmark")]
 [SuppressMessage(
-    category: "codecracker.CSharp",
-    checkId: "CC0091:MarkMembersAsStatic",
+    category: "FunFair.CodeAnalysis",
+    checkId: "FFS0012: Make sealed static or abstract",
     Justification = "Benchmark"
 )]
-[SuppressMessage(
-    category: "Microsoft.Performance",
-    checkId: "CA1822:Mark methods static",
-    Justification = "Benchmark"
-)]
-[SuppressMessage(category: "FunFair.CodeAnalysis", checkId: "FFS0012: Make sealed static or abstract", Justification = "Benchmark")]
 public class EnumBench
 {
     [Benchmark]
