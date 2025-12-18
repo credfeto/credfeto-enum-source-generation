@@ -112,7 +112,7 @@ jobs:
 
       - name: "Commit changes to new branch"
         if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v7.0.0
+        uses: stefanzweifel/git-auto-commit-action@v7.1.0
         with:
           commit_message: "SDK - Update DotNet SDK to ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
           branch: "depends/dotnet/${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
