@@ -132,7 +132,7 @@ roslynator_array_creation_type_style=implicit_when_type_is_obvious
 
 # Default: multi_line
 # Applicable to: rcs0021
-r#oslynator_block_braces_style = multi_line|single_line_when_empty
+roslynator_block_braces_style = multi_line|single_line_when_empty
 
 # Applicable to: rcs1016
 #roslynator_body_style = block|expression
