@@ -58,7 +58,7 @@ roslynator_array_creation_type_style=implicit_when_type_is_obvious
 
 # Default: multi_line
 # Applicable to: rcs0021
-r#oslynator_block_braces_style = multi_line|single_line_when_empty
+#roslynator_block_braces_style = multi_line|single_line_when_empty
 
 # Applicable to: rcs1016
 #roslynator_body_style = block|expression
@@ -161,7 +161,7 @@ dotnet_diagnostic.IDE0035.severity = error
 #Use inferred member names (IDE0037)
 dotnet_diagnostic.IDE0037.severity = error
 #Use local function instead of lambda (IDE0039)
-dotnet_diagnostic.IDE0041.severity = error
+dotnet_diagnostic.IDE0039.severity = error
 #Use 'is null' check (IDE0041)
 dotnet_diagnostic.IDE0041.severity = suggestion
 #Deconstruct variable declaration (IDE0042)
@@ -229,8 +229,6 @@ dotnet_diagnostic.IDE0150.severity = error
 dotnet_diagnostic.IDE0180.severity = error
 # Use block scoped namespace
 dotnet_diagnostic.IDE0160.severity = none
-# Use tuple to swap values
-dotnet_diagnostic.IDE0180.severity = error
 # Remove unnecessary lambda expression
 dotnet_diagnostic.IDE0200.severity = error
 # Convert to top level statements (Program.Main)
@@ -244,7 +242,7 @@ dotnet_diagnostic.IDE0240.severity = error
 #Nullable directive is unnecessary (IDE0241)
 dotnet_diagnostic.IDE0241.severity = error
 #Use collection expression for array (IDE0300)
-dotnet_diagnostic.IDE0300).severity = error
+dotnet_diagnostic.IDE0300.severity = error
 #Use collection expression for empty (IDE0301)
 dotnet_diagnostic.IDE0301.severity = error
 #Use collection expression for stack alloc (IDE0302)
@@ -262,21 +260,9 @@ dotnet_diagnostic.IDE0340.severity = error
 #Use implicitly typed lambda (IDE0350)
 dotnet_diagnostic.IDE0350.severity = error
 #Null check can be simplified (IDE0270)
-dotnet_diagnostic.IDE0230.severity = error
+dotnet_diagnostic.IDE0270.severity = error
 # Use Primary constructor
 dotnet_diagnostic.IDE0290.severity = none
-# Use collection expression for array
-dotnet_diagnostic.IDE0300.severity = error
-# Use collection expression for empty
-dotnet_diagnostic.IDE0301.severity = error
-# Use collection expression for stackalloc
-dotnet_diagnostic.IDE0302.severity = error
-# Use collection expression for Create()
-dotnet_diagnostic.IDE0303.severity = error
-# Use collection expression for builder
-dotnet_diagnostic.IDE0304.severity = error
-# Use collection expression for fluent
-dotnet_diagnostic.IDE0305.severity = error
 
 ########################################################################################################################
 # Managed Code analysis
@@ -753,8 +739,6 @@ dotnet_diagnostic.RCS1168.severity = error
 dotnet_diagnostic.RCS1170.severity = error
 # RCS1171 - Simplify lazy initialization
 dotnet_diagnostic.RCS1171.severity = error
-# RCS1080 - Use 'Count/Length' property instead of 'Any' method
-dotnet_diagnostic.RCS1080.severity = error
 # RCS1197 - OptimizeStringBuilderAppendCall
 dotnet_diagnostic.RCS1197.severity = error
 # RCS1198 - Avoid unnecessary boxing of value type
@@ -1152,8 +1136,6 @@ dotnet_diagnostic.PH2064.severity = error
 dotnet_diagnostic.PH2066.severity = error
 # PH2067	- Avoid nested string.Format
 dotnet_diagnostic.PH2067.severity = none
-# PH2073	- Call extension method as instance
-dotnet_diagnostic.PH2073.severity = error
 # PH2068	- Avoid goto
 dotnet_diagnostic.PH2068.severity = error
 # PH2069	- Avoid unnecessary string.Format
