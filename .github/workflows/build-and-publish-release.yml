@@ -24,7 +24,7 @@ jobs:
       # Optimisation for repo visibility check
       REPO_STATUS: ${{vars.REPO_VISIBILITY}}
       # SQL Compare
-      SQLCOMPARE_VERSION: latest
+      SQLCOMPARE_VERSION: ${{vars.REDGATE_SQLCOMPARE_VERSION}}
       # Which NPM Registry to use
       NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
       NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
