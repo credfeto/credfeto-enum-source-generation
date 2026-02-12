@@ -13,6 +13,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.119.1070
 - Dependencies - Updated FunFair.CodeAnalysis to 7.1.32.1699
 - Dependencies - Updated Meziantou.Analyzer to 2.0.299
+- Dependencies - Updated Microsoft.Sbom.Targets to 4.1.5
 ### Removed
 ### Deployment Changes
 
