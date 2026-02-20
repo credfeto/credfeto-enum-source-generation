@@ -20,6 +20,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit.v3 to 3.2.2
 - Dependencies - Updated FunFair.Test.Common to 6.2.16.1963
 - Dependencies - Updated FunFair.Test.Source.Generator to 6.2.16.1963
+- SDK - Updated DotNet SDK to 10.0.103
 ### Removed
 ### Deployment Changes
 
