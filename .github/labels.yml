@@ -66,6 +66,10 @@
    color: "db6baa"
    description: "Dotnet package updates"
 
+ - name: "Editorconfig"
+   color: "00dead"
+   description: "Editor config file change"
+
  - name: "github-actions"
    color: "e09cf4"
    description: "Github actions workflow files"
