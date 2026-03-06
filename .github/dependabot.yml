@@ -105,7 +105,7 @@ updates:
   - dependency-name: "Microsoft.Extensions.*"
   - dependency-name: "Microsoft.IO.RecyclableMemoryStream.*"
   - dependency-name: "Microsoft.NET.Test.Sdk"
-  - dependency-name: "Microsoft.Sbom.Targets.*"
+  - dependency-name: "Microsoft.Sbom.Targets"
   - dependency-name: "Microsoft.SqlServer.TransactSql.ScriptDom,"
   - dependency-name: "Microsoft.Testing.Extensions.CodeCoverage"
   - dependency-name: "Microsoft.Toolkit.HighPerformance"
