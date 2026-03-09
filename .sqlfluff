@@ -2,7 +2,8 @@
 dialect = tsql
 templater = raw
 
-exclude_rules = CV08,RF02,RF03,RF05
+#exclude_rules = CV08,RF02,RF03,RF05
+exclude_rules = RF05
 # CV08 - Use 'LEFT JOIN' instead of 'RIGHT JOIN'.  | [convention.left_join]
 # RF02 - Unqualified reference 'Latin1_General_CI_AS' found in select with more than one referenced table/view | [references.qualification]
 # RF03 - | Unqualified reference 'Latin1_General_CI_AS' found in | single table select. | [references.consistent]
@@ -15,7 +16,8 @@ exclude_rules = CV08,RF02,RF03,RF05
 prefer_quoted_identifiers = true
 
 max_line_length = 0
-large_file_skip_byte_limit = 80000
+large_file_skip_byte_limit = 0
+
 
 
 [sqlfluff:rules:capitalisation.identifiers]
