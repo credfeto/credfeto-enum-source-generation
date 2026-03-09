@@ -374,6 +374,7 @@ server-dist/
 
 # Dotnet tool config
 .config/
+dotnet-tools.json
 
 # Test output
 /test-output
