@@ -134,26 +134,6 @@ runs:
       NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
       NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
 
-  - name: "Enable dotnet tools"
-    shell: bash
-    working-directory: ${{ github.workspace }}
-    run: |
-      [ ! -f .config/dotnet-tools.json ] && dotnet new tool-manifest
-      dotnet tool restore || true
-    env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_MULTILEVEL_LOOKUP: "false"
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_JitCollect64BitCounts: "1"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TC_CallCountingDelayMs: "0"
-      DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "auto"
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-
   - name: "Install Sleet package management tool"
     uses: ./.github/actions/dotnet-tool
     with:
