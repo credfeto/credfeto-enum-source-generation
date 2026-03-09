@@ -435,11 +435,13 @@ jobs:
           fetch-tags: true
 
       - name: "Run Linter"
-        uses: github/super-linter@v7
+        uses: super-linter/super-linter@v8.5.0
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
           GITHUB_ACTIONS_CONFIG_FILE: actionlint.yaml
+          ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
+          SAVE_SUPER_LINTER_SUMMARY: true
           MULTI_STATUS: true
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_ANSIBLE: true
@@ -456,6 +458,7 @@ jobs:
           VALIDATE_PYTHON: true
           VALIDATE_PYTHON_PYLINT: true
           VALIDATE_SQLFLUFF: true
+          SQLFLUFF_CONFIG_FILE: .sqlfluff
           VALIDATE_TYPESCRIPT_ES: true
           VALIDATE_XML: true
           VALIDATE_YAML: true
