@@ -79,7 +79,7 @@ jobs:
           fetch-tags: true
 
       - name: "Find PR For branch"
-        uses: juliangruber/find-pull-request-action@v1.10.0
+        uses: juliangruber/find-pull-request-action@v1.11.0
         id: findPr
         with:
           branch: ${{github.ref_name}}
