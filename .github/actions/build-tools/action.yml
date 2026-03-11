@@ -94,11 +94,9 @@ runs:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     with:
       cache: false
-      dotnet-version: |
-          8.0.*
-          9.0.*
-          10.0.*
       global-json-file: "${{ github.workspace }}/src/global.json"
+      dotnet-version: |
+        9.0.*
 
   - if: ${{steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'false'}}
     name: "Install dotnet (Tools)"
@@ -120,7 +118,6 @@ runs:
     with:
       cache: false
       dotnet-version: |
-        8.0.*
         9.0.*
         10.0.*
 
