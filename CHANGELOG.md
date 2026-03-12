@@ -9,14 +9,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated FunFair.Test.Source.Generator to 6.2.18.1990
-- SDK - Updated DotNet SDK to 10.0.200
 ### Removed
 ### Deployment Changes
 
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.2.139] - 2026-03-12
+### Changed
+- Dependencies - Updated FunFair.Test.Source.Generator to 6.2.18.1990
+- SDK - Updated DotNet SDK to 10.0.200
+
 ## [1.2.138] - 2026-03-10
 ### Changed
 - Dependencies - Updated FunFair.Test.Common to 6.2.17.1982
