@@ -14,11 +14,13 @@ runs:
   steps:
 
     - name: "Sleet: Generate Sleet Config"
-      uses: joutvhu/write-file@v1
-      with:
-        path: sleet.json
-        contents: ${{ inputs.SLEET_CONFIG }}
-        write_mode: overwrite
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: |
+        echo "$VALUE" > "${FILE}"
+      env:
+        FILE: "sleet.json"
+        VALUE: "${{ inputs.SLEET_CONFIG }}"
 
     - name: "Sleet: Publish Packages to Nuget (Using Sleet)"
       if: always()
