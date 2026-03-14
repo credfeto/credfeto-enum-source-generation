@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 5.3.0
 - Dependencies - Updated FunFair.CodeAnalysis to 7.1.35.1745
 - Dependencies - Updated Meziantou.Analyzer to 3.0.22
+- Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 5.3.0
 ### Removed
 ### Deployment Changes
 
