@@ -238,7 +238,7 @@ runs:
 
     - name: "Set up QEMU"
       if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
-      uses: docker/setup-qemu-action@v3.0.0
+      uses: docker/setup-qemu-action@v4.0.0
 
     - name: "Configure Docker"
       if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
@@ -338,7 +338,7 @@ runs:
     - name: "Read Release Notes"
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
       id: release-notes
-      uses: juliangruber/read-file-action@v1
+      uses: juliangruber/read-file-action@v1.1.8
       with:
         path: RELEASE_NOTES.md
 
