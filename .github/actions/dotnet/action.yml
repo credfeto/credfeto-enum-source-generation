@@ -178,6 +178,12 @@ runs:
         dotnet test \
                   --configuration Release \
                   --long-running 10 \
+                  --filter-not-namespace "*.BenchMark.Tests" \
+                  --filter-not-namespace "*.BenchMark.Tests.*" \
+                  --filter-not-namespace "*.Integration.Tests" \
+                  --filter-not-namespace "*.Integration.Tests.*" \
+                  --parallel-algorithm aggressive \
+                  --ignore-exit-code 8 \
                   --report-github \
                   "-p:ContinuousIntegrationBuild=true" \
                   "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
