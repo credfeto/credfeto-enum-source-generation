@@ -195,16 +195,16 @@ jobs:
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         uses: ./.github/actions/dotnet-tool
         with:
-          TOOL_NAME: Credfeto.ChangeLog.Cmd
-          TOOL_VERSION: latest
+          TOOL_NAME: "Credfeto.ChangeLog.Cmd"
+          TOOL_VERSION: "latest"
 
       - name: "Check Changelog"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         uses: ./.github/actions/dotnet-tool-run
         with:
-          WORKING-DIRECTORY: ${{github.workspace}}
-          TOOL_NAME: changelog
-          TOOL_ARGUMENTS: --changelog CHANGELOG.md --check-insert "origin/${{github.base_ref}}"
+          WORKING_DIRECTORY: ${{github.workspace}}
+          TOOL_NAME: "changelog"
+          TOOL_ARGUMENTS: "--changelog \"${{github.workspace}}/CHANGELOG.md\" --check-insert \"origin/${{github.base_ref}}\""
 
   does-not-contain-secrets:
     if: github.event.pull_request.draft == false
