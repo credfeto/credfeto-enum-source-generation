@@ -20,6 +20,6 @@ runs:
       if: always()
       uses: ./.github/actions/dotnet-tool-run
       with:
-        WORKING-DIRECTORY: ${{github.workspace}}
-        TOOL_NAME: pushpackages
-        TOOL_ARGUMENTS: --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}} --symbol-source ${{inputs.NUGET_SYMBOL_FEED}}
+        WORKING_DIRECTORY: "${{github.workspace}}"
+        TOOL_NAME: "pushpackages"
+        TOOL_ARGUMENTS: "--folder dist --api-key \"${{inputs.NUGET_API_KEY}}\" --source \"${{inputs.NUGET_FEED}}\" --symbol-source \"${{inputs.NUGET_SYMBOL_FEED}}\""
