@@ -11,80 +11,39 @@ inputs:
     description: 'Folder where SQL Files live'
     required: true
 
-  REDGATE_EMAIL:
-    description: 'Redgate authentication email'
-    required: true
-  REDGATE_PAT:
-    description: 'Redgate authentication Personal Access Token'
-    required: true
-  SQLCOMPARE_VERSION:
-    description: 'Version of SQL Compare to use'
-    required: true
-
 runs:
   using: "composite"
   steps:
 
-  - name: "SQL: Install TSQLLint"
-    uses: ./.github/actions/dotnet-tool
-    with:
-      TOOL_NAME: TSQLLint
-      TOOL_VERSION: latest
-
-  - name: "SQL: Lint SQL Files"
-    shell: bash
-    working-directory: ${{ github.workspace }}
-    run: dotnet tool run tsqllint "${{inputs.DB_FOLDER}}"
-    env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_MULTILEVEL_LOOKUP: "false"
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_JitCollect64BitCounts: "1"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TC_CallCountingDelayMs: "0"
-      DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "auto"
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-
-#  - name: "SQL: Get SQL Compare"
+#  - name: "SQL: Install TSQLLint"
+#    uses: ./.github/actions/dotnet-tool
+#    with:
+#      TOOL_NAME: TSQLLint
+#      TOOL_VERSION: latest
+#
+#  - name: "SQL: Lint SQL Files (TSQLLint)"
 #    shell: bash
-#    run: docker pull "redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}"
-
-#    # Need to get these to work
-#    #  /email:"${{inputs.REDGATE_EMAIL}}" \
-#    #  /token:"${{inputs.REDGATE_PAT}}" \
-#  - name: "Build SQL change"
-#    shell: bash
-#    run: |
-#      docker run \
-#             "-v$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
-#             --net=host \
-#             --rm \
-#             "redgate/sqlcompare:${{inputs.SQLCOMPARE_VERSION}}" \
-#             /email:"${{inputs.REDGATE_EMAIL}}" \
-#             /token:"${{inputs.REDGATE_PAT}}" \
-#             /IAgreeToTheEULA \
-#             /filter:"$DB_FILTER" \
-#             /options:CaseSensitiveObjectDefinition,ConsiderNextFilegroupInPartitionSchemes,DecryptPost2kEncryptedObjects,DoNotOutputCommentHeader,ForceColumnOrder,IgnoreCertificatesAndCryptoKeys,IgnoreDatabaseAndServerName,IgnoreUserProperties,IgnoreUsersPermissionsAndRoleMemberships,IgnoreWhiteSpace,IgnoreWithElementOrder,IncludeDependencies,NoDeploymentLogging,ThrowOnFileParseFailed,UseCompatibilityLevel \
-#             /transactionIsolationLevel:SERIALIZABLE \
-#             /include:staticData \
-#             /scriptFile:"$DB_OUTPUT" \
-#             /scripts1:"$DB_SOURCE" \
-#             /showWarnings \
-#             /include:Identical \
-#             /report:"$DB_REPORT" \
-#             /reportType:Xml \
-#             /force \
-#             /OutputWidth:1024 \
-#             /empty2 \
-#             /verbose
+#    working-directory: ${{ github.workspace }}
+#    run: dotnet tool run tsqllint "${{inputs.DB_FOLDER}}"
 #    env:
-#      DB_SOURCE: ${{inputs.DB_FOLDER}}
-#      DB_OUTPUT: ${{github.workspace}}/update.test.sql
-#      DB_LOG: ${{github.workspace}}/update.log
-#      DB_REPORT: ${{github.workspace}}/update.xml
-#      DB_FILTER: ${{inputs.DB_FOLDER}}/Filter.scpf
-#      DOCKER_CONTENT_TRUST: 0
+#      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+#      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+#      DOTNET_MULTILEVEL_LOOKUP: "false"
+#      DOTNET_NOLOGO: "true"
+#      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+#      DOTNET_JitCollect64BitCounts: "1"
+#      DOTNET_ReadyToRun: "0"
+#      DOTNET_TC_QuickJitForLoops: "1"
+#      DOTNET_TC_CallCountingDelayMs: "0"
+#      DOTNET_TieredPGO: "1"
+#      MSBUILDTERMINALLOGGER: "auto"
+#      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+  - name: "SQL: Lint SQL Files (SQLFluff)"
+    uses: super-linter/super-linter@v8.5.0
+    env:
+      GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
+      SAVE_SUPER_LINTER_SUMMARY: false
+      MULTI_STATUS: true
+      VALIDATE_SQLFLUFF: true
+      SQLFLUFF_CONFIG_FILE: .sqlfluff
