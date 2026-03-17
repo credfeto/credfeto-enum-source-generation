@@ -215,10 +215,10 @@ runs:
     name: "NPM: Store Sign Package"
     uses: ./.github/actions/dotnet-tool-run
     with:
-      WORKING-DIRECTORY: ${{github.workspace}}
-      TOOL_NAME: signcontentpackage
-      TOOL_ARGUMENTS: sign \
-          --package "${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg" \
-          --wallet "${{steps.store-signing-wallet.outputs.file}}" \
-          --wallet-password "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}" \
-          --warnings-as-error
+      WORKING_DIRECTORY: "${{github.workspace}}"
+      TOOL_NAME: "signcontentpackage"
+      TOOL_ARGUMENTS: "sign \
+          --package \"${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg\" \
+          --wallet \"${{steps.store-signing-wallet.outputs.file}}\" \
+          --wallet-password \"${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}\" \
+          --warnings-as-error"
