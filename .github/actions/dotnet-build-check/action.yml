@@ -25,14 +25,14 @@ runs:
       if: inputs.RELEASE == 'false'
       uses: ./.github/actions/dotnet-tool-run
       with:
-        WORKING_DIRECTORY: ${{github.workspace}}/src
-        TOOL_NAME: buildcheck
-        TOOL_ARGUMENTS: -Solution "${{steps.find_solution.outputs.SOLUTION}}" -WarningAsErrors true -PreReleaseBuild false
+        WORKING_DIRECTORY: "${{github.workspace}}/src"
+        TOOL_NAME: "buildcheck"
+        TOOL_ARGUMENTS: "-Solution \"${{steps.find_solution.outputs.SOLUTION}}\" -WarningAsErrors true -PreReleaseBuild false"
 
     - name: "Dotnet: Run build check (Release)"
       if: inputs.RELEASE == 'true'
       uses: ./.github/actions/dotnet-tool-run
       with:
-        WORKING_DIRECTORY: ${{github.workspace}}/src
-        TOOL_NAME: buildcheck
-        TOOL_ARGUMENTS: -Solution "$SOLUTION" -WarningAsErrors true -PreReleaseBuild false
+        WORKING_DIRECTORY: "${{github.workspace}}/src"
+        TOOL_NAME: "buildcheck"
+        TOOL_ARGUMENTS: "-Solution \"$SOLUTION\" -WarningAsErrors true -PreReleaseBuild false"
