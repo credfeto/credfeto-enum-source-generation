@@ -18,13 +18,13 @@ runs:
   - name: "SQL: Install TSQLLint"
     uses: ./.github/actions/dotnet-tool
     with:
-      TOOL_NAME: TSQLLint
-      TOOL_VERSION: latest
+      TOOL_NAME: "TSQLLint"
+      TOOL_VERSION: "latest"
 
   - name: "SQL: Lint SQL Files (TSQLLint)"
     uses: ./.github/actions/dotnet-tool-run
     with:
-      TOOL_NAME: tsqllint
+      TOOL_NAME: "tsqllint"
       TOOL_ARGUMENTS: "${{inputs.DB_FOLDER}}"
       WORKING_DIRECTORY: ${{github.workspace}}
 
