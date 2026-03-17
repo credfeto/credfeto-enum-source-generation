@@ -29,7 +29,7 @@ runs:
 
     - name: "Configure AWS Credentials"
       if: inputs.AWS_ACCESS_KEY_ID != ''
-      uses: aws-actions/configure-aws-credentials@v4.0.2
+      uses: aws-actions/configure-aws-credentials@v6.0.0
       with:
         aws-access-key-id: ${{inputs.AWS_ACCESS_KEY_ID}}
         aws-secret-access-key: ${{inputs.AWS_SECRET_ACCESS_KEY}}
