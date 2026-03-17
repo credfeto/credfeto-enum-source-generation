@@ -21,9 +21,7 @@ runs:
     - name: "Run dotnet tool (Latest)"
       shell: bash
       working-directory: ${{ inputs.WORKING_DIRECTORY }}
-      run: dotnet tool run --allow-roll-forward \
-              ${{inputs.TOOL_NAME}} \
-              ${{inputs.TOOL_ARGUMENTS}}
+      run: dotnet tool run --allow-roll-forward ${{inputs.TOOL_NAME}} ${{inputs.TOOL_ARGUMENTS}}
       env:
         DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
         DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
