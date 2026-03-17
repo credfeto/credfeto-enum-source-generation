@@ -14,14 +14,14 @@ runs:
       if: inputs.RELEASE == 'false'
       uses: ./.github/actions/dotnet-tool-run
       with:
-        WORKING-DIRECTORY: ${{github.workspace}}/src
-        TOOL_NAME: code-analysis
-        TOOL_ARGUMENTS: globalconfig --ruleset "${{github.workspace}}/.globalconfig" --changes "${{github.workspace}}/src/pre-release.rule-settings.json"
+        WORKING_DIRECTORY: "${{github.workspace}}/src"
+        TOOL_NAME: "code-analysis"
+        TOOL_ARGUMENTS: "globalconfig --ruleset \"${{github.workspace}}/.globalconfig\" --changes \"${{github.workspace}}/src/pre-release.rule-settings.json\""
 
     - name: "Dotnet: Override code analysis settings (Release)"
       if: inputs.RELEASE == 'true'
       uses: ./.github/actions/dotnet-tool-run
       with:
-        WORKING-DIRECTORY: ${{github.workspace}}/src
-        TOOL_NAME: code-analysis
-        TOOL_ARGUMENTS: globalconfig --ruleset "${{github.workspace}}/.globalconfig" --changes "${{github.workspace}}/src/release.rule-settings.json"
+        WORKING_DIRECTORY: "${{github.workspace}}/src"
+        TOOL_NAME: "code-analysis"
+        TOOL_ARGUMENTS: "globalconfig --ruleset \"${{github.workspace}}/.globalconfig\" --changes \"${{github.workspace}}/src/release.rule-settings.json\""
