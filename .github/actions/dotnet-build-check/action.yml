@@ -10,8 +10,8 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Dotnet: Run build check (Pre-Release)"
-      if: inputs.RELEASE == 'false'
+    - name: "Dotnet: Find Solution"
+      id: find_solution
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: |
@@ -19,41 +19,20 @@ runs:
         SOLUTION="$(find . -type f -iname "*.sln" | head -1)"
         [ -z "$SOLUTION" ] && SOLUTION="$(find . -type f -iname "*.slnx" | head -1)"
         echo "Found: $SOLUTION"
-        dotnet tool run buildcheck -Solution "$SOLUTION" -WarningAsErrors true -PreReleaseBuild false
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        echo "SOLUTION=$SOLUTION" >> "$GITHUB_OUTPUT"
+
+    - name: "Dotnet: Run build check (Pre-Release)"
+      if: inputs.RELEASE == 'false'
+      uses: ./.github/actions/dotnet-tool-run
+      with:
+        WORKING_DIRECTORY: ${{github.workspace}}/src
+        TOOL_NAME: buildcheck
+        TOOL_ARGUMENTS: -Solution "${{steps.find_solution.outputs.SOLUTION}}" -WarningAsErrors true -PreReleaseBuild false
 
     - name: "Dotnet: Run build check (Release)"
       if: inputs.RELEASE == 'true'
-      working-directory: ${{github.workspace}}/src
-      shell: bash
-      run: |
-        echo "Looking for solution"
-        SOLUTION="$(find . -type f -iname "*.sln" | head -1)"
-        [ -z "$SOLUTION" ] && SOLUTION="$(find . -type f -iname "*.slnx" | head -1)"
-        echo "Found: $SOLUTION"
-        dotnet tool run buildcheck -Solution "$SOLUTION" -WarningAsErrors true -PreReleaseBuild false
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+      uses: ./.github/actions/dotnet-tool-run
+      with:
+        WORKING_DIRECTORY: ${{github.workspace}}/src
+        TOOL_NAME: buildcheck
+        TOOL_ARGUMENTS: -Solution "$SOLUTION" -WarningAsErrors true -PreReleaseBuild false
