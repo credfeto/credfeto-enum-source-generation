@@ -11,22 +11,11 @@ runs:
   using: "composite"
   steps:
     - name: "Define Build Version"
-      shell: bash
-      working-directory: ${{ github.workspace }}
-      run: dotnet tool run buildversion --GithubToken "${{inputs.GITHUB_TOKEN}}" --TagPrefix "github"
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+      uses: ./.github/actions/dotnet-tool-run
+      with:
+        WORKING_DIRECTORY: ${{github.workspace}}
+        TOOL_NAME: buildversion
+        TOOL_ARGUMENTS: --GithubToken "${{inputs.GITHUB_TOKEN}}" --TagPrefix "github"
 
     - name: "Log build version"
       shell: bash
