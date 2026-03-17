@@ -264,8 +264,8 @@ runs:
         inputs.NUGET_PACK == 'true'
       uses: ./.github/actions/dotnet-tool
       with:
-        TOOL_NAME: Credfeto.Package.Push
-        TOOL_VERSION: latest
+        TOOL_NAME: "Credfeto.Package.Push"
+        TOOL_VERSION: "latest"
 
     - name: "Get Unique Build Number"
       uses: ./.github/actions/build-version
@@ -276,8 +276,8 @@ runs:
       if: steps.check_files.outputs.SLN_EXIST == 'true'
       uses: ./.github/actions/dotnet-tool
       with:
-        TOOL_NAME: FunFair.BuildCheck
-        TOOL_VERSION: latest
+        TOOL_NAME: "FunFair.BuildCheck"
+        TOOL_VERSION: "latest"
 
     - name: "Deploy check - Default"
       shell: bash
@@ -306,23 +306,23 @@ runs:
       if: steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'
       uses: ./.github/actions/dotnet-tool
       with:
-        TOOL_NAME: FunFair.Content.Packager.Cmd
-        TOOL_VERSION: ${{inputs.NPM_PRODUCTION_PACKAGER_VERSION}}
+        TOOL_NAME: "FunFair.Content.Packager.Cmd"
+        TOOL_VERSION: "${{inputs.NPM_PRODUCTION_PACKAGER_VERSION}}"
 
     - name: "Install Package Store Signer"
       if: steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'
       uses: ./.github/actions/dotnet-tool
       with:
-        TOOL_NAME: FunFair.Content.PackageSigner.Cmd
-        TOOL_VERSION: ${{inputs.NPM_PRODUCTION_PACKAGER_VERSION}}
+        TOOL_NAME: "FunFair.Content.PackageSigner.Cmd"
+        TOOL_VERSION: "${{inputs.NPM_PRODUCTION_PACKAGER_VERSION}}"
 
     - name: "Create Release Notes"
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
       uses: ./.github/actions/dotnet-tool-run
       with:
         WORKING_DIRECTORY: ${{github.workspace}}
-        TOOL_NAME: changelog
-        TOOL_ARGUMENTS: "${{github.workspace}}/CHANGELOG.md" --extract RELEASE_NOTES.md --version "${{env.BUILD_VERSION}}"
+        TOOL_NAME: "changelog"
+        TOOL_ARGUMENTS: "\"${{github.workspace}}/CHANGELOG.md\" --extract RELEASE_NOTES.md --version \"${{env.BUILD_VERSION}}\""
 
     - name: "Read Release Notes"
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
