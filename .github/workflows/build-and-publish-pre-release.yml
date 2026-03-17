@@ -32,8 +32,6 @@ jobs:
     env:
       # Optimisation for repo visibility check
       REPO_STATUS: ${{vars.REPO_VISIBILITY}}
-      # SQL Compare
-      SQLCOMPARE_VERSION: ${{vars.REDGATE_SQLCOMPARE_VERSION}}
       # Which NPM Registry to use
       NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
       NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
@@ -150,9 +148,6 @@ jobs:
           SQL_DB: ${{vars.SQL_DB}}
           SQL_USER: ${{vars.SQL_USER}}
           SQL_PASSWORD: ${{secrets.SQL_PASSWORD}}
-          REDGATE_EMAIL: ${{secrets.REDGATE_EMAIL}}
-          REDGATE_PAT: ${{secrets.REDGATE_PAT}}
-          SQLCOMPARE_VERSION: ${{env.SQLCOMPARE_VERSION}}
           CREATE_RELEASE: false
 
       - name: "Build Version"
