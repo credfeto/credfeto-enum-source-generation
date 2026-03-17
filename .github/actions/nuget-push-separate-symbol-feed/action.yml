@@ -18,19 +18,8 @@ runs:
 
     - name: "NuGet Push without Symbols"
       if: always()
-      shell: bash
-      working-directory: ${{ github.workspace }}
-      run: dotnet tool run pushpackages --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}} --symbol-source ${{inputs.NUGET_SYMBOL_FEED}}
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+      uses: ./.github/actions/dotnet-tool-run
+      with:
+        WORKING-DIRECTORY: ${{github.workspace}}
+        TOOL_NAME: pushpackages
+        TOOL_ARGUMENTS: --folder dist --api-key "${{inputs.NUGET_API_KEY}}" --source ${{inputs.NUGET_FEED}} --symbol-source ${{inputs.NUGET_SYMBOL_FEED}}
