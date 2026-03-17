@@ -213,27 +213,12 @@ runs:
       inputs.NPM_SIGNING == 'true' &&
       inputs.PROJECT_TO_PUBLISH != ''
     name: "NPM: Store Sign Package"
-    shell: bash
-    working-directory: ${{ github.workspace }}
-    run: |
-      dotnet tool run signcontentpackage sign \
-          --package "$PACKAGE_FILENAME" \
-          --package "$PACKAGE_FILENAME" \
-          --wallet "$WALLET_FILE" \
+    uses: ./.github/actions/dotnet-tool-run
+    with:
+      WORKING-DIRECTORY: ${{github.workspace}}
+      TOOL_NAME: signcontentpackage
+      TOOL_ARGUMENTS: sign \
+          --package "${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg" \
+          --wallet "${{steps.store-signing-wallet.outputs.file}}" \
           --wallet-password "${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}" \
           --warnings-as-error
-    env:
-      DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-      DOTNET_MULTILEVEL_LOOKUP: "false"
-      DOTNET_NOLOGO: "true"
-      DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-      DOTNET_JitCollect64BitCounts: "1"
-      DOTNET_ReadyToRun: "0"
-      DOTNET_TC_QuickJitForLoops: "1"
-      DOTNET_TC_CallCountingDelayMs: "0"
-      DOTNET_TieredPGO: "1"
-      MSBUILDTERMINALLOGGER: "auto"
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-      PACKAGE_FILENAME: ${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg
-      WALLET_FILE: ${{steps.store-signing-wallet.outputs.file}}
