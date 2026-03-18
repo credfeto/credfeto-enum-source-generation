@@ -431,11 +431,11 @@ runs:
       uses: ./.github/actions/database-deploy
       with:
         BUILD_VERSION: ${{env.BUILD_VERSION}}
-        SQL_SERVER: ${{inputs.SQL_SERVER}}
-        SQL_DB: ${{inputs.SQL_DB}}
-        SQL_USER: ${{inputs.SQL_USER}}
-        SQL_PASSWORD: ${{inputs.SQL_PASSWORD}}
-        DB_FOLDER: ${{github.workspace}}/db
+        SQL_SERVER: "${{inputs.SQL_SERVER}}"
+        SQL_DB: "${{inputs.SQL_DB}}"
+        SQL_USER: "${{inputs.SQL_USER}}"
+        SQL_PASSWORD: "${{inputs.SQL_PASSWORD}}"
+        DB_FOLDER: "${{github.workspace}}/db"
 
     - name: "Dotnet: Deploy Check"
       shell: bash
