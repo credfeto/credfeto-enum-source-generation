@@ -35,38 +35,30 @@ runs:
         echo "Found: $DACPAC"
         echo "DACPAC=$DACPAC" >> "$GITHUB_OUTPUT"
 
-    - name: "DB: Deploy..."
-      uses: azure/sql-action@v2.3
+    - name: "Install SQLPackage tool"
+      uses: ./.github/actions/dotnet-tool
       with:
-        connection-string: "Server=${{inputs.SQL_SERVER}};Database=${{inputs.SQL_DB}};User Id=${{inputs.SQL_USER}};Password=${{inputs.SQL_PASSWORD}};Connection Timeout=720;TrustServerCertificate=true;Application Name=Deploy Database"
-        path: "${{steps.find_solution.outputs.DACPAC}}"
-        action: 'publish'
-        arguments: '/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers'
+        TOOL_NAME: "microsoft.sqlpackage"
+        TOOL_VERSION: "latest"
 
-#    - name: "Install SQLPackage tool"
-#      uses: ./.github/actions/dotnet-tool
+#     Would be nice to use this, but it requires a dotnet tool to be installed anyway so may as well do it all ourselves
+#    - name: "DB: Deploy..."
+#      uses: azure/sql-action@v2.3
 #      with:
-#        TOOL_NAME: "microsoft.sqlpackage"
-#        TOOL_VERSION: "latest"
-#
-#    - name: "Dotnet: Deploy/Live Server"
-#      uses: ./.github/actions/dotnet-tool-run
-#      with:
-#        WORKING_DIRECTORY: "${{github.workspace}}/src"
-#        TOOL_NAME: "sqlpackage"
-#        TOOL_ARGUMENTS: "/Action:publish \
-#            /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
-#            /tsn:\"${{inputs.SQL_SERVER}}\" \
-#            /tdn:\"${{inputs.SQL_DB}}\" \
-#            /tu:\"${{inputs.SQL_USER}}\" \
-#            /tp:\"${{inputs.SQL_PASSWORD}}\" \
-#            /tec:false \
-#            /d:true \
-#            /TargetTimeout:720 \
-#            /p:CommandTimeout=720 \
-#            /p:BackupDatabaseBeforeChanges=False \
-#            /p:BlockOnPossibleDataLoss=True \
-#            /p:DropObjectsNotInSource=True \
-#            \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" \
-#            /p:IncludeCompositeObjects=True"
-#
+#        connection-string: "Server=${{inputs.SQL_SERVER}};Database=${{inputs.SQL_DB}};User Id=${{inputs.SQL_USER}};Password=${{inputs.SQL_PASSWORD}};Connection Timeout=720;TrustServerCertificate=true;Application Name=Deploy Database"
+#        path: "${{steps.find_solution.outputs.DACPAC}}"
+#        action: 'publish'
+#        arguments: '/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers'
+
+
+    - name: "Dotnet: Deploy/Live Server"
+      uses: ./.github/actions/dotnet-tool-run
+      with:
+        WORKING_DIRECTORY: "${{github.workspace}}/src"
+        TOOL_NAME: "sqlpackage"
+        TOOL_ARGUMENTS: "/Action:publish \
+            /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
+            /tcs:\"Server=${{inputs.SQL_SERVER}};Database=${{inputs.SQL_DB}};User Id=${{inputs.SQL_USER}};Password=${{inputs.SQL_PASSWORD}};Connection Timeout=720;TrustServerCertificate=true;Application Name=Deploy Database\" \
+            /tec:false \
+            /d:true /TargetTimeout:720 /p:CommandTimeout=720 /p:BackupDatabaseBeforeChanges=False /p:BlockOnPossibleDataLoss=True /p:DropObjectsNotInSource=True \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" /p:IncludeCompositeObjects=True"
+
