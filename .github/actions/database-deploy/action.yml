@@ -31,34 +31,42 @@ runs:
       shell: bash
       run: |
         echo "Looking for dacpac"
-        DACPAC="$(find . -type f -iname "*.dacpac" | head -1)"
+        DACPAC="$(find "${{github.workspace}}/src" -type f -iname "*.dacpac" | head -1)"
         echo "Found: $DACPAC"
         echo "DACPAC=$DACPAC" >> "$GITHUB_OUTPUT"
 
-    - name: "Install SQLPackage tool"
-      uses: ./.github/actions/dotnet-tool
+    - name: "DB: Deploy..."
+      uses: azure/sql-action@v2.3
       with:
-        TOOL_NAME: "microsoft.sqlpackage"
-        TOOL_VERSION: "latest"
+        connection-string: "Server=${{inputs.SQL_SERVER}};Database=${{inputs.SQL_DB}};User Id=${{inputs.SQL_USER}};Password=${{inputs.SQL_PASSWORD}};Connection Timeout=720;TrustServerCertificate=true;Application Name=Deploy Database"
+        path: "${{steps.find_solution.outputs.DACPAC}}"
+        action: 'publish'
+        arguments: '/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers'
 
-    - name: "Dotnet: Deploy/Live Server"
-      uses: ./.github/actions/dotnet-tool-run
-      with:
-        WORKING_DIRECTORY: "${{github.workspace}}/src"
-        TOOL_NAME: "sqlpackage"
-        TOOL_ARGUMENTS: "/Action:publish \
-            /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
-            /tsn:\"${{inputs.SQL_SERVER}}\" \
-            /tdn:\"${{inputs.SQL_DB}}\" \
-            /tu:\"${{inputs.SQL_USER}}\" \
-            /tp:\"${{inputs.SQL_PASSWORD}}\" \
-            /tec:false \
-            /d:true \
-            /TargetTimeout:720 \
-            /p:CommandTimeout=720 \
-            /p:BackupDatabaseBeforeChanges=False \
-            /p:BlockOnPossibleDataLoss=True \
-            /p:DropObjectsNotInSource=True \
-            \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" \
-            /p:IncludeCompositeObjects=True"
-
+#    - name: "Install SQLPackage tool"
+#      uses: ./.github/actions/dotnet-tool
+#      with:
+#        TOOL_NAME: "microsoft.sqlpackage"
+#        TOOL_VERSION: "latest"
+#
+#    - name: "Dotnet: Deploy/Live Server"
+#      uses: ./.github/actions/dotnet-tool-run
+#      with:
+#        WORKING_DIRECTORY: "${{github.workspace}}/src"
+#        TOOL_NAME: "sqlpackage"
+#        TOOL_ARGUMENTS: "/Action:publish \
+#            /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
+#            /tsn:\"${{inputs.SQL_SERVER}}\" \
+#            /tdn:\"${{inputs.SQL_DB}}\" \
+#            /tu:\"${{inputs.SQL_USER}}\" \
+#            /tp:\"${{inputs.SQL_PASSWORD}}\" \
+#            /tec:false \
+#            /d:true \
+#            /TargetTimeout:720 \
+#            /p:CommandTimeout=720 \
+#            /p:BackupDatabaseBeforeChanges=False \
+#            /p:BlockOnPossibleDataLoss=True \
+#            /p:DropObjectsNotInSource=True \
+#            \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" \
+#            /p:IncludeCompositeObjects=True"
+#
