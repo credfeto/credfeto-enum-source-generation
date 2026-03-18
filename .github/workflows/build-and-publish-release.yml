@@ -135,10 +135,10 @@ jobs:
           DOCKER_ACCESS_TOKEN: ${{secrets.DOCKER_ACCESS_TOKEN}}
           DOTNET_DOCKER_PLATFORM: ${{vars.DOTNET_DOCKER_PLATFORM}}
           DOTNET_CONTAINER_PLATFORM: ${{vars.DOTNET_CONTAINER_PLATFORM}}
-          SQL_SERVER: ${{vars.SQL_SERVER}}
-          SQL_DB: ${{vars.SQL_DB}}
-          SQL_USER: ${{vars.SQL_USER}}
-          SQL_PASSWORD: ${{secrets.SQL_PASSWORD}}
+          SQL_SERVER: "${{vars.SQL_SERVER}}"
+          SQL_DB: "${{vars.SQL_DB}}"
+          SQL_USER: "${{vars.SQL_USER}}"
+          SQL_PASSWORD: "${{secrets.SQL_PASSWORD}}"
           CREATE_RELEASE: true
 
       - name: "Build Version"
