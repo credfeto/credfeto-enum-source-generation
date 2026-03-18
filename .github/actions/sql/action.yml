@@ -37,4 +37,4 @@ runs:
       SAVE_SUPER_LINTER_SUMMARY: false
       MULTI_STATUS: false
       VALIDATE_SQLFLUFF: true
-      SQLFLUFF_CONFIG_FILE: ${{github.workspace}}/.sqlfluff
+      SQLFLUFF_CONFIG_FILE: .sqlfluff
