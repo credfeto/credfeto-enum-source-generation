@@ -59,6 +59,12 @@ runs:
         TOOL_ARGUMENTS: "/Action:publish \
             /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
             /tcs:\"Server=${{inputs.SQL_SERVER}};Database=${{inputs.SQL_DB}};User Id=${{inputs.SQL_USER}};Password=${{inputs.SQL_PASSWORD}};Connection Timeout=720;TrustServerCertificate=true;Application Name=Deploy Database\" \
-            /tec:false \
-            /d:true /TargetTimeout:720 /p:CommandTimeout=720 /p:BackupDatabaseBeforeChanges=False /p:BlockOnPossibleDataLoss=True /p:DropObjectsNotInSource=True \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" /p:IncludeCompositeObjects=True"
+            /d:true \
+            /TargetTimeout:720 \
+            /p:CommandTimeout=720 \
+            /p:BackupDatabaseBeforeChanges=False \
+            /p:BlockOnPossibleDataLoss=True \
+            /p:DropObjectsNotInSource=True \
+            \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" \
+            /p:IncludeCompositeObjects=True"
 
