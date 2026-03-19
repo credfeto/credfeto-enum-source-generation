@@ -51,19 +51,69 @@ runs:
 #        arguments: '/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers'
 
 
+#    - name: "Dotnet: Deploy/Live Server"
+#      uses: ./.github/actions/dotnet-tool-run
+#      with:
+#        WORKING_DIRECTORY: "${{github.workspace}}/src"
+#        TOOL_NAME: "sqlpackage"
+#        TOOL_ARGUMENTS: "/Action:publish \
+#            /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
+#            /tsn:\"${{inputs.SQL_SERVER}}\" \
+#            /tdn:\"${{inputs.SQL_DB}}\" \
+#            /tu:\"${{inputs.SQL_USER}}\" \
+#            /tp:\"${{inputs.SQL_PASSWORD}}\" \
+#            /tec:false \
+#            /d:true \
+#            /p:CommandTimeout=720 \
+#            /p:BackupDatabaseBeforeChanges=False \
+#            /p:BlockOnPossibleDataLoss=True \
+#            /p:DropObjectsNotInSource=True \
+#            \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" \
+#            /p:IncludeCompositeObjects=True"
+
+    - name: "Dotnet: Test SQL Password"
+      if: ${{inputs.SQL_PASSWORD == ''}}
+      working-directory: ${{github.workspace}}/src
+      shell: bash
+      run:
+        echo "Missing SQL Password!"
+        exit 1
+
     - name: "Dotnet: Deploy/Live Server"
-      uses: ./.github/actions/dotnet-tool-run
-      with:
-        WORKING_DIRECTORY: "${{github.workspace}}/src"
-        TOOL_NAME: "sqlpackage"
-        TOOL_ARGUMENTS: "/Action:publish \
+      working-directory: ${{github.workspace}}/src
+      shell: bash
+      run: |
+        dotnet tool run --allow-roll-forward sqlpackage \
+            /Action:publish \
             /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
-            /tcs:\"Server=${{inputs.SQL_SERVER}};Database=${{inputs.SQL_DB}};User Id=${{inputs.SQL_USER}};Password=${{inputs.SQL_PASSWORD}};Connection Timeout=720;TrustServerCertificate=true;Application Name=Deploy Database\" \
+            /tsn:"$SQL_SERVER" \
+            /tdn:"$SQL_DB" \
+            /tu:"$SQL_USER" \
+            /tp:"$SQL_PASSWORD" \
+            /tec:false \
             /d:true \
-            /p:CommandTimeout=720 \
+            /TargetTimeout:${{env.TIMEOUT}} \
+            /p:CommandTimeout=${{env.TIMEOUT}} \
             /p:BackupDatabaseBeforeChanges=False \
             /p:BlockOnPossibleDataLoss=True \
             /p:DropObjectsNotInSource=True \
-            \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" \
-            /p:IncludeCompositeObjects=True"
-
+            "/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers" \
+            /p:IncludeCompositeObjects=True
+      env:
+        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_MULTILEVEL_LOOKUP: "false"
+        DOTNET_NOLOGO: "true"
+        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
+        DOTNET_JitCollect64BitCounts: "1"
+        DOTNET_ReadyToRun: "0"
+        DOTNET_TC_QuickJitForLoops: "1"
+        DOTNET_TC_CallCountingDelayMs: "0"
+        DOTNET_TieredPGO: "1"
+        MSBUILDTERMINALLOGGER: "auto"
+        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        SQL_SERVER: "${{inputs.SQL_SERVER}}"
+        SQL_DB: "${{inputs.SQL_DB}}"
+        SQL_USER: "${{inputs.SQL_USER}}"
+        SQL_PASSWORD: "${{inputs.SQL_PASSWORD}}"
+        TIMEOUT: 720
