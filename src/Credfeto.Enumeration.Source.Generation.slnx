@@ -6,6 +6,7 @@
     <File Path="../README.md" />
     <File Path="../.editorconfig" />
     <File Path="../.globalconfig" />
+    <File Path="../.ai-instructions" />
     <File Path="global.json" />
     <File Path="KeepGeneratedFiles.props" />
     <File Path="SourceGenerator.props" />
