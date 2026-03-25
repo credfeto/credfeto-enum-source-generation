@@ -31,6 +31,7 @@ Tests **must** live in the corresponding `.Tests` project for the project under 
 - `TreatWarningsAsErrors: true` — all warnings are errors; code must compile without warnings
 - `Features: strict;flow-analysis` — strict mode and flow analysis are active
 - `AnalysisMode: AllEnabledByDefault` — all analyzers are enabled by default
+- Everything should pass the rules by the latest dotnet tool FunFair.BuildCheck - install and run against the solution after making any change to the projects.  
 
 ### Namespaces & File Structure
 - Use **file-scoped namespaces** (e.g., `namespace Foo.Bar;` not `namespace Foo.Bar { }`)
@@ -62,14 +63,17 @@ Tests **must** live in the corresponding `.Tests` project for the project under 
 - **xUnit v3** (`xunit.v3.mtp-v2`) with `UseMicrosoftTestingPlatformRunner: true`
 - Use `[Fact]` for single-case tests
 - Use `[Theory]` with `[InlineData(...)]` for parameterised tests
+- Use 'FunFair.Test.Common' nuget package to pull in the latest test base classes
+- Use 'FunFair.Test.Source.Generator' nuget package source generator to to ensure consistent test settings.
 
 ### Test Class Structure
 ```csharp
 using Xunit;
+using FunFair.Test.Common;
 
 namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
 
-public sealed class MyFeatureTests
+public sealed class MyFeatureTests : TestBase
 {
     [Fact]
     public void ShouldDoSomething()
