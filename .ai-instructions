@@ -1,0 +1,111 @@
+# Copilot Instructions
+
+## Repository Overview
+
+This repository contains a Roslyn-based C# source generator that generates extension methods for enums, along with supporting attributes, models, and generic helpers.
+
+## Project Structure
+
+| Project | Purpose |
+|---------|---------|
+| `Credfeto.Enumeration.Source.Generation` | Main Roslyn source generator |
+| `Credfeto.Enumeration.Source.Generation.Attributes` | `[EnumText]` attribute used to trigger generation |
+| `Credfeto.Enumeration.Source.Generation.Models` | Model classes and extension methods |
+| `Credfeto.Enumeration.Source.Generation.Generics` | Generic helpers with caching for enum operations |
+| `Credfeto.Enumeration.Source.Generation.Models.Tests` | Tests for the Models project |
+| `Credfeto.Enumeration.Source.Generation.Benchmark.Tests` | Benchmark and performance tests |
+
+## Test Placement
+
+Tests **must** live in the corresponding `.Tests` project for the project under test:
+- Code in `Credfeto.Enumeration.Source.Generation.Models` → tests in `Credfeto.Enumeration.Source.Generation.Models.Tests`
+- Code in `Credfeto.Enumeration.Source.Generation` → tests in a `Credfeto.Enumeration.Source.Generation.Tests` project
+- Never add tests to the source project itself
+
+## C# Coding Conventions
+
+### Language & Compiler Settings
+- `LangVersion: latest` — use the latest C# language features
+- `Nullable: enable` — nullable reference types are **always** enabled; annotate all types correctly
+- `ImplicitUsings: disable` — **all** `using` directives must be explicit; do not rely on implicit usings
+- `TreatWarningsAsErrors: true` — all warnings are errors; code must compile without warnings
+- `Features: strict;flow-analysis` — strict mode and flow analysis are active
+- `AnalysisMode: AllEnabledByDefault` — all analyzers are enabled by default
+
+### Namespaces & File Structure
+- Use **file-scoped namespaces** (e.g., `namespace Foo.Bar;` not `namespace Foo.Bar { }`)
+- One type per file; filename must match the type name
+- Use the `en-GB` neutral language
+
+### Type Design
+- Prefer `sealed` classes unless inheritance is explicitly needed
+- Use `record struct` for immutable value-type models
+- Use `static` classes for extension methods and utility helpers
+- Mark partial classes/structs where required by source generation
+
+### Nullability
+- Annotate all reference type members with `?` when nullable
+- Do not use `#nullable enable/disable` pragmas — nullable is enabled project-wide
+- Use `[NotNull]`, `[MaybeNull]`, etc. from `System.Diagnostics.CodeAnalysis` where needed
+
+### Code Style
+- Use named parameters in method calls for clarity (especially in assertions and constructors)
+- Use `const` for compile-time constants
+- Use `readonly` fields where mutation is not required
+- Avoid `var`; use explicit types
+- Use `#if NET7_0_OR_GREATER` (or appropriate TFM guards) for multi-targeting differences
+- Suppress analyzer warnings only with `[SuppressMessage]` with a `Justification` — never suppress globally
+
+## Test Conventions
+
+### Framework
+- **xUnit v3** (`xunit.v3.mtp-v2`) with `UseMicrosoftTestingPlatformRunner: true`
+- Use `[Fact]` for single-case tests
+- Use `[Theory]` with `[InlineData(...)]` for parameterised tests
+
+### Test Class Structure
+```csharp
+using Xunit;
+
+namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
+
+public sealed class MyFeatureTests
+{
+    [Fact]
+    public void ShouldDoSomething()
+    {
+        // arrange
+        // act
+        // assert
+        Assert.Equal(expected: "expected", actual: result);
+    }
+
+    [Theory]
+    [InlineData(ExampleEnum.ONE, "ONE")]
+    [InlineData(ExampleEnum.TWO, "TWO")]
+    public void ShouldReturnCorrectName(ExampleEnum value, string expected)
+    {
+        string actual = value.GetName();
+        Assert.Equal(expected: expected, actual: actual);
+    }
+}
+```
+
+- Test classes are `sealed`
+- Use named parameters in `Assert.*` calls: `Assert.Equal(expected: ..., actual: ...)`
+- Use `Assert.Throws<TException>(() => ...)` for exception assertions
+- Use `NSubstitute` for mocking
+
+## Target Frameworks
+
+- Source generators and attributes: `netstandard2.0`
+- Models and generic helpers: `net9.0;net10.0` (multi-targeted)
+- Test projects: `net9.0;net10.0`
+
+## Analyzers
+
+Many analyzers are active (Roslynator, SonarAnalyzer, Meziantou, FunFair.CodeAnalysis, etc.). When adding code:
+- Do not use `ToString()` on types without an override — use `GetName()` for enums
+- Avoid async void; use `async Task`
+- Avoid duplicate code — extract shared logic
+- Respect all active analyzer rules; do not suppress without justification
