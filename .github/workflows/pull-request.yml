@@ -4,9 +4,9 @@ on:
     branches-ignore:
       - master
       - main
+      - develop
       - "release/**"
       - "hotfix/**"
-      - "feature/**"
 
 permissions:
   contents: read
