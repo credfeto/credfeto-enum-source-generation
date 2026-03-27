@@ -3,9 +3,6 @@
 # Description
 <!--- Describe your changes in detail -->
 
-# Related Issue\Feature
-<!--- Please link to the issue or feature: -->
-
 # How Has This Been Tested
 - [ ] All unit tests pass.
 - [ ] All integration tests pass.
@@ -33,11 +30,5 @@
 # Checklist
 <!--- Go over all the following points, and put an 'x' in all the boxes once they are true. -->
 <!-- Note that you can just click these after submission and it will remember the tick for you -->
-- [ ] There are no Resharper\static code analysis errors anywhere in the solution.
-- [ ] I have ONLY run a code clean-up on any files I have modified to make sure they are in the correct format and no others.
 - [ ] I have added tests to cover my changes.
-- [ ] I have run the code and quickly verified it all works to my satisfaction.
-- [ ] All new/modified code has sufficient logging to be able to diagnose what is wrong.
-- [ ] All new and existing tests passed.
-- [ ] All new/modified public interfaces/classes have are documented with xmldoc comments.
 - [ ] Unreleased section of CHANGELOG.md has been updated with details of this PR.
