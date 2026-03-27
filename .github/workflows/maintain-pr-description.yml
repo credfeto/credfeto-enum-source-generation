@@ -1,0 +1,481 @@
+--- # Ensure PRs have a sane description
+name: "PR: Maintain PR Description"
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+      - converted_to_draft
+  check_run:
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  initialize-description:
+    name: "Initialize Description"
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      github.event.pull_request.draft == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Initialize PR description from template"
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const pr = context.payload.pull_request;
+            const body = pr.body ?? '';
+            const maintainedMarker = '<!-- maintained-by-copilot -->';
+
+            if (body.includes(maintainedMarker)) {
+              console.log('PR description is already maintained by Copilot, skipping.');
+              return;
+            }
+
+            let template;
+            try {
+              template = fs.readFileSync('.github/PULL_REQUEST_TEMPLATE.md', 'utf8').trimEnd();
+            } catch {
+              console.log('No PR template found, skipping.');
+              return;
+            }
+
+            const normalize = (s) => s.trim().replace(/\r\n/g, '\n');
+            const normalizedBody = normalize(body);
+            const normalizedTemplate = normalize(template);
+
+            if (normalizedBody !== '' && normalizedBody !== normalizedTemplate) {
+              console.log('PR has a custom description, skipping initialization.');
+              return;
+            }
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              body: `${template}\n\n${maintainedMarker}`,
+            });
+
+            console.log(`PR #${pr.number} description initialized with template.`);
+
+  update-status:
+    name: "Update CI Status"
+    if: github.event_name == 'check_run'
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Update PR description checkboxes"
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const maintainedMarker = '<!-- maintained-by-copilot -->';
+
+            // Resolve the head SHA from the triggering event
+            const headSha = context.payload.check_run.head_sha;
+
+            if (!headSha) {
+              console.log('Could not determine head SHA, skipping.');
+              return;
+            }
+
+            // Find open draft PRs with this head SHA that have the maintained marker
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+            });
+
+            const targetPrs = prs.filter(
+              (pr) =>
+                pr.draft &&
+                pr.head.sha === headSha &&
+                pr.body &&
+                pr.body.includes(maintainedMarker),
+            );
+
+            if (targetPrs.length === 0) {
+              console.log('No matching draft PRs with maintained description found, skipping.');
+              return;
+            }
+
+            // Fetch all check runs for this commit
+            const { data: checkData } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: headSha,
+              per_page: 100,
+            });
+
+            const checkRuns = checkData.check_runs;
+
+            /**
+             * Returns 'success' if all completed check runs whose names match the
+             * pattern succeeded, 'failure' if any failed, or null if none match.
+             */
+            const getCheckStatus = (pattern) => {
+              const re = new RegExp(pattern, 'i');
+              const matching = checkRuns.filter(
+                (cr) => re.test(cr.name) && cr.status === 'completed',
+              );
+              if (matching.length === 0) return null;
+              const failed = matching.filter(
+                (cr) =>
+                  cr.conclusion === 'failure' ||
+                  cr.conclusion === 'timed_out' ||
+                  cr.conclusion === 'action_required',
+              );
+              return failed.length === 0 ? 'success' : 'failure';
+            };
+
+            // Maps check-run name patterns to the actual checkbox text in
+            // .github/PULL_REQUEST_TEMPLATE.md that they should auto-manage.
+            const ciCheckboxMappings = [
+              {
+                // Matches any test check run (unit tests, integration tests, etc.)
+                pattern: '\\btest(s|ing)?\\b',
+                checkboxes: [
+                  {
+                    unchecked: '- [ ] All unit tests pass.',
+                    checked: '- [x] All unit tests pass.',
+                  },
+                  {
+                    unchecked: '- [ ] All integration tests pass.',
+                    checked: '- [x] All integration tests pass.',
+                  },
+                  {
+                    unchecked: '- [ ] All new and existing tests passed.',
+                    checked: '- [x] All new and existing tests passed.',
+                  },
+                ],
+              },
+              {
+                // Matches code quality / static analysis / lint check runs
+                pattern: '\\b(quality|lint|analysis|format|prettier)\\b',
+                checkboxes: [
+                  {
+                    unchecked:
+                      '- [ ] There are no Resharper\\static code analysis errors anywhere in the solution.',
+                    checked:
+                      '- [x] There are no Resharper\\static code analysis errors anywhere in the solution.',
+                  },
+                ],
+              },
+            ];
+
+            for (const pr of targetPrs) {
+              let body = pr.body;
+              let updated = false;
+
+              for (const { pattern, checkboxes } of ciCheckboxMappings) {
+                const status = getCheckStatus(pattern);
+                for (const { unchecked, checked } of checkboxes) {
+                  if (status === 'success' && body.includes(unchecked)) {
+                    body = body.replaceAll(unchecked, checked);
+                    updated = true;
+                  } else if (status === 'failure' && body.includes(checked)) {
+                    body = body.replaceAll(checked, unchecked);
+                    updated = true;
+                  }
+                }
+              }
+
+              if (updated) {
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  body,
+                });
+                console.log(`Updated checkboxes for PR #${pr.number}.`);
+              } else {
+                console.log(`No checkbox update needed for PR #${pr.number}.`);
+              }
+            }
+
+  update-change-types:
+    name: "Update Change Type Checkboxes"
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      (github.event.action == 'opened' ||
+       github.event.action == 'synchronize' ||
+       github.event.action == 'reopened' ||
+       github.event.action == 'converted_to_draft' ||
+       github.event.action == 'edited')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update change type checkboxes based on PR files
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const maintainedMarker = '<!-- maintained-by-copilot -->';
+            const pr = context.payload.pull_request;
+
+            // Fetch the current PR body to avoid relying on stale event payload
+            const { data: currentPr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+            });
+            const body = currentPr.body ?? '';
+
+            if (!body.includes(maintainedMarker)) {
+              console.log('PR description is not maintained by Copilot, skipping.');
+              return;
+            }
+
+            // Get the list of changed files (handle pagination)
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            });
+
+            const filenames = files.map((f) => f.filename);
+
+            // Detect change types from file paths
+            const isChangelogFile = (f) =>
+              f.toLowerCase() === 'changelog.md' || f.toLowerCase().endsWith('/changelog.md');
+
+            const isDocFile = (f) =>
+              /^docs\//i.test(f) ||
+              (/\.md$/i.test(f) && !isChangelogFile(f));
+
+            const isDependencyFile = (f) =>
+              /(^|\/)package\.json$/i.test(f) ||
+              /(^|\/)package-lock\.json$/i.test(f) ||
+              /(^|\/)yarn\.lock$/i.test(f) ||
+              /(^|\/)pnpm-lock\.yaml$/i.test(f) ||
+              /(^|\/)requirements.*\.txt$/i.test(f) ||
+              /(^|\/)Pipfile\.lock$/i.test(f) ||
+              /(^|\/)pyproject\.toml$/i.test(f) ||
+              /\.csproj$/i.test(f) ||
+              /(^|\/)Directory\.Packages\.props$/i.test(f) ||
+              /(^|\/)nuget\.config$/i.test(f);
+
+            const isTestFile = (f) =>
+              /\.(test|spec)\.[cm]?[jt]sx?$/i.test(f) ||
+              /Tests?\.[a-z]+$/i.test(f);
+
+            const hasDocChange = filenames.some(isDocFile);
+            const hasDependencyUpgrade = filenames.some(isDependencyFile);
+            const hasTestChange = filenames.some(isTestFile);
+            const hasChangelogUpdate = filenames.some(isChangelogFile);
+
+            // Each entry: condition drives checked (true) or unchecked (false)
+            const checkboxUpdates = [
+              {
+                condition: hasDocChange,
+                unchecked: '- [ ] Docs change',
+                checked: '- [x] Docs change',
+              },
+              {
+                condition: hasDependencyUpgrade,
+                unchecked: '- [ ] Dependency upgrade',
+                checked: '- [x] Dependency upgrade',
+              },
+              {
+                condition: hasTestChange,
+                unchecked: '- [ ] Additional Unit Tests\\Integration Tests',
+                checked: '- [x] Additional Unit Tests\\Integration Tests',
+              },
+              {
+                condition: hasChangelogUpdate,
+                unchecked:
+                  '- [ ] Unreleased section of CHANGELOG.md has been updated with details of this PR.',
+                checked:
+                  '- [x] Unreleased section of CHANGELOG.md has been updated with details of this PR.',
+              },
+              {
+                condition: hasTestChange,
+                unchecked: '- [ ] I have added tests to cover my changes.',
+                checked: '- [x] I have added tests to cover my changes.',
+              },
+            ];
+
+            let updatedBody = body;
+            let updated = false;
+
+            for (const { condition, unchecked, checked } of checkboxUpdates) {
+              if (condition && updatedBody.includes(unchecked)) {
+                updatedBody = updatedBody.replaceAll(unchecked, checked);
+                updated = true;
+              } else if (!condition && updatedBody.includes(checked)) {
+                updatedBody = updatedBody.replaceAll(checked, unchecked);
+                updated = true;
+              }
+            }
+
+            if (updated) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                body: updatedBody,
+              });
+              console.log(`Updated change type checkboxes for PR #${pr.number}.`);
+            } else {
+              console.log(`No change type checkbox update needed for PR #${pr.number}.`);
+            }
+
+  generate-description:
+    name: "Generate Description"
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      (github.event.action == 'opened' ||
+       github.event.action == 'synchronize' ||
+       github.event.action == 'reopened') &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+      models: read
+    steps:
+      - name: Generate PR description if missing
+        uses: actions/github-script@v8
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          script: |
+            const AUTO_DESC_MARKER = '<!-- description-auto-generated-by-copilot -->';
+
+            const pr = context.payload.pull_request;
+
+            // Fetch the latest PR body to avoid stale event payload
+            const { data: currentPr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+            });
+            const body = currentPr.body ?? '';
+            const action = context.payload.action;
+
+            // Find the Description section content (supports # / ## / ### heading levels)
+            function getDescriptionSectionContent(text) {
+              const sectionRegex = /^#{1,3}\s+Description\s*\n([\s\S]*?)(?=\n#{1,3}\s|$)/m;
+              const match = text.match(sectionRegex);
+              return match ? match[1] : null;
+            }
+
+            // Check if content has anything beyond HTML comments and whitespace
+            function hasRealContent(content) {
+              if (!content) return false;
+              return content.replace(/<!--[\s\S]*?-->/g, '').trim().length > 0;
+            }
+
+            const descContent = getDescriptionSectionContent(body);
+            const descHasContent = hasRealContent(descContent);
+            const hasAutoMarker = body.includes(AUTO_DESC_MARKER);
+
+            // Skip if description was manually written (has content but no auto marker)
+            if (descHasContent && !hasAutoMarker) {
+              console.log('PR has a manually-written description, skipping generation.');
+              return;
+            }
+
+            // Skip if already auto-generated and this is not a synchronize event
+            if (descHasContent && hasAutoMarker && action !== 'synchronize') {
+              console.log('Description already auto-generated and no new commits, skipping.');
+              return;
+            }
+
+            console.log(`Generating PR description (action: ${action})...`);
+
+            // Fetch the list of changed files
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            });
+
+            const MAX_FILES_FOR_SUMMARY = 200;
+            const totalFiles = files.length;
+            const limitedFiles = files.slice(0, MAX_FILES_FOR_SUMMARY);
+
+            let filesSummary = limitedFiles
+              .map((f) => `${f.filename} (${f.status}: +${f.additions}/-${f.deletions})`)
+              .join('\n');
+
+            if (totalFiles > MAX_FILES_FOR_SUMMARY) {
+              const remaining = totalFiles - MAX_FILES_FOR_SUMMARY;
+              filesSummary += `\n... and ${remaining} more file${remaining === 1 ? '' : 's'}`;
+            }
+
+            // Call GitHub Models API to generate a description
+            let generatedDescription = null;
+            try {
+              const response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+                },
+                body: JSON.stringify({
+                  model: 'gpt-4o-mini',
+                  messages: [
+                    {
+                      role: 'system',
+                      content:
+                        'You are a helpful assistant that writes concise pull request descriptions. Write a clear 2-4 sentence description of what this pull request does based on the PR title and changed files. Be specific and technical. Do not include markdown headers or bullet points.',
+                    },
+                    {
+                      role: 'user',
+                      content: `PR Title: ${currentPr.title}\n\nChanged files:\n${filesSummary}\n\nWrite a concise description for this pull request.`,
+                    },
+                  ],
+                  max_tokens: 300,
+                  temperature: 0.3,
+                }),
+              });
+
+              if (response.ok) {
+                const result = await response.json();
+                generatedDescription = result.choices?.[0]?.message?.content?.trim() ?? null;
+              } else {
+                const errText = await response.text();
+                console.log(`GitHub Models API failed: ${response.status} - ${errText}`);
+              }
+            } catch (err) {
+              console.log(`Error calling GitHub Models API: ${err.message}`);
+            }
+
+            if (!generatedDescription) {
+              console.log('Could not generate description, skipping.');
+              return;
+            }
+
+            // Remove any existing auto marker before reinserting
+            let updatedBody = body
+              .replace(`\n${AUTO_DESC_MARKER}`, '')
+              .replace(AUTO_DESC_MARKER, '');
+
+            // Replace the description section content, or prepend a new section
+            const sectionRegex = /(^#{1,3}\s+Description\s*\n)([\s\S]*?)(?=\n#{1,3}\s|$)/m;
+            const sectionMatch = updatedBody.match(sectionRegex);
+
+            if (sectionMatch) {
+              const replacement = `${sectionMatch[1]}${generatedDescription}\n\n${AUTO_DESC_MARKER}\n\n`;
+              updatedBody = updatedBody.replace(sectionMatch[0], replacement);
+            } else {
+              updatedBody = `# Description\n\n${generatedDescription}\n\n${AUTO_DESC_MARKER}\n\n${updatedBody}`;
+            }
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              body: updatedBody,
+            });
+
+            console.log(`Generated and inserted description for PR #${pr.number}.`);
