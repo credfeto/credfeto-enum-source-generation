@@ -1,5 +1,4 @@
---- # Ensure PRs have a sane description
-name: "PR: Maintain PR Description"
+name: Maintain PR Description
 
 on:
   pull_request_target:
@@ -19,17 +18,17 @@ permissions:
 
 jobs:
   initialize-description:
-    name: "Initialize Description"
+    name: Initialize Description
     if: >-
       github.event_name == 'pull_request_target' &&
       github.event.pull_request.draft == true
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout repository"
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: "Initialize PR description from template"
-        uses: actions/github-script@v8
+      - name: Initialize PR description from template
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
@@ -69,12 +68,12 @@ jobs:
             console.log(`PR #${pr.number} description initialized with template.`);
 
   update-status:
-    name: "Update CI Status"
+    name: Update CI Status
     if: github.event_name == 'check_run'
     runs-on: ubuntu-latest
     steps:
-      - name: "Update PR description checkboxes"
-        uses: actions/github-script@v8
+      - name: Update PR description checkboxes
+        uses: actions/github-script@v7
         with:
           script: |
             const maintainedMarker = '<!-- maintained-by-copilot -->';
@@ -202,7 +201,7 @@ jobs:
             }
 
   update-change-types:
-    name: "Update Change Type Checkboxes"
+    name: Update Change Type Checkboxes
     if: >-
       github.event_name == 'pull_request_target' &&
       (github.event.action == 'opened' ||
@@ -213,7 +212,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update change type checkboxes based on PR files
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const maintainedMarker = '<!-- maintained-by-copilot -->';
@@ -328,7 +327,7 @@ jobs:
             }
 
   generate-description:
-    name: "Generate Description"
+    name: Generate Description
     if: >-
       github.event_name == 'pull_request_target' &&
       (github.event.action == 'opened' ||
@@ -342,7 +341,7 @@ jobs:
       models: read
     steps:
       - name: Generate PR description if missing
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -362,7 +361,7 @@ jobs:
 
             // Find the Description section content (supports # / ## / ### heading levels)
             function getDescriptionSectionContent(text) {
-              const sectionRegex = /^#{1,3}\s+Description\s*\n([\s\S]*?)(?=\n#{1,3}\s|$)/m;
+              const sectionRegex = /^#{1,3}\s+Description\s*\n([\s\S]*?)(?=\n#{1,3}\s|(?![\s\S]))/m;
               const match = text.match(sectionRegex);
               return match ? match[1] : null;
             }
@@ -461,7 +460,7 @@ jobs:
               .replace(AUTO_DESC_MARKER, '');
 
             // Replace the description section content, or prepend a new section
-            const sectionRegex = /(^#{1,3}\s+Description\s*\n)([\s\S]*?)(?=\n#{1,3}\s|$)/m;
+            const sectionRegex = /(^#{1,3}\s+Description\s*\n)([\s\S]*?)(?=\n#{1,3}\s|(?![\s\S]))/m;
             const sectionMatch = updatedBody.match(sectionRegex);
 
             if (sectionMatch) {
