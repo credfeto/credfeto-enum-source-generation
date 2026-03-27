@@ -1,0 +1,83 @@
+--- # Code review of PRs
+name: "PR: Code Review and Approve"
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-not-draft:
+    name: "Check Not Draft"
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - run: echo "PR is not a draft, proceeding."
+
+  copilot-review:
+    name: "Copilot Code Review"
+    runs-on: ubuntu-latest
+    needs: check-not-draft
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: "Request Copilot code review"
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.SOURCE_PUSH_TOKEN }}
+          script: |
+            await github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              reviewers: ['copilot']
+            });
+
+  auto-merge:
+    name: "Auto Merge"
+    runs-on: ubuntu-latest
+    needs: [check-not-draft, copilot-review]
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.check-not-draft.result == 'success' &&
+      needs.copilot-review.result == 'success'
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: "Enable auto-merge"
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.SOURCE_PUSH_TOKEN }}
+          script: |
+            const pullRequest = context.payload.pull_request;
+            const mutation = `
+              mutation EnableAutoMerge($pullRequestId: ID!) {
+                enablePullRequestAutoMerge(input: {
+                  pullRequestId: $pullRequestId,
+                  mergeMethod: MERGE
+                }) {
+                  pullRequest {
+                    autoMergeRequest {
+                      enabledAt
+                    }
+                  }
+                }
+              }
+            `;
+            await github.graphql(mutation, { pullRequestId: pullRequest.node_id });
