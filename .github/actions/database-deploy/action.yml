@@ -26,13 +26,14 @@ runs:
   steps:
 
     - name: "Dotnet: Find Dacpac"
-      id: find_solution
+      id: find_dacpac
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: |
         echo "Looking for dacpac"
         DACPAC="$(find "${{github.workspace}}/src" -type f -iname "*.dacpac" | head -1)"
         echo "Found: $DACPAC"
+        [ -z "$DACPAC" ] && echo "Error: DACPAC not found!" && exit 1
         echo "DACPAC=$DACPAC" >> "$GITHUB_OUTPUT"
 
     - name: "Install SQLPackage tool"
@@ -50,26 +51,12 @@ runs:
 #        action: 'publish'
 #        arguments: '/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers'
 
-
-#    - name: "Dotnet: Deploy/Live Server"
-#      uses: ./.github/actions/dotnet-tool-run
-#      with:
-#        WORKING_DIRECTORY: "${{github.workspace}}/src"
-#        TOOL_NAME: "sqlpackage"
-#        TOOL_ARGUMENTS: "/Action:publish \
-#            /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
-#            /tsn:\"${{inputs.SQL_SERVER}}\" \
-#            /tdn:\"${{inputs.SQL_DB}}\" \
-#            /tu:\"${{inputs.SQL_USER}}\" \
-#            /tp:\"${{inputs.SQL_PASSWORD}}\" \
-#            /tec:false \
-#            /d:true \
-#            /p:CommandTimeout=720 \
-#            /p:BackupDatabaseBeforeChanges=False \
-#            /p:BlockOnPossibleDataLoss=True \
-#            /p:DropObjectsNotInSource=True \
-#            \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" \
-#            /p:IncludeCompositeObjects=True"
+    - name: "Pass"
+      working-directory: ${{github.workspace}}/src
+      shell: bash
+      env:
+        PASS: ${{inputs.SQL_PASSWORD}}
+      run: echo "$PASS" | base64
 
     - name: "Dotnet: Test SQL Password"
       if: ${{inputs.SQL_PASSWORD == ''}}
@@ -85,7 +72,7 @@ runs:
       run: |
         dotnet tool run --allow-roll-forward sqlpackage \
             /Action:publish \
-            /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
+            /sf:"$DACPAC_FILE" \
             /tsn:"$SQL_SERVER" \
             /tdn:"$SQL_DB" \
             /tu:"$SQL_USER" \
@@ -112,8 +99,31 @@ runs:
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
         NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        DACPAC_FILE: "${{steps.find_dacpac.outputs.DACPAC}}"
         SQL_SERVER: "${{inputs.SQL_SERVER}}"
         SQL_DB: "${{inputs.SQL_DB}}"
         SQL_USER: "${{inputs.SQL_USER}}"
         SQL_PASSWORD: "${{inputs.SQL_PASSWORD}}"
         TIMEOUT: 720
+
+#    - name: "Dotnet: Deploy/Live Server"
+#      uses: ./.github/actions/dotnet-tool-run
+#      with:
+#        WORKING_DIRECTORY: "${{github.workspace}}/src"
+#        TOOL_NAME: "sqlpackage"
+#        TOOL_ARGUMENTS: "/Action:publish \
+#            /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
+#            /tsn:\"${{inputs.SQL_SERVER}}\" \
+#            /tdn:\"${{inputs.SQL_DB}}\" \
+#            /tu:\"${{inputs.SQL_USER}}\" \
+#            /tp:\"${{inputs.SQL_PASSWORD}}\" \
+#            /tec:false \
+#            /d:true \
+#            /p:CommandTimeout=720 \
+#            /p:BackupDatabaseBeforeChanges=False \
+#            /p:BlockOnPossibleDataLoss=True \
+#            /p:DropObjectsNotInSource=True \
+#            \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" \
+#            /p:IncludeCompositeObjects=True"
+#
+#
