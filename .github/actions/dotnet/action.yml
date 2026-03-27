@@ -206,6 +206,7 @@ runs:
       with:
         BUILD_VERSION: ${{inputs.BUILD_VERSION}}
         DB_FOLDER: ${{inputs.DB_FOLDER}}
+        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
 
     ############################################################################################################
     # Publish ready for deploy
