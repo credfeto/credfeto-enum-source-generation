@@ -32,13 +32,14 @@ jobs:
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Set Active Environment"
+        id: active-env
         shell: bash
         run: |
           {
           echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
           echo "ACTIVE_HOSTNAME=$HOSTNAME"
           echo "ACTIVE_USER=$USER"
-          } >> "$GITHUB_ENV"
+          } >> "$GITHUB_OUTPUT"
 
       - name: "Info"
         uses: actions/github-script@v8.0.0
@@ -63,13 +64,14 @@ jobs:
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Set Active Environment"
+        id: active-env
         shell: bash
         run: |
           {
           echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
           echo "ACTIVE_HOSTNAME=$HOSTNAME"
           echo "ACTIVE_USER=$USER"
-          } >> "$GITHUB_ENV"
+          } >> "$GITHUB_OUTPUT"
 
       - name: "Checkout source"
         uses: actions/checkout@v6.0.2
@@ -101,8 +103,11 @@ jobs:
 
       - name: "Get last commit info"
         if: steps.findPr.outputs.number == ''
+        id: commit-info
         shell: bash
-        run: echo "COMMIT_MSG=$(git log -1 --pretty=%B)" >> "$GITHUB_ENV"
+        run: |
+          title="$(git log -1 --pretty=%s)"
+          echo "commit-title=$title" >> "$GITHUB_OUTPUT"
 
       - name: "Check Repo Visibility"
         if: env.REPO_STATUS == '' &&steps.findPr.outputs.number == ''
@@ -113,12 +118,13 @@ jobs:
           token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
       - name: "Override DRAFT Flag"
+        id: draft-flag
         if: |-
           steps.findPr.outputs.number == ''
           && env.REPO_OWNER != 'funfair-tech'
           && env.REPO_STATUS == 'private'
         shell: bash
-        run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
+        run: echo "create-draft=false" >> "$GITHUB_OUTPUT"
 
       - name: "Status"
         uses: actions/github-script@v8.0.0
@@ -140,8 +146,8 @@ jobs:
           destination_branch: "main"            # If blank, default: master
           pr_assignee: ${{github.actor}}      # Comma-separated list (no spaces)
           pr_label: "auto-pr"                   # Comma-separated list (no spaces)
-          pr_draft: ${{env.CREATE_DRAFT}}                        # Creates pull request as draft
-          pr_title: ${{env.COMMIT_MSG}}
+          pr_draft: ${{steps.draft-flag.outputs.create-draft || env.CREATE_DRAFT}}                        # Creates pull request as draft
+          pr_title: ${{steps.commit-info.outputs.commit-title}}
           pr_body: ${{steps.pr-template.outputs.content}}
           github_token: ${{github.token}}
 
