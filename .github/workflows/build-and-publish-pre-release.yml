@@ -42,8 +42,16 @@ jobs:
       RELEASE_BAGET_CACHE: ''
 
     steps:
+      - name: "Check Required Secrets"
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
+
       - name: "Initialise Workspace"
-        if: startsWith(runner.name, 'buildagent-')
+        if: runner.environment == 'self-hosted'
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
@@ -70,7 +78,7 @@ jobs:
         shell: bash
         run: echo "USE_NUGET_CACHE=false" >> "$GITHUB_ENV"
 
-      - if: startsWith(runner.name, 'buildagent-') != true
+      - if: runner.environment != 'self-hosted'
         name: "Ensure on github agents nuget cache is disabled"
         shell: bash
         run: echo "USE_NUGET_CACHE=false" >> "$GITHUB_ENV"
