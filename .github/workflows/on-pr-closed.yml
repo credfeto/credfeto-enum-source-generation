@@ -9,8 +9,16 @@ jobs:
   cleanup-cache:
     runs-on: ubuntu-latest
     steps:
+      - name: "Check Required Secrets"
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
+
       - name: "Initialise Workspace"
-        if: startsWith(runner.name, 'buildagent-')
+        if: runner.environment == 'self-hosted'
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
@@ -18,17 +26,19 @@ jobs:
         shell: bash
         run: |
           {
-          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-          echo "ACTIVE_HOSTNAME=$HOSTNAME"
-          echo "ACTIVE_USER=$USER"
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
 
       - name: "Install extensions"
+        shell: bash
         run: gh extension install actions/gh-actions-cache
         env:
-          GH_TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
+          GH_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
 
       - name: "Cleanup"
+        shell: bash
         run: |
           echo "Fetching list of cache key"
           cacheKeysForPR=$(gh actions-cache list -R "$REPO" -B "$BRANCH" -L 100 | cut -f 1 )
@@ -43,6 +53,6 @@ jobs:
           done
           echo "Done"
         env:
-          GH_TOKEN: ${{ secrets.SOURCE_PUSH_TOKEN }}
-          REPO: ${{ github.repository }}
-          BRANCH: refs/pull/${{ github.event.pull_request.number }}/merge
+          GH_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
+          REPO: ${{github.repository}}
+          BRANCH: refs/pull/${{github.event.pull_request.number}}/merge
