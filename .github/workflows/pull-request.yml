@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
-        if: startsWith(runner.name, 'buildagent-')
+        if: runner.environment == 'self-hosted'
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
@@ -36,9 +36,9 @@ jobs:
         shell: bash
         run: |
           {
-          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-          echo "ACTIVE_HOSTNAME=$HOSTNAME"
-          echo "ACTIVE_USER=$USER"
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_OUTPUT"
 
       - name: "Info"
@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - name: "Initialise Workspace"
-        if: startsWith(runner.name, 'buildagent-')
+        if: runner.environment == 'self-hosted'
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
@@ -68,9 +68,9 @@ jobs:
         shell: bash
         run: |
           {
-          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-          echo "ACTIVE_HOSTNAME=$HOSTNAME"
-          echo "ACTIVE_USER=$USER"
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_OUTPUT"
 
       - name: "Checkout source"
@@ -108,6 +108,15 @@ jobs:
         run: |
           title="$(git log -1 --pretty=%s)"
           echo "commit-title=$title" >> "$GITHUB_OUTPUT"
+
+      - name: "Check Required Secrets"
+        if: env.REPO_STATUS == '' &&steps.findPr.outputs.number == ''
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
 
       - name: "Check Repo Visibility"
         if: env.REPO_STATUS == '' &&steps.findPr.outputs.number == ''
@@ -159,6 +168,15 @@ jobs:
             core.info('URL: ${{steps.open-pr.outputs.pr_url}}');
             core.info('PR: ${{steps.open-pr.outputs.pr_number}}');
             core.info('CF: ${{steps.open-pr.outputs.has_changed_files}}');
+
+      - name: "Check Required Secrets"
+        if: steps.findPr.outputs.number == ''
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
 
       - name: "Sync Labels"
         if: steps.findPr.outputs.number == ''
