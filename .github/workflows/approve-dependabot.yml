@@ -19,7 +19,20 @@ permissions:
 
 
 jobs:
+  requirements:
+    if: vars.DEPENDABOT_AUTOMERGE == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check Required Secrets"
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
+
   enable-auto-merge-github-actions:
+    needs: [requirements]
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
       startsWith(github.head_ref, 'dependabot/github_actions/')
@@ -33,34 +46,34 @@ jobs:
     # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
 
     steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
-    - name: "Initialise Workspace"
-      if: startsWith(runner.name, 'buildagent-')
-      shell: bash
-      run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
 
-    - name: "Set Active Environment"
-      shell: bash
-      run: |
-        {
-          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-          echo "ACTIVE_HOSTNAME=$HOSTNAME"
-          echo "ACTIVE_USER=$USER"
-        } >> "$GITHUB_ENV"
+      - name: "Check Repo Owner"
+        uses: actions/github-script@v8.0.0
+        with:
+          script: |
+            core.info('Owner: ${{github.repository_owner}}');
 
-    - name: "Check Repo Owner"
-      uses: actions/github-script@v8.0.0
-      with:
-        script: |
-          core.info('Owner: ${{github.repository_owner}}');
-
-    - name: "Auto Merge"
-      uses: alexwilson/enable-github-automerge-action@2.0.0
-      with:
-        github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-        merge-method: "MERGE"
+      - name: "Auto Merge"
+        uses: alexwilson/enable-github-automerge-action@2.0.0
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          merge-method: "MERGE"
 
   enable-auto-merge-npm:
+    needs: [requirements]
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
       startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
@@ -74,7 +87,7 @@ jobs:
 
     steps:
       - name: "Initialise Workspace"
-        if: startsWith(runner.name, 'buildagent-')
+        if: runner.environment == 'self-hosted'
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
@@ -82,9 +95,9 @@ jobs:
         shell: bash
         run: |
           {
-          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-          echo "ACTIVE_HOSTNAME=$HOSTNAME"
-          echo "ACTIVE_USER=$USER"
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
 
       - name: "Check Repo Owner"
@@ -100,6 +113,7 @@ jobs:
           merge-method: "MERGE"
 
   auto-approve-dependabot-gitub-actions:
+    needs: [requirements]
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
       startsWith(github.head_ref, 'dependabot/github_actions/')
@@ -110,32 +124,33 @@ jobs:
       pull-requests: write
 
     steps:
-    - name: "Initialise Workspace"
-      if: startsWith(runner.name, 'buildagent-')
-      shell: bash
-      run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
-    - name: "Set Active Environment"
-      shell: bash
-      run: |
-        {
-          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-          echo "ACTIVE_HOSTNAME=$HOSTNAME"
-          echo "ACTIVE_USER=$USER"
-        } >> "$GITHUB_ENV"
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
 
-    - name: "Check Repo Owner"
-      uses: actions/github-script@v8.0.0
-      with:
-        script: |
-          core.info('Owner: ${{github.repository_owner}}');
+      - name: "Check Repo Owner"
+        uses: actions/github-script@v8.0.0
+        with:
+          script: |
+            core.info('Owner: ${{github.repository_owner}}');
 
-    - name: "Approve"
-      uses: hmarr/auto-approve-action@v4
-      with:
-        github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+      - name: "Approve"
+        uses: hmarr/auto-approve-action@v4
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
   auto-approve-dependabot-npm:
+    needs: [requirements]
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
       startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
@@ -147,7 +162,7 @@ jobs:
 
     steps:
       - name: "Initialise Workspace"
-        if: startsWith(runner.name, 'buildagent-')
+        if: runner.environment == 'self-hosted'
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
@@ -155,9 +170,9 @@ jobs:
         shell: bash
         run: |
           {
-          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-          echo "ACTIVE_HOSTNAME=$HOSTNAME"
-          echo "ACTIVE_USER=$USER"
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
 
       - name: "Check Repo Owner"
