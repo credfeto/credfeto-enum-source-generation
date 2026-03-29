@@ -1,0 +1,117 @@
+--- # Compares two commits and uses GitHub Copilot (GitHub Models) to generate
+# a concise description of what changed. The description can then be inserted
+# into a pull request body by the calling workflow.
+name: 'Generate PR Description'
+description: >
+  Diffs base_sha..head_sha via the GitHub API and asks GitHub Copilot
+  (gpt-4o-mini) to write a 2-4 sentence description of the changes.
+
+inputs:
+  base_sha:
+    description: 'Base commit SHA (what to compare from)'
+    required: true
+  head_sha:
+    description: 'Head commit SHA (what to compare to)'
+    required: true
+  github_token:
+    description: 'GitHub token — requires contents:read and models:read'
+    required: true
+
+outputs:
+  description:
+    description: 'AI-generated plain-text description of the changes'
+    value: ${{ steps.generate.outputs.description }}
+
+runs:
+  using: composite
+  steps:
+    - name: "Generate description from diff"
+      id: generate
+      uses: actions/github-script@v7
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      with:
+        github-token: ${{ inputs.github_token }}
+        script: |
+          const BASE_SHA = '${{ inputs.base_sha }}';
+          const HEAD_SHA = '${{ inputs.head_sha }}';
+
+          // ── Get changed files via GitHub compare API ─────────────────────
+          let files = [];
+          try {
+            const { data } = await github.rest.repos.compareCommits({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              base:  BASE_SHA,
+              head:  HEAD_SHA,
+            });
+            files = data.files || [];
+          } catch (err) {
+            console.log(`Could not compare commits: ${err.message}`);
+            core.setOutput('description', '');
+            return;
+          }
+
+          if (files.length === 0) {
+            console.log('No changed files found between the two commits.');
+            core.setOutput('description', '');
+            return;
+          }
+
+          const MAX_FILES = 200;
+          let filesSummary = files
+            .slice(0, MAX_FILES)
+            .map((f) => `${f.filename} (${f.status}: +${f.additions}/-${f.deletions})`)
+            .join('\n');
+          if (files.length > MAX_FILES) {
+            filesSummary += `\n... and ${files.length - MAX_FILES} more files`;
+          }
+
+          // ── Call GitHub Models (Copilot) ──────────────────────────────────
+          let description = '';
+          try {
+            const response = await fetch(
+              'https://models.inference.ai.azure.com/chat/completions',
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+                },
+                body: JSON.stringify({
+                  model: 'gpt-4o-mini',
+                  messages: [
+                    {
+                      role: 'system',
+                      content:
+                        'You are a helpful assistant that writes concise pull request descriptions. ' +
+                        'Write a clear 2–4 sentence description of what changed based on the ' +
+                        'list of modified files. Be specific and technical. ' +
+                        'Do not include markdown headers or bullet points.',
+                    },
+                    {
+                      role: 'user',
+                      content:
+                        `Changed files:\n${filesSummary}\n\n` +
+                        'Write a concise description for these changes.',
+                    },
+                  ],
+                  max_tokens: 300,
+                  temperature: 0.3,
+                }),
+              },
+            );
+
+            if (response.ok) {
+              const result = await response.json();
+              description = result.choices?.[0]?.message?.content?.trim() ?? '';
+            } else {
+              const errText = await response.text();
+              console.log(`GitHub Models API error ${response.status}: ${errText}`);
+            }
+          } catch (err) {
+            console.log(`Error calling GitHub Models API: ${err.message}`);
+          }
+
+          core.setOutput('description', description);
+          console.log(description ? 'Description generated.' : 'Could not generate description.');
