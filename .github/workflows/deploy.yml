@@ -106,7 +106,7 @@ jobs:
           DOCKER_CONTAINER_REGISTRY: ${{inputs.DOCKER_CONTAINER_REGISTRY}}
 
       - name: "Log Build Version"
-        uses: actions/github-script@v8.0.0
+        uses: actions/github-script@v8
         with:
           script: |
             core.info('Application: \u001b[38;5;6m${{inputs.DOCKER_APP_OWNER}}\\${{inputs.DOCKER_APP_NAME}}');
