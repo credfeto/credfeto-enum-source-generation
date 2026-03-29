@@ -88,6 +88,7 @@ runs:
                         'Write a clear 2–4 sentence description of what changed based on the ' +
                         'list of modified files. Be specific and technical. ' +
                         'Do not include markdown headers or bullet points.',
+                        'Do not include comments about updating CHANGELOG.md.',
                     },
                     {
                       role: 'user',
