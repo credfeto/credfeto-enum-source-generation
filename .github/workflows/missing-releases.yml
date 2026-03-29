@@ -22,8 +22,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: "Check Required Secrets"
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
+
       - name: "Initialise Workspace"
-        if: startsWith(runner.name, 'buildagent-')
+        if: runner.environment == 'self-hosted'
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
