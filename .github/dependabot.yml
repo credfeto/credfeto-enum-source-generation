@@ -173,3 +173,21 @@ updates:
   - dependency-name: "xunit.runner.visualstudio"
   - dependency-name: "xunit.v3.*"
   - dependency-name: "ZLinq.*"
+
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "03:00"
+    timezone: "Europe/London"
+  open-pull-requests-limit: 99
+  assignees:
+  - credfeto
+  commit-message:
+    prefix: "[Dependencies]"
+  labels:
+  - "github-actions"
+  - "dependencies"
+  - "Changelog Not Required"
+  allow:
+  - dependency-type: all
