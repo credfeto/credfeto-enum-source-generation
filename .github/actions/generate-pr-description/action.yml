@@ -4,7 +4,8 @@
 name: 'Generate PR Description'
 description: >
   Diffs base_sha..head_sha via the GitHub API and asks GitHub Copilot
-  (gpt-4o-mini) to write a 2-4 sentence description of the changes.
+  (gpt-4o-mini) to write a 2-4 sentence description of the changes,
+  incorporating commit messages and any linked GitHub issues.
 
 inputs:
   base_sha:
@@ -14,8 +15,12 @@ inputs:
     description: 'Head commit SHA (what to compare to)'
     required: true
   github_token:
-    description: 'GitHub token — requires contents:read and models:read'
+    description: 'GitHub token — requires contents:read, models:read, and issues:read'
     required: true
+  pr_title:
+    description: 'Pull request title (used to extract issue references)'
+    required: false
+    default: ''
 
 outputs:
   description:
@@ -27,7 +32,7 @@ runs:
   steps:
     - name: "Generate description from diff"
       id: generate
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
       with:
@@ -35,9 +40,11 @@ runs:
         script: |
           const BASE_SHA = '${{ inputs.base_sha }}';
           const HEAD_SHA = '${{ inputs.head_sha }}';
+          const PR_TITLE = ${{ toJson(inputs.pr_title) }};
 
-          // ── Get changed files via GitHub compare API ─────────────────────
+          // ── Get changed files and commits via GitHub compare API ──────────
           let files = [];
+          let commits = [];
           try {
             const { data } = await github.rest.repos.compareCommits({
               owner: context.repo.owner,
@@ -46,6 +53,7 @@ runs:
               head:  HEAD_SHA,
             });
             files = data.files || [];
+            commits = data.commits || [];
           } catch (err) {
             console.log(`Could not compare commits: ${err.message}`);
             core.setOutput('description', '');
@@ -67,6 +75,81 @@ runs:
             filesSummary += `\n... and ${files.length - MAX_FILES} more files`;
           }
 
+          // ── Build commit messages summary ─────────────────────────────────
+          const MAX_COMMITS = 50;
+          const commitMessages = commits
+            .slice(0, MAX_COMMITS)
+            .map((c) => c.commit.message.trim())
+            .filter((msg) => msg.length > 0);
+          const commitsSummary = commitMessages.join('\n---\n');
+
+          // ── Extract issue references from commit messages and PR title ─────
+          // Two separate passes so each regex always has a single capture group.
+          // First pass: keyword-prefixed references (closes/fixes/resolves #N).
+          // Second pass: bare references (#N) — the Set deduplicates overlaps.
+          const issueNumbers = new Set();
+          const allText = [PR_TITLE, ...commitMessages].join('\n');
+          const keywordIssueRe =
+            /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+          const bareIssueRe = /#(\d+)/gi;
+          for (const re of [keywordIssueRe, bareIssueRe]) {
+            let m;
+            while ((m = re.exec(allText)) !== null) {
+              issueNumbers.add(parseInt(m[1], 10));
+            }
+          }
+
+          // ── Fetch details for referenced issues ───────────────────────────
+          const MAX_ISSUES = 5;
+          const MAX_ISSUE_BODY_LINES = 5;
+          let issuesSummary = '';
+          const issueNums = [...issueNumbers].slice(0, MAX_ISSUES);
+          if (issueNums.length > 0) {
+            const issueDetails = [];
+            for (const num of issueNums) {
+              try {
+                const { data: issue } = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: num,
+                });
+                const bodyPreview = (issue.body || '')
+                  .split('\n')
+                  .slice(0, MAX_ISSUE_BODY_LINES)
+                  .join('\n')
+                  .trim();
+                const indentedBodyPreview = bodyPreview
+                  ? bodyPreview
+                      .split('\n')
+                      .map((line) => `  ${line}`)
+                      .join('\n')
+                  : '';
+                issueDetails.push(
+                  `#${num}: ${issue.title}${indentedBodyPreview ? `\n${indentedBodyPreview}` : ''}`,
+                );
+              } catch {
+                // Issue may not exist or is not accessible — skip silently
+              }
+            }
+            if (issueDetails.length > 0) {
+              issuesSummary = issueDetails.join('\n\n');
+            }
+          }
+
+          // ── Build user message with all available context ─────────────────
+          const userParts = [`Changed files:\n${filesSummary}`];
+          if (commitsSummary) {
+            userParts.push(`Commit messages:\n${commitsSummary}`);
+          }
+          if (issuesSummary) {
+            userParts.push(`Linked issues:\n${issuesSummary}`);
+          }
+          userParts.push(
+            'Write a concise description for these changes, including the reason ' +
+              'for the change if it can be inferred from the commit messages or linked issues.',
+          );
+          const userContent = userParts.join('\n\n');
+
           // ── Call GitHub Models (Copilot) ──────────────────────────────────
           let description = '';
           try {
@@ -85,19 +168,19 @@ runs:
                       role: 'system',
                       content:
                         'You are a helpful assistant that writes concise pull request descriptions. ' +
-                        'Write a clear 2–4 sentence description of what changed based on the ' +
-                        'list of modified files. Be specific and technical. ' +
-                        'Do not include markdown headers or bullet points.',
+                        'Write a clear 2–4 sentence description of what changed and why, using the ' +
+                        'list of modified files, commit messages, and any linked issue details provided. ' +
+                        'Be specific and technical. Include the reason for the change if it is evident. ' +
+                        'If linked issues are provided, reference them naturally in the description. ' +
+                        'Do not include markdown headers or bullet points. ' +
                         'Do not include comments about updating CHANGELOG.md.',
                     },
                     {
                       role: 'user',
-                      content:
-                        `Changed files:\n${filesSummary}\n\n` +
-                        'Write a concise description for these changes.',
+                      content: userContent,
                     },
                   ],
-                  max_tokens: 300,
+                  max_tokens: 400,
                   temperature: 0.3,
                 }),
               },
