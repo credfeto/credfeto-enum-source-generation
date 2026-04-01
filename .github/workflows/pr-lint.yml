@@ -441,7 +441,7 @@ jobs:
           fi
 
       - name: "Run Linter"
-        uses: super-linter/super-linter@v8.5.0
+        uses: super-linter/super-linter@v8.6.0
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
