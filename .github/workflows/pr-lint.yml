@@ -405,6 +405,28 @@ jobs:
       - name: "Check for merge commits"
         uses: greenled/no-merge-commits-check@v1.0.1
 
+  valid-changelog:
+    runs-on:
+      - self-hosted
+      - linux
+    steps:
+      - name: "Correct ownership"
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Checkout"
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+#      - name: "Check changelog"
+#        uses: crajapakshe/changelog-validator@v1.0.0
+#        with:
+#          changelog-path: 'CHANGELOG.md'
+#          check-updated: 'false'
+
   lint-code:
     if: |-
       github.event.pull_request.draft == false &&
