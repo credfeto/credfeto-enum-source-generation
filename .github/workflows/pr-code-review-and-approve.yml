@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: "Request Copilot code review"
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9.0.0
         with:
           github-token: ${{ secrets.SOURCE_PUSH_TOKEN }}
           script: |
@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - name: "Enable auto-merge"
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9.0.0
         with:
           github-token: ${{ secrets.SOURCE_PUSH_TOKEN }}
           script: |
