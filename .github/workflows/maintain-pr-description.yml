@@ -54,7 +54,7 @@ jobs:
           pr_title: ${{ github.event.pull_request.title }}
 
       - name: "Apply template and insert description"
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9.0.0
         env:
           GENERATED_DESCRIPTION: ${{ steps.describe.outputs.description }}
           GITHUB_TOKEN: ${{ github.token }}
@@ -161,7 +161,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update PR description checkboxes
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             const maintainedMarker = '<!-- maintained-by-copilot -->';
@@ -300,7 +300,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Update change type checkboxes based on PR files
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9.0.0
         with:
           script: |
             const maintainedMarker = '<!-- maintained-by-copilot -->';
