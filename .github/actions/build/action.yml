@@ -184,7 +184,8 @@ runs:
         [[ -d src && -f src/global.json && '${{hashfiles('**/*.csproj', '**/*.cs')}}' != '' ]] && echo 'CSPROJ_EXIST=true' || echo 'CSPROJ_EXIST=false';
         [[ -d src && -f src/global.json && '${{hashfiles('**/*.sln', '**/*.slnx')}}' != '' ]] && echo 'SLN_EXIST=true' || echo 'SLN_EXIST=false';
         [[ -d db && '${{hashfiles('**/*.sql')}}' != '' ]] && echo 'SQL_EXIST=true' || echo 'SQL_EXIST=false';
-        [[ -d src && -f src/package.json && src/package-lock.json && '${{hashfiles('src/package.json', 'src/package-lock.json')}}' != '' ]] && echo 'NPM_EXIST=true' || echo 'NPM_EXIST=false';
+        [[ -d src && -f src/package.json && -f src/package-lock.json && '${{hashfiles('src/package.json', 'src/package-lock.json')}}' != '' ]] && echo 'NPM_EXIST_SRC=true' || echo 'NPM_EXIST_SRC=false';
+        [[ -d src && -f package.json && -f package-lock.json && '${{hashfiles('package.json', 'package-lock.json')}}' != '' ]] && echo 'NPM_EXIST_ROOT=true' || echo 'NPM_EXIST_ROOT=false';
         [[ -f Wallet.json ]] && echo 'NPM_SIGNING_EXIST=true' || echo 'NPM_SIGNING_EXIST=false';
         [[ -f Dockerfile && '${{hashfiles('Dockerfile')}}' != '' ]] && echo 'DOCKERFILE_EXIST=true' || echo 'DOCKERFILE_EXIST=false';
         [[ -f healthcheck && '${{hashfiles('healthcheck')}}' != '' ]] && echo 'HEALTHCHECK_EXIST=true' || echo 'HEALTHCHECK_EXIST=false';
@@ -198,7 +199,8 @@ runs:
           core.info('CSPROJ_EXIST: ${{steps.check_files.outputs.CSPROJ_EXIST}}');
           core.info('SLN_EXIST: ${{steps.check_files.outputs.SLN_EXIST}}');
           core.info('SQL_EXIST: ${{steps.check_files.outputs.SQL_EXIST}}');
-          core.info('NPM_EXIST: ${{steps.check_files.outputs.NPM_EXIST}}');
+          core.info('NPM_EXIST_SRC: ${{steps.check_files.outputs.NPM_EXIST_SRC}}');
+          core.info('NPM_EXIST_ROOT: ${{steps.check_files.outputs.NPM_EXIST_ROOT}}');
           core.info('NPM_SIGNING_EXIST: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}');
           core.info('DOCKERFILE_EXIST: ${{steps.check_files.outputs.DOCKERFILE_EXIST}}');
           core.info('HEALTHCHECK_EXIST: ${{steps.check_files.outputs.HEALTHCHECK_EXIST}}');
@@ -246,8 +248,8 @@ runs:
       id: build_tools
       shell: bash
       run: |
-        [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
-        [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
+        [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST_SRC == 'true' || steps.check_files.outputs.NPM_EXIST_ROOT == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
+        [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST_SRC == 'true' || steps.check_files.outputs.NPM_EXIST_ROOT == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
 
     - name: "Install Multi-push tool"
       if: |-
@@ -294,14 +296,14 @@ runs:
         { echo "DEPLOY=false";  } >> "$GITHUB_ENV"
 
     - name: "Install Package Builder"
-      if: steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'
+      if: steps.check_files.outputs.NPM_EXIST_SRC == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'
       uses: ./.github/actions/dotnet-tool
       with:
         TOOL_NAME: "FunFair.Content.Packager.Cmd"
         TOOL_VERSION: "${{inputs.NPM_PRODUCTION_PACKAGER_VERSION}}"
 
     - name: "Install Package Store Signer"
-      if: steps.check_files.outputs.NPM_EXIST == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'
+      if: steps.check_files.outputs.NPM_EXIST_SRC == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'
       uses: ./.github/actions/dotnet-tool
       with:
         TOOL_NAME: "FunFair.Content.PackageSigner.Cmd"
@@ -349,7 +351,7 @@ runs:
     # NPM BUILD
     ############################################################################################################
     - name: "Npm: Build"
-      if: steps.check_files.outputs.NPM_EXIST == 'true'
+      if: steps.check_files.outputs.NPM_EXIST_SRC == 'true' || steps.check_files.outputs.NPM_EXIST_ROOT == 'true'
       uses: ./.github/actions/npm
       with:
         BUILD_VERSION: ${{env.BUILD_VERSION}}
