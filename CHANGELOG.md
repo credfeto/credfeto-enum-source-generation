@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 1.11.0
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.23.0.137933
 - Dependencies - Updated FunFair.Test.Common to 6.2.19.2017
+- Dependencies - Updated FunFair.Test.Source.Generator to 6.2.19.2017
 ### Removed
 ### Deployment Changes
 
