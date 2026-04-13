@@ -421,11 +421,16 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-#      - name: "Check changelog"
-#        uses: crajapakshe/changelog-validator@v1.0.0
-#        with:
-#          changelog-path: 'CHANGELOG.md'
-#          check-updated: 'false'
+      # use test version of changelog validator until we can get the fix merged in and released
+      # uses: crajapakshe/changelog-validator@v1.0.0
+      - name: "Check changelog"
+        uses: credfeto/changelog-validator@fix/support-keep-a-changelog
+        with:
+          changelog-path: 'CHANGELOG.md'
+          check-updated: 'false'
+          changelog-title: 'Changelog'
+          unreleased-header: 'Unreleased'
+          change-headers: 'Added, Changed, Deprecated, Removed, Fixed, Security, Deployment Changes'
 
   lint-code:
     if: |-
