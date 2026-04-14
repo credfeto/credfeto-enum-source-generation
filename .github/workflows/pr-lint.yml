@@ -406,9 +406,7 @@ jobs:
         uses: greenled/no-merge-commits-check@v1.0.1
 
   valid-changelog:
-    runs-on:
-      - self-hosted
-      - linux
+    runs-on: ubuntu-latest
     steps:
       - name: "Correct ownership"
         shell: bash
