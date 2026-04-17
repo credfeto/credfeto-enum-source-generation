@@ -110,13 +110,6 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: "Get version from global.json"
-        if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
-        uses: credfeto/action-dotnet-version-detect@v1.3.0
-        with:
-          file: src/global.json
-          fallback: 8.0.*
-
       - name: "Check Required Secrets"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
         shell: bash
@@ -128,77 +121,15 @@ jobs:
 
       - name: "Install dotnet"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
-        uses: actions/setup-dotnet@v5.2.0
-        env:
+        uses: ./.github/actions/dotnet-install
+        with:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-          DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-          DOTNET_MULTILEVEL_LOOKUP: "false"
-          DOTNET_NOLOGO: "true"
-          DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-          DOTNET_JitCollect64BitCounts: "1"
-          DOTNET_ReadyToRun: "0"
-          DOTNET_TC_QuickJitForLoops: "1"
-          DOTNET_TC_CallCountingDelayMs: "0"
-          DOTNET_TieredPGO: "1"
-          MSBUILDTERMINALLOGGER: "auto"
-          NUGET_PACKAGES: ${{github.workspace}}/.nuget/packages
-        with:
-          cache: false
-          dotnet-version: |
-            6.0.*
-            7.0.*
-            8.0.*
-            9.0.*
-            ${{env.DOTNET_VERSION}}
-
-      - name: "Check Runner details"
-        uses: actions/github-script@v9.0.0
-        with:
-          script: |
-            core.info('Name: ${{runner.name}}');
-            core.info('OS: ${{runner.os}}');
-
-      - name: "Enable Local nuget feeds if caching"
-        if: runner.environment == 'self-hosted'
-        id: nuget-local-cache
-        shell: bash
-        run: |
-          {
-            echo "NUGET_BAGET_CACHE=${{vars.NUGET_BAGET_CACHE}}"
-            echo "PRERELEASE_BAGET_CACHE=${{vars.PRERELEASE_BAGET_CACHE}}"
-            echo "RELEASE_BAGET_CACHE=${{vars.RELEASE_BAGET_CACHE}}"
-          }>> "$GITHUB_OUTPUT"
-
-      - name: "Configure nuget feeds"
-        if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
-        uses: ./.github/actions/nuget
-        with:
-          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{steps.nuget-local-cache.outputs.NUGET_BAGET_CACHE}}
+          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{vars.NUGET_BAGET_CACHE}}
           NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{steps.nuget-local-cache.outputs.RELEASE_BAGET_CACHE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{vars.RELEASE_BAGET_CACHE}}
           NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
           NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
           NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ""
-
-      - name: "Enable dotnet tools"
-        if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
-        shell: bash
-        working-directory: ${{github.workspace}}
-        run: dotnet new tool-manifest
-        env:
-          DDOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-          DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-          DOTNET_MULTILEVEL_LOOKUP: "false"
-          DOTNET_NOLOGO: "true"
-          DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-          DOTNET_JitCollect64BitCounts: "1"
-          DOTNET_ReadyToRun: "0"
-          DOTNET_TC_QuickJitForLoops: "1"
-          DOTNET_TC_CallCountingDelayMs: "0"
-          DOTNET_TieredPGO: "1"
-          MSBUILDTERMINALLOGGER: "auto"
-          NUGET_PACKAGES: ${{github.workspace}}/.nuget/packages
 
       - name: "Install Changelog tool"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
