@@ -1,0 +1,133 @@
+--- # Install dotnet, configure nuget feeds and create tool manifest
+name: 'Install dotnet'
+description: 'Install dotnet, configure nuget feeds and create tool manifest'
+inputs:
+  GITHUB_TOKEN:
+    description: 'Github Token'
+    required: true
+
+  # NUGET
+  NUGET_PUBLIC_RESTORE_FEED_CACHE:
+    description: 'Local cache of public nuget feed'
+    required: false
+  NUGET_PUBLIC_RESTORE_FEED:
+    description: 'Public nuget feed'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
+    description: 'Cache of any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE:
+    description: 'Cache of any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE:
+    description: 'Any additional nuget feed to download packages from'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "Set dotnet environment"
+      shell: bash
+      run: |
+        DOTNET_DIR="${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        NUGET_PKGS="${{github.workspace}}/.nuget/packages"
+        {
+          echo "DOTNET_ROOT=$DOTNET_DIR"
+          echo "DOTNET_INSTALL_DIR=$DOTNET_DIR"
+          echo "NUGET_PACKAGES=$NUGET_PKGS"
+          echo "DOTNET_MULTILEVEL_LOOKUP=false"
+          echo "DOTNET_NOLOGO=true"
+          echo "DOTNET_PRINT_TELEMETRY_MESSAGE=false"
+          echo "DOTNET_JitCollect64BitCounts=1"
+          echo "DOTNET_ReadyToRun=0"
+          echo "DOTNET_TC_QuickJitForLoops=1"
+          echo "DOTNET_TC_CallCountingDelayMs=0"
+          echo "DOTNET_TieredPGO=1"
+          echo "MSBUILDTERMINALLOGGER=auto"
+        } >> "$GITHUB_ENV"
+
+    # Workaround for https://github.com/dotnet/sdk/issues/11432
+    - name: "Explicitly kill any existing dotnet"
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: |
+        [ -d "$HOME/.dotnet" ] && rm -fr "$HOME/.dotnet"
+        mkdir "$HOME/.dotnet"
+
+    # Workaround for https://github.com/dotnet/sdk/issues/11432
+    - name: "Re-map users nuget package feed to temp folder"
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: |
+        echo "Ensure ~/.nuget folder exists"
+        [ -d "$HOME/.nuget" ] || mkdir -p "$HOME/.nuget"
+        echo "Ensure NUGET_PACKAGES folder exists at ${{env.NUGET_PACKAGES}}"
+        [ -d "${{env.NUGET_PACKAGES}}" ] || mkdir -p "${{env.NUGET_PACKAGES}}"
+        echo "Ensure ~/.nuget/packages doesn't exist"
+        rm -fr "$HOME/.nuget/packages"
+        echo "Link ~/.nuget/packages to ${{env.NUGET_PACKAGES}}"
+        ln -sf "${{env.NUGET_PACKAGES}}" "$HOME/.nuget/packages"
+        echo "Check ~/.nuget/packages"
+        ls -la "$HOME/.nuget/packages"
+
+    - name: "Determine dotnet version"
+      uses: credfeto/action-dotnet-version-detect@v1.3.0
+      with:
+        file: src/global.json
+        fallback: 10.0.*
+
+    - name: "Explicitly kill any existing dotnet"
+      shell: bash
+      run: rm -fr "${{github.workspace}}/.dotnet"
+
+    - name: "Check file existence"
+      id: check_dotnet
+      shell: bash
+      run: |
+        {
+        [[ -d src && -f src/global.json ]] && echo 'GLOBAL_JSON_EXIST=true' || echo 'GLOBAL_JSON_EXIST=false';
+        } >> "$GITHUB_OUTPUT"
+
+    - if: ${{steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'true'}}
+      name: "Install dotnet (For Build)"
+      uses: actions/setup-dotnet@v5.2.0
+      env:
+        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+      with:
+        cache: false
+        global-json-file: "${{ github.workspace }}/src/global.json"
+        dotnet-version: |
+          9.0.*
+
+    - if: ${{steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'false'}}
+      name: "Install dotnet (Tools)"
+      uses: actions/setup-dotnet@v5.2.0
+      env:
+        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+      with:
+        cache: false
+        dotnet-version: |
+          9.0.*
+          10.0.*
+
+    - name: "Configure nuget feeds"
+      uses: ./.github/actions/nuget
+      with:
+        NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}
+        NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
+
+    - name: "Enable dotnet tools"
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: |
+        rm -f dotnet-tools.json
+        rm -f .config/dotnet-tools.json
+        dotnet new tool-manifest
