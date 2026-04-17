@@ -19,35 +19,9 @@ runs:
       shell: bash
       working-directory: ${{ github.workspace }}
       run: (r=5;while ! dotnet tool install --local ${{inputs.TOOL_NAME}} --create-manifest-if-needed --ignore-failed-sources --verbosity diag ; do ((--r))||exit 1;sleep 30;done)
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
 
     - name: "Install dotnet tool (Specific Version)"
       if: inputs.TOOL_VERSION != 'latest'
       shell: bash
       working-directory: ${{ github.workspace }}
       run: (r=5;while ! dotnet tool install --local ${{inputs.TOOL_NAME}} --version ${{inputs.TOOL_VERSION}} --create-manifest-if-needed --ignore-failed-sources --verbosity diag ; do ((--r))||exit 1;sleep 30;done)
-      env:
-        DOTNET_ROOT: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_INSTALL_DIR: "${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        DOTNET_MULTILEVEL_LOOKUP: "false"
-        DOTNET_NOLOGO: "true"
-        DOTNET_PRINT_TELEMETRY_MESSAGE: "false"
-        DOTNET_JitCollect64BitCounts: "1"
-        DOTNET_ReadyToRun: "0"
-        DOTNET_TC_QuickJitForLoops: "1"
-        DOTNET_TC_CallCountingDelayMs: "0"
-        DOTNET_TieredPGO: "1"
-        MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
