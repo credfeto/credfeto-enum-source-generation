@@ -172,15 +172,17 @@ jobs:
           fetch-tags: true
 
       - name: "Check for leaks"
-        uses: DariuszPorowski/github-action-gitleaks@v2.1.0
-        id: gitleaks
+        uses: trufflesecurity/trufflehog@v3.95.2
+        id: trufflehog
         with:
-          config: .gitleaks.toml
-          report_format: "sarif"
-          fail: true
-          redact: true
-          verbose: true
-          log_level: info
+          path: "${{ github.workspace }}"
+          base: "${{ github.event.repository.default_branch }}"
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: "Scan Results Status"
+        if: steps.trufflehog.outcome == 'failure'
+        run: exit 1
 
   has-no-merge-conflicts:
     if: github.event.pull_request.draft == false
