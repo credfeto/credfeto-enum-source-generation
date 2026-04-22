@@ -2,6 +2,17 @@
 
 [Back to Global Instructions Index](index.md)
 
+## Language/Runtime Prerequisites (MANDATORY before any work)
+
+- Before starting any work, verify that all languages and runtimes required by the project are installed and available.
+- If a required language or runtime is not installed, **stop immediately**. Do not attempt to work around the missing tooling, scaffold code, or make partial changes. Ask the user to install it first.
+
+## Build and Test Verification (MANDATORY before any commit or push)
+
+- Before committing or pushing any change, the project must build and all tests must pass.
+- If the build fails or any test fails, **do not commit or push**. Fix the issues first.
+- If build or test errors cannot be resolved, stop and ask the user for guidance.
+
 ## Git Identity Check (MANDATORY before any commit)
 
 Before making any git commit, verify the configured identity is correct and GPG signing is enabled:
@@ -32,13 +43,13 @@ fi
 - Before starting work, either:
   - Find an existing issue that is a **100% match** for the task — confirm with the user before linking to it, or
   - Create a new issue that includes the original prompt and a clear description of what needs to be done.
-- If the task is significantly complex, break it into sub-issues and work on each one individually — close each sub-issue as soon as the relevant commit has been pushed to the working branch.
+- For complex or multi-component tasks, see [task-workflow.instructions.md](task-workflow.instructions.md) for how to break work into sub-issues and track progress.
 - Issue numbers must be referenced in commit messages and branch names where applicable (see branch naming rules above).
 - If work on an issue is abandoned for any reason (e.g. benchmarks show no gain, investigation reveals the change is not worthwhile), comment on the issue with the findings before closing or leaving it — do not abandon an issue silently.
 
 ## Branching
 
-- All new work must be done in a branch. Never commit directly to `main`.
+- All new work must be done in a branch. Never commit directly to `main` (also enforced by the Pre-Commit Branch Check above).
 - Before making any changes, ensure the current branch is `main` and is up-to-date with `origin`.
 - Until there is an explicit change in task, continue working in the same branch.
 - Before starting any new piece of work on an existing branch, check whether `origin/main` has been updated — if it has, rebase the branch onto `origin/main` before continuing, resolving any conflicts in a way that retains the intent of the current branch's work.
@@ -80,3 +91,25 @@ fi
   - Names the vulnerable package and the severity.
   - Describes the steps to fix it manually.
   - Is labelled `Security` and `AI-Work`.
+
+## Template Rule Escalation (Non-Template Repos Only)
+
+This section applies **only when working in a non-template repository** (i.e., any repo other than `credfeto/cs-template`).
+
+If, during work in a non-template repo, a gap or needed change is identified in the global template rules or instructions:
+
+1. **Do not** apply the rule change locally — template rules are managed centrally in `credfeto/cs-template`.
+2. Create a new issue in `credfeto/cs-template` using the GitHub CLI:
+   ```bash
+   gh issue create --repo credfeto/cs-template \
+     --title "<short description of the rule change>" \
+     --label "AI-Work" \
+     --body "..."
+   ```
+3. The issue body **must** include all of the following:
+   - **Source repository**: The repo where the need was discovered.
+   - **Current behaviour / gap**: What is missing or inconsistent in the existing rules.
+   - **Proposed rule text**: The concrete rule update or new instruction text being requested.
+   - **Reason for template propagation**: Why this change should apply across all repos, not just locally.
+4. After creating the issue, note its URL in any relevant commit or PR description so the context is not lost.
+5. Continue work in the current repo without waiting for the template issue to be resolved.
