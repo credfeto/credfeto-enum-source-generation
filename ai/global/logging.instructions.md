@@ -10,7 +10,9 @@
   - The logging class must be named after the class it serves, suffixed with `LoggingExtensions` — e.g. for a class `Foo`, the logging class is `FooLoggingExtensions`.
   - The logging class must be `internal` and `static`.
 
-## Structured Logging- All logging must use structured logging — log data as key-value pairs or structured objects, not concatenated strings.
+## Structured Logging
+
+- All logging must use structured logging — log data as key-value pairs or structured objects, not concatenated strings.
 - This ensures logs are machine-readable and queryable in log aggregation tools.
 
 ## Log Levels
