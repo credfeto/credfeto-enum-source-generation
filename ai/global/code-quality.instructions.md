@@ -9,8 +9,8 @@
 
 ## Pre-Commit
 
-- Unit tests must be written and must pass before every commit.
-- Never commit code that causes existing tests to fail.
+- Unit tests must be written before every commit — every new behaviour or change must have corresponding tests.
+- See [git.instructions.md](git.instructions.md) for the mandatory build and test verification rules that apply before every commit.
 
 ## Dead Code
 
