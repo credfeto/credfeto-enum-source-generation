@@ -13,6 +13,20 @@
 - **When creating or updating a PR**, always add yourself as an assignee (`gh pr edit <number> --add-assignee @me`).
 - Do this at the time of PR creation, or immediately after if the PR already exists.
 
+## PR and Branch Concurrency
+
+- Only one active branch or open PR per repository at a time.
+- Do not start new work (create a new branch or open a new PR) until the current branch has been merged and the PR closed.
+- If asked to start new work while a PR is still open, stop and inform the user — do not proceed until either the open PR is merged or the user explicitly instructs you to work in parallel.
+
+## PR Draft State
+
+- **When additional work needs to be added to an open PR** (e.g. addressing review comments, adding missing coverage, fixing CI failures), convert it to a draft immediately before starting: `gh pr ready <number> --undo`.
+- Keep the PR in draft for the entire duration of that work — do not flip it back early.
+- **Only convert back to ready for review once all work is complete** and Code Tester and Code Reviewer are both satisfied.
+- Before marking ready, rebase the branch onto `origin/main` to eliminate any merge conflicts: `git fetch origin && git rebase origin/main`. Resolve any conflicts before proceeding.
+- Once rebased and clean, mark ready: `gh pr ready <number>`.
+
 ## Large Multi-Handler / Multi-App Tasks
 
 When given a task that spans multiple handlers, apps, or components (e.g. "ensure 100% coverage for all handlers", "migrate all projects to a new package"):
@@ -102,6 +116,7 @@ For complex files where it takes multiple rounds of changes:
 **Code Fixer (PR Review Responder)**
 
 - Addresses `CHANGES_REQUESTED` review comments on an existing PR.
+- Converts the PR to draft before starting any work (see PR Draft State rules above).
 - Each review comment gets its own separate commit.
 - Hands off to Code Tester after each fix rather than running build/tests itself.
 
