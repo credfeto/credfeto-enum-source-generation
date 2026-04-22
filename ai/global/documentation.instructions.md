@@ -14,6 +14,12 @@
   - Link to the security policy — use the standard filename (`SECURITY.md`).
   - Link to `CHANGELOG.md`.
 
+## Configuration Documentation
+
+- Whenever a configuration option is added, removed, or renamed (in `appsettings.json`, an options class, or environment variable mapping), the corresponding section in `README.md` must be updated in the same commit.
+- The `README.md` configuration section must accurately reflect all current options, their types, default values, and a brief description of what each does.
+- This applies to any project that has a `README.md` with a configuration or setup section.
+
 ## CHANGELOG
 
 - Maintain `CHANGELOG.md` in [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format to track changes and updates to the project.
