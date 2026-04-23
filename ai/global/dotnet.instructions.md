@@ -77,6 +77,55 @@ Never push code that does not compile. If you cannot fix a build error, report i
 - All test projects must import the latest release version of the `FunFair.Test.Source.Generator` source generator package.
 - Test fixture classes must derive from `FunFair.Test.Common.TestBase`.
 
+## NSubstitute and FunFair.Test.Common Patterns
+
+When writing tests with `FunFair.Test.Common.TestBase`, use the helper methods provided by the base class instead of calling NSubstitute directly:
+
+| Instead of | Use |
+|---|---|
+| `Substitute.For<IMyInterface>()` | `GetSubstitute<IMyInterface>()` (static — no `this.`) |
+| `Substitute.For<ILogger<MyClass>>()` | `this.GetTypedLogger<MyClass>()` (instance — requires `this.`) |
+
+### Rules
+
+- Never call `Substitute.For<T>()` directly in test classes that derive from `TestBase` or `DependencyInjectionTestsBase`.
+- Use `GetSubstitute<T>()` (no `this.` prefix — it is a static method) for all interface/class mocks.
+- Use `this.GetTypedLogger<T>()` (with `this.` prefix — it is an instance method) for `ILogger<T>` mocks.
+- Remove unused `using NSubstitute;` statements from files where all `Substitute.For<>()` calls have been replaced.
+
+## DI Setup Test Patterns
+
+When writing DI setup tests that derive from `DependencyInjectionTestsBase`, use `AddMockedService<T>()` from `FunFair.Test.Common` to register mocks.
+
+### Registering mocked services
+
+Use `.AddMockedService<T>()` instead of creating concrete inner classes or calling `Substitute.For<T>()` manually:
+
+```csharp
+// ✅ Correct
+private static IServiceCollection Configure(IServiceCollection services)
+{
+    return services.AddMyModule()
+                   .AddMockedService<IFoo>()
+                   .AddMockedService<IBar>();
+}
+```
+
+### Registering mocked IOptions\<T\>
+
+Use `.AddMockedService<IOptions<TOptions>>(static o => o.Value.Returns(new TOptions()))` instead of `Options.Create(...)`:
+
+```csharp
+// ✅ Correct
+.AddMockedService<IOptions<MyOptions>>(static o => o.Value.Returns(new MyOptions()))
+
+// ❌ Wrong
+.AddSingleton<IOptions<MyOptions>>(Options.Create(new MyOptions()))
+```
+
+- Never create concrete no-op inner classes to satisfy DI mocking in setup tests.
+- `GetSubstitute<T>()` is safe to call from `static` Configure methods (it is a static method).
+
 ## Source File Organisation
 
 - **One type per file**: every C# source file must contain exactly one type (class, record, struct, interface, or enum). Do not define multiple types in a single file.
