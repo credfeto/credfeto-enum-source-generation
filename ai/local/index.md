@@ -1,5 +1,4 @@
 <-- Globally Maintained -->
-<-- Globally Maintained -->
 # Local instructions
 
 This is an index of local instructions that apply to just this project. 
@@ -13,54 +12,4 @@ This is an index of local instructions that apply to just this project.
 - The rules above this point in the file should be considered global rules.
 
 ## Instruction Files
-
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
-<-- Locally Maintained -->
 <-- Locally Maintained -->
