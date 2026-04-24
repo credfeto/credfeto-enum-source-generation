@@ -1,0 +1,28 @@
+name: "Delete Branch"
+description: "Deletes a remote branch"
+
+inputs:
+  github-token:
+    description: "GitHub token with contents write permission"
+    required: true
+  branch:
+    description: "Name of the branch to delete"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: "Delete Branch"
+      uses: actions/github-script@v9.0.0
+      with:
+        github-token: ${{inputs.github-token}}
+        script: |
+          const branch = process.env.BRANCH;
+          await octokit.rest.git.deleteRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: `heads/${branch}`,
+          });
+          core.info(`Deleted branch: ${branch}`);
+      env:
+        BRANCH: ${{inputs.branch}}
