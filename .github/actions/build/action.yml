@@ -317,13 +317,6 @@ runs:
         TOOL_NAME: "changelog"
         TOOL_ARGUMENTS: "\"${{github.workspace}}/CHANGELOG.md\" --extract RELEASE_NOTES.md --version \"${{env.BUILD_VERSION}}\""
 
-    - name: "Read Release Notes"
-      if: steps.build_tools.outputs.BUILD_ENV == 'true'
-      id: release-notes
-      uses: juliangruber/read-file-action@v1.1.8
-      with:
-        path: RELEASE_NOTES.md
-
     ############################################################################################################
     # DOTNET BUILD
     ############################################################################################################
