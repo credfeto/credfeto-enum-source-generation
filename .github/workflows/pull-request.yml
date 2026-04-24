@@ -149,16 +149,15 @@ jobs:
       - name: "Create Pull Request"
         if: steps.findPr.outputs.number == ''
         id: open-pr
-        uses: repo-sync/pull-request@v2.12
+        uses: ./.github/actions/create-pull-request
         with:
-          source_branch: ""                     # If blank, default: triggered branch
-          destination_branch: "main"            # If blank, default: master
-          pr_assignee: ${{github.actor}}      # Comma-separated list (no spaces)
-          pr_label: "auto-pr"                   # Comma-separated list (no spaces)
-          pr_draft: ${{steps.draft-flag.outputs.create-draft || env.CREATE_DRAFT}}                        # Creates pull request as draft
-          pr_title: ${{steps.commit-info.outputs.commit-title}}
-          pr_body: ${{steps.pr-template.outputs.content}}
-          github_token: ${{github.token}}
+          github-token: ${{github.token}}
+          destination-branch: "main"
+          assignee: ${{github.actor}}
+          labels: "auto-pr"
+          draft: ${{steps.draft-flag.outputs.create-draft || env.CREATE_DRAFT}}
+          title: ${{steps.commit-info.outputs.commit-title}}
+          body: ${{steps.pr-template.outputs.content}}
 
       - name: "New PR Details"
         if: steps.findPr.outputs.number == ''
@@ -180,7 +179,7 @@ jobs:
 
       - name: "Sync Labels"
         if: steps.findPr.outputs.number == ''
-        uses: actions/labeler@v6
+        uses: actions/labeler@v6.0.1
         with:
           repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           configuration-path: .github/labeler.yml
