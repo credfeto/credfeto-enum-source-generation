@@ -1,0 +1,65 @@
+name: "Setup Build Cache"
+description: "Configures nuget/npm cache env vars and checks repo visibility"
+
+inputs:
+  github-token:
+    description: "GitHub token for repo visibility check"
+    required: true
+  use-nuget-cache:
+    description: "Whether to use nuget cache (true/false, or empty to disable)"
+    required: false
+    default: ""
+  repo-status:
+    description: "Repository visibility (public/private, or empty to auto-detect)"
+    required: false
+    default: ""
+  nuget-baget-cache:
+    description: "Nuget BaGet cache URL"
+    required: false
+    default: ""
+  prerelease-baget-cache:
+    description: "Pre-release BaGet cache URL"
+    required: false
+    default: ""
+  release-baget-cache:
+    description: "Release BaGet cache URL"
+    required: false
+    default: ""
+  npm-cache:
+    description: "NPM cache registry URL"
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: "Determine cache status"
+      id: cache-status
+      shell: bash
+      run: |
+        use_cache="${{inputs.use-nuget-cache}}"
+        if [[ -z "$use_cache" || "${{runner.environment}}" != "self-hosted" ]]; then
+          use_cache="false"
+        fi
+        echo "USE_NUGET_CACHE=${use_cache}" >> "$GITHUB_ENV"
+        echo "use-nuget-cache=${use_cache}" >> "$GITHUB_OUTPUT"
+
+    - name: "Check Runner details"
+      uses: actions/github-script@v9.0.0
+      with:
+        github-token: ${{inputs.github-token}}
+        script: |
+          core.info('Name: ${{runner.name}}');
+          core.info('OS: ${{runner.os}}');
+
+    - name: "Enable Local nuget/npm feeds if caching"
+      if: steps.cache-status.outputs.use-nuget-cache == 'true'
+      shell: bash
+      run: |
+        {
+          echo "NUGET_BAGET_CACHE=${{inputs.nuget-baget-cache}}"
+          echo "PRERELEASE_BAGET_CACHE=${{inputs.prerelease-baget-cache}}"
+          echo "RELEASE_BAGET_CACHE=${{inputs.release-baget-cache}}"
+          [[ -n "${{inputs.npm-cache}}" ]] \
+                      && echo "NPM_REGISTRY=${{inputs.npm-cache}}"
+        }>> "$GITHUB_ENV"
