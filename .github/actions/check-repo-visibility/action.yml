@@ -1,0 +1,29 @@
+name: "Check Repository Visibility"
+description: "Checks if the current repository is public or private"
+
+inputs:
+  github-token:
+    description: "GitHub token for API access"
+    required: true
+
+outputs:
+  is_public:
+    description: "Whether the repository is public ('true' or 'false')"
+    value: ${{steps.check.outputs.is_public}}
+
+runs:
+  using: composite
+  steps:
+    - name: "Check Repository Visibility"
+      id: check
+      uses: actions/github-script@v9.0.0
+      with:
+        github-token: ${{inputs.github-token}}
+        script: |
+          const { data: repo } = await octokit.rest.repos.get({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          const isPublic = !repo.private;
+          core.info(`Repository is ${isPublic ? 'public' : 'private'}`);
+          core.setOutput('is_public', isPublic ? 'true' : 'false');
