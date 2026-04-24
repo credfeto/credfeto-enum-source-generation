@@ -1,0 +1,107 @@
+name: "Create Pull Request"
+description: "Creates a pull request and assigns labels and assignees"
+
+inputs:
+  github-token:
+    description: "GitHub token with pull-requests write permission"
+    required: true
+  source-branch:
+    description: "Branch to merge from (default: triggering branch)"
+    required: false
+    default: ""
+  destination-branch:
+    description: "Branch to merge into"
+    required: false
+    default: "main"
+  assignee:
+    description: "Comma-separated list of assignees"
+    required: false
+    default: ""
+  labels:
+    description: "Comma-separated list of labels"
+    required: false
+    default: ""
+  draft:
+    description: "Create as draft PR"
+    required: false
+    default: "false"
+  title:
+    description: "Pull request title"
+    required: true
+  body:
+    description: "Pull request body"
+    required: false
+    default: ""
+
+outputs:
+  pr_number:
+    description: "Number of the created pull request"
+    value: ${{steps.create.outputs.pr_number}}
+  pr_url:
+    description: "URL of the created pull request"
+    value: ${{steps.create.outputs.pr_url}}
+  has_changed_files:
+    description: "Whether the pull request has changed files"
+    value: ${{steps.create.outputs.has_changed_files}}
+
+runs:
+  using: composite
+  steps:
+    - name: "Create Pull Request"
+      id: create
+      uses: actions/github-script@v9.0.0
+      with:
+        github-token: ${{inputs.github-token}}
+        script: |
+          const sourceBranch = process.env.SOURCE_BRANCH || context.ref.replace('refs/heads/', '');
+          const destinationBranch = process.env.DESTINATION_BRANCH;
+          const title = process.env.TITLE;
+          const body = process.env.BODY;
+          const draft = process.env.DRAFT === 'true';
+          const assignees = process.env.ASSIGNEE
+            ? process.env.ASSIGNEE.split(',').map(a => a.trim()).filter(Boolean)
+            : [];
+          const labels = process.env.LABELS
+            ? process.env.LABELS.split(',').map(l => l.trim()).filter(Boolean)
+            : [];
+
+          const { data: pr } = await octokit.rest.pulls.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            head: sourceBranch,
+            base: destinationBranch,
+            draft: draft,
+          });
+
+          if (assignees.length > 0) {
+            await octokit.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              assignees: assignees,
+            });
+          }
+
+          if (labels.length > 0) {
+            await octokit.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: labels,
+            });
+          }
+
+          core.info(`Created PR #${pr.number}: ${pr.html_url}`);
+          core.setOutput('pr_number', String(pr.number));
+          core.setOutput('pr_url', pr.html_url);
+          core.setOutput('has_changed_files', String(pr.changed_files > 0));
+      env:
+        SOURCE_BRANCH: ${{inputs.source-branch}}
+        DESTINATION_BRANCH: ${{inputs.destination-branch}}
+        TITLE: ${{inputs.title}}
+        BODY: ${{inputs.body}}
+        DRAFT: ${{inputs.draft}}
+        ASSIGNEE: ${{inputs.assignee}}
+        LABELS: ${{inputs.labels}}
