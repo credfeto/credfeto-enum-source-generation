@@ -81,7 +81,7 @@ jobs:
           fetch-tags: true
 
       - name: "Find PR For branch"
-        uses: juliangruber/find-pull-request-action@v1.11.0
+        uses: ./.github/actions/find-pull-request
         id: findPr
         with:
           branch: ${{github.ref_name}}
@@ -97,7 +97,7 @@ jobs:
       - name: "Read PR Template"
         if: steps.findPr.outputs.number == ''
         id: pr-template
-        uses: juliangruber/read-file-action@v1.1.8
+        uses: ./.github/actions/read-file
         with:
           path: ./.github/PULL_REQUEST_TEMPLATE.md
 
