@@ -155,7 +155,7 @@ runs:
   #   run: npm run test
 
   - name: "NPM: Build"
-    working-directory: ${{steps.build_context.outputs.WORK_DIR
+    working-directory: ${{steps.build_context.outputs.WORK_DIR}}
     shell: bash
     run: npm run build
 
