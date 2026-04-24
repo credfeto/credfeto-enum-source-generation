@@ -55,7 +55,7 @@ runs:
       uses: ./.github/actions/docker-image-test
       with:
         APP_OWNER: ${{inputs.APP_OWNER}}
-        APP_NAME: ${{inputs.APP_NAME}}c
+        APP_NAME: ${{inputs.APP_NAME}}
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
 
     - name: "Docker: Build with tags"
