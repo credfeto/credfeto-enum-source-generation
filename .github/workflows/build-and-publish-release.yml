@@ -64,42 +64,16 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - if: env.USE_NUGET_CACHE == ''
-        name: "Setup Nuget Cache (Cache disabled)"
-        shell: bash
-        run: echo "USE_NUGET_CACHE=false" >> "$GITHUB_ENV"
-
-      - if: runner.environment != 'self-hosted'
-        name: "Ensure on github agents nuget cache is disabled"
-        shell: bash
-        run: echo "USE_NUGET_CACHE=false" >> "$GITHUB_ENV"
-
-      - if: env.REPO_STATUS == ''
-        name: "Check Repo Visibility"
-        uses: credfeto/action-repo-visibility@v1.2.0
-        id: visibility
+      - name: "Setup Build Cache"
+        uses: ./.github/actions/setup-build-cache
         with:
-          repository: ${{github.repository}}
-          token: ${{secrets.SOURCE_PUSH_TOKEN}}
-
-      - name: "Check Runner details"
-        uses: actions/github-script@v9.0.0
-        with:
-          script: |
-            core.info('Name: ${{runner.name}}');
-            core.info('OS: ${{runner.os}}');
-
-      - name: "Enable Local nuget/npm feeds if caching"
-        if: env.USE_NUGET_CACHE == 'true'
-        shell: bash
-        run: |
-          {
-            echo "NUGET_BAGET_CACHE=${{vars.NUGET_BAGET_CACHE}}"
-            echo "PRERELEASE_BAGET_CACHE=${{vars.PRERELEASE_BAGET_CACHE}}"
-            echo "RELEASE_BAGET_CACHE=${{vars.RELEASE_BAGET_CACHE}}"
-            [[ -n "${{vars.NPM_CACHE}}" ]] \
-                        && echo "NPM_REGISTRY=${{vars.NPM_CACHE}}"
-          }>> "$GITHUB_ENV"
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          use-nuget-cache: ${{vars.USE_NUGET_CACHE}}
+          repo-status: ${{vars.REPO_VISIBILITY}}
+          nuget-baget-cache: ${{vars.NUGET_BAGET_CACHE}}
+          prerelease-baget-cache: ${{vars.PRERELEASE_BAGET_CACHE}}
+          release-baget-cache: ${{vars.RELEASE_BAGET_CACHE}}
+          npm-cache: ${{vars.NPM_CACHE}}
 
       - name: "Build and deploy"
         uses: ./.github/actions/build
