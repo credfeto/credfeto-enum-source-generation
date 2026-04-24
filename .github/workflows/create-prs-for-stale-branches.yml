@@ -212,16 +212,16 @@ jobs:
           && steps.aheadbehind.outputs.ahead != 0
           && steps.aheadbehind.outputs.dayssinceupdate > 7
         id: open-pr
-        uses: repo-sync/pull-request@v2.12
+        uses: ./.github/actions/create-pull-request
         with:
-          source_branch: ${{matrix.branch}}       # If blank, default: triggered branch
-          destination_branch: ${{steps.detection.outputs.defaultbranch}}            # If blank, default: master
-          pr_assignee: "${{github.actor}}"    # Comma-separated list (no spaces)
-          pr_label: "auto-pr,stale"             # Comma-separated list (no spaces)
-          pr_draft: ${{env.CREATE_DRAFT}}                        # Creates pull request as draft
-          pr_title: "${{steps.aheadbehind.outputs.COMMIT_MSG}} [No commits for ${{steps.aheadbehind.outputs.dayssinceupdate}} days]"
-          pr_body: "${{steps.pr-template.outputs.content}}"
-          github_token: ${{github.token}}
+          github-token: ${{github.token}}
+          source-branch: ${{matrix.branch}}
+          destination-branch: ${{steps.detection.outputs.defaultbranch}}
+          assignee: ${{github.actor}}
+          labels: "auto-pr,stale"
+          draft: ${{env.CREATE_DRAFT}}
+          title: "${{steps.aheadbehind.outputs.COMMIT_MSG}} [No commits for ${{steps.aheadbehind.outputs.dayssinceupdate}} days]"
+          body: "${{steps.pr-template.outputs.content}}"
 
       - name: "New PR Details"
         if: |-
@@ -247,7 +247,7 @@ jobs:
 
       - name: "Update PR Labels"
         if: steps.open-pr.outputs.pr_number != ''
-        uses: actions/labeler@v6
+        uses: actions/labeler@v6.0.1
         with:
           repo-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           configuration-path: .github/labeler.yml
