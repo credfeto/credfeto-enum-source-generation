@@ -1,0 +1,40 @@
+name: "Find Pull Request"
+description: "Finds an open pull request for a given branch and returns its number and head SHA"
+
+inputs:
+  branch:
+    description: "Branch name to search for"
+    required: true
+
+outputs:
+  number:
+    description: "Pull request number, or empty string if not found"
+    value: ${{steps.find-pr.outputs.number}}
+  head-sha:
+    description: "Head commit SHA of the pull request, or empty string if not found"
+    value: ${{steps.find-pr.outputs.head-sha}}
+
+runs:
+  using: composite
+  steps:
+    - name: "Find Pull Request"
+      id: find-pr
+      uses: actions/github-script@v9.0.0
+      env:
+        BRANCH: ${{inputs.branch}}
+      with:
+        script: |
+          const branch = process.env.BRANCH;
+          const { data: pulls } = await octokit.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            head: `${context.repo.owner}:${branch}`,
+          });
+          if (pulls.length > 0) {
+            core.setOutput('number', String(pulls[0].number));
+            core.setOutput('head-sha', pulls[0].head.sha);
+          } else {
+            core.setOutput('number', '');
+            core.setOutput('head-sha', '');
+          }
