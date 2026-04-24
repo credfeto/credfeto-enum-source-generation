@@ -27,4 +27,4 @@ This is an index of global instructions that apply to all projects.
 | [logging.instructions.md](logging.instructions.md) | Structured logging, log levels, what to log and what not to log (no PII, no secrets) |
 | [dotnet.instructions.md](dotnet.instructions.md) | .NET-specific: build and test before commit (`dotnet build`/`dotnet test`), solution structure, test assembly naming, FunFair.Test.Common, FunFair.BuildCheck, project-level NuGetAuditSuppress (no global NU19xx suppression) |
 | [task-workflow.instructions.md](task-workflow.instructions.md) | Issue/PR assignment, splitting large tasks into sub-issues worked one at a time, file status tracking, commit/push cadence, multi-agent routing (Code Writer → Code Tester → Code Reviewer → Changelog → Committer), resuming interrupted work |
- 
+| [github-workflows.instructions.md](github-workflows.instructions.md) | Third-party action policy, converting to github-script, local composite action structure, version pinning, permissions, workflow concurrency, dead step removal |
