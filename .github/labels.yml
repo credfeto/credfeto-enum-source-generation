@@ -2,6 +2,10 @@
    color: "a870c9"
    description: "Update to .net global.json"
 
+ - name: "AI-Work"
+   color: "ffa500"
+   description: "Work for an AI Agent"
+
  - name: "auto-pr"
    color: "0000aa"
    description: "Pull request created automatically"
@@ -74,9 +78,21 @@
    color: "e09cf4"
    description: "Github actions workflow files"
 
+ - name: "High"
+   color: "ffa500"
+   description: "High Priority"
+
+ - name: "Low"
+   color: "cc8899"
+   description: "Low Priority"
+
  - name: "Markdown"
    color: "5319e7"
    description: "Markdown files"
+
+ - name: "Medium"
+   color: "ffff00"
+   description: "Medium Priority"
 
  - name: "Migration Script"
    color: "b680e5"
@@ -89,6 +105,10 @@
  - name: "npm"
    color: "e99695"
    description: "npm package update"
+
+ - name: "On Hold"
+   color: "ff0000"
+   description: "Do not work on this"
 
  - name: "Powershell"
    color: "23bc12"
@@ -121,4 +141,8 @@
  - name: "Unit Tests"
    color: "0e8a16"
    description: "Unit test and integration test projects"
+
+ - name: "Urgent"
+   color: "ff0000"
+   description: "Urgent Priority"
 
