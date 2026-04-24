@@ -100,35 +100,67 @@ jobs:
           echo "Latest Version: $VER"
           [[ "$VER" == "${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}" ]] && echo "NEW_VERSION=true" >> "$GITHUB_OUTPUT" || echo "NEW_VERSION=false" >> "$GITHUB_OUTPUT"
 
-      - name: "Switch to version branch"
+      - name: "Ensure branch and update global.json"
         if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
-        shell: bash
-        run: |
-          git checkout "depends/dotnet/${{env.NEW_DOTNET_VERSION}}" || git checkout -b "depends/dotnet/${{env.NEW_DOTNET_VERSION}}"
-        env:
-          NEW_DOTNET_VERSION: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
-
-      - name: "Update global.json to latest version"
-        if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
-        shell: bash
-        working-directory: src
-        run: |
-          echo "Should update to ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          mv "global.json" "global.json.tmp";
-          jq --arg v "$NEW_DOTNET_VERSION" '.sdk.version = $v' < "global.json.tmp" > "global.json";
-          [ -f "global.json.tmp" ] && rm -f "global.json.tmp"
-          cat "global.json"
-        env:
-          NEW_DOTNET_VERSION: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
-
-      - name: "Commit changes to new branch"
-        if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v7.1.0
+        uses: actions/github-script@v9.0.0
         with:
-          commit_message: "SDK - Update DotNet SDK to ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          branch: "depends/dotnet/${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          file_pattern: src/global.json
-          commit_user_name: "fun-version[bot]"
-          commit_user_email: "credfeto@users.noreply.github.com"
-          commit_author: "fun-version[bot] <credfeto@users.noreply.github.com>"
-          skip_dirty_check: false
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          script: |
+            const version = process.env.NEW_DOTNET_VERSION;
+            const branchName = `depends/dotnet/${version}`;
+            const branchRef = `heads/${branchName}`;
+
+            const { data: mainRef } = await octokit.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'heads/main',
+            });
+
+            try {
+              await octokit.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: branchRef,
+              });
+              core.info(`Branch ${branchName} already exists`);
+            } catch (err) {
+              if (err.status !== 404) throw err;
+              await octokit.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/${branchRef}`,
+                sha: mainRef.object.sha,
+              });
+              core.info(`Created branch ${branchName}`);
+            }
+
+            const { data: fileData } = await octokit.rest.repos.getContent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: 'src/global.json',
+              ref: branchName,
+            });
+            const globalJson = JSON.parse(Buffer.from(fileData.content, 'base64').toString('utf8'));
+
+            if (globalJson.sdk && globalJson.sdk.version === version) {
+              core.info(`global.json already at version ${version}, nothing to do`);
+              return;
+            }
+
+            globalJson.sdk.version = version;
+            const updated = JSON.stringify(globalJson, null, 2) + '\n';
+
+            await octokit.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: 'src/global.json',
+              message: `SDK - Update DotNet SDK to ${version}`,
+              content: Buffer.from(updated).toString('base64'),
+              sha: fileData.sha,
+              branch: branchName,
+              committer: { name: 'fun-version[bot]', email: 'credfeto@users.noreply.github.com' },
+              author: { name: 'fun-version[bot]', email: 'credfeto@users.noreply.github.com' },
+            });
+            core.info(`Updated global.json to ${version} on branch ${branchName}`);
+        env:
+          NEW_DOTNET_VERSION: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}
