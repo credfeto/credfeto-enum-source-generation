@@ -114,11 +114,10 @@ jobs:
 
       - if: env.REPO_STATUS == '' && github.repository_owner != 'funfair-tech'
         name: "Check Repo Visibility"
-        uses: credfeto/action-repo-visibility@v1.2.0
+        uses: ./.github/actions/check-repo-visibility
         id: visibility
         with:
-          repository: ${{github.repository}}
-          token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
       - name: "Override DRAFT Flag"
         if: github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'
