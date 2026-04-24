@@ -157,7 +157,7 @@ runs:
   steps:
 
     - name: "Parameter Summary"
-      uses: actions/github-script@v8.0.0
+      uses: actions/github-script@v9.0.0
       with:
         script: |
           core.info('PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}');
@@ -193,7 +193,7 @@ runs:
         } >> "$GITHUB_OUTPUT"
 
     - name: "Check Files Results"
-      uses: actions/github-script@v8.0.0
+      uses: actions/github-script@v9.0.0
       with:
         script: |
           core.info('CSPROJ_EXIST: ${{steps.check_files.outputs.CSPROJ_EXIST}}');
@@ -482,7 +482,7 @@ runs:
     - name: "Create Release"
       if: steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.CREATE_RELEASE == 'true'
       id: create_release
-      uses: ncipollo/release-action@v1.20.0
+      uses: ncipollo/release-action@v1.21.0
       with:
         tag: v${{env.BUILD_VERSION}}
         name:  Release ${{env.BUILD_VERSION}}
