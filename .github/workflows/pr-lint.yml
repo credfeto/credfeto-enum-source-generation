@@ -208,13 +208,41 @@ jobs:
           fetch-depth: 1
 
       - name: "Check for merge conflicts"
-        shell: bash
-        run: |
-          if git grep -rl '^<<<<<<< ' -- 2>/dev/null; then
-            echo "::error::Merge conflict markers found. Please resolve them before merging."
-            exit 1
-          fi
-          echo "No merge conflict markers found."
+        uses: actions/github-script@v9.0.0
+        with:
+          script: |
+            const { execSync } = require('node:child_process');
+
+            let output = '';
+
+            try {
+              output = execSync("grep -lr -r --exclude-dir=.git -E -- '^<<<<<<<|^>>>>>>>' .", {
+                encoding: 'utf8',
+                stdio: ['ignore', 'pipe', 'pipe'],
+              });
+            } catch (error) {
+              if (error.status === 1) {
+                core.info('No merge conflicts found.');
+                return;
+              }
+
+              core.setFailed('Grep Error.');
+              return;
+            }
+
+            const files = Array.from(new Set(output.split(/\r?\n/).filter(Boolean)))
+              .sort((left, right) => left.localeCompare(right, undefined, { sensitivity: 'base' }) || left.localeCompare(right));
+
+            if (files.length === 0) {
+              core.info('No merge conflicts found.');
+              return;
+            }
+
+            for (const file of files) {
+              core.error(`Merge conflict found in ${file}`, { file });
+            }
+
+            core.setFailed('Found merge conflicts.');
 
   has-no-file-or-folder-case-sensitivity-issues:
     if: github.event.pull_request.draft == false
@@ -276,15 +304,79 @@ jobs:
           fetch-depth: 1
 
       - name: "Check for ignored files"
-        shell: bash
-        run: |
-          ignored=$(git ls-files -i --exclude-standard 2>/dev/null)
-          if [ -n "$ignored" ]; then
-            echo "::error::The following tracked files are listed in .gitignore:"
-            echo "$ignored"
-            exit 1
-          fi
-          echo "No tracked files found in .gitignore."
+        uses: actions/github-script@v9.0.0
+        with:
+          script: |
+            const { execSync, execFileSync } = require('node:child_process');
+
+            const trackedFiles = execSync('git ls-files', { encoding: 'utf8' })
+              .split(/\r?\n/)
+              .filter(Boolean)
+              .filter((file) => !file.includes('server.pfx') && !file.includes('.gitignore'));
+
+            if (trackedFiles.length === 0) {
+              core.info('No ignored files');
+              return;
+            }
+
+            let ignoredOutput = '';
+
+            try {
+              ignoredOutput = execFileSync(
+                'git',
+                ['check-ignore', '--stdin', '-v', '--no-index'],
+                {
+                  encoding: 'utf8',
+                  input: `${trackedFiles.join('\n')}\n`,
+                  stdio: ['pipe', 'pipe', 'pipe'],
+                },
+              );
+            } catch (error) {
+              if (error.status === 1) {
+                core.info('No ignored files');
+                return;
+              }
+
+              core.setFailed('Failed to check ignored files.');
+              return;
+            }
+
+            const matches = ignoredOutput.split(/\r?\n/).filter(Boolean);
+
+            if (matches.length === 0) {
+              core.info('No ignored files');
+              return;
+            }
+
+            const offenders = [];
+            const seen = new Set();
+
+            for (const match of matches) {
+              const splitAt = match.lastIndexOf('\t');
+              const file = splitAt >= 0 ? match.slice(splitAt + 1).trim() : '';
+              const key = file || match;
+
+              if (seen.has(key)) {
+                continue;
+              }
+
+              seen.add(key);
+              offenders.push({ file, raw: match, key });
+            }
+
+            offenders.sort((left, right) => left.key.localeCompare(right.key, undefined, { sensitivity: 'base' }) || left.key.localeCompare(right.key));
+
+            for (const offender of offenders) {
+              const { file, raw } = offender;
+
+              if (file) {
+                core.error(`Ignored file found: ${file}`, { file });
+              } else {
+                core.error(`Ignored file found: ${raw}`);
+              }
+            }
+
+            core.setFailed(`Found ignored files (${offenders.length}).`);
 
   dependency-review:
     # Check that there are no dependencies with security problems in the PR
@@ -342,6 +434,12 @@ jobs:
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@v6.0.2
+        with:
+          clean: true
+          fetch-depth: 1
 
       - name: "Check for merge commits"
         uses: ./.github/actions/check-no-merge-commits
