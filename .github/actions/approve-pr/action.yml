@@ -1,0 +1,23 @@
+name: "Approve PR"
+description: "Approves the current pull request"
+
+inputs:
+  github-token:
+    description: "GitHub token with pull-requests write permission"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: "Approve PR"
+      uses: actions/github-script@v9.0.0
+      with:
+        github-token: ${{inputs.github-token}}
+        script: |
+          await octokit.rest.pulls.createReview({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.payload.pull_request.number,
+            event: 'APPROVE',
+          });
+          core.info(`Approved PR #${context.payload.pull_request.number}`);
