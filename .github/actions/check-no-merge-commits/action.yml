@@ -1,0 +1,32 @@
+name: "Check No Merge Commits"
+description: "Fails if the pull request contains any merge commits"
+
+inputs:
+  github-token:
+    description: "GitHub token with pull-requests read permission"
+    required: false
+    default: ${{github.token}}
+
+runs:
+  using: composite
+  steps:
+    - name: "Check for merge commits"
+      uses: actions/github-script@v9.0.0
+      with:
+        github-token: ${{inputs.github-token}}
+        script: |
+          const { data: commits } = await octokit.rest.pulls.listCommits({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.payload.pull_request.number,
+            per_page: 100,
+          });
+          const mergeCommits = commits.filter(c => c.parents.length > 1);
+          if (mergeCommits.length > 0) {
+            for (const commit of mergeCommits) {
+              core.error(`Merge commit: ${commit.sha} - ${commit.commit.message.split('\n')[0]}`);
+            }
+            core.setFailed(`Found ${mergeCommits.length} merge commit(s). Please rebase instead of merging.`);
+          } else {
+            core.info('No merge commits found.');
+          }
