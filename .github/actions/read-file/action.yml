@@ -1,0 +1,26 @@
+name: "Read File"
+description: "Reads a file and outputs its content"
+
+inputs:
+  path:
+    description: "Path to the file to read"
+    required: true
+
+outputs:
+  content:
+    description: "Content of the file"
+    value: ${{steps.read-file.outputs.content}}
+
+runs:
+  using: composite
+  steps:
+    - name: "Read File"
+      id: read-file
+      uses: actions/github-script@v9.0.0
+      env:
+        FILE_PATH: ${{inputs.path}}
+      with:
+        script: |
+          const fs = require('fs');
+          const content = fs.readFileSync(process.env.FILE_PATH, 'utf8');
+          core.setOutput('content', content);
