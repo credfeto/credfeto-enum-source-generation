@@ -5,9 +5,16 @@ on:
     types:
       - closed
 
+permissions:
+  contents: read
+
 jobs:
   cleanup-cache:
     runs-on: ubuntu-latest
+
+    permissions:
+      actions: write
+
     steps:
       - name: "Check Required Secrets"
         shell: bash
@@ -31,28 +38,32 @@ jobs:
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
 
-      - name: "Install extensions"
-        shell: bash
-        run: gh extension install actions/gh-actions-cache
-        env:
-          GH_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-
       - name: "Cleanup"
-        shell: bash
-        run: |
-          echo "Fetching list of cache key"
-          cacheKeysForPR=$(gh actions-cache list -R "$REPO" -B "$BRANCH" -L 100 | cut -f 1 )
-
-          ## Setting this to not fail the workflow while deleting cache keys.
-          set +e
-          echo "Deleting caches..."
-          for cacheKey in $cacheKeysForPR
-          do
-              echo "Deleting cache key: $cacheKey"
-              gh actions-cache delete "$cacheKey" -R "$REPO" -B "$BRANCH" --confirm
-          done
-          echo "Done"
+        uses: actions/github-script@v9.0.0
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          script: |
+            const ref = process.env.BRANCH;
+            const { data: cacheList } = await octokit.rest.actions.getActionsCacheList({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: ref,
+              per_page: 100,
+            });
+            core.info(`Found ${cacheList.total_count} cache(s) for ${ref}`);
+            core.info('Deleting caches...');
+            for (const cache of cacheList.actions_caches) {
+              core.info(`Deleting cache: ${cache.key} (id: ${cache.id})`);
+              try {
+                await octokit.rest.actions.deleteActionsCacheById({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  cache_id: cache.id,
+                });
+              } catch (err) {
+                core.warning(`Failed to delete cache ${cache.key}: ${err.message}`);
+              }
+            }
+            core.info('Done');
         env:
-          GH_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          REPO: ${{github.repository}}
           BRANCH: refs/pull/${{github.event.pull_request.number}}/merge
