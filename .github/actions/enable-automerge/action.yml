@@ -1,0 +1,42 @@
+name: "Enable Auto-Merge"
+description: "Enables auto-merge on the current pull request"
+
+inputs:
+  github-token:
+    description: "GitHub token with pull-requests write permission"
+    required: true
+  merge-method:
+    description: "Merge method to use: MERGE, SQUASH, or REBASE"
+    required: false
+    default: "MERGE"
+
+runs:
+  using: composite
+  steps:
+    - name: "Enable Auto-Merge"
+      uses: actions/github-script@v9.0.0
+      with:
+        github-token: ${{inputs.github-token}}
+        script: |
+          const mergeMethod = process.env.MERGE_METHOD;
+          const nodeId = context.payload.pull_request.node_id;
+          await octokit.graphql(`
+            mutation EnableAutoMerge($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
+              enablePullRequestAutoMerge(input: {
+                pullRequestId: $pullRequestId,
+                mergeMethod: $mergeMethod
+              }) {
+                pullRequest {
+                  autoMergeRequest {
+                    mergeMethod
+                  }
+                }
+              }
+            }
+          `, {
+            pullRequestId: nodeId,
+            mergeMethod: mergeMethod,
+          });
+          core.info(`Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
+      env:
+        MERGE_METHOD: ${{inputs.merge-method}}
