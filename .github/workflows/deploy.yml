@@ -106,11 +106,20 @@ jobs:
 
       - name: "Log Build Version"
         uses: actions/github-script@v9.0.0
+        env:
+          APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
+          APP_NAME: ${{inputs.DOCKER_APP_NAME}}
+          BUILD_VERSION: ${{inputs.BUILD_VERSION}}
+          CLOUD_FORMATION_STACK: ${{inputs.CLOUD_FORMATION_STACK}}
         with:
           script: |
-            core.info('Application: \u001b[38;5;6m${{inputs.DOCKER_APP_OWNER}}\\${{inputs.DOCKER_APP_NAME}}');
-            core.info('Version: \u001b[38;5;6m${{inputs.BUILD_VERSION}}');
-            core.info('Stack: \u001b[38;5;6m${{inputs.CLOUD_FORMATION_STACK}}');
-            core.notice('Application: ${{inputs.DOCKER_APP_OWNER}}\\${{inputs.DOCKER_APP_NAME}}');
-            core.notice('Version: ${{inputs.BUILD_VERSION}}');
-            core.notice('Stack: ${{inputs.CLOUD_FORMATION_STACK}}');
+            const appOwner = process.env.APP_OWNER;
+            const appName = process.env.APP_NAME;
+            const buildVersion = process.env.BUILD_VERSION;
+            const stack = process.env.CLOUD_FORMATION_STACK;
+            core.info(`Application: \u001b[38;5;6m${appOwner}\\${appName}`);
+            core.info(`Version: \u001b[38;5;6m${buildVersion}`);
+            core.info(`Stack: \u001b[38;5;6m${stack}`);
+            core.notice(`Application: ${appOwner}\\${appName}`);
+            core.notice(`Version: ${buildVersion}`);
+            core.notice(`Stack: ${stack}`);
