@@ -51,16 +51,16 @@ jobs:
         uses: actions/github-script@v9.0.0
         with:
           script: |
-            core.info('Branch: ${{env.HEAD_REF}}');
-            core.info('Base Branch: ${{env.BASE_REF}}');
-            core.info('Repo: ${{github.repository}}');
-            core.info('Owner: ${{github.repository_owner}}');
-            core.info('Assigned: ${{github.event.pull_request.assignee.login}}');
-            core.info('Assigned: ${{github.event.pull_request.assignees[0].login}}');
-            core.info('Last Modified By: ${{github.event.pull_request.head.user.login}}');
-            core.info('PR Creator: ${{github.event.pull_request.creator.login}}');
-            core.info('PR Owner: ${{github.event.pull_request.owner}}');
-            core.info('Actor: ${{github.actor}}');
+            core.info(`Branch: ${process.env.HEAD_REF}`);
+            core.info(`Base Branch: ${process.env.BASE_REF}`);
+            core.info(`Repo: ${context.repo.owner}/${context.repo.repo}`);
+            core.info(`Owner: ${context.repo.owner}`);
+            core.info(`Assigned: ${context.payload.pull_request?.assignee?.login}`);
+            core.info(`Assigned: ${context.payload.pull_request?.assignees?.[0]?.login}`);
+            core.info(`Last Modified By: ${context.payload.pull_request?.head?.user?.login}`);
+            core.info(`PR Creator: ${context.payload.pull_request?.user?.login}`);
+            core.info(`PR Owner: ${context.payload.pull_request?.user?.login}`);
+            core.info(`Actor: ${context.actor}`);
 
   add-pr-label:
     needs: [requirements]
