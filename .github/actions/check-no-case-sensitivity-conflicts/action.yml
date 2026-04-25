@@ -1,0 +1,53 @@
+name: "Check No Case Sensitivity Conflicts"
+description: "Fails if files differ only by case"
+
+runs:
+  using: composite
+  steps:
+    - name: "Check for case conflicts"
+      uses: actions/github-script@v9.0.0
+      with:
+        script: |
+          const { execSync } = require('node:child_process');
+
+          const files = execSync('git ls-files', { encoding: 'utf8' })
+            .split(/\r?\n/)
+            .filter(Boolean);
+
+          const grouped = new Map();
+
+          for (const file of files) {
+            const key = file.toLowerCase();
+            const existing = grouped.get(key);
+
+            if (existing) {
+              existing.push(file);
+            } else {
+              grouped.set(key, [file]);
+            }
+          }
+
+          const conflicts = [];
+
+          for (const paths of grouped.values()) {
+            const unique = Array.from(new Set(paths));
+            if (unique.length > 1) {
+              unique.sort((left, right) => left.localeCompare(right, undefined, { sensitivity: 'base' }) || left.localeCompare(right));
+              conflicts.push(...unique);
+            }
+          }
+
+          const offenders = Array.from(new Set(conflicts))
+            .sort((left, right) => left.localeCompare(right, undefined, { sensitivity: 'base' }) || left.localeCompare(right));
+
+          if (offenders.length === 0) {
+            core.info('No case sensitivity conflicts found.');
+            return;
+          }
+
+          for (const file of offenders) {
+            core.error(`Case sensitivity conflict: ${file}`, { file });
+          }
+
+          core.setFailed(`Case sensitivity conflicts found (${offenders.length}).`);
+
