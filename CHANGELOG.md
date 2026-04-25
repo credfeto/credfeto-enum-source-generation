@@ -14,9 +14,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.Test.Source.Generator to 6.2.19.2017
 - Dependencies - Updated Philips.CodeAnalysis.DuplicateCodeAnalyzer to 2.0.0
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 2.0.0
-- Dependencies - Updated Meziantou.Analyzer to 3.0.50
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.123.1157
 - Dependencies - Updated FunFair.CodeAnalysis to 7.1.39.1841
+- Dependencies - Updated Meziantou.Analyzer to 3.0.52
 ### Removed
 ### Deployment Changes
 
