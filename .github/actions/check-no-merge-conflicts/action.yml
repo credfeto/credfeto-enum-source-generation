@@ -1,0 +1,43 @@
+name: "Check No Merge Conflicts"
+description: "Fails if merge conflict markers are found in tracked files"
+
+runs:
+  using: composite
+  steps:
+    - name: "Check for merge conflicts"
+      uses: actions/github-script@v9.0.0
+      with:
+        script: |
+          const { execSync } = require('node:child_process');
+
+          let output = '';
+
+          try {
+            output = execSync("grep -lr -r --exclude-dir=.git -E -- '^<<<<<<<|^>>>>>>>' .", {
+              encoding: 'utf8',
+              stdio: ['ignore', 'pipe', 'pipe'],
+            });
+          } catch (error) {
+            if (error.status === 1) {
+              core.info('No merge conflicts found.');
+              return;
+            }
+
+            core.setFailed('Grep Error.');
+            return;
+          }
+
+          const files = Array.from(new Set(output.split(/\r?\n/).filter(Boolean)))
+            .sort((left, right) => left.localeCompare(right, undefined, { sensitivity: 'base' }) || left.localeCompare(right));
+
+          if (files.length === 0) {
+            core.info('No merge conflicts found.');
+            return;
+          }
+
+          for (const file of files) {
+            core.error(`Merge conflict found in ${file}`, { file });
+          }
+
+          core.setFailed('Found merge conflicts.');
+
