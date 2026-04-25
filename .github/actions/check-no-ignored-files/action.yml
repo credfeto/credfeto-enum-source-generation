@@ -1,0 +1,81 @@
+name: "Check No Ignored Files"
+description: "Fails if tracked files are matched by ignore rules"
+
+runs:
+  using: composite
+  steps:
+    - name: "Check for ignored files"
+      uses: actions/github-script@v9.0.0
+      with:
+        script: |
+          const { execSync, execFileSync } = require('node:child_process');
+
+          const trackedFiles = execSync('git ls-files', { encoding: 'utf8' })
+            .split(/\r?\n/)
+            .filter(Boolean)
+            .filter((file) => !file.includes('server.pfx') && !file.includes('.gitignore'));
+
+          if (trackedFiles.length === 0) {
+            core.info('No ignored files');
+            return;
+          }
+
+          let ignoredOutput = '';
+
+          try {
+            ignoredOutput = execFileSync(
+              'git',
+              ['check-ignore', '--stdin', '-v', '--no-index'],
+              {
+                encoding: 'utf8',
+                input: `${trackedFiles.join('\n')}\n`,
+                stdio: ['pipe', 'pipe', 'pipe'],
+              },
+            );
+          } catch (error) {
+            if (error.status === 1) {
+              core.info('No ignored files');
+              return;
+            }
+
+            core.setFailed('Failed to check ignored files.');
+            return;
+          }
+
+          const matches = ignoredOutput.split(/\r?\n/).filter(Boolean);
+
+          if (matches.length === 0) {
+            core.info('No ignored files');
+            return;
+          }
+
+          const offenders = [];
+          const seen = new Set();
+
+          for (const match of matches) {
+            const splitAt = match.lastIndexOf('\t');
+            const file = splitAt >= 0 ? match.slice(splitAt + 1).trim() : '';
+            const key = file || match;
+
+            if (seen.has(key)) {
+              continue;
+            }
+
+            seen.add(key);
+            offenders.push({ file, raw: match, key });
+          }
+
+          offenders.sort((left, right) => left.key.localeCompare(right.key, undefined, { sensitivity: 'base' }) || left.key.localeCompare(right.key));
+
+          for (const offender of offenders) {
+            const { file, raw } = offender;
+
+            if (file) {
+              core.error(`Ignored file found: ${file}`, { file });
+            } else {
+              core.error(`Ignored file found: ${raw}`);
+            }
+          }
+
+          core.setFailed(`Found ignored files (${offenders.length}).`);
+
