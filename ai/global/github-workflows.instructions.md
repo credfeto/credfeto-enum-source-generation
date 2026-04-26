@@ -210,6 +210,9 @@ core.info(`Version: \u001b[38;5;6m${version}`);
 core.notice(`Version: ${version}`);
 ```
 
+> **ANSI escape sequences — use the literal string, never the raw byte.**
+> Write `\u001b` as six characters (`\`, `u`, `0`, `0`, `1`, `b`) inside JavaScript strings. Never insert the actual ESC byte (0x1B) into a YAML file by any means (copy-paste, terminal output, here-doc, etc.). YAML forbids control characters — a file containing a raw 0x1B byte fails YAML parsing with `control characters are not allowed` and the entire workflow is rejected by actionlint and the GitHub Actions runner.
+
 Use `core.notice` for values a human would want to see first: build version, deployment target, branch created, cache hit/miss status. Do not use it for internal diagnostic details that are only useful when debugging.
 
 ## Dead Steps
