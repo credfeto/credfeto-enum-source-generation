@@ -81,6 +81,12 @@ jobs:
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
 
+      - name: "Checkout Source"
+        uses: actions/checkout@v6.0.2
+        with:
+          clean: true
+          fetch-depth: 1
+
       - name: "Add Labels"
         uses: ./.github/actions/sync-labels
         with:
