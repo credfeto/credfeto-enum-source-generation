@@ -9,6 +9,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+### Removed
+### Deployment Changes
+
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+## [1.2.141] - 2026-04-26
+### Changed
 - Dependencies - Updated FunFair.Test.Common to 6.2.19.2017
 - Dependencies - Updated FunFair.Test.Source.Generator to 6.2.19.2017
 - Dependencies - Updated Philips.CodeAnalysis.DuplicateCodeAnalyzer to 2.0.0
@@ -17,12 +25,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.CodeAnalysis to 7.1.39.1841
 - Dependencies - Updated Meziantou.Analyzer to 3.0.52
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.24.0.138807
-### Removed
-### Deployment Changes
 
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
 ## [1.2.140] - 2026-03-17
 ### Changed
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 5.3.0
