@@ -47,6 +47,16 @@ fi
 - Issue numbers must be referenced in commit messages and branch names where applicable (see branch naming rules above).
 - If work on an issue is abandoned for any reason (e.g. benchmarks show no gain, investigation reveals the change is not worthwhile), comment on the issue with the findings before closing or leaving it — do not abandon an issue silently.
 
+## GitHub CLI (`gh`) Proxy Behavior
+
+When the `GH_HOST` environment variable is set to a value other than `github.com`, the `gh` CLI is routing through a proxy (e.g. `credfeto/github-api-proxy`).
+
+- **If a `gh` command fails** while `GH_HOST` is overridden, raise an issue on `credfeto/github-api-proxy` with:
+  - The exact `gh` subcommand and flags used.
+  - The API method (HTTP verb + path) that failed, if visible in the error output.
+  - The full error message returned.
+- **Commit and push operations will always be rejected** when routed through the proxy — the proxy does not support write operations on repository content. Do not attempt to work around this; use `git` CLI directly for all commit and push operations (see Committer rules in [task-workflow.instructions.md](task-workflow.instructions.md)).
+
 ## Branching
 
 - All new work must be done in a branch. Never commit directly to `main` (also enforced by the Pre-Commit Branch Check above).
