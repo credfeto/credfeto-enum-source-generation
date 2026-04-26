@@ -143,11 +143,23 @@ For complex files where it takes multiple rounds of changes:
 **Committer**
 
 - Runs after the Changelog agent has written the changelog entry.
+- **Uses the `git` CLI exclusively** — never `gh`, GitHub REST API, or GitHub GraphQL API for any commit or push operation.
 - Verifies git identity and GPG signing are correctly configured (runs the checks from [git.instructions.md](git.instructions.md#git-identity-check-mandatory-before-any-commit)).
 - If either check fails: stops and reports the misconfiguration — does not proceed.
+- All commits **must be GPG signed** (`git commit -S`). If signing fails, stop and report.
 - Commits all pending code and test changes as one commit (Conventional Commits format, original prompt in body prefixed with `Prompt:`, GPG signed).
 - Commits `CHANGELOG.md` changes as a separate subsequent commit (also GPG signed).
-- Pushes all commits to `origin` immediately after.
+- Pushes all commits to `origin` immediately after using `git push`.
+
+**Pre-commit hook failures:**
+
+- Pre-commit hooks run automatically when `git commit` is executed. This is expected and intentional — do not use `--no-verify` to bypass them.
+- If a pre-commit hook fails:
+  1. Do **not** retry the commit immediately.
+  2. Capture the full hook output (which hooks failed, the exact error messages).
+  3. Report the failure details back to the agent that produced the change (Code Writer, Code Fixer, etc.) and wait for them to fix the code.
+  4. Once the fix is received, re-stage the corrected files and retry the commit.
+  5. If the same hook fails again after 3 fix-and-retry cycles, stop and escalate to the user — do not loop indefinitely.
 - Does not open the PR — that is handled downstream.
 
 **Dependency Updater**
