@@ -32,14 +32,13 @@ jobs:
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Set Active Environment"
-        id: active-env
         shell: bash
         run: |
           {
             echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
-          } >> "$GITHUB_OUTPUT"
+          } >> "$GITHUB_ENV"
 
       - name: "Info"
         uses: actions/github-script@v9.0.0
@@ -64,14 +63,13 @@ jobs:
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Set Active Environment"
-        id: active-env
         shell: bash
         run: |
           {
             echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
-          } >> "$GITHUB_OUTPUT"
+          } >> "$GITHUB_ENV"
 
       - name: "Checkout source"
         uses: actions/checkout@v6.0.2
@@ -111,7 +109,7 @@ jobs:
           echo "commit-title=$title" >> "$GITHUB_OUTPUT"
 
       - name: "Check Required Secrets"
-        if: env.REPO_STATUS == '' &&steps.findPr.outputs.number == ''
+        if: env.REPO_STATUS == '' && steps.findPr.outputs.number == ''
         shell: bash
         run: |
           if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
@@ -120,7 +118,7 @@ jobs:
           fi
 
       - name: "Check Repo Visibility"
-        if: env.REPO_STATUS == '' &&steps.findPr.outputs.number == ''
+        if: env.REPO_STATUS == '' && steps.findPr.outputs.number == ''
         uses: ./.github/actions/check-repo-visibility
         id: visibility
         with:
