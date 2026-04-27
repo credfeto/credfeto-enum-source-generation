@@ -21,4 +21,5 @@ runs:
             issue_number: context.payload.pull_request.number,
             assignees: [creator],
           });
-          core.info(`Assigned PR #${context.payload.pull_request.number} to ${creator}`);
+          core.info(`✅ Assigned PR #${context.payload.pull_request.number} to ${creator}`);
+          core.notice(`Assigned PR #${context.payload.pull_request.number} to ${creator}`);
