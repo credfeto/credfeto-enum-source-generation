@@ -59,7 +59,7 @@ runs:
       run: echo "$PASS" | base64
 
     - name: "Dotnet: Test SQL Password"
-      if: ${{inputs.SQL_PASSWORD == ''}}
+      if: inputs.SQL_PASSWORD == ''
       working-directory: ${{github.workspace}}/src
       shell: bash
       run:
