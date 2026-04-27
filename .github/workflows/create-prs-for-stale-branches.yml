@@ -103,8 +103,8 @@ jobs:
           ref: main
           repository: ${{github.repository}}
 
-      - if: env.REPO_STATUS == '' && github.repository_owner != 'funfair-tech'
-        name: "Check Required Secrets"
+      - name: "Check Required Secrets"
+        if: env.REPO_STATUS == '' && github.repository_owner != 'funfair-tech'
         shell: bash
         run: |
           if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
@@ -112,8 +112,8 @@ jobs:
             exit 1
           fi
 
-      - if: env.REPO_STATUS == '' && github.repository_owner != 'funfair-tech'
-        name: "Check Repo Visibility"
+      - name: "Check Repo Visibility"
+        if: env.REPO_STATUS == '' && github.repository_owner != 'funfair-tech'
         uses: ./.github/actions/check-repo-visibility
         id: visibility
         with:
