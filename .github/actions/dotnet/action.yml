@@ -84,13 +84,13 @@ runs:
       run: echo "DOTNET_RELEASE_DEFINES=-p:IsProduction=True" >> "$GITHUB_ENV"
 
     - name: "Dotnet: Run build check"
-      if: ${{ (!endsWith(github.repository, 'funfair-dotnet-build-check')) && (!endsWith(github.repository, '-template')) }}
+      if: (!endsWith(github.repository, 'funfair-dotnet-build-check')) && (!endsWith(github.repository, '-template'))
       uses: ./.github/actions/dotnet-build-check
       with:
         RELEASE: ${{inputs.RELEASE}}
 
     - name: "Dotnet: Override code analysis rules"
-      if: ${{ !endsWith(github.repository, '-template') }}
+      if: "!endsWith(github.repository, '-template')"
       uses: ./.github/actions/dotnet-code-analysis-override
       with:
         RELEASE: ${{inputs.RELEASE}}
