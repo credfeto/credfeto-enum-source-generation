@@ -37,6 +37,7 @@ runs:
             pullRequestId: nodeId,
             mergeMethod: mergeMethod,
           });
-          core.info(`Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
+          core.info(`✅ Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
+          core.notice(`Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
       env:
         MERGE_METHOD: ${{inputs.merge-method}}
