@@ -66,6 +66,12 @@ jobs:
           script: |
             core.info(`Owner: ${context.repo.owner}`);
 
+      - name: "Checkout Source"
+        uses: actions/checkout@v6.0.2
+        with:
+          clean: true
+          fetch-depth: 1
+
       - name: "Auto Merge"
         uses: ./.github/actions/enable-automerge
         with:
@@ -106,6 +112,12 @@ jobs:
           script: |
             core.info(`Owner: ${context.repo.owner}`);
 
+      - name: "Checkout Source"
+        uses: actions/checkout@v6.0.2
+        with:
+          clean: true
+          fetch-depth: 1
+
       - name: "Auto Merge"
         uses: ./.github/actions/enable-automerge
         with:
@@ -144,6 +156,12 @@ jobs:
           script: |
             core.info(`Owner: ${context.repo.owner}`);
 
+      - name: "Checkout Source"
+        uses: actions/checkout@v6.0.2
+        with:
+          clean: true
+          fetch-depth: 1
+
       - name: "Approve"
         uses: ./.github/actions/approve-pr
         with:
@@ -180,6 +198,12 @@ jobs:
         with:
           script: |
             core.info(`Owner: ${context.repo.owner}`);
+
+      - name: "Checkout Source"
+        uses: actions/checkout@v6.0.2
+        with:
+          clean: true
+          fetch-depth: 1
 
       - name: "Approve"
         uses: ./.github/actions/approve-pr
