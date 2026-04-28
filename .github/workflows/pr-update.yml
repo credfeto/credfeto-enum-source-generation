@@ -116,6 +116,12 @@ jobs:
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
 
+      - name: "Checkout Source"
+        uses: actions/checkout@v6.0.2
+        with:
+          clean: true
+          fetch-depth: 1
+
       - name: "Assign PR to the creator"
         uses: ./.github/actions/assign-pr-to-creator
         with:
