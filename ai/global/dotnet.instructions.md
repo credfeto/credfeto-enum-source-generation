@@ -17,6 +17,8 @@ These rules apply to all .NET solutions derived from this template.
 
 ## Asynchronous Code
 
+See [code-quality.instructions.md](code-quality.instructions.md) for the general async rules (prefer async over sync, never block, propagate async through the call stack). .NET-specific additions:
+
 - Prefer `ValueTask` and `ValueTask<T>` over `Task` and `Task<T>` wherever possible — they avoid heap allocations in the common synchronous-completion path.
 - Only use `Task`/`Task<T>` where `ValueTask` is not supported or where the method is known to always complete asynchronously.
 
@@ -60,16 +62,6 @@ For example, for an assembly `This.Test.Example`:
 - Unit tests → `This.Test.Example.Tests`
 - Integration tests → `This.Test.Example.Integration.Tests`
 - Benchmarks → `This.Test.Example.Benchmark.Tests`
-
-## Build Before Push (MANDATORY)
-
-Before committing changes to any .NET repository:
-
-1. Run `dotnet build` from the solution root and verify it succeeds with no errors.
-2. Run `dotnet test` if a test project exists and verify all tests pass.
-3. Do NOT commit or push if the build or tests fail — fix the issues first.
-
-Never push code that does not compile. If you cannot fix a build error, report it instead of pushing broken code.
 
 ## Test Dependencies
 
