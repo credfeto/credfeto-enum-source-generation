@@ -5,6 +5,7 @@
 ## Security
 
 - When adding packages, always use a secure version — try to avoid known security vulnerabilities.
+- See [security.instructions.md](security.instructions.md#dependency-vulnerability-scanning) for the dependency scanning requirements that apply to the build and CI pipeline.
 
 ## Managed vs Native Libraries
 
