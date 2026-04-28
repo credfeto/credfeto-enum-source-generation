@@ -23,9 +23,7 @@
 
 - **When additional work needs to be added to an open PR** (e.g. addressing review comments, adding missing coverage, fixing CI failures), convert it to a draft immediately before starting: `gh pr ready <number> --undo`.
 - Keep the PR in draft for the entire duration of that work — do not flip it back early.
-- **Only convert back to ready for review once all work is complete** and Code Tester and Code Reviewer are both satisfied.
-- Before marking ready, rebase the branch onto `origin/main` to eliminate any merge conflicts: `git fetch origin && git rebase origin/main`. Resolve any conflicts before proceeding.
-- Once rebased and clean, mark ready: `gh pr ready <number>`.
+- **Only convert back to ready for review once all work is complete** and Code Tester and Code Reviewer are both satisfied — this is done by PR Submitter at the end of the pipeline, not manually.
 
 ## Large Multi-Handler / Multi-App Tasks
 
@@ -75,6 +73,31 @@ For complex files where it takes multiple rounds of changes:
 
 ## Multi-Agent Implementation and Review Pattern
 
+### General Agent Principles
+
+**Model selection**
+
+Agents that perform mechanical, well-defined tasks (running builds, committing, submitting PRs, monitoring CI, rebasing) must use a smaller/cheaper model. Agents that require judgement, creativity, or diagnosis (Code Writer, Code Reviewer, Code Fixer, CI Debugger, Orchestrator) use the full model.
+
+| Use full model | Use lesser model |
+|---|---|
+| Orchestrator, Code Writer, Code Reviewer, Code Fixer, CI Debugger, Dependency Updater | Code Tester, Committer, Changelog, Rebase Agent, PR Submitter, CI Monitor |
+
+**Failure handling — no self-repair**
+
+Mechanical agents must not attempt to interpret or fix failures themselves. When a hardcoded check fails, the agent must:
+
+1. Capture the full output of the failing step.
+2. Stop immediately — do not proceed with subsequent steps.
+3. Return the failure details verbatim to the calling agent so it can decide how to respond.
+
+The calling agent is responsible for diagnosis and repair. For example:
+- If a pre-commit hook fails during a commit, Committer sends the full hook output back to Code Writer and does not attempt to fix the code.
+- If a build fails during Code Tester's run, Code Tester sends the full compiler output back to Code Writer and does not attempt to fix the code.
+- If a rebase produces conflicts other than CHANGELOG conflicts, Rebase Agent reports the conflict details to the Orchestrator rather than attempting to resolve them (CHANGELOG conflicts have a deterministic rule — see Rebase Agent definition).
+
+This keeps mechanical agents simple and predictable, and ensures all repair decisions are made by agents with the context and capability to make them correctly.
+
 ### Agent Roles
 
 **Orchestrator**
@@ -123,8 +146,9 @@ For complex files where it takes multiple rounds of changes:
 **Rebase Agent**
 
 - Rebases a named branch onto `origin/main`.
-- Resolves CHANGELOG conflicts by keeping entries from both sides (never discarding either).
-- Force-pushes with `--force-with-lease`.
+- CHANGELOG conflicts are the one deterministic exception to the failure-punt rule: always resolve them by keeping entries from both sides (never discarding either) — no judgement required.
+- Any other conflict must be reported verbatim to the Orchestrator — do not attempt to resolve it.
+- Force-pushes with `--force-with-lease` only after all conflicts are resolved.
 
 **CI Debugger**
 
@@ -148,8 +172,10 @@ For complex files where it takes multiple rounds of changes:
 - If either check fails: stops and reports the misconfiguration — does not proceed.
 - All commits **must be GPG signed** (`git commit -S`). If signing fails, stop and report.
 - Commits all pending code and test changes as one commit (Conventional Commits format, original prompt in body prefixed with `Prompt:`, GPG signed).
+- If a pre-commit hook fails: capture the full hook output, abort, and return it to Code Writer — do not attempt to fix the code or retry.
 - Commits `CHANGELOG.md` changes as a separate subsequent commit (also GPG signed).
 - Pushes all commits to `origin` immediately after using `git push`.
+- Does not open the PR — that is PR Submitter's responsibility.
 
 **Pre-commit hook failures:**
 
@@ -160,7 +186,30 @@ For complex files where it takes multiple rounds of changes:
   3. Report the failure details back to the agent that produced the change (Code Writer, Code Fixer, etc.) and wait for them to fix the code.
   4. Once the fix is received, re-stage the corrected files and retry the commit.
   5. If the same hook fails again after 3 fix-and-retry cycles, stop and escalate to the user — do not loop indefinitely.
-- Does not open the PR — that is handled downstream.
+
+**PR Submitter**
+
+- Runs after Committer has pushed all commits to `origin`.
+- Wait up to 1 minute for GitHub to automatically create a PR (e.g. via a branch protection rule or auto-PR workflow). Check with `gh pr list --head <branch>`.
+- If no PR exists after 1 minute, create one: `gh pr create --title "<title>" --body "<body>"`.
+- The PR title must follow Conventional Commits format and match the primary commit title on the branch.
+- The PR body must include:
+  - A brief summary of what changed and why.
+  - A `Closes #<n>` line for every GitHub issue being resolved by the branch. Find these by scanning commit messages and branch name for issue numbers.
+  - If the branch partially addresses an issue (i.e. does not fully resolve it), use `Related to #<n>` instead of `Closes #<n>`.
+- If a PR already exists (created automatically or from a previous run), update its body to reflect the current set of issues and the current state of the branch: `gh pr edit <number> --body "<updated body>"`.
+- Add yourself as assignee: `gh pr edit <number> --add-assignee @me`.
+- Mark the PR ready for review (`gh pr ready <number>`) **only if** Code Tester and Code Reviewer have both signed off on this round — i.e. the pipeline that reached PR Submitter passed through both agents without outstanding issues. Before doing so, rebase the branch onto `origin/main` and resolve any conflicts: `git fetch origin && git rebase origin/main`.
+- If the pipeline did not include Code Tester and Code Reviewer (e.g. a rebase-only run), leave the PR in whatever draft state it is currently in — do not flip it to ready.
+
+**CI Monitor** _(not currently enabled — implementation TBD)_
+
+- Runs after PR Submitter, once the PR is open and marked ready for review.
+- Watches all required status checks on the PR for CI failures: `gh pr checks <number> --watch`.
+- If all required checks pass, CI Monitor completes with no action.
+- If any required check fails, hand the failure off to CI Debugger: pass the PR number and the names of the failing checks so CI Debugger can read the full logs.
+- After CI Debugger has applied a fix and pushed, re-check all required checks — repeat until all pass or CI Debugger escalates to the user.
+- Does not attempt to fix failures itself — diagnosis and repair belong to CI Debugger.
 
 **Dependency Updater**
 
@@ -170,15 +219,15 @@ For complex files where it takes multiple rounds of changes:
 
 ### Routing Rules
 
-| Work type | Agent sequence                                                                                                                                                                       |
-|---|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| New feature / bug fix / refactor | Code Writer → Code Tester (loop ≤5 with Code Writer) → Code Reviewer (loop ≤5, re-running Code Write and Code Tester each round) → Changelog → Committer → CI Monitor → PR Submitter |
-| `CHANGES_REQUESTED` on existing PR | Code Fixer → Code Tester (loop ≤5 with Code Fixer) → Code Reviewer (loop ≤5, re-running Code Write and Code Tester each round) → Changelog → Committer → CI Monitor → PR Submitter                  |
-| Coverage-only task | Code Writer (tests only) → Code Tester (loop ≤5 with Code Writer) → Code Reviewer (loop ≤5, re-running Code Write and Code Tester each round) → Changelog → Committer → CI Monitor → PR Submitter   |
-| Documentation-only | Code Writer (docs only) → PR Submitter                                                                                                                                               |
-| Rebase requested | Rebase Agent → PR Submitter                                                                                                                                                          |
-| CI failure (unknown cause) | CI Debugger                                                                                                                                                                          |
-| Dependabot / dependency update | Dependency Updater                                                                                                                                                                   |
+| Work type | Agent sequence |
+|---|---|
+| New feature / bug fix / refactor | Code Writer → Code Tester (loop ≤5 with Code Writer) → Code Reviewer (loop ≤5, re-running Code Writer and Code Tester each round) → Changelog → Committer → PR Submitter → CI Monitor |
+| `CHANGES_REQUESTED` on existing PR | Code Fixer → Code Tester (loop ≤5 with Code Fixer) → Code Reviewer (loop ≤5, re-running Code Fixer and Code Tester each round) → Changelog → Committer → PR Submitter → CI Monitor |
+| Coverage-only task | Code Writer (tests only) → Code Tester (loop ≤5 with Code Writer) → Code Reviewer (loop ≤5, re-running Code Writer and Code Tester each round) → Changelog → Committer → PR Submitter → CI Monitor |
+| Documentation-only | Code Writer (docs only) → PR Submitter |
+| Rebase requested | Rebase Agent → PR Submitter |
+| CI failure (unknown cause) | CI Debugger |
+| Dependabot / dependency update | Dependency Updater |
 
 ## Resuming Interrupted Work
 
