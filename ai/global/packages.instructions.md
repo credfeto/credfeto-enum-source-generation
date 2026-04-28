@@ -18,3 +18,11 @@
 - If they are necessary for a specific reason, add a comment explaining:
   - Why they are being used.
   - When they can be removed.
+
+## Standard Library and Trusted Third-Party Preference
+
+For all languages:
+
+- Prefer the standard library for tasks it already covers — do not write custom implementations of things the standard library provides.
+- Where the standard library is insufficient, prefer well-known, actively maintained, and widely trusted third-party libraries over writing custom code.
+- If you encounter existing hand-rolled code that duplicates functionality already provided by the standard library or a trusted third-party library, and that code was not introduced in the current repository, raise a new GitHub issue to suggest refactoring it away rather than modifying it inline.
