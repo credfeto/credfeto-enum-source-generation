@@ -25,6 +25,24 @@
 - Keep the PR in draft for the entire duration of that work — do not flip it back early.
 - **Only convert back to ready for review once all work is complete** and Code Tester and Code Reviewer are both satisfied — this is done by PR Submitter at the end of the pipeline, not manually.
 
+## Rules Compliance for In-Flight Work
+
+Whenever any instruction file is added or updated — in this repo or in the global cs-template — all currently open branches and PRs must be re-evaluated against the new rules before being merged.
+
+- After any rule change, review every open branch (`git diff origin/main...HEAD`) and every open PR to check whether the new or updated rules apply to the code already written.
+- If any code or documentation on an in-flight branch does not comply, fix it on that branch before continuing other work on it.
+- Treat rule compliance the same as a CI failure: work cannot be considered done until the code satisfies all current rules, not the rules that existed when the work started.
+
+This applies to all rule types: coding conventions, test conventions, documentation structure, workflow rules, and AI instruction files themselves.
+
+## Instruction File Source Routing
+
+When an instruction file needs to be changed or a new rule needs to be added:
+
+- If the file originates from `funfair/funfair-server-template` and the required change is not already present in that repository, raise an issue on `funfair/funfair-server-template` to get it added there — do not make the change only in the current repository.
+- If the file originates from `credfeto/cs-template` and the required change is not already present in that repository, raise an issue on `credfeto/cs-template` to get it added there — do not make the change only in the current repository.
+- If neither of the above applies, make the change directly in the current repository.
+
 ## Large Multi-Handler / Multi-App Tasks
 
 When given a task that spans multiple handlers, apps, or components (e.g. "ensure 100% coverage for all handlers", "migrate all projects to a new package"):
@@ -75,15 +93,15 @@ For complex files where it takes multiple rounds of changes:
 
 ### General Agent Principles
 
-**Model selection**
+#### Model selection
 
 Agents that perform mechanical, well-defined tasks (running builds, committing, submitting PRs, monitoring CI, rebasing) must use a smaller/cheaper model. Agents that require judgement, creativity, or diagnosis (Code Writer, Code Reviewer, Code Fixer, CI Debugger, Orchestrator) use the full model.
 
 | Use full model | Use lesser model |
-|---|---|
+| --- | --- |
 | Orchestrator, Code Writer, Code Reviewer, Code Fixer, CI Debugger, Dependency Updater | Code Tester, Committer, Changelog, Rebase Agent, PR Submitter, CI Monitor |
 
-**Failure handling — no self-repair**
+#### Failure handling — no self-repair
 
 Mechanical agents must not attempt to interpret or fix failures themselves. When a hardcoded check fails, the agent must:
 
@@ -92,6 +110,7 @@ Mechanical agents must not attempt to interpret or fix failures themselves. When
 3. Return the failure details verbatim to the calling agent so it can decide how to respond.
 
 The calling agent is responsible for diagnosis and repair. For example:
+
 - If a pre-commit hook fails during a commit, Committer sends the full hook output back to Code Writer and does not attempt to fix the code.
 - If a build fails during Code Tester's run, Code Tester sends the full compiler output back to Code Writer and does not attempt to fix the code.
 - If a rebase produces conflicts other than CHANGELOG conflicts, Rebase Agent reports the conflict details to the Orchestrator rather than attempting to resolve them (CHANGELOG conflicts have a deterministic rule — see Rebase Agent definition).
@@ -100,18 +119,18 @@ This keeps mechanical agents simple and predictable, and ensures all repair deci
 
 ### Agent Roles
 
-**Orchestrator**
+#### Orchestrator
 
 - Checks for `CHANGES_REQUESTED` PRs first — these always take priority over new issues.
 - Determines work type and routes to the correct agent.
 - Never does implementation itself.
 
-**Code Writer**
+#### Code Writer
 
 - Implements a GitHub issue: reads all instruction files, writes production code and the corresponding tests.
 - Does NOT commit, push, or update the changelog — hands off to Code Tester once implementation is complete.
 
-**Code Tester**
+#### Code Tester
 
 - Runs after Code Writer (or Code Fixer) has finished writing code and tests.
 - Runs the project build.
@@ -123,7 +142,7 @@ This keeps mechanical agents simple and predictable, and ensures all repair deci
 - Loops with Code Writer until all three conditions are satisfied: build passes, all tests pass, all new/changed code is covered.
 - Does not modify code or tests itself — reports and verifies only.
 
-**Code Reviewer**
+#### Code Reviewer
 
 - Reviews a branch against every rule in the instruction files.
 - Runs `git diff origin/main...HEAD`, checks every changed file.
@@ -136,27 +155,27 @@ This keeps mechanical agents simple and predictable, and ensures all repair deci
 - Reports `{"clean": true}` or `{"clean": false, "fixes": [...]}`.
 - Loops with Code Writer (via Code Tester) until clean, capped at 5 iterations.
 
-**Code Fixer (PR Review Responder)**
+#### Code Fixer (PR Review Responder)
 
 - Addresses `CHANGES_REQUESTED` review comments on an existing PR.
 - Converts the PR to draft before starting any work (see PR Draft State rules above).
 - Each review comment gets its own separate commit.
 - Hands off to Code Tester after each fix rather than running build/tests itself.
 
-**Rebase Agent**
+#### Rebase Agent
 
 - Rebases a named branch onto `origin/main`.
 - CHANGELOG conflicts are the one deterministic exception to the failure-punt rule: always resolve them by keeping entries from both sides (never discarding either) — no judgement required.
 - Any other conflict must be reported verbatim to the Orchestrator — do not attempt to resolve it.
 - Force-pushes with `--force-with-lease` only after all conflicts are resolved.
 
-**CI Debugger**
+#### CI Debugger
 
 - Invoked when CI fails and the cause is not obvious from the code change.
 - Reads full workflow logs (`gh run view --log-failed`), identifies root cause.
 - Fixes the cause if it is code-related; if environmental or infrastructure, escalates with a clear description.
 
-**Changelog**
+#### Changelog
 
 - Runs after both Code Tester and Code Reviewer are satisfied — never before.
 - Reads `git diff origin/main...HEAD` to understand what changed.
@@ -164,7 +183,7 @@ This keeps mechanical agents simple and predictable, and ensures all repair deci
 - Does NOT commit — that is Committer's responsibility.
 - Does NOT run build or tests — that is Code Tester's responsibility.
 
-**Committer**
+#### Committer
 
 - Runs after the Changelog agent has written the changelog entry.
 - **Uses the `git` CLI exclusively** — never `gh`, GitHub REST API, or GitHub GraphQL API for any commit or push operation.
@@ -177,7 +196,7 @@ This keeps mechanical agents simple and predictable, and ensures all repair deci
 - Pushes all commits to `origin` immediately after using `git push`.
 - Does not open the PR — that is PR Submitter's responsibility.
 
-**Pre-commit hook failures:**
+#### Pre-commit hook failures
 
 - Pre-commit hooks run automatically when `git commit` is executed. This is expected and intentional — do not use `--no-verify` to bypass them.
 - If a pre-commit hook fails:
@@ -187,7 +206,7 @@ This keeps mechanical agents simple and predictable, and ensures all repair deci
   4. Once the fix is received, re-stage the corrected files and retry the commit.
   5. If the same hook fails again after 3 fix-and-retry cycles, stop and escalate to the user — do not loop indefinitely.
 
-**PR Submitter**
+#### PR Submitter
 
 - Runs after Committer has pushed all commits to `origin`.
 - Wait up to 1 minute for GitHub to automatically create a PR (e.g. via a branch protection rule or auto-PR workflow). Check with `gh pr list --head <branch>`.
@@ -202,7 +221,7 @@ This keeps mechanical agents simple and predictable, and ensures all repair deci
 - Mark the PR ready for review (`gh pr ready <number>`) **only if** Code Tester and Code Reviewer have both signed off on this round — i.e. the pipeline that reached PR Submitter passed through both agents without outstanding issues. Before doing so, rebase the branch onto `origin/main` and resolve any conflicts: `git fetch origin && git rebase origin/main`.
 - If the pipeline did not include Code Tester and Code Reviewer (e.g. a rebase-only run), leave the PR in whatever draft state it is currently in — do not flip it to ready.
 
-**CI Monitor** _(not currently enabled — implementation TBD)_
+#### CI Monitor _(not currently enabled — implementation TBD)_
 
 - Runs after PR Submitter, once the PR is open and marked ready for review.
 - Watches all required status checks on the PR for CI failures: `gh pr checks <number> --watch`.
@@ -211,7 +230,7 @@ This keeps mechanical agents simple and predictable, and ensures all repair deci
 - After CI Debugger has applied a fix and pushed, re-check all required checks — repeat until all pass or CI Debugger escalates to the user.
 - Does not attempt to fix failures itself — diagnosis and repair belong to CI Debugger.
 
-**Dependency Updater**
+#### Dependency Updater
 
 - Reviews Dependabot PRs: checks if the update is a safe patch/minor bump with no security advisories and CI passing.
 - Auto-merges safe updates; flags breaking changes or major version bumps to the user.
@@ -220,7 +239,7 @@ This keeps mechanical agents simple and predictable, and ensures all repair deci
 ### Routing Rules
 
 | Work type | Agent sequence |
-|---|---|
+| --- | --- |
 | New feature / bug fix / refactor | Code Writer → Code Tester (loop ≤5 with Code Writer) → Code Reviewer (loop ≤5, re-running Code Writer and Code Tester each round) → Changelog → Committer → PR Submitter → CI Monitor |
 | `CHANGES_REQUESTED` on existing PR | Code Fixer → Code Tester (loop ≤5 with Code Fixer) → Code Reviewer (loop ≤5, re-running Code Fixer and Code Tester each round) → Changelog → Committer → PR Submitter → CI Monitor |
 | Coverage-only task | Code Writer (tests only) → Code Tester (loop ≤5 with Code Writer) → Code Reviewer (loop ≤5, re-running Code Writer and Code Tester each round) → Changelog → Committer → PR Submitter → CI Monitor |
