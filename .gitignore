@@ -372,3 +372,5 @@ dotnet-tools.json
 /build/
 /coverage/
 node_modules
+
+.pre-commit-config.yaml
