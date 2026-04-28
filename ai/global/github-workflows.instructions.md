@@ -169,6 +169,8 @@ All steps must use a consistent field order. `name:` is always first; optional f
 
 ## Step Output Formatting
 
+> These conventions apply to **GitHub Actions workflow steps only** (both `actions/github-script` and `run:` steps). Standalone shell scripts use ANSI-coloured `✓`/`✗` — see [shell-scripts.instructions.md](shell-scripts.instructions.md#visual-indicators).
+
 Make step output easy to scan at a glance. Use tick and cross characters to signal pass/fail state, and prefix status lines consistently:
 
 | State | Character | Usage |
