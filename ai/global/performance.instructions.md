@@ -28,6 +28,7 @@
 - For performance-critical code, write benchmarks as tests.
 - Record a baseline result that new changes must match or improve upon — a regression against the baseline is not acceptable.
 - Benchmarks should be committed alongside the code they measure.
+- Benchmarks must assert memory allocation limits using the extensions from `FunFair.Test.Common` — assert that allocated memory is zero, or within an explicitly declared byte threshold. Do not roll custom assertion helpers for this.
 
 ## Optimisation Workflow
 
