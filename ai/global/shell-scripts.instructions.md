@@ -45,6 +45,33 @@ info() {
 
 Use `printf` rather than `echo` for portable escape-sequence handling, and `"$*"` to pass the message as a single string (required for `shellcheck` and `checkbashisms` compliance).
 
+## AI Agent Detection
+
+Scripts that need to behave differently when invoked by an AI agent (e.g. providing plainer error messages or applying stricter guards) must use the standard helper below rather than inlining the detection:
+
+```sh
+# Returns true (0) when running inside a Claude Code Bash-tool session.
+# Claude Code sets CLAUDECODE=1 in every shell it spawns via the Bash tool;
+# that value is inherited by subprocesses (e.g. git hooks).
+# Source: https://docs.anthropic.com/en/docs/claude-code/settings#environment-variables
+is_ai_agent() {
+    [ "${CLAUDECODE}" = "1" ]
+}
+```
+
+Usage:
+
+```sh
+if is_ai_agent; then
+    die "Prohibited — did you read the .ai-instructions?"
+else
+    die "Normal human-facing error message"
+fi
+```
+
+- Define `is_ai_agent` alongside the other output helpers (`die`, `success`, `info`) near the top of the script, not inline at the point of use.
+- Always keep the source URL comment so future maintainers know where `CLAUDECODE` comes from.
+
 ## No naked echo or printf
 
 Never use bare `echo` or `printf` for user-facing output. Always route through one of the three output functions:
