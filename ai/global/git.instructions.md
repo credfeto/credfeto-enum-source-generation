@@ -76,6 +76,7 @@ When the `GH_HOST` environment variable is set to a value other than `github.com
 
 ## Commits
 
+- **Never create an empty commit.** Before running `git commit`, verify that `git diff --cached --name-only` lists at least one file. If the staging area is empty, stop and investigate why — do not proceed with the commit.
 - Changes should be worked on in small increments and committed one by one.
 - Commits should be as small as possible — one logical change per commit:
   - When achieving 100% coverage, commit and push each file as soon as it reaches 100% coverage individually; do not batch multiple files into one commit.
@@ -87,15 +88,17 @@ When the `GH_HOST` environment variable is set to a value other than `github.com
 ## Commit Message Format
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format for all commit messages.
-- Always include the user's original prompt verbatim in the commit description (body), prefixed with `Prompt: `. Do not include it in the commit title.
+- Always include the user's original prompt verbatim in the commit description (body), prefixed with `Prompt:` followed by a space. Do not include it in the commit title.
 
 ## Dependabot Vulnerability Warnings
 
 - After any push, if the remote prints a message like:
-  ```
+
+  ```text
   remote: GitHub found N vulnerabilities on <repo>'s default branch (X critical, Y high, ...).
   remote:      https://github.com/<repo>/security/dependabot
   ```
+
   check whether there are already open Dependabot PRs covering those vulnerabilities (`gh pr list --label dependencies`).
 - If there are no open Dependabot PRs (or they do not cover all flagged advisories), visit `https://github.com/<repo>/security/dependabot`, review each unfixed advisory, and for any where a manual fix is possible create a GitHub Issue that:
   - Names the vulnerable package and the severity.
@@ -110,12 +113,14 @@ If, during work in a non-template repo, a gap or needed change is identified in 
 
 1. **Do not** apply the rule change locally — template rules are managed centrally in `credfeto/cs-template`.
 2. Create a new issue in `credfeto/cs-template` using the GitHub CLI:
+
    ```bash
    gh issue create --repo credfeto/cs-template \
      --title "<short description of the rule change>" \
      --label "AI-Work" \
      --body "..."
    ```
+
 3. The issue body **must** include all of the following:
    - **Source repository**: The repo where the need was discovered.
    - **Current behaviour / gap**: What is missing or inconsistent in the existing rules.
