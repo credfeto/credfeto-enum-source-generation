@@ -7,10 +7,12 @@ These rules apply to all .NET solutions derived from this template.
 ## Build and Test Before Commit (MANDATORY)
 
 - Before every commit, run:
-  ```
+
+  ```bash
   dotnet build
   dotnet test
   ```
+
 - If `dotnet build` fails, **do not commit**. Fix all build errors first.
 - If `dotnet test` fails, **do not commit**. Fix all failing tests first.
 - If build or test errors cannot be resolved, stop and ask the user for guidance.
@@ -38,13 +40,13 @@ See [code-quality.instructions.md](code-quality.instructions.md) for the general
 
 Run from the solution root:
 
-```
+```bash
 dotnet buildcheck
 ```
 
 For available options:
 
-```
+```bash
 dotnet buildcheck --help
 ```
 
@@ -53,12 +55,13 @@ dotnet buildcheck --help
 Test projects must follow a consistent naming convention relative to the assembly under test:
 
 | Test type | Assembly name pattern |
-|-----------|----------------------|
+| --------- | --------------------- |
 | Unit tests | `<AssemblyName>.Tests` |
 | Integration tests | `<AssemblyName>.Integration.Tests` |
 | Benchmarks | `<AssemblyName>.Benchmark.Tests` |
 
 For example, for an assembly `This.Test.Example`:
+
 - Unit tests → `This.Test.Example.Tests`
 - Integration tests → `This.Test.Example.Integration.Tests`
 - Benchmarks → `This.Test.Example.Benchmark.Tests`
@@ -74,7 +77,7 @@ For example, for an assembly `This.Test.Example`:
 When writing tests with `FunFair.Test.Common.TestBase`, use the helper methods provided by the base class instead of calling NSubstitute directly:
 
 | Instead of | Use |
-|---|---|
+| ---------- | --- |
 | `Substitute.For<IMyInterface>()` | `GetSubstitute<IMyInterface>()` (static — no `this.`) |
 | `Substitute.For<ILogger<MyClass>>()` | `this.GetTypedLogger<MyClass>()` (instance — requires `this.`) |
 
@@ -130,6 +133,24 @@ Use `.AddMockedService<IOptions<TOptions>>(static o => o.Value.Returns(new TOpti
 - All configuration/options classes (typically bound from `appsettings.json`) must have a `[DebuggerDisplay("...")]` attribute showing their key properties.
 - The `DebuggerDisplay` format string should show the most useful identifying information — typically a name, identifier, or URL.
 
+## Time Abstraction
+
+- Use `System.TimeProvider` (built into .NET 8+) in production code for all time-related abstractions.
+- **Never use** `Credfeto.Date.ICurrentTimeSource` or `FunFair.Common.Services.IDateTimeSource` — these are obsolete custom abstractions being removed.
+- In tests, use `FakeTimeProvider` from the `Microsoft.Extensions.TimeProvider.Testing` NuGet package — never roll a custom time mock or fake.
+- Whenever work touches code that uses `ICurrentTimeSource` or `IDateTimeSource`, migrate it to `TimeProvider`/`FakeTimeProvider` as part of that work.
+
+## Warning Suppression
+
+- **Never use `#pragma warning disable <ID>`** — inline suppression hides problems without explanation and is invisible in code review.
+- If a warning genuinely cannot be fixed and must be suppressed, use `[SuppressMessage("category", "ID", Justification = "reason")]` at the narrowest possible scope (method or property, never assembly-level unless unavoidable).
+- The `Justification` parameter is **mandatory** — a suppression without a justification must be treated as a build error.
+
+## Warnings as Errors
+
+- Every project must build with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` in its project file or a shared `Directory.Build.props`.
+- `<NoWarn>` and `<WarningsNotAsErrors>` must not be used to silence warnings — fix the code or use `[SuppressMessage]` with a justification instead. See [NuGet Vulnerability Suppression](#nuget-vulnerability-suppression) for the one narrow exception (per-advisory NuGet audit suppressions).
+
 ## NuGet Vulnerability Suppression
 
 Accepted NuGet security advisories must be suppressed **at the project level** using the specific advisory URL, not suppressed globally in shared props.
@@ -158,6 +179,7 @@ Do **not** suppress NuGet vulnerability warnings globally in shared `.props` fil
 ### Rationale
 
 Global suppression hides newly introduced advisories as packages are updated. Per-advisory project-level suppression ensures that:
+
 - Only explicitly reviewed and accepted vulnerabilities are suppressed.
 - New advisories on updated packages are not silently ignored.
 - Each suppression is traceable to a specific advisory URL and kept in the project file where the affected package is referenced.
