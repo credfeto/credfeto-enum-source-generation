@@ -35,4 +35,27 @@ success() {
 }
 ```
 
+- **Progress/info** — prefix with a green `→`:
+
+```sh
+info() {
+    printf '\n\033[32m→\033[0m %s\n' "$*"
+}
+```
+
 Use `printf` rather than `echo` for portable escape-sequence handling, and `"$*"` to pass the message as a single string (required for `shellcheck` and `checkbashisms` compliance).
+
+## No naked echo or printf
+
+Never use bare `echo` or `printf` for user-facing output. Always route through one of the three output functions:
+
+- `die` — fatal error, exits non-zero
+- `success` — step or overall completion
+- `info` — progress announcement before a step begins
+
+Interpolate any variables directly into the string argument rather than using a format string with separate arguments:
+
+```sh
+info "Opening port ${PORT}/tcp..."   # correct
+printf '→ Opening port %s/tcp...\n' "${PORT}"  # wrong — naked printf
+```
