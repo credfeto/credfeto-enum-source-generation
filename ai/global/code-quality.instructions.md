@@ -4,49 +4,54 @@
 
 ## Code Coverage
 
-- 100% code coverage must be maintained by tests.
-- How tests are organised in non-.NET projects should be detailed in the local AI instructions for each repository.
+- 100% code coverage must be maintained.
+- Test organisation in non-.NET projects is detailed in local AI instructions.
 
 ## Pre-Commit
 
-- Unit tests must be written before every commit — every new behaviour or change must have corresponding tests.
-- See [git.instructions.md](git.instructions.md) for the mandatory build and test verification rules that apply before every commit.
+- Write unit tests before every commit — every new behaviour must have corresponding tests.
+- See [git.instructions.md](git.instructions.md) for mandatory build and test verification before committing.
 
 ## Dead Code
 
-- If code cannot be reached by any code path (dead code), remove it rather than writing tests around it.
+- Remove unreachable code rather than writing tests around it.
+- Dead/unreachable code removal: separate commit from test changes, after running tests on the entire handler or app; one method or function per commit.
+- Shared code removal: only after the entire codebase has 100% coverage; each removal is its own commit.
 
 ## Asynchronous Code
 
-- Prefer asynchronous code over synchronous code wherever the language and framework support it.
-- Never block on asynchronous operations synchronously — always await or use the appropriate async continuation mechanism.
-- Propagate asynchrony through the call stack — do not introduce synchronous wrappers around async operations.
+- Prefer async over sync wherever supported.
+- Never block on async operations — always await or use async continuations.
+- Propagate async through the call stack — no synchronous wrappers around async operations.
 
 ## Immutability
 
-- Code should prefer immutable objects wherever possible.
-- Immutability is especially important in asynchronous and multi-threaded code, where mutable shared state is a common source of bugs.
-- This rule may only be broken for performance reasons, and only when explicitly requested — any such exception should be noted in a comment explaining why mutability was necessary.
+Prefer immutable objects wherever possible — especially in async and multi-threaded code. Only break this for performance reasons when explicitly requested; note the reason in a comment.
 
 ## Parameterised Tests
 
-- Prefer parameterised tests over duplicated test methods — use the equivalent of xUnit's `[Theory]` with `[InlineData]` or equivalent data-driven mechanisms wherever the language and test framework support it.
-- Each variant of a behaviour should be a data point, not a separate test method.
-- This applies to all languages and test frameworks; use whatever the idiomatic equivalent is (e.g. `@ParameterizedTest` in JUnit, `pytest.mark.parametrize` in pytest, `it.each` in Jest).
+Prefer parameterised tests over duplicated test methods — each behavioural variant is a data point, not a separate method. Use the idiomatic mechanism for the framework (xUnit `[Theory]`/`[InlineData]`, JUnit `@ParameterizedTest`, pytest `parametrize`, Jest `it.each`).
 
 ## Test Quality
 
-- Tests must be held to the same code quality standards as production code — they are not exempt from readability, maintainability, or refactoring rules.
-- Tests must not be brittle — they should test behaviour, not implementation details, so that refactoring production code does not unnecessarily break tests.
-- Avoid hardcoding values or assumptions that are likely to change; use constants, builders, or factory helpers where appropriate.
+- Tests must meet the same code quality standards as production code.
+- Test behaviour, not implementation — refactoring production code must not unnecessarily break tests.
+- Use constants, builders, or factory helpers rather than hardcoded values likely to change.
 
 ## Refactoring
 
-- After code is written and tested, review it to determine whether refactoring is needed.
-- Refactoring must be done in a separate commit from the original code and test changes — never mix refactoring with feature or fix work.
-- Tests must continue to pass after any refactoring commit.
+- Review code after writing and testing to determine whether refactoring is needed.
+- Refactoring must be a separate commit from feature/fix changes.
+- Tests must pass after every refactoring commit.
 
 ## Compile-Time Configuration
 
-- Compile-time configuration (e.g. environment-specific constants, feature flags resolved at build time) must be covered by a unit test rather than verified with a runtime check.
-- This keeps production code clean and free of defensive assertions that only exist for testing purposes.
+Cover compile-time configuration (environment constants, build-time feature flags) with unit tests — not runtime assertions, which pollute production code.
+
+## Code Complexity
+
+- Prefer clean code — readable, well-named, single-responsibility.
+- Cyclomatic complexity must stay below 20 per method; refactor if it exceeds this.
+- Keep cognitive complexity low — if a method is hard to read at a glance, simplify it.
+- Prefer weak (static) connascence (Name, Type, Meaning) over strong (dynamic) forms (Execution, Timing, Identity) — see [connascence.io](https://connascence.io/).
+- Where stronger connascence is unavoidable, keep it local (within a single method or class).
