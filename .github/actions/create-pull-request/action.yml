@@ -65,15 +65,31 @@ runs:
             ? process.env.LABELS.split(',').map(l => l.trim()).filter(Boolean)
             : [];
 
-          const { data: pr } = await octokit.rest.pulls.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: title,
-            body: body,
-            head: sourceBranch,
-            base: destinationBranch,
-            draft: draft,
-          });
+          let pr;
+          try {
+            const { data } = await octokit.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              head: sourceBranch,
+              base: destinationBranch,
+              draft: draft,
+            });
+            pr = data;
+          } catch (err) {
+            const isPrAlreadyExists =
+              err.status === 422 &&
+              Array.isArray(err.response?.data?.errors) &&
+              err.response.data.errors.some(
+                e => e.resource === 'PullRequest' && typeof e.message === 'string' && e.message.startsWith('A pull request already exists')
+              );
+            if (isPrAlreadyExists) {
+              core.info(`PR already exists for branch ${sourceBranch} - nothing to do`);
+              return;
+            }
+            throw err;
+          }
 
           if (assignees.length > 0) {
             await octokit.rest.issues.addAssignees({
