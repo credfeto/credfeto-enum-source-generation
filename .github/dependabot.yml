@@ -81,6 +81,7 @@ updates:
   - dependency-name: "FunFair.Swagger.*"
   - dependency-name: "FunFair.Test.Common"
   - dependency-name: "FunFair.Test.Source.Generator"
+  - dependency-name: "GitHubActionsTestLogger"
   - dependency-name: "HexMate"
   - dependency-name: "HtmlAgilityPack"
   - dependency-name: "IPAddressRange"
