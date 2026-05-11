@@ -93,8 +93,9 @@ Use `AddMockedService<T>()` in tests deriving from `DependencyInjectionTestsBase
 ## Warning Suppression and Errors
 
 - Every project must build with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
-- Never use `#pragma warning disable <ID>`, `<NoWarn>`, or `<WarningsNotAsErrors>` — fix the code or use `[SuppressMessage]`. Exception: per-advisory NuGet audit suppressions (see below).
-- For genuinely unfixable warnings, use `[SuppressMessage("category", "ID", Justification = "reason")]` at the narrowest scope — `Justification` is **mandatory**.
+- Never use `#pragma warning disable <ID>`, `<NoWarn>`, `<WarningsNotAsErrors>`, or `[SuppressMessage]` without **explicit written permission from the repo owner**. Exception: per-advisory NuGet audit suppressions (see below).
+- If a warning fires, fix the root cause. If the fix is non-obvious, raise a GitHub issue rather than suppressing the warning.
+- Test projects are **not** exempt from this rule — suppressing warnings in test code is equally prohibited without explicit permission.
 
 ## NuGet Vulnerability Suppression
 
