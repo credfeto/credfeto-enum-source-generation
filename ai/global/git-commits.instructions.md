@@ -10,6 +10,17 @@ Load this file when about to commit or acting as the Committer agent. See [git.i
 - Never amend an existing commit — always create a new one.
 - Push to `origin` after every commit.
 
+## Unexpected Reformatting During Commit (MANDATORY)
+
+If hooks or formatters modify files **not in your intended change set**:
+
+1. Do not stage the unrequested changes.
+2. Abort the commit.
+3. Report the affected files and which hook/formatter changed them.
+4. Wait for explicit instructions.
+
+Do not use `--no-verify`.
+
 ## Commit Message Format
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
