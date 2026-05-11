@@ -6,6 +6,10 @@
 
 Verify all required languages and runtimes are installed. If any are missing, stop — do not scaffold code or make partial changes; ask the user to install them first.
 
+## Environment Health (MANDATORY)
+
+If the environment is too broken to work in without first fixing infrastructure or tooling, **stop** and demand it be fixed. Do not work around broken tooling.
+
 ## Build and Test Verification (MANDATORY before any commit or push)
 
 Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask.
@@ -67,6 +71,10 @@ After any push, if the remote reports vulnerabilities:
 
 - Check for open Dependabot PRs covering them (`gh pr list --label dependencies`).
 - If none exist, visit the repo's Dependabot page and for any manually fixable advisory create a GitHub issue labelled `Security` and `AI-Work`, naming the package, severity, and fix steps.
+
+## Pre-Commit Hook Known Incompatibilities
+
+- **dotenv-linter**: use `entry: dotenv-linter check` — v3.x requires the `check` subcommand before the filename.
 
 ## Template Rule Escalation (Non-Template Repos Only)
 
