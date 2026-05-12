@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
@@ -17,7 +17,7 @@ public sealed class EnumGetNameTests
     [InlineData(ExampleEnumValues.ZERO, nameof(ExampleEnumValues.ZERO))]
     [InlineData(ExampleEnumValues.ONE, nameof(ExampleEnumValues.ONE))]
     [InlineData(ExampleEnumValues.THREE, nameof(ExampleEnumValues.THREE))]
-    public void IsNameNameAsToString(ExampleEnumValues value, string expected)
+    public void GetNameReturnsExpectedName(ExampleEnumValues value, string expected)
     {
         string name = value.GetName();
 
@@ -25,21 +25,25 @@ public sealed class EnumGetNameTests
     }
 
     [Fact]
-    public void GetNameForAliased()
+    public void GetNameForAliasedMatchesOriginal()
     {
-        Assert.Equal(expected: "ONE", ExampleEnumValues.ONE.GetName());
-        Assert.Equal(expected: "ONE", ExampleEnumValues.SAME_AS_ONE.GetName());
+        Assert.Equal(expected: ExampleEnumValues.ONE.GetName(), actual: ExampleEnumValues.SAME_AS_ONE.GetName());
     }
 
     [Fact]
-    public void GetNameForUnAliased()
+    public void GetNameForObsoleteValueThrows()
     {
-        Assert.Equal(expected: "ZERO", ExampleEnumValues.ZERO.GetName());
-        Assert.Equal(expected: "THREE", ExampleEnumValues.THREE.GetName());
+        // ExampleEnumValues.TWO (value 2) is not included in the generated switch — treat as out-of-range
+        const ExampleEnumValues twoByValue = (ExampleEnumValues)2;
+#if NET7_0_OR_GREATER
+        Assert.Throws<UnreachableException>(() => twoByValue.GetName());
+#else
+        Assert.Throws<ArgumentOutOfRangeException>(() => twoByValue.GetName());
+#endif
     }
 
     [Fact]
-    public void GetNameForUnknown()
+    public void GetNameForUnknownValueThrows()
     {
         const ExampleEnumValues unknown = (ExampleEnumValues)72;
 
@@ -50,10 +54,12 @@ public sealed class EnumGetNameTests
 #endif
     }
 
-    [Fact]
-    public void GetNameForExternalUnAliased()
+    [Theory]
+    [InlineData(HttpStatusCode.OK, nameof(HttpStatusCode.OK))]
+    [InlineData(HttpStatusCode.Accepted, nameof(HttpStatusCode.Accepted))]
+    [InlineData(HttpStatusCode.NotFound, nameof(HttpStatusCode.NotFound))]
+    public void GetNameForExternalEnumReturnsMemberName(HttpStatusCode value, string expected)
     {
-        Assert.Equal(expected: "OK", HttpStatusCode.OK.GetName());
-        Assert.Equal(expected: "Accepted", HttpStatusCode.Accepted.GetName());
+        Assert.Equal(expected: expected, actual: value.GetName());
     }
 }
