@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
@@ -13,22 +13,38 @@ namespace Credfeto.Enumeration.Source.Generation.Models.Tests;
 )]
 public sealed class EnumGetDescriptionTests
 {
-    [Fact]
-    public void GetDescriptionForAliased()
+    [Theory]
+    [InlineData(ExampleEnumValues.ZERO, nameof(ExampleEnumValues.ZERO))]
+    [InlineData(ExampleEnumValues.ONE, "One \"1\"")]
+    [InlineData(ExampleEnumValues.THREE, "Two but one better!")]
+    public void GetDescriptionReturnsExpected(ExampleEnumValues value, string expected)
     {
-        Assert.Equal(expected: "One \"1\"", ExampleEnumValues.ONE.GetDescription());
-        Assert.Equal(expected: "One \"1\"", ExampleEnumValues.SAME_AS_ONE.GetDescription());
+        Assert.Equal(expected: expected, actual: value.GetDescription());
     }
 
     [Fact]
-    public void GetDescriptionForUnAliased()
+    public void GetDescriptionForAliasedMatchesOriginal()
     {
-        Assert.Equal(expected: "ZERO", ExampleEnumValues.ZERO.GetDescription());
-        Assert.Equal(expected: "Two but one better!", ExampleEnumValues.THREE.GetDescription());
+        Assert.Equal(
+            expected: ExampleEnumValues.ONE.GetDescription(),
+            actual: ExampleEnumValues.SAME_AS_ONE.GetDescription()
+        );
     }
 
     [Fact]
-    public void GetDescriptionForUnknown()
+    public void GetDescriptionForObsoleteValueThrows()
+    {
+        // ExampleEnumValues.TWO (value 2) is excluded from the generated switch — falls through to GetName which throws
+        const ExampleEnumValues twoByValue = (ExampleEnumValues)2;
+#if NET7_0_OR_GREATER
+        Assert.Throws<UnreachableException>(() => twoByValue.GetDescription());
+#else
+        Assert.Throws<ArgumentOutOfRangeException>(() => twoByValue.GetDescription());
+#endif
+    }
+
+    [Fact]
+    public void GetDescriptionForUnknownValueThrows()
     {
         const ExampleEnumValues unknown = (ExampleEnumValues)72;
 #if NET7_0_OR_GREATER
@@ -38,10 +54,11 @@ public sealed class EnumGetDescriptionTests
 #endif
     }
 
-    [Fact]
-    public void GetDescriptionForExternalUnAliased()
+    [Theory]
+    [InlineData(HttpStatusCode.OK, nameof(HttpStatusCode.OK))]
+    [InlineData(HttpStatusCode.Accepted, nameof(HttpStatusCode.Accepted))]
+    public void GetDescriptionForExternalEnumReturnsName(HttpStatusCode value, string expected)
     {
-        Assert.Equal(expected: "OK", HttpStatusCode.OK.GetDescription());
-        Assert.Equal(expected: "Accepted", HttpStatusCode.Accepted.GetDescription());
+        Assert.Equal(expected: expected, actual: value.GetDescription());
     }
 }
