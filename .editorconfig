@@ -356,339 +356,339 @@ dotnet_diagnostic.IDE0305.severity = error
 # Managed Code analysis
 ########################################################################################################################
 
-# CA1001 - ?? 
+# CA1001 - ??
 dotnet_diagnostic.CA1001.severity = none
-# CA1002 - ?? 
+# CA1002 - ??
 dotnet_diagnostic.CA1002.severity = none
-# CA1003 - ?? 
+# CA1003 - ??
 dotnet_diagnostic.CA1003.severity = error
-# CA1005 - ?? 
+# CA1005 - ??
 dotnet_diagnostic.CA1005.severity = none
-# C1A008 - Flags Enum should have an enum called 'None' with a value 0 
+# C1A008 - Flags Enum should have an enum called 'None' with a value 0
 dotnet_diagnostic.CA1008.severity = none
-# CA1009 - ?? 
+# CA1009 - ??
 dotnet_diagnostic.CA1009.severity = error
-# CA1012 - ?? 
+# CA1012 - ??
 dotnet_diagnostic.CA1012.severity = error
-# CA1014 - ?? 
+# CA1014 - ??
 dotnet_diagnostic.CA1014.severity = none
-# CA1016 - ?? 
+# CA1016 - ??
 dotnet_diagnostic.CA1016.severity = error
-# CA1018 - ?? 
+# CA1018 - ??
 dotnet_diagnostic.CA1018.severity = error
-# CA1019 - ?? 
+# CA1019 - ??
 dotnet_diagnostic.CA1019.severity = none
-# CA1025 - ?? 
+# CA1025 - ??
 dotnet_diagnostic.CA1025.severity = error
-# CA1027 - ?? 
+# CA1027 - ??
 dotnet_diagnostic.CA1027.severity = none
-# CA1028 - ?? 
+# CA1028 - ??
 dotnet_diagnostic.CA1028.severity = error
-# CA1030 - ?? 
+# CA1030 - ??
 dotnet_diagnostic.CA1030.severity = none
-# CA1031 - ?? 
+# CA1031 - ??
 dotnet_diagnostic.CA1031.severity = none
-# CA1033 - ?? 
+# CA1033 - ??
 dotnet_diagnostic.CA1033.severity = none
-# CA1034 - ?? 
+# CA1034 - ??
 dotnet_diagnostic.CA1034.severity = error
-# CA1036 - ?? 
+# CA1036 - ??
 dotnet_diagnostic.CA1036.severity = error
-# CA1040 - ?? 
+# CA1040 - ??
 dotnet_diagnostic.CA1040.severity = none
-# CA1041 - ?? 
+# CA1041 - ??
 dotnet_diagnostic.CA1041.severity = error
-# CA1043 - ?? 
+# CA1043 - ??
 dotnet_diagnostic.CA1043.severity = error
-# CA1044 - ?? 
+# CA1044 - ??
 dotnet_diagnostic.CA1044.severity = error
-# CA1047 - ?? 
+# CA1047 - ??
 dotnet_diagnostic.CA1047.severity = error
-# CA1048 - ?? 
+# CA1048 - ??
 dotnet_diagnostic.CA1048.severity = error
-# CA1049 - ?? 
+# CA1049 - ??
 dotnet_diagnostic.CA1049.severity = error
-# CA1050 - ?? 
+# CA1050 - ??
 dotnet_diagnostic.CA1050.severity = error
-# CA1051 - ?? 
+# CA1051 - ??
 dotnet_diagnostic.CA1051.severity = error
-# CA1052 - ?? 
+# CA1052 - ??
 dotnet_diagnostic.CA1052.severity = error
-# CA1053 - ?? 
+# CA1053 - ??
 dotnet_diagnostic.CA1053.severity = error
-# CA1054 - ?? 
+# CA1054 - ??
 dotnet_diagnostic.CA1054.severity = none
-# CA1055 - ?? 
+# CA1055 - ??
 dotnet_diagnostic.CA1055.severity = error
-# CA1056 - ?? 
+# CA1056 - ??
 dotnet_diagnostic.CA1056.severity = error
-# CA1057 - ?? 
+# CA1057 - ??
 dotnet_diagnostic.CA1057.severity = error
-# CA1058 - ?? 
+# CA1058 - ??
 dotnet_diagnostic.CA1058.severity = error
-# CA1059 - ?? 
+# CA1059 - ??
 dotnet_diagnostic.CA1059.severity = error
-# CA1060 - ?? 
+# CA1060 - ??
 dotnet_diagnostic.CA1060.severity = error
-# CA1061 - ?? 
+# CA1061 - ??
 dotnet_diagnostic.CA1061.severity = error
-# CA1062 - ?? 
+# CA1062 - ??
 dotnet_diagnostic.CA1062.severity = none
-# CA1063 - ?? 
+# CA1063 - ??
 dotnet_diagnostic.CA1063.severity = error
-# CA1064 - ?? 
+# CA1064 - ??
 dotnet_diagnostic.CA1064.severity = error
-# CA1065 - ?? 
+# CA1065 - ??
 dotnet_diagnostic.CA1065.severity = error
-# CA1301 - ?? 
+# CA1301 - ??
 dotnet_diagnostic.CA1301.severity = error
-# CA1303 - ?? 
+# CA1303 - ??
 dotnet_diagnostic.CA1303.severity = none
-# CA1305 - ?? 
+# CA1305 - ??
 dotnet_diagnostic.CA1305.severity = none
-# CA1306 - ?? 
+# CA1306 - ??
 dotnet_diagnostic.CA1306.severity = error
-# CA1307 - ?? 
+# CA1307 - ??
 dotnet_diagnostic.CA1307.severity = none
-# CA1308 - ?? 
+# CA1308 - ??
 dotnet_diagnostic.CA1308.severity = none
-# CA1309 - ?? 
+# CA1309 - ??
 dotnet_diagnostic.CA1309.severity = error
-# CA1400 - ?? 
+# CA1400 - ??
 dotnet_diagnostic.CA1400.severity = error
-# CA1401 - ?? 
+# CA1401 - ??
 dotnet_diagnostic.CA1401.severity = error
-# CA1403 - ?? 
+# CA1403 - ??
 dotnet_diagnostic.CA1403.severity = error
-# CA1403 - ?? 
+# CA1403 - ??
 dotnet_diagnostic.CA1404.severity = error
-# CA1405 - ?? 
+# CA1405 - ??
 dotnet_diagnostic.CA1405.severity = error
-# CA1410 - ?? 
+# CA1410 - ??
 dotnet_diagnostic.CA1410.severity = error
-# CA1415 - ?? 
+# CA1415 - ??
 dotnet_diagnostic.CA1415.severity = error
-# CA1501 - ?? 
+# CA1501 - ??
 dotnet_diagnostic.CA1501.severity = none
-# CA1502 - ?? 
+# CA1502 - ??
 dotnet_diagnostic.CA1502.severity = error
-# CA1504 - ?? 
+# CA1504 - ??
 dotnet_diagnostic.CA1504.severity = error
-# CA1505 - ?? 
+# CA1505 - ??
 dotnet_diagnostic.CA1505.severity = error
-# CA1506 - ?? 
+# CA1506 - ??
 dotnet_diagnostic.CA1506.severity = none
-# CA1515 - Because an application's API isn't typically referenced from outside the assembly, types can be made internal 
+# CA1515 - Because an application's API isn't typically referenced from outside the assembly, types can be made internal
 dotnet_diagnostic.CA1515.severity = suggestion
-# CA1600 - ?? 
+# CA1600 - ??
 dotnet_diagnostic.CA1600.severity = error
-# CA1601 - ?? 
+# CA1601 - ??
 dotnet_diagnostic.CA1601.severity = error
-# CA1700 - ?? 
+# CA1700 - ??
 dotnet_diagnostic.CA1700.severity = error
-# CA1707 - ?? 
+# CA1707 - ??
 dotnet_diagnostic.CA1707.severity = none
-# CA1710 - ?? 
+# CA1710 - ??
 dotnet_diagnostic.CA1710.severity = none
-# CA1712 - ?? 
+# CA1712 - ??
 dotnet_diagnostic.CA1712.severity = none
-# CA1716 - ?? 
+# CA1716 - ??
 dotnet_diagnostic.CA1716.severity = none
-# CA1717 - ?? 
+# CA1717 - ??
 dotnet_diagnostic.CA1717.severity = none
-# CA1724 - ?? 
+# CA1724 - ??
 dotnet_diagnostic.CA1724.severity = none
-# CA1800 - ?? 
+# CA1800 - ??
 dotnet_diagnostic.CA1800.severity = error
-# CA1801 - ?? 
+# CA1801 - ??
 dotnet_diagnostic.CA1801.severity = error
-# CA1802 - ?? 
+# CA1802 - ??
 dotnet_diagnostic.CA1802.severity = error
-# CA1803 - ?? 
+# CA1803 - ??
 dotnet_diagnostic.CA1803.severity = error
-# CA1804 - ?? 
+# CA1804 - ??
 dotnet_diagnostic.CA1804.severity = error
-# CA1805 - ?? 
+# CA1805 - ??
 dotnet_diagnostic.CA1805.severity = error
-# CA1806 - ?? 
+# CA1806 - ??
 dotnet_diagnostic.CA1806.severity = error
-# CA1807 - ?? 
+# CA1807 - ??
 dotnet_diagnostic.CA1807.severity = error
-# CA1808 - ?? 
+# CA1808 - ??
 dotnet_diagnostic.CA1808.severity = error
-# CA1809 - ?? 
+# CA1809 - ??
 dotnet_diagnostic.CA1809.severity = error
-# CA1810 - ?? 
+# CA1810 - ??
 dotnet_diagnostic.CA1810.severity = error
-# CA1811 - ?? 
+# CA1811 - ??
 dotnet_diagnostic.CA1811.severity = error
-# CA1812 - ?? 
+# CA1812 - ??
 dotnet_diagnostic.CA1812.severity = error
-# CA1813 - ?? 
+# CA1813 - ??
 dotnet_diagnostic.CA1813.severity = error
-# CA1814 - ?? 
+# CA1814 - ??
 dotnet_diagnostic.CA1814.severity = error
-# CA1815 - ?? 
+# CA1815 - ??
 dotnet_diagnostic.CA1815.severity = error
-# CA1816 - ?? 
+# CA1816 - ??
 dotnet_diagnostic.CA1816.severity = error
-# CA1819 - ?? 
+# CA1819 - ??
 dotnet_diagnostic.CA1819.severity = none
-# CA1820 - ?? 
+# CA1820 - ??
 dotnet_diagnostic.CA1820.severity = error
-# CA1821 - ?? 
+# CA1821 - ??
 dotnet_diagnostic.CA1821.severity = error
-# CA1822 - ?? 
+# CA1822 - ??
 dotnet_diagnostic.CA1822.severity = error
-# CA1823 - ?? 
+# CA1823 - ??
 dotnet_diagnostic.CA1823.severity = error
-# CA1826 - ?? 
+# CA1826 - ??
 dotnet_diagnostic.CA1826.severity = none
-# CA1848 - For improved performance, use the LoggerMessage delegates instead of calling 'LoggerExtensions.LogXXX(ILogger, string?, params object?[])' 
-#TODO: Review whether there's a better way of doing this that keeps the code readable 
+# CA1848 - For improved performance, use the LoggerMessage delegates instead of calling 'LoggerExtensions.LogXXX(ILogger, string?, params object?[])'
+#TODO: Review whether there's a better way of doing this that keeps the code readable
 dotnet_diagnostic.CA1848.severity = none
-# CA1859 - For improved performance, use the concrete type X instead of base class or interface' 
+# CA1859 - For improved performance, use the concrete type X instead of base class or interface'
 dotnet_diagnostic.CA1859.severity = none
-# CA1900 - ?? 
+# CA1900 - ??
 dotnet_diagnostic.CA1900.severity = error
-# CA1901 - ?? 
+# CA1901 - ??
 dotnet_diagnostic.CA1901.severity = error
-# CA2000 - ?? 
+# CA2000 - ??
 dotnet_diagnostic.CA2000.severity = error
-# CA2001 - ?? 
+# CA2001 - ??
 dotnet_diagnostic.CA2001.severity = error
-# CA2002 - ?? 
+# CA2002 - ??
 dotnet_diagnostic.CA2002.severity = error
-# CA2003 - ?? 
+# CA2003 - ??
 dotnet_diagnostic.CA2003.severity = error
-# CA2004 - ?? 
+# CA2004 - ??
 dotnet_diagnostic.CA2004.severity = error
-# CA2006 - ?? 
+# CA2006 - ??
 dotnet_diagnostic.CA2006.severity = error
-# CA2007 - ?? 
+# CA2007 - ??
 dotnet_diagnostic.CA2007.severity = none
-# CA2008 - ?? 
+# CA2008 - ??
 dotnet_diagnostic.CA2008.severity = none
-# CA2100 - ?? 
+# CA2100 - ??
 dotnet_diagnostic.CA2100.severity = error
-# CA2101 - ?? 
+# CA2101 - ??
 dotnet_diagnostic.CA2101.severity = error
-# CA2108 - ?? 
+# CA2108 - ??
 dotnet_diagnostic.CA2108.severity = error
-# CA2111 - ?? 
+# CA2111 - ??
 dotnet_diagnostic.CA2111.severity = error
-# CA2112 - ?? 
+# CA2112 - ??
 dotnet_diagnostic.CA2112.severity = error
-# CA2114 - ?? 
+# CA2114 - ??
 dotnet_diagnostic.CA2114.severity = error
-# CA2116 - ?? 
+# CA2116 - ??
 dotnet_diagnostic.CA2116.severity = error
-# CA2117 - ?? 
+# CA2117 - ??
 dotnet_diagnostic.CA2117.severity = error
-# CA2119 - ?? 
+# CA2119 - ??
 dotnet_diagnostic.CA2119.severity = error
-# CA2121 - ?? 
+# CA2121 - ??
 dotnet_diagnostic.CA2121.severity = error
-# CA2122 - ?? 
+# CA2122 - ??
 dotnet_diagnostic.CA2122.severity = error
-# CA2123 - ?? 
+# CA2123 - ??
 dotnet_diagnostic.CA2123.severity = error
-# CA2124 - ?? 
+# CA2124 - ??
 dotnet_diagnostic.CA2124.severity = error
-# CA2126 - ?? 
+# CA2126 - ??
 dotnet_diagnostic.CA2126.severity = error
-# CA2131 - ?? 
+# CA2131 - ??
 dotnet_diagnostic.CA2131.severity = error
-# CA2132 - ?? 
+# CA2132 - ??
 dotnet_diagnostic.CA2132.severity = error
-# CA2133 - ?? 
+# CA2133 - ??
 dotnet_diagnostic.CA2133.severity = error
-# CA2134 - ?? 
+# CA2134 - ??
 dotnet_diagnostic.CA2134.severity = error
-# CA2137- ?? 
+# CA2137- ??
 dotnet_diagnostic.CA2137.severity = error
-# CA2138 - ?? 
+# CA2138 - ??
 dotnet_diagnostic.CA2138.severity = error
-# CA2140 - ?? 
+# CA2140 - ??
 dotnet_diagnostic.CA2140.severity = error
-# CA2141 - ?? 
+# CA2141 - ??
 dotnet_diagnostic.CA2141.severity = error
-# CA2146 - ?? 
+# CA2146 - ??
 dotnet_diagnostic.CA2146.severity = error
-# CA2147 - ?? 
+# CA2147 - ??
 dotnet_diagnostic.CA2147.severity = error
-# CA2149 - ?? 
+# CA2149 - ??
 dotnet_diagnostic.CA2149.severity = error
-# CA2200 - ?? 
+# CA2200 - ??
 dotnet_diagnostic.CA2200.severity = error
-# CA2201 - ?? 
+# CA2201 - ??
 dotnet_diagnostic.CA2201.severity = error
-# CA2202 - ?? 
+# CA2202 - ??
 dotnet_diagnostic.CA2202.severity = error
-# CA2205 - ?? 
+# CA2205 - ??
 dotnet_diagnostic.CA2205.severity = error
-# CA2207 - ?? 
+# CA2207 - ??
 dotnet_diagnostic.CA2207.severity = error
-# CA2208 - ?? 
+# CA2208 - ??
 dotnet_diagnostic.CA2208.severity = error
-# CA2211 - ?? 
+# CA2211 - ??
 dotnet_diagnostic.CA2211.severity = error
-# CA2212 - ?? 
+# CA2212 - ??
 dotnet_diagnostic.CA2212.severity = error
-# CA2213 - ?? 
+# CA2213 - ??
 dotnet_diagnostic.CA2213.severity = error
-# CA2214 - ?? 
+# CA2214 - ??
 dotnet_diagnostic.CA2214.severity = error
-# CA2215 - ?? 
+# CA2215 - ??
 dotnet_diagnostic.CA2215.severity = error
-# CA2216 - ?? 
+# CA2216 - ??
 dotnet_diagnostic.CA2216.severity = error
-# CA2217 - ?? 
+# CA2217 - ??
 dotnet_diagnostic.CA2217.severity = none
-# CA2218 - ?? 
+# CA2218 - ??
 dotnet_diagnostic.CA2218.severity = error
-# CA2219 - ?? 
+# CA2219 - ??
 dotnet_diagnostic.CA2219.severity = error
-# CA2220 - ?? 
+# CA2220 - ??
 dotnet_diagnostic.CA2220.severity = error
-# CA2221 - ?? 
+# CA2221 - ??
 dotnet_diagnostic.CA2221.severity = error
-# CA2224 - ?? 
+# CA2224 - ??
 dotnet_diagnostic.CA2224.severity = error
-# CA2225 - ?? 
+# CA2225 - ??
 dotnet_diagnostic.CA2225.severity = none
-# CA2226 - ?? 
+# CA2226 - ??
 dotnet_diagnostic.CA2226.severity = error
-# CA2227 - ?? 
+# CA2227 - ??
 dotnet_diagnostic.CA2227.severity = none
-# CA2229 - ?? 
+# CA2229 - ??
 dotnet_diagnostic.CA2229.severity = error
-# CA2230 - ?? 
+# CA2230 - ??
 dotnet_diagnostic.CA2230.severity = error
-# CA2231 - ?? 
+# CA2231 - ??
 dotnet_diagnostic.CA2231.severity = error
-# CA2232 - ?? 
+# CA2232 - ??
 dotnet_diagnostic.CA2232.severity = error
-# CA2233 - ?? 
+# CA2233 - ??
 dotnet_diagnostic.CA2233.severity = error
-# CA2234 - ?? 
+# CA2234 - ??
 dotnet_diagnostic.CA2234.severity = error
-# CA2235 - ?? 
+# CA2235 - ??
 dotnet_diagnostic.CA2235.severity = error
-# CA2236 - ?? 
+# CA2236 - ??
 dotnet_diagnostic.CA2236.severity = error
-# CA2237 - ?? 
+# CA2237 - ??
 dotnet_diagnostic.CA2237.severity = error
-# CA2238 - ?? 
+# CA2238 - ??
 dotnet_diagnostic.CA2238.severity = error
-# CA2240 - ?? 
+# CA2240 - ??
 dotnet_diagnostic.CA2240.severity = error
-# CA2241 - ?? 
+# CA2241 - ??
 dotnet_diagnostic.CA2241.severity = error
-# CA2242 - ?? 
+# CA2242 - ??
 dotnet_diagnostic.CA2242.severity = error
-# CA2254 The logging message template should not vary between calls to 'LoggerExtensions.LogXXX(ILogger, string?, params object?[]) 
-#TODO: Review whethere there's a better way of doing this that keeps the code readable 
+# CA2254 The logging message template should not vary between calls to 'LoggerExtensions.LogXXX(ILogger, string?, params object?[])
+#TODO: Review whethere there's a better way of doing this that keeps the code readable
 dotnet_diagnostic.CA2254.severity = none
 
 ########################################################################################################################
@@ -914,7 +914,7 @@ dotnet_diagnostic.CSE009.severity = error
 # See https://github.com/meziantou/Meziantou.Analyzer/tree/main/docs
 # MA0001	- StringComparison is missing	information_source
 dotnet_diagnostic.MA0001.severity = error
-# MA0002 - IEqualityComparer<string> or IComparer<string> is missing	warning	
+# MA0002 - IEqualityComparer<string> or IComparer<string> is missing	warning
 dotnet_diagnostic.MA0002.severity = error
 # MA0003	-Add parameter name to improve readability
 dotnet_diagnostic.MA0003.severity = none
@@ -1172,7 +1172,7 @@ dotnet_diagnostic.MA0159.severity = error
 ########################################################################################################################
 # Philips.CodeAnalysis.DuplicateCodeAnalyzer
 ########################################################################################################################
-                              
+
 # See https://github.com/philips-software/roslyn-analyzers/blob/master/Philips.CodeAnalysis.DuplicateCodeAnalyzer/Philips.CodeAnalysis.DuplicateCodeAnalyzer.md
 # TODO
 
@@ -1293,14 +1293,14 @@ dotnet_diagnostic.PH2101.severity = error
 ########################################################################################################################
 # SecurityCodeScan.VS2019
 ########################################################################################################################
-                              
+
 # SCS0019 - Controller method is potentially Vulnerable to Cross Site Request Forgery CSRF
 dotnet_diagnostic.SCS0019.severity = error
 
 ########################################################################################################################
 # CSharpIsNull
 ########################################################################################################################
-                              
+
 # CSIsNull001 - catch uses of == null
 dotnet_diagnostic.CSIsNull001.severity = error
 # CSIsNull002 to catch uses of != null
@@ -1325,15 +1325,15 @@ dotnet_diagnostic.NX0004.severity = error
 ########################################################################################################################
 
 # See https://github.com/funfair-tech/funfair-server-code-analysis
-# FFS0001 - Avoid using DateTime.Now - Use IDateTimeSource.UtcNow()
+# FFS0001 - Avoid using DateTime.Now - Use an injected System.TimeProvider.GetLocalNow().LocalDateTime
 dotnet_diagnostic.FFS0001.severity = error
-# FFS0002 - Avoid using DateTime.UtcNow - Use IDateTimeSource.UtcNow()
+# FFS0002 - Avoid using DateTime.UtcNow - Use an injected System.TimeProvider.GetUtcNow().UtcDateTime
 dotnet_diagnostic.FFS0002.severity = error
-# FFS0003 - Avoid using DateTime.Today - Use IDateTimeSource.UtcNow().Date
+# FFS0003 - Avoid using DateTime.Today - Use an injected System.TimeProvider.GetLocalNow().Date
 dotnet_diagnostic.FFS0003.severity = error
-# FFS0004 - Avoid using DateTimeOffset.Now - Use IDateTimeSource.UtcNow()
+# FFS0004 - Avoid using DateTimeOffset.Now - Use an injected System.TimeProvider.GetLocalNow()
 dotnet_diagnostic.FFS0004.severity = error
-# FFS0005 - Avoid using DateTimeOffset.UtcNow - Use IDateTimeSource.UtcNow()
+# FFS0005 - Avoid using DateTimeOffset.UtcNow - Use an injected System.TimeProvider.GetUtcNow()
 dotnet_diagnostic.FFS0005.severity = error
 # FFS0006 - Avoid using arbitrary SQL for updates
 dotnet_diagnostic.FFS0006.severity = error
@@ -1401,7 +1401,7 @@ dotnet_diagnostic.FFS0036.severity = error
 dotnet_diagnostic.FFS0037.severity = error
 # FFS0038 - Records should have DebuggerDisplay attribute on them.
 dotnet_diagnostic.FFS0038.severity = error
-# FFS0039 - Only one type should be defined per file. (note class T and class T{T1} are considered ok) 
+# FFS0039 - Only one type should be defined per file. (note class T and class T{T1} are considered ok)
 dotnet_diagnostic.FFS0039.severity = error
 # FFS0040 - File should have the same name as the type that is defined in it
 dotnet_diagnostic.FFS0040.severity = suggestion
