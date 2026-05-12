@@ -18,7 +18,7 @@
 
     <!-- if building in github reference the github actions test logger -->
     <ItemGroup Condition="$(GITHUB_REF) != ''">
-        <PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" />
+        <PackageReference Include="GitHubActionsTestLogger" Version="*" />
     </ItemGroup>
 
 </Project>

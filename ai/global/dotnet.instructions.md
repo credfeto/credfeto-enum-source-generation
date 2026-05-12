@@ -46,7 +46,12 @@ See [code-quality.instructions.md](code-quality.instructions.md) for general asy
 
 - All test projects must reference the latest release of `FunFair.Test.Common`.
 - All test projects must import the latest release of `FunFair.Test.Source.Generator`.
+- All test projects must include `<Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />`.
 - Test fixture classes must derive from `FunFair.Test.Common.TestBase`.
+
+## Benchmark Guidance
+
+- For .NET benchmark implementation and threshold assertions, follow [performance.instructions.md](performance.instructions.md#benchmarks-and-optimisation).
 
 ## NSubstitute and FunFair.Test.Common Patterns
 
