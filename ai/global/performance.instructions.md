@@ -19,6 +19,7 @@
 ## Benchmarks and Optimisation
 
 - Write benchmarks for performance-critical code; commit them alongside the code they measure.
+- In .NET repositories, write benchmarks as xUnit tests in the benchmark test project, using `FunFair.Test.Common` helpers such as `Benchmark<BenchmarkClass>()` to run the benchmark and `SummaryExtensions.AssertAllocationsAtMost(...)` to assert the measured thresholds.
 - Record a baseline — regressions against it are not acceptable.
 - Assert memory allocation limits using `FunFair.Test.Common` extensions (zero or explicit byte threshold); do not roll custom helpers.
 - Ensure tests and benchmarks pass before optimising; commit them first as a standalone commit.
