@@ -15,6 +15,27 @@
 - Only one active branch or open PR per repository at a time; do not create another until the current one is merged and closed.
 - When adding work to an open PR (review comments, missing coverage, CI fixes), convert to draft first: `gh pr ready <number> --undo`. Keep it in draft until Code Tester and Code Reviewer are both satisfied — only PR Submitter converts it back.
 
+## Bot-Created PRs (MANDATORY — treat as your own)
+
+github is configured to automatically create PRs from pushed branches. These PRs appear authored by `app/github-actions` but the commits are authored by you. **They are your work — treat them identically to PRs you created yourself.**
+
+**Before starting any work in a repository:**
+
+1. Run `gh pr list --state open --repo <owner/repo> --json number,title,author,headRefName,url` — no `--author @me` filter.
+2. For any PR authored by `app/github-actions`, check the commit authors: `gh pr view <n> --repo <owner/repo> --json commits --jq '.commits[].authors[].login'`.
+3. If **all commits** are from your account (you are the sole committer), **take ownership**: update the PR title and body to match the proper format (summary, `Closes #<n>`, test plan), add yourself as assignee, and treat it as your active PR for that repo.
+4. If commits are from multiple authors (e.g. you plus a human or Copilot), do **not** take over — leave the PR as-is and do not claim it as yours.
+5. Do **not** create a new branch or PR for the same issue — that would be duplicate work.
+
+**When you find a duplicate pair** (a bot-created PR and one you authored yourself, for the same issue or branch):
+
+- Keep whichever has the more complete body and later review activity.
+- Close the other with a comment explaining which PR supersedes it.
+
+**Checking for existing work before branching (MANDATORY):**
+
+- Check branch names in all open PRs, not just PR authors. If any open PR's `headRefName` contains the issue number, that is your work from a prior session — resume it instead of creating a new branch.
+
 ## PR Title, Body, and Label Sync (MANDATORY)
 
 When creating or updating a PR linked to one or more issues:
