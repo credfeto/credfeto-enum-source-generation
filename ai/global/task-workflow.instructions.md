@@ -105,7 +105,7 @@ Standard loop pattern: Code Writer/Fixer loops ≤5 with Code Tester; Code Revie
 | Work type | Agent sequence |
 | --- | --- |
 | New feature / bug fix / refactor | Code Writer → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
-| `CHANGES_REQUESTED` on existing PR | Code Fixer → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
+| `CHANGES_REQUESTED` on existing PR, or verbal/chat request for changes on an open PR | Code Fixer (respond to every comment) → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
 | Coverage-only task | Code Writer (tests only) → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
 | Documentation-only | Code Writer (docs only) → PR Submitter |
 | Rebase requested | Rebase Agent → PR Submitter |
