@@ -176,6 +176,7 @@ runs:
       shell: bash
       run: echo "GIT_BRANCH=$GITHUB_REF" >> "$GITHUB_ENV"
 
+# yamllint disable rule:line-length
     - name: "Check file existence"
       id: check_files
       shell: bash
@@ -191,6 +192,7 @@ runs:
         [[ -f healthcheck && '${{hashfiles('healthcheck')}}' != '' ]] && echo 'HEALTHCHECK_EXIST=true' || echo 'HEALTHCHECK_EXIST=false';
         [[ -f cloudformation.json && '${{hashfiles('cloudformation.json')}}' != '' ]] && echo 'CLOUDFORMATION_EXIST=true'  || echo 'CLOUDFORMATION_EXIST=false'
         } >> "$GITHUB_OUTPUT"
+# yamllint enable rule:line-length
 
     - name: "Check Files Results"
       uses: actions/github-script@v9.0.0
@@ -244,12 +246,14 @@ runs:
         DOCKER_USERNAME: ${{inputs.DOCKER_USERNAME}}
         DOCKER_ACCESS_TOKEN: ${{inputs.DOCKER_ACCESS_TOKEN}}
 
+# yamllint disable rule:line-length
     - name: "Check Build Tools Requirements"
       id: build_tools
       shell: bash
       run: |
         [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST_SRC == 'true' || steps.check_files.outputs.NPM_EXIST_ROOT == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
         [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST_SRC == 'true' || steps.check_files.outputs.NPM_EXIST_ROOT == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
+# yamllint enable rule:line-length
 
     - name: "Install Multi-push tool"
       if: |-
