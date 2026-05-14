@@ -1,3 +1,4 @@
+--- # ansible-lint configuration
 exclude_paths:
   - .pre-commit-config.yaml
   - .github/
