@@ -1,0 +1,66 @@
+name: "Create Release"
+description: "Creates a GitHub release for the given version, skipping if it already exists"
+
+inputs:
+  github-token:
+    description: "GitHub token with contents write permission"
+    required: true
+  version:
+    description: "Version number (without leading 'v') e.g. 1.2.3"
+    required: true
+  release-notes-file:
+    description: "Path to the release notes file to use as the release body"
+    required: false
+    default: "RELEASE_NOTES.md"
+
+runs:
+  using: composite
+  steps:
+    - name: "Create Release"
+      uses: actions/github-script@v9.0.0
+      env:
+        RELEASE_VERSION: ${{inputs.version}}
+        RELEASE_NOTES_FILE: ${{inputs.release-notes-file}}
+      with:
+        github-token: ${{inputs.github-token}}
+        script: |
+          const fs = require('fs');
+          const tag = `v${process.env.RELEASE_VERSION}`;
+          const name = `Release ${process.env.RELEASE_VERSION}`;
+          const notesFile = process.env.RELEASE_NOTES_FILE;
+
+          const existing = await github.rest.repos.getReleaseByTag({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            tag,
+          }).catch(e => e.status === 404 ? null : Promise.reject(e));
+
+          if (existing) {
+            core.info(`\u001b[38;5;3m⚠️ Release ${tag} already exists — skipping`);
+            core.notice(`Release ${tag} already exists — skipping`);
+            return;
+          }
+
+          let body = undefined;
+          let generate_release_notes = true;
+          if (fs.existsSync(notesFile)) {
+            body = fs.readFileSync(notesFile, 'utf8');
+            generate_release_notes = false;
+          } else {
+            core.warning(`\u001b[38;5;3m⚠️ Release notes file not found: ${notesFile} — using generated notes`);
+          }
+
+          const release = await github.rest.repos.createRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            tag_name: tag,
+            target_commitish: context.sha,
+            name,
+            body,
+            draft: false,
+            prerelease: false,
+            generate_release_notes,
+          });
+
+          core.info(`✅ Created release ${tag}: ${release.data.html_url}`);
+          core.notice(`Created release ${tag}: ${release.data.html_url}`);
