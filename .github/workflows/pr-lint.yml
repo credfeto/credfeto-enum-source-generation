@@ -126,9 +126,9 @@ jobs:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
           NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{vars.NUGET_BAGET_CACHE}}
           NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{vars.RELEASE_BAGET_CACHE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ""
           NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ""
           NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ""
 
       - name: "Install Changelog tool"
@@ -332,29 +332,52 @@ jobs:
         uses: ./.github/actions/check-no-merge-commits
 
   valid-changelog:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - name: "Correct ownership"
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
         shell: bash
-        working-directory: ${{ github.workspace }}
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
-      - name: "Checkout"
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
         uses: actions/checkout@v6.0.2
         with:
           clean: true
           fetch-depth: 1
 
-      # use test version of changelog validator until we can get the fix merged in and released
-      # uses: crajapakshe/changelog-validator@v1.0.0
-      - name: "Check changelog"
-        uses: credfeto/changelog-validator@fix/support-keep-a-changelog
+      - name: "Install dotnet"
+        uses: ./.github/actions/dotnet-install
         with:
-          changelog-path: 'CHANGELOG.md'
-          check-updated: 'false'
-          changelog-title: 'Changelog'
-          unreleased-header: 'Unreleased'
-          change-headers: 'Added, Changed, Deprecated, Removed, Fixed, Security, Deployment Changes'
+          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
+          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{vars.NUGET_BAGET_CACHE}}
+          NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ""
+          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
+          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ""
+          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ""
+
+      - name: "Install Changelog tool"
+        uses: ./.github/actions/dotnet-tool
+        with:
+          TOOL_NAME: "Credfeto.ChangeLog.Cmd"
+          TOOL_VERSION: "latest"
+
+      - name: "Check Changelog"
+        uses: ./.github/actions/dotnet-tool-run
+        with:
+          WORKING_DIRECTORY: ${{github.workspace}}
+          TOOL_NAME: "changelog"
+          TOOL_ARGUMENTS: "--changelog \"${{github.workspace}}/CHANGELOG.md\" --lint"
 
   lint-code:
     if: |-
