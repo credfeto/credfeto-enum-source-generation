@@ -1,3 +1,4 @@
+--- # Create a GitHub release for the given version
 name: "Create Release"
 description: "Creates a GitHub release for the given version, skipping if it already exists"
 
