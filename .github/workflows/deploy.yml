@@ -1,3 +1,4 @@
+--- # Deploy: Cloudformation deployment workflow
 name: "!!Deploy: Using Cloudformation"
 on:
   workflow_dispatch:
@@ -95,11 +96,9 @@ jobs:
           CLOUD_FORMATION_STACK: ${{inputs.CLOUD_FORMATION_STACK}}
           CLOUDFORMATION_SNS_ARN: ${{vars.CLOUDFORMATION_SNS_ARN}}
           CLOUD_FORMATION_TEMPLATE_FILE: "${{github.workspace}}/${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}"
-          DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}
           DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}
           BUILD_VERSION: ${{inputs.BUILD_VERSION}}
           API_HOST: ${{inputs.API_HOST}}
-          API_PREFIX: ${{inputs.API_PREFIX}}
           AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
           AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}
           DOCKER_CONTAINER_REGISTRY: ${{inputs.DOCKER_CONTAINER_REGISTRY}}
