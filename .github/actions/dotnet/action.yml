@@ -54,9 +54,6 @@ inputs:
   GITHUB_TOKEN:
     description: 'Github Token'
     required: true
-  REPO_VISIBILITY:
-    description: 'Visibility of the repo'
-    required: true
 
   # DEPLOYMENT
   PROJECT_TO_PUBLISH:
@@ -167,7 +164,6 @@ runs:
       if: inputs.BUILD_SQL == 'true'
       uses: ./.github/actions/sql
       with:
-        BUILD_VERSION: ${{inputs.BUILD_VERSION}}
         DB_FOLDER: ${{inputs.DB_FOLDER}}
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
 
