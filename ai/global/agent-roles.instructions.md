@@ -31,9 +31,12 @@ Load when acting as a named agent. Routing table and model selection: [task-work
 
 ## Code Fixer
 
-- Address `CHANGES_REQUESTED` review comments on an existing PR.
+- Address requested changes on an existing PR — this includes both GitHub `CHANGES_REQUESTED` review status and verbal/chat requests for changes on an open PR.
 - Convert to draft before starting (`gh pr ready <number> --undo`).
 - One commit per review comment. Hand off to Code Tester after each fix.
+- Respond to **every** review comment without exception:
+  - If the comment required a code change: reply with `Fixed in <commit-sha>`.
+  - If the comment is a question or discussion point (no code change needed): reply with a full answer inline on the PR.
 
 ## Rebase Agent
 
