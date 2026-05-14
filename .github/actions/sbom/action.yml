@@ -1,15 +1,6 @@
 --- # Software Bill of Materials (SBOM) Action
 name: 'Run Software Bill of Materials'
 description: 'Software Bill of materials'
-inputs:
-  # GENERAL
-  GITHUB_TOKEN:
-    description: 'Github Token'
-    required: true
-  REPO_VISIBILITY:
-    description: 'Visibility of the repo'
-    required: true
-
 runs:
   using: "composite"
   steps:
