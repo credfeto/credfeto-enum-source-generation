@@ -1,3 +1,4 @@
+--- # Find an open pull request for a given branch
 name: "Find Pull Request"
 description: "Finds an open pull request for a given branch and returns its number and head SHA"
 
