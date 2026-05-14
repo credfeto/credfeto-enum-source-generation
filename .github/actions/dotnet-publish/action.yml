@@ -26,51 +26,51 @@ inputs:
 runs:
   using: "composite"
   steps:
-  - name: "Dotnet: Check Variables"
-    shell: bash
-    run: |
-      echo "Platform: $PLATFORM"
-      if [ -z "$PLATFORM" ]; then
-        echo "Missing Platform";
-        exit 1
-      fi
-    env:
-      PLATFORM: ${{inputs.PLATFORM}}
+    - name: "Dotnet: Check Variables"
+      shell: bash
+      run: |
+        echo "Platform: $PLATFORM"
+        if [ -z "$PLATFORM" ]; then
+          echo "Missing Platform";
+          exit 1
+        fi
+      env:
+        PLATFORM: ${{inputs.PLATFORM}}
 
-  # TODO: Investigate changing the settings for these to be project settings like with "-p:PublishTrimmed=False" so can
-  #       optimise the projects that better suit the settings.
-  #
-  # -p:PublishAot=false
-  # -p:PublishReadyToRun=False
-  ## Notes: NETSDK1094  can't use --no-restore
-  - name: "Dotnet: Publish"
-    working-directory: ${{github.workspace}}/src/${{inputs.PROJECT_TO_PUBLISH}}
-    shell: bash
-    run: |
-      dotnet publish \
-                --warnaserror  \
-                --configuration:Release \
-                "-r:${{inputs.PLATFORM}}" \
-                --self-contained \
-                --ignore-failed-sources \
-                -nodeReuse:False \
-                "-p:Deterministic=True" \
-                "-p:DisableSwagger=${{env.RELEASE}}" \
-                "-p:FFPublishing=True" \
-                "-p:IncludeNativeLibrariesForSelfExtract=True" \
-                "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
-                "-p:NoWarn=NETSDK1179" \
-                "-p:Optimize=true" \
-                "-p:PublishAot=false" \
-                "-p:PublishReadyToRun=True" \
-                "-p:PublishReadyToRunShowWarnings=True" \
-                "-p:PublishSingleFile=true" \
-                "-p:SolutionDir=..\\" \
-                "-p:SuppressNETCoreSdkPreviewMessage=true" \
-                "-p:TreatWarningsAsErrors=True" \
-                "-p:Version=${{inputs.BUILD_VERSION}}" \
-                "-p:ContinuousIntegrationBuild=true" \
-                --output ${{github.workspace}}/server-dist/${{inputs.PLATFORM}} \
-                ${{env.DOTNET_RELEASE_DEFINES}}
-    env:
-      ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+    # TODO: Investigate changing the settings for these to be project settings like with "-p:PublishTrimmed=False" so can
+    #       optimise the projects that better suit the settings.
+    #
+    # -p:PublishAot=false
+    # -p:PublishReadyToRun=False
+    ## Notes: NETSDK1094  can't use --no-restore
+    - name: "Dotnet: Publish"
+      working-directory: ${{github.workspace}}/src/${{inputs.PROJECT_TO_PUBLISH}}
+      shell: bash
+      run: |
+        dotnet publish \
+                  --warnaserror  \
+                  --configuration:Release \
+                  "-r:${{inputs.PLATFORM}}" \
+                  --self-contained \
+                  --ignore-failed-sources \
+                  -nodeReuse:False \
+                  "-p:Deterministic=True" \
+                  "-p:DisableSwagger=${{env.RELEASE}}" \
+                  "-p:FFPublishing=True" \
+                  "-p:IncludeNativeLibrariesForSelfExtract=True" \
+                  "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
+                  "-p:NoWarn=NETSDK1179" \
+                  "-p:Optimize=true" \
+                  "-p:PublishAot=false" \
+                  "-p:PublishReadyToRun=True" \
+                  "-p:PublishReadyToRunShowWarnings=True" \
+                  "-p:PublishSingleFile=true" \
+                  "-p:SolutionDir=..\\" \
+                  "-p:SuppressNETCoreSdkPreviewMessage=true" \
+                  "-p:TreatWarningsAsErrors=True" \
+                  "-p:Version=${{inputs.BUILD_VERSION}}" \
+                  "-p:ContinuousIntegrationBuild=true" \
+                  --output ${{github.workspace}}/server-dist/${{inputs.PLATFORM}} \
+                  ${{env.DOTNET_RELEASE_DEFINES}}
+      env:
+        ReleaseNotes: ${{inputs.RELEASE_NOTES}}
