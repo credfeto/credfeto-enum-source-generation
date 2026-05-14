@@ -481,17 +481,11 @@ runs:
     ############################################################################################################
     - name: "Create Release"
       if: steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.CREATE_RELEASE == 'true'
-      id: create_release
-      uses: ncipollo/release-action@v1.21.0
+      uses: ./.github/actions/create-release
       with:
-        tag: v${{env.BUILD_VERSION}}
-        name:  Release ${{env.BUILD_VERSION}}
-        bodyFile: "RELEASE_NOTES.md"
-        draft: false
-        prerelease: false
-        immutableCreate: true
-        generateReleaseNotes: true
-        token: ${{inputs.GITHUB_TOKEN}}
+        github-token: ${{inputs.GITHUB_TOKEN}}
+        version: ${{env.BUILD_VERSION}}
+        release-notes-file: "RELEASE_NOTES.md"
 
     ############################################################################################################
     # Software Bill of materials
