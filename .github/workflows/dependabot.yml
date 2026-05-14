@@ -1,3 +1,4 @@
+--- # Dependabot: rebase open pull requests
 name: "Dependabot: Rebase"
 on:
   push:
