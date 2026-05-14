@@ -1,3 +1,4 @@
+--- # actionlint configuration for super-linter
 self-hosted-runner:
   # Labels of self-hosted runner in array of string
   labels:
