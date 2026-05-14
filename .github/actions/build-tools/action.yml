@@ -30,38 +30,37 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Install dotnet"
+      uses: ./.github/actions/dotnet-install
+      with:
+        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+        NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}
+        NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
 
-  - name: "Install dotnet"
-    uses: ./.github/actions/dotnet-install
-    with:
-      GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
-      NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}
-      NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}
-      NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
-      NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
-      NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
-      NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
+    - name: "Install Sleet package management tool"
+      uses: ./.github/actions/dotnet-tool
+      with:
+        TOOL_NAME: "sleet"
+        TOOL_VERSION: "latest"
 
-  - name: "Install Sleet package management tool"
-    uses: ./.github/actions/dotnet-tool
-    with:
-      TOOL_NAME: "sleet"
-      TOOL_VERSION: "latest"
+    - name: "Install Build Version Tool"
+      uses: ./.github/actions/dotnet-tool
+      with:
+        TOOL_NAME: "FunFair.BuildVersion"
+        TOOL_VERSION: "latest"
 
-  - name: "Install Build Version Tool"
-    uses: ./.github/actions/dotnet-tool
-    with:
-      TOOL_NAME: "FunFair.BuildVersion"
-      TOOL_VERSION: "latest"
+    - name: "Install Changelog Tool"
+      uses: ./.github/actions/dotnet-tool
+      with:
+        TOOL_NAME: "Credfeto.Changelog.Cmd"
+        TOOL_VERSION: "latest"
 
-  - name: "Install Changelog Tool"
-    uses: ./.github/actions/dotnet-tool
-    with:
-      TOOL_NAME: "Credfeto.Changelog.Cmd"
-      TOOL_VERSION: "latest"
-
-  - name: "Install Dotnet code analysis overrides tool"
-    uses: ./.github/actions/dotnet-tool
-    with:
-      TOOL_NAME: "Credfeto.DotNet.Code.Analysis.Overrides.Cmd"
-      TOOL_VERSION: "latest"
+    - name: "Install Dotnet code analysis overrides tool"
+      uses: ./.github/actions/dotnet-tool
+      with:
+        TOOL_NAME: "Credfeto.DotNet.Code.Analysis.Overrides.Cmd"
+        TOOL_VERSION: "latest"
