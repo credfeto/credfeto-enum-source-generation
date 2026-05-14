@@ -1,3 +1,4 @@
+--- # Check if the current repository is public or private
 name: "Check Repository Visibility"
 description: "Checks if the current repository is public or private"
 
