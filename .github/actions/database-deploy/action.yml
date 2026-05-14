@@ -2,9 +2,6 @@
 name: 'Build and deploy'
 description: 'Builds and deploys the source'
 inputs:
-  BUILD_VERSION:
-    description: "Build Version"
-    required: true
   SQL_SERVER:
     description: 'SQL Server to connect to'
     required: true
@@ -42,6 +39,7 @@ runs:
         TOOL_NAME: "microsoft.sqlpackage"
         TOOL_VERSION: "latest"
 
+# yamllint disable rule:line-length
 #     Would be nice to use this, but it requires a dotnet tool to be installed anyway so may as well do it all ourselves
 #    - name: "DB: Deploy..."
 #      uses: azure/sql-action@v2.3
@@ -50,6 +48,7 @@ runs:
 #        path: "${{steps.find_solution.outputs.DACPAC}}"
 #        action: 'publish'
 #        arguments: '/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers'
+# yamllint enable rule:line-length
 
     - name: "Pass"
       working-directory: ${{github.workspace}}/src
@@ -66,9 +65,11 @@ runs:
         echo "Missing SQL Password!"
         exit 1
 
+# yamllint disable rule:line-length
     - name: "Dotnet: Deploy/Live Server"
       working-directory: ${{github.workspace}}/src
       shell: bash
+      # yamllint disable rule:line-length
       run: |
         dotnet tool run --allow-roll-forward sqlpackage \
             /Action:publish \
@@ -86,6 +87,7 @@ runs:
             /p:DropObjectsNotInSource=True \
             "/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers" \
             /p:IncludeCompositeObjects=True
+      # yamllint enable rule:line-length
       env:
         DACPAC_FILE: "${{steps.find_dacpac.outputs.DACPAC}}"
         SQL_SERVER: "${{inputs.SQL_SERVER}}"
@@ -93,7 +95,9 @@ runs:
         SQL_USER: "${{inputs.SQL_USER}}"
         SQL_PASSWORD: "${{inputs.SQL_PASSWORD}}"
         TIMEOUT: 720
+# yamllint enable rule:line-length
 
+# yamllint disable rule:line-length
 #    - name: "Dotnet: Deploy/Live Server"
 #      uses: ./.github/actions/dotnet-tool-run
 #      with:
@@ -113,5 +117,6 @@ runs:
 #            /p:DropObjectsNotInSource=True \
 #            \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" \
 #            /p:IncludeCompositeObjects=True"
+# yamllint enable rule:line-length
 #
 #
