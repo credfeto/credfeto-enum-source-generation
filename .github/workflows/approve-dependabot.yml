@@ -1,3 +1,4 @@
+--- # Dependabot: approve dependency updates
 name: "Dependabot: Approve updates"
 on:
   # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
