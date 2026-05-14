@@ -1,3 +1,4 @@
+--- # Fail if files differ only by case
 name: "Check No Case Sensitivity Conflicts"
 description: "Fails if files differ only by case"
 
@@ -50,4 +51,3 @@ runs:
           }
 
           core.setFailed(`Case sensitivity conflicts found (${offenders.length}).`);
-
