@@ -1,4 +1,4 @@
---- # Create a new branch for the latest (released) dotnet version if there's an update
+---  # Create a new branch for the latest (released) dotnet version if there's an update
 name: "Repo: Update Dotnet Version to latest released version"
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - "main"
     paths:
       - ".github/workflows/dotnet-version.yml"
+      - ".github/actions/build-tools/**"
   schedule:
     - cron: "0 1 * * *"
 
@@ -83,7 +84,8 @@ jobs:
           echo "Versions installed:"
           dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort --version-sort
           echo "Latest Version: $(dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort --version-sort | tail -1)"
-          echo "LATEST_RELEASE_VERSION=$(dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort --version-sort | tail -1)" >> "$GITHUB_OUTPUT"
+          LATEST=$(dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort --version-sort | tail -1)
+          echo "LATEST_RELEASE_VERSION=$LATEST" >> "$GITHUB_OUTPUT"
 
       - name: "Display latest installed dotnet version"
         shell: bash
@@ -95,9 +97,11 @@ jobs:
         id: upgrade_check
         shell: bash
         run: |
-          VER=$(echo "${{env.DOTNET_VERSION}} ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}" | tr ' ' '\n' | uniq | sort --version-sort | tail -1)
+          CURRENT_VER="${{env.DOTNET_VERSION}}"
+          LATEST_RELEASE_VER="${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
+          VER=$(echo "$CURRENT_VER $LATEST_RELEASE_VER" | tr ' ' '\n' | uniq | sort --version-sort | tail -1)
           echo "Latest Version: $VER"
-          [[ "$VER" == "${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}" ]] && echo "NEW_VERSION=true" >> "$GITHUB_OUTPUT" || echo "NEW_VERSION=false" >> "$GITHUB_OUTPUT"
+          [[ "$VER" == "$LATEST_RELEASE_VER" ]] && echo "NEW_VERSION=true" >> "$GITHUB_OUTPUT" || echo "NEW_VERSION=false" >> "$GITHUB_OUTPUT"
 
       - name: "Ensure branch and update global.json"
         if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
