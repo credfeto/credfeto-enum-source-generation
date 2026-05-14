@@ -1,3 +1,4 @@
+--- # Build: pre-release package build and publish
 name: "Build: Pre-Release"
 
 on:
@@ -82,7 +83,6 @@ jobs:
         with:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           use-nuget-cache: ${{vars.USE_NUGET_CACHE}}
-          repo-status: ${{vars.REPO_VISIBILITY}}
           nuget-baget-cache: ${{vars.NUGET_BAGET_CACHE}}
           prerelease-baget-cache: ${{vars.PRERELEASE_BAGET_CACHE}}
           release-baget-cache: ${{vars.RELEASE_BAGET_CACHE}}
