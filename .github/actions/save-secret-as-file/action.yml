@@ -29,4 +29,3 @@ runs:
       env:
         FILE: "${{steps.generate-filename.outputs.file}}"
         VALUE: "${{inputs.secret}}"
-
