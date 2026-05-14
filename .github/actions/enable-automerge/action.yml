@@ -1,3 +1,4 @@
+--- # Enable auto-merge on the current pull request
 name: "Enable Auto-Merge"
 description: "Enables auto-merge on the current pull request"
 
