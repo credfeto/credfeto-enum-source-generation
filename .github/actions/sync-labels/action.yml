@@ -1,3 +1,4 @@
+--- # Sync labels on a pull request based on the labeler configuration
 name: "Sync PR Labels"
 description: "Syncs labels on a pull request based on the labeler configuration"
 
