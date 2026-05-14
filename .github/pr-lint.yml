@@ -1,3 +1,4 @@
+--- # PR lint configuration
 projects: ['FF']
 check_title: true
 check_branch: false
