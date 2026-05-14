@@ -1,3 +1,4 @@
+--- # Syft SBOM generator configuration
 # suppress all output (except for the SBOM report)
 # SYFT_QUIET env var / -q flag
 quiet: false
