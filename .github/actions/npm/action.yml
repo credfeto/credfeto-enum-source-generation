@@ -3,9 +3,6 @@ name: 'Build using NPM'
 description: 'Builds using NPM'
 inputs:
   # NPM
-  NPM_PRODUCTION_PACKAGER_VERSION:
-    description: 'Version of the NPM output nuget packager to use'
-    required: false
   NPM_CONTENT_PACKAGE_WALLET_PASSWORD:
     description: 'Password to unlock /Wallet.json'
     required: false
@@ -29,9 +26,6 @@ inputs:
   BUILD_VERSION:
     description: 'Build version'
     required: true
-  REPO_VISIBILITY:
-    description: 'Visibility of the repo'
-    required: true
 
   # DEPLOYMENT
   PROJECT_TO_PUBLISH:
@@ -41,180 +35,179 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Check node file"
+      id: node_files
+      shell: bash
+      run: |
+        {
+          [[ -d src && -f .nvmrc && '${{hashfiles('.nvmrc')}}' != '' ]] && echo 'NVMRC_EXIST=true' || echo 'NVMRC_EXIST=false'
+        } >> "$GITHUB_OUTPUT"
 
-  - name: "Check node file"
-    id: node_files
-    shell: bash
-    run: |
-      {
-        [[ -d src && -f .nvmrc && '${{hashfiles('.nvmrc')}}' != '' ]] && echo 'NVMRC_EXIST=true' || echo 'NVMRC_EXIST=false'
-      } >> "$GITHUB_OUTPUT"
+    - if: steps.node_files.outputs.NVMRC_EXIST == 'true'
+      name: "NPM: Setup Node.js (from nvm)"
+      uses: actions/setup-node@v5.0.0
+      with:
+        node-version-file: .nvmrc
+        check-latest: false
+        registry-url: ${{inputs.NPM_REGISTRY}}
+        package-manager-cache: false
 
-  - if: steps.node_files.outputs.NVMRC_EXIST == 'true'
-    name: "NPM: Setup Node.js (from nvm)"
-    uses: actions/setup-node@v5.0.0
-    with:
-      node-version-file: .nvmrc
-      check-latest: false
-      registry-url: ${{inputs.NPM_REGISTRY}}
-      package-manager-cache: false
+    - if: steps.node_files.outputs.NVMRC_EXIST == 'false'
+      name: "NPM: Setup Node.js (node version)"
+      uses: actions/setup-node@v5.0.0
+      with:
+        node-version: '22'
+        check-latest: true
+        registry-url: ${{inputs.NPM_REGISTRY}}
+        package-manager-cache: false
 
-  - if: steps.node_files.outputs.NVMRC_EXIST == 'false'
-    name: "NPM: Setup Node.js (node version)"
-    uses: actions/setup-node@v5.0.0
-    with:
-      node-version: '22'
-      check-latest: true
-      registry-url: ${{inputs.NPM_REGISTRY}}
-      package-manager-cache: false
+    ####################################################################################################################
+    # DO NOT USE NPM CACHE...  As it is SLOWER than pulling the packages down npm!
+    ####################################################################################################################
+    #    - name: "Get npm cache directory"
+    #      id: npm-cache-dir
+    #      shell: bash
+    #      run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+    #
+    #    - name: "Restore npm cache"
+    #      uses: actions/cache@v4.0.0
+    #      id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
+    #      with:
+    #        path: ${{ steps.npm-cache-dir.outputs.dir }}
+    #        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+    #        restore-keys: |
+    #          ${{ runner.os }}-node-
+    #    - name: "Npm Cache Status"
+    #      uses: actions/github-script@v8.0.0
+    #      with:
+    #        script: |
+    #          core.info('Cache Hit: \u001b[38;5;6m$${{steps.npm-cache.outputs.cache-hit}}');
+    #          core.notice('Cache Hit: ${{steps.npm-cache.outputs.cache-hit}}');
+    ####################################################################################################################
 
-  ####################################################################################################################
-  # DO NOT USE NPM CACHE...  As it is SLOWER than pulling the packages down npm!
-  ####################################################################################################################
-  #    - name: "Get npm cache directory"
-  #      id: npm-cache-dir
-  #      shell: bash
-  #      run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-  #
-  #    - name: "Restore npm cache"
-  #      uses: actions/cache@v4.0.0
-  #      id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
-  #      with:
-  #        path: ${{ steps.npm-cache-dir.outputs.dir }}
-  #        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-  #        restore-keys: |
-  #          ${{ runner.os }}-node-
-  #    - name: "Npm Cache Status"
-  #      uses: actions/github-script@v8.0.0
-  #      with:
-  #        script: |
-  #          core.info('Cache Hit: \u001b[38;5;6m$${{steps.npm-cache.outputs.cache-hit}}');
-  #          core.notice('Cache Hit: ${{steps.npm-cache.outputs.cache-hit}}');
-  ####################################################################################################################
+    - name: "NPM: Show Config"
+      working-directory: ${{github.workspace}}/src
+      shell: bash
+      run: |
+        echo "NPM_REGISTRY: ${{inputs.NPM_REGISTRY}}"
+        echo "NPM_CACHE_CERT: ${{inputs.NPM_CACHE_CERT}}"
 
-  - name: "NPM: Show Config"
-    working-directory: ${{github.workspace}}/src
-    shell: bash
-    run: |
-      echo "NPM_REGISTRY: ${{inputs.NPM_REGISTRY}}"
-      echo "NPM_CACHE_CERT: ${{inputs.NPM_CACHE_CERT}}"
+    - name: "Npm: Config"
+      shell: bash
+      run: |
+        npm config set loglevel error
+        npm config set fetch-retries 3
+        npm config set fetch-retry-mintimeout 15000
+        npm config set fetch-retry-maxtimeout 90000
 
-  - name: "Npm: Config"
-    shell: bash
-    run: |
-      npm config set loglevel error
-      npm config set fetch-retries 3
-      npm config set fetch-retry-mintimeout 15000
-      npm config set fetch-retry-maxtimeout 90000
+    - name: "Npm: Local Cert"
+      if: inputs.NPM_CACHE_CERT != ''
+      shell: bash
+      run: |
+        echo "$NPM_CACHE_CERT" > "${{github.workspace}}/npm.crt"
+        npm config set cafile "${{github.workspace}}/npm.crt"
+      env:
+        NPM_CACHE_CERT: ${{inputs.NPM_CACHE_CERT}}
 
-  - name: "Npm: Local Cert"
-    if: inputs.NPM_CACHE_CERT != ''
-    shell: bash
-    run: |
-      echo "$NPM_CACHE_CERT" > "${{github.workspace}}/npm.crt"
-      npm config set cafile "${{github.workspace}}/npm.crt"
-    env:
-      NPM_CACHE_CERT: ${{inputs.NPM_CACHE_CERT}}
+    - name: "Npm: Clear node modules"
+      shell: bash
+      run: rm -rf "${{github.workspace}}/node_modules"
 
-  - name: "Npm: Clear node modules"
-    shell: bash
-    run: rm -rf "${{github.workspace}}/node-modules"
+    - name: "Npm: Detect package-lock location"
+      id: build_context
+      shell: bash
+      run: |
+        [ -f ${{github.workspace}}/package-lock.json ] && echo "WORK_DIR=${{github.workspace}}" >> "$GITHUB_OUTPUT" && exit 0
+        [ -f ${{github.workspace}}/src/package-lock.json ] && echo "WORK_DIR=${{github.workspace}}/src" >> "$GITHUB_OUTPUT" && exit 0
+        echo "Error: no package-lock.json" && exit 1
 
-  - name: "Npm: Clear node modules"
-    id: build_context
-    shell: bash
-    run: |
-      [ -f ${{github.workspace}}/package-lock.json ] && echo "WORK_DIR=${{github.workspace}}" >> "$GITHUB_OUTPUT" && exit 0
-      [ -f ${{github.workspace}}/src/package-lock.json ] && echo "WORK_DIR=${{github.workspace}}/src" >> "$GITHUB_OUTPUT" && exit 0
-      echo "Error: no package-lock.json" && exit 1
+    - name: "NPM: Force registry before restore"
+      working-directory: ${{steps.build_context.outputs.WORK_DIR}}
+      shell: bash
+      run: |
+        sed -i "s|https://registry.npmjs.org/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
+        sed -i "s|http://npm.local:5554/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
+        sed -i "s|https://npm.local:5555/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
 
-  - name: "NPM: Force registry before restore"
-    working-directory: ${{steps.build_context.outputs.WORK_DIR}}
-    shell: bash
-    run: |
-      sed -i "s|https://registry.npmjs.org/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
-      sed -i "s|http://npm.local:5554/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
-      sed -i "s|https://npm.local:5555/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
+    - name: "NPM: Install dependencies"
+      working-directory: ${{steps.build_context.outputs.WORK_DIR}}
+      shell: bash
+      run: |
+        npm install \
+              --ignore-scripts \
+              --no-fund \
+              --no-audit \
+              --prefer-offline \
+              --no-progress \
+              --registry="${{inputs.NPM_REGISTRY}}"
 
-  - name: "NPM: Install dependencies"
-    working-directory: ${{steps.build_context.outputs.WORK_DIR}}
-    shell: bash
-    run: |
-      npm install \
-            --ignore-scripts \
-            --no-fund \
-            --no-audit \
-            --prefer-offline \
-            --no-progress \
-            --registry="${{inputs.NPM_REGISTRY}}"
+    # Running tests doesn't work as they're crap
+    # - name: "NPM: Test"
+    #   shell: bash
+    #   working-directory: ${{github.workspace}}/src
+    #   run: npm run test
 
-  # Running tests doesn't work as they're crap
-  # - name: "NPM: Test"
-  #   shell: bash
-  #   working-directory: ${{github.workspace}}/src
-  #   run: npm run test
+    - name: "NPM: Build"
+      working-directory: ${{steps.build_context.outputs.WORK_DIR}}
+      shell: bash
+      run: npm run build
 
-  - name: "NPM: Build"
-    working-directory: ${{steps.build_context.outputs.WORK_DIR}}
-    shell: bash
-    run: npm run build
+    - name: "NPM: Build Package"
+      shell: bash
+      run: |
+        echo "SIGNING: ${{inputs.NPM_SIGNING}}"
+        echo "PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}"
 
-  - name: "NPM: Build Package"
-    shell: bash
-    run: |
-      echo "SIGNING: ${{inputs.NPM_SIGNING}}"
-      echo "PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}"
-
-  - if: |
-      inputs.NPM_SIGNING == 'true' &&
-      inputs.PROJECT_TO_PUBLISH != ''
-    name: "NPM: Build Package"
-    shell: bash
-    working-directory: ${{ github.workspace }}
-    run: |
-      dotnet buildcontentpackage build \
-            --source-path "$SOURCE_FOLDER" \
-            --target-path "$OUTPUT_FOLDER" \
-            --version "${{inputs.BUILD_VERSION}}" \
-            --wallet "$WALLET_FILE" \
-            --wallet-password "${{ inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD }}"
-#            --warnings-as-error
-#            --optimise \
-    env:
-      SOURCE_FOLDER: "${{github.workspace}}/src/dist"
-      OUTPUT_FOLDER: "${{github.workspace}}/dist"
-      WALLET_FILE: ${{github.workspace}}/Wallet.json
-      TMP: ${{runner.temp}}
-
-  - if: |
-      inputs.NPM_SIGNING == 'true' &&
-      inputs.PROJECT_TO_PUBLISH != ''
-    name: "NPM: Check Package"
-    shell: bash
-    run: |
-        ls -la "${{github.workspace}}"
-        echo "-----------------------"
-        ls "${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{env.BUILD_VERSION}}.nupkg"
-
-  - if: |
+    - if: |
         inputs.NPM_SIGNING == 'true' &&
         inputs.PROJECT_TO_PUBLISH != ''
-    name: "NPM: Create Store Signing Wallet"
-    uses: ./.github/actions/save-secret-as-file
-    id: store-signing-wallet
-    with:
-      secret: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
+      name: "NPM: Build Package"
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: |
+        dotnet buildcontentpackage build \
+              --source-path "$SOURCE_FOLDER" \
+              --target-path "$OUTPUT_FOLDER" \
+              --version "${{inputs.BUILD_VERSION}}" \
+              --wallet "$WALLET_FILE" \
+              --wallet-password "${{ inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD }}"
+  #            --warnings-as-error
+  #            --optimise \
+      env:
+        SOURCE_FOLDER: "${{github.workspace}}/src/dist"
+        OUTPUT_FOLDER: "${{github.workspace}}/dist"
+        WALLET_FILE: ${{github.workspace}}/Wallet.json
+        TMP: ${{runner.temp}}
 
-  - if: |
-      inputs.NPM_SIGNING == 'true' &&
-      inputs.PROJECT_TO_PUBLISH != ''
-    name: "NPM: Store Sign Package"
-    uses: ./.github/actions/dotnet-tool-run
-    with:
-      WORKING_DIRECTORY: "${{github.workspace}}"
-      TOOL_NAME: "signcontentpackage"
-      TOOL_ARGUMENTS: "sign \
-          --package \"${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg\" \
-          --wallet \"${{steps.store-signing-wallet.outputs.file}}\" \
-          --wallet-password \"${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}\" \
-          --warnings-as-error"
+    - if: |
+        inputs.NPM_SIGNING == 'true' &&
+        inputs.PROJECT_TO_PUBLISH != ''
+      name: "NPM: Check Package"
+      shell: bash
+      run: |
+          ls -la "${{github.workspace}}"
+          echo "-----------------------"
+          ls "${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{env.BUILD_VERSION}}.nupkg"
+
+    - if: |
+          inputs.NPM_SIGNING == 'true' &&
+          inputs.PROJECT_TO_PUBLISH != ''
+      name: "NPM: Create Store Signing Wallet"
+      uses: ./.github/actions/save-secret-as-file
+      id: store-signing-wallet
+      with:
+        secret: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
+
+    - if: |
+        inputs.NPM_SIGNING == 'true' &&
+        inputs.PROJECT_TO_PUBLISH != ''
+      name: "NPM: Store Sign Package"
+      uses: ./.github/actions/dotnet-tool-run
+      with:
+        WORKING_DIRECTORY: "${{github.workspace}}"
+        TOOL_NAME: "signcontentpackage"
+        TOOL_ARGUMENTS: "sign \
+            --package \"${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg\" \
+            --wallet \"${{steps.store-signing-wallet.outputs.file}}\" \
+            --wallet-password \"${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}\" \
+            --warnings-as-error"
