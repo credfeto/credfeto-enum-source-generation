@@ -1,3 +1,4 @@
+--- # Approve the current pull request
 name: "Approve PR"
 description: "Approves the current pull request"
 
