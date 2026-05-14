@@ -31,7 +31,7 @@ rules:
   comments: disable
   comments-indentation: disable
   document-end: disable
-  document-start: disable
+  document-start: enable
   empty-lines:
     level: warning
     max: 2
@@ -42,7 +42,7 @@ rules:
     max-spaces-after: 1
   indentation:
     level: warning
-    spaces: consistent
+    spaces: 2
     indent-sequences: true
     check-multi-line-strings: false
   key-duplicates: enable
