@@ -1,3 +1,4 @@
+--- # Hadolint Dockerfile linter configuration
 ignored:
   - DL3008
   - DL3009
