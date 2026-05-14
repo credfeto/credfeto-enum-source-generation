@@ -1,3 +1,4 @@
+--- # Configure NuGet and NPM cache env vars and check repo visibility
 name: "Setup Build Cache"
 description: "Configures nuget/npm cache env vars and checks repo visibility"
 
@@ -7,10 +8,6 @@ inputs:
     required: true
   use-nuget-cache:
     description: "Whether to use nuget cache (true/false, or empty to disable)"
-    required: false
-    default: ""
-  repo-status:
-    description: "Repository visibility (public/private, or empty to auto-detect)"
     required: false
     default: ""
   nuget-baget-cache:
