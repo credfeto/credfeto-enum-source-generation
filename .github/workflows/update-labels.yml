@@ -1,3 +1,4 @@
+--- # Repo: update GitHub labels from definitions file
 name: "Repo: Update Labels"
 
 on:
