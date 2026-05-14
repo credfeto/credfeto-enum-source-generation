@@ -3,9 +3,6 @@ name: 'Upload sarif files'
 description: 'Builds and deploys the source'
 inputs:
   # GENERAL
-  GITHUB_TOKEN:
-    description: 'Github Token'
-    required: true
   REPO_VISIBILITY:
     description: 'Visibility of the repo'
     required: true
