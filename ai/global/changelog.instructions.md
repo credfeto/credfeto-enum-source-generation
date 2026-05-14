@@ -14,7 +14,7 @@ Load this file when adding changelog entries or acting as the Changelog agent.
 
 Do **not** add an entry if:
 
-- The repo is `credfeto/cs-template` (kept blank for template consumers).
+- The repository name contains `-template` (e.g. `credfeto/cs-template`) — kept blank for template consumers.
 - The change is documentation-only with no effect on production code.
 - The change is to AI instruction files.
 
