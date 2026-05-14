@@ -1,3 +1,4 @@
+--- # Fail if merge conflict markers are found in tracked files
 name: "Check No Merge Conflicts"
 description: "Fails if merge conflict markers are found in tracked files"
 
@@ -40,4 +41,3 @@ runs:
           }
 
           core.setFailed('Found merge conflicts.');
-
