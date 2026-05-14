@@ -6,6 +6,12 @@ on:
       - "main"
     paths:
       - ".github/workflows/create-prs-for-stale-branches.yml"
+      - ".github/actions/check-repo-visibility/**"
+      - ".github/actions/find-pull-request/**"
+      - ".github/actions/read-file/**"
+      - ".github/actions/create-pull-request/**"
+      - ".github/actions/sync-labels/**"
+      - ".github/actions/delete-branch/**"
   schedule:
     - cron: "0 1 * * *"
 
@@ -59,7 +65,11 @@ jobs:
         id: set-matrix
         shell: bash
         run: |
-          echo "branches=$(git branch --remote --format='%(refname:short)' | grep -Po 'origin/\K[^*]*' | grep -vE 'HEAD|release/|hotfix/' | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
+          BRANCHES=$(git branch --remote --format='%(refname:short)' \
+            | grep -Po 'origin/\K[^*]*' \
+            | grep -vE 'HEAD|release/|hotfix/' \
+            | jq -R -s -c 'split("\n")[:-1]')
+          echo "branches=$BRANCHES" >> "$GITHUB_OUTPUT"
     outputs:
       branches: ${{steps.set-matrix.outputs.branches}}
 
@@ -161,11 +171,11 @@ jobs:
       - name: "Check Branch Status"
         if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
         shell: bash
-        run:
+        run: |
           echo "Check to see if ${{env.DEFAULT_BRANCH}} is ahead or behind ${{matrix.branch}}..."
-          git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{matrix.branch}}"
-          git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{matrix.branch}}" | awk '{ print "${{env.BRANCH}} is behind ${{env.DEFAULT_BRANCH}} by "$1" commit(s)" }'
-          git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{matrix.branch}}" | awk '{ print "${{matrix.BRANCH}} is ahead of ${{env.DEFAULT_BRANCH}} by "$2" commit(s)" }'
+          COUNTS=$(git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{matrix.branch}}")
+          echo "$COUNTS" | awk '{ print "${{env.BRANCH}} is behind ${{env.DEFAULT_BRANCH}} by "$1" commit(s)" }'
+          echo "$COUNTS" | awk '{ print "${{matrix.BRANCH}} is ahead of ${{env.DEFAULT_BRANCH}} by "$2" commit(s)" }'
         env:
           DEFAULT_BRANCH: ${{steps.detection.outputs.defaultbranch}}
       - name: "Get last update time of branch"
