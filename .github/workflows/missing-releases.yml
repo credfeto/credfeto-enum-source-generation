@@ -61,7 +61,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               sha: 'main',
-              per_page: 100,
             });
             const REGEX_CHANGELOG = /Changelog\sfor\s(\d+\.\d+\.\d+)$/;
             for (const commit of commits) {
