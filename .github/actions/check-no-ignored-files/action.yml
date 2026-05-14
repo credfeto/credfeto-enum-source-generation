@@ -1,3 +1,4 @@
+--- # Fail if any tracked files are matched by gitignore rules
 name: "Check No Ignored Files"
 description: "Fails if tracked files are matched by ignore rules"
 
