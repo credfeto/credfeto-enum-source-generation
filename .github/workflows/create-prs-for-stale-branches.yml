@@ -1,3 +1,4 @@
+--- # PR: find branches without open pull requests
 name: "PR: Find branches without PR's"
 
 on:
