@@ -11,11 +11,11 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Added IsDefined unit tests; improved GetName and GetDescription test coverage with parameterised tests and obsolete/unknown value cases
 ### Fixed
 ### Changed
-- Dependencies - Updated FunFair.CodeAnalysis to 7.1.42.1940
 - Dependencies - Updated Meziantou.Analyzer to 3.0.74
 - Dependencies - Updated FunFair.Test.Common to 6.2.23.2204
 - Dependencies - Updated FunFair.Test.Source.Generator to 6.2.23.2204
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.125.1199
+- Dependencies - Updated FunFair.CodeAnalysis to 7.2.0.1978
 ### Deprecated
 ### Removed
 ### Deployment Changes
