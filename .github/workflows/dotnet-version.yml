@@ -6,7 +6,8 @@ on:
       - "main"
     paths:
       - ".github/workflows/dotnet-version.yml"
-      - ".github/actions/build-tools/**"
+      - ".github/actions/dotnet-install/**"
+      - ".github/actions/nuget/**"
   schedule:
     - cron: "0 1 * * *"
 
@@ -53,9 +54,9 @@ jobs:
           fetch-depth: 1
           token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
-      - name: "Install Build tools"
+      - name: "Install dotnet"
         if: runner.environment == 'self-hosted'
-        uses: ./.github/actions/build-tools
+        uses: ./.github/actions/dotnet-install
         with:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
           NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{vars.NUGET_BAGET_CACHE}}
@@ -65,9 +66,9 @@ jobs:
           NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
           NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
 
-      - name: "Install Build tools"
+      - name: "Install dotnet"
         if: runner.environment != 'self-hosted'
-        uses: ./.github/actions/build-tools
+        uses: ./.github/actions/dotnet-install
         with:
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
           NUGET_PUBLIC_RESTORE_FEED_CACHE: ""
