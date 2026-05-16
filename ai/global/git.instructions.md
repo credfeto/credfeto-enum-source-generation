@@ -6,6 +6,14 @@
 
 Verify all required languages and runtimes are installed. If any are missing, stop — do not scaffold code or make partial changes; ask the user to install them first.
 
+## Missing CLI Tools (MANDATORY)
+
+If a required CLI tool is not found, **stop immediately and ask the user to install it**. Never:
+
+- Search for the binary in alternative locations
+- Manipulate PATH to try to find it
+- Attempt to install it without being asked
+
 ## Environment Health (MANDATORY)
 
 If the environment is too broken to work in without first fixing infrastructure or tooling, **stop** and demand it be fixed. Do not work around broken tooling.
@@ -40,6 +48,10 @@ When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a 
 
 - If a `gh` command fails, raise an issue on `credfeto/github-api-proxy` with the exact subcommand and flags, the API method (if visible), and the full error message.
 - Commit and push operations are always rejected by the proxy — use `git` CLI directly for all commit and push operations.
+
+## Running Git Commands in a Specific Directory
+
+- Never use `cd <dir> && git <command>` — use `git -C <dir> <command>` instead.
 
 ## Branching
 
