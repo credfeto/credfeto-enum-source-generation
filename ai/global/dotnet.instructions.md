@@ -4,6 +4,15 @@
 
 [Back to Global Instructions Index](index.md)
 
+## NuGet Configuration (MANDATORY)
+
+- Never modify `nuget.config` — it is managed by the repo owner, not by AI.
+
+## Running .NET Tools (MANDATORY)
+
+- Always invoke dotnet tools via `dotnet <toolname>` (e.g. `dotnet changelog`, `dotnet buildcheck`).
+- Never search for the tool binary, add it to `PATH`, or invoke it directly as `~/.dotnet/tools/toolname` or similar.
+
 ## Build and Test Before Commit (MANDATORY)
 
 Run `dotnet build` and `dotnet test` before every commit — see [git.instructions.md](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push).
