@@ -140,7 +140,7 @@ Use this consistent field order — omit fields not needed. `name:` is always fi
 
 ## Step Output Formatting
 
-> Applies to **GitHub Actions workflow steps only**. Standalone shell scripts use ANSI-coloured `✓`/`✗` — see [shell-scripts.instructions.md](shell-scripts.instructions.md#visual-indicators).
+> Applies to **GitHub Actions workflow steps only**. Standalone shell scripts use ANSI-coloured `✓`/`✗` — see [shell-scripts.instructions.md](shell-scripts.instructions.md#output-helpers).
 
 | State | Character | Usage |
 | --- | --- | --- |
