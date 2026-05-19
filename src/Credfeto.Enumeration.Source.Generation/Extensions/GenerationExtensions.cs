@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Builders;
@@ -175,12 +175,20 @@ internal static class GenerationExtensions
     private static IEnumerable<IFieldSymbol> UniqueMembers(in EnumGeneration enumDeclaration)
     {
         HashSet<string> names = enumDeclaration.UniqueEnumMemberNames();
+        IReadOnlyDictionary<string, string>? equalsValueIdentifiers = enumDeclaration.EqualsValueIdentifiers;
 
-        return enumDeclaration.Members.Where(member => !IsSkippedOrObsolete(fieldSymbol: member, names: names));
+        return enumDeclaration.Members.Where(member =>
+            !IsSkippedOrObsolete(fieldSymbol: member, names: names, equalsValueIdentifiers: equalsValueIdentifiers)
+        );
 
-        static bool IsSkippedOrObsolete(IFieldSymbol fieldSymbol, HashSet<string> names)
+        static bool IsSkippedOrObsolete(
+            IFieldSymbol fieldSymbol,
+            HashSet<string> names,
+            IReadOnlyDictionary<string, string>? equalsValueIdentifiers
+        )
         {
-            return fieldSymbol.IsSkipEnumValue(names: names) || fieldSymbol.HasObsoleteAttribute();
+            return fieldSymbol.IsSkipEnumValue(names: names, equalsValueIdentifiers: equalsValueIdentifiers)
+                || fieldSymbol.HasObsoleteAttribute();
         }
     }
 

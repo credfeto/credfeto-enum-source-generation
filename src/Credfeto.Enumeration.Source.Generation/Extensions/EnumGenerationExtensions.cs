@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Formatting;
 using Credfeto.Enumeration.Source.Generation.Models;
@@ -27,10 +27,14 @@ internal static class EnumGenerationExtensions
         HashSet<string> names
     )
     {
+        IReadOnlyDictionary<string, string>? equalsValueIdentifiers = enumDeclaration.EqualsValueIdentifiers;
+
         return
         [
             .. enumDeclaration
-                .Members.Where(member => IsUsable(member: member, names: names))
+                .Members.Where(member =>
+                    IsUsable(member: member, names: names, equalsValueIdentifiers: equalsValueIdentifiers)
+                )
                 .Select(MemberDescription)
                 .Where(item => item.description is not null)
                 .Select(EnsureNotNullDescription)
@@ -62,9 +66,14 @@ internal static class EnumGenerationExtensions
         return (item.member, typedConstant: item.description.ConstructorArguments.FirstOrDefault());
     }
 
-    private static bool IsUsable(IFieldSymbol member, HashSet<string> names)
+    private static bool IsUsable(
+        IFieldSymbol member,
+        HashSet<string> names,
+        IReadOnlyDictionary<string, string>? equalsValueIdentifiers
+    )
     {
-        return !member.IsSkipEnumValue(names: names) && !member.HasObsoleteAttribute();
+        return !member.IsSkipEnumValue(names: names, equalsValueIdentifiers: equalsValueIdentifiers)
+            && !member.HasObsoleteAttribute();
     }
 
     private static (IFieldSymbol member, AttributeData? description) MemberDescription(IFieldSymbol member)

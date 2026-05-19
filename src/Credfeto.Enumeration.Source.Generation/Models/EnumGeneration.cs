@@ -13,7 +13,8 @@ public readonly record struct EnumGeneration
         string @namespace,
         IReadOnlyList<IFieldSymbol> members,
         Location location,
-        in GenerationOptions options
+        in GenerationOptions options,
+        IReadOnlyDictionary<string, string>? equalsValueIdentifiers = null
     )
     {
         this.AccessType = accessType;
@@ -22,6 +23,7 @@ public readonly record struct EnumGeneration
         this.Members = members;
         this.Location = location;
         this.Options = options;
+        this.EqualsValueIdentifiers = equalsValueIdentifiers;
     }
 
     public AccessType AccessType { get; }
@@ -35,4 +37,6 @@ public readonly record struct EnumGeneration
     public Location Location { get; }
 
     public GenerationOptions Options { get; }
+
+    public IReadOnlyDictionary<string, string>? EqualsValueIdentifiers { get; }
 }
