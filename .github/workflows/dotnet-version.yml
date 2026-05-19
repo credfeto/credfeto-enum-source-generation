@@ -78,21 +78,32 @@ jobs:
           NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
           NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
 
-      - name: "Get latest installed dotnet version"
+      - name: "Get latest available dotnet version"
         id: latest-dotnet-version
         shell: bash
         run: |
-          echo "Versions installed:"
-          dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort --version-sort
-          echo "Latest Version: $(dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort --version-sort | tail -1)"
-          LATEST=$(dotnet --list-sdks | cut -f 1 -d " " | grep "^[0-9]*\.[0-9]*\.[0-9]*$" | sort --version-sort | tail -1)
+          LATEST=$(curl \
+            --max-time 120 \
+            --retry 5 \
+            --retry-delay 0 \
+            --retry-max-time 600 \
+            -sS \
+            -L \
+            -f \
+            https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/releases-index.json |
+            jq -re '
+              ."releases-index"
+              | map(select(."support-phase" == "active"))
+              | sort_by(."channel-version" | split(".") | map(tonumber))
+              | last
+              | ."latest-sdk"
+            ')
+          if [[ -z "$LATEST" || "$LATEST" == "null" ]]; then
+            echo "::error::Failed to determine latest active .NET SDK version from releases-index.json"
+            exit 1
+          fi
+          echo "Latest available SDK: $LATEST (current: $DOTNET_VERSION)"
           echo "LATEST_RELEASE_VERSION=$LATEST" >> "$GITHUB_OUTPUT"
-
-      - name: "Display latest installed dotnet version"
-        shell: bash
-        run: |
-          echo "Latest installed dotnet version: ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          echo "Requested dotnet version: ${{env.DOTNET_VERSION}}"
 
       - name: "Check if Latest is newer than the current defined"
         id: upgrade_check
