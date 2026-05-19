@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -197,14 +197,39 @@ internal static class SyntaxExtractor
 
         GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
 
+        IReadOnlyDictionary<string, string>? equalsValueIdentifiers = ExtractEqualsValueIdentifiers(
+            enumDeclarationSyntax.Members
+        );
+
         return new(
             accessType: accessType,
             name: enumSymbol.Name,
             enumSymbol.ContainingNamespace.ToDisplayString(),
             members: members,
             enumDeclarationSyntax.GetLocation(),
-            options: options
+            options: options,
+            equalsValueIdentifiers: equalsValueIdentifiers
         );
+    }
+
+    private static IReadOnlyDictionary<string, string>? ExtractEqualsValueIdentifiers(
+        in SeparatedSyntaxList<EnumMemberDeclarationSyntax> members
+    )
+    {
+        Dictionary<string, string>? result = null;
+
+        foreach (EnumMemberDeclarationSyntax member in members)
+        {
+            if (member.EqualsValue?.Value is not IdentifierNameSyntax identifierName)
+            {
+                continue;
+            }
+
+            result ??= new(StringComparer.Ordinal);
+            result[member.Identifier.ValueText] = identifierName.Identifier.ValueText;
+        }
+
+        return result;
     }
 
     private static GenerationOptions DetectGenerationOptions(

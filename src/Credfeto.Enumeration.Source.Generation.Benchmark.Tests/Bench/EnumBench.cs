@@ -17,12 +17,6 @@ namespace Credfeto.Enumeration.Source.Generation.Benchmark.Tests.Bench;
 public class EnumBench
 {
     [Benchmark]
-    public string GetNameToString()
-    {
-        return ExampleEnumValues.ONE.GetNameToString();
-    }
-
-    [Benchmark]
     public string GetNameReflection()
     {
         return ExampleEnumValues.ONE.GetNameReflection();
@@ -38,12 +32,6 @@ public class EnumBench
     public string GetName2CodeGenerated()
     {
         return HttpStatusCode.Accepted.GetName();
-    }
-
-    [Benchmark]
-    public string GetName2ToString()
-    {
-        return HttpStatusCode.Accepted.GetNameToString();
     }
 
     [Benchmark]
