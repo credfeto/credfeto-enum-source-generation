@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
 namespace Credfeto.Enumeration.Source.Generation.Helpers;
@@ -18,14 +17,9 @@ internal sealed class LiteralString : LocalizableString
         return this._value;
     }
 
-    [SuppressMessage(
-        category: "Meziantou.Analyzer",
-        checkId: "MA0021:Use String Comparer to compute hash codes",
-        Justification = "Not in net stabdard 2.0"
-    )]
     protected override int GetHash()
     {
-        return this._value.GetHashCode();
+        return StringComparer.Ordinal.GetHashCode(this._value);
     }
 
     protected override bool AreEqual(object? other)

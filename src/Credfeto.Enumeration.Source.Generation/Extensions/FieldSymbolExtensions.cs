@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Credfeto.Enumeration.Source.Generation.Formatting;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Credfeto.Enumeration.Source.Generation.Extensions;
 
@@ -18,19 +16,25 @@ internal static class FieldSymbolExtensions
         return $"{formatConfig.ClassName}.{member.Name} => {attributeText},";
     }
 
-    public static bool IsSkipEnumValue(this IFieldSymbol member, HashSet<string> names)
+    public static bool IsSkipEnumValue(
+        this IFieldSymbol member,
+        HashSet<string> names,
+        IReadOnlyDictionary<string, string>? equalsValueIdentifiers
+    )
     {
-        EnumMemberDeclarationSyntax? syntax = FindEnumMemberDeclarationSyntax(member);
-
-        if (syntax?.EqualsValue is null || !syntax.EqualsValue.Value.IsSkipEnumValue(names: names))
+        if (
+            equalsValueIdentifiers is not null
+            && equalsValueIdentifiers.TryGetValue(member.Name, out string? identifierName)
+            && names.Contains(identifierName)
+        )
         {
-            return member.IsSkipConstantValue(names: names);
+            // note deliberately ignoring the return value here as we need to record the integer value as being skipped too
+            _ = member.IsSkipConstantValue(names: names);
+
+            return true;
         }
 
-        // note deliberately ignoring the return value here as we need to record the integer value as being skipped too
-        _ = member.IsSkipConstantValue(names: names);
-
-        return true;
+        return member.IsSkipConstantValue(names: names);
     }
 
     private static bool IsSkipConstantValue(this IFieldSymbol member, HashSet<string> names)
@@ -38,10 +42,5 @@ internal static class FieldSymbolExtensions
         object? cv = member.ConstantValue;
 
         return cv is not null && !names.Add(cv.ToString());
-    }
-
-    private static EnumMemberDeclarationSyntax? FindEnumMemberDeclarationSyntax(IFieldSymbol member)
-    {
-        return member.DeclaringSyntaxReferences.Select(dsr => dsr.GetDeclaredSyntax()).RemoveNulls().FirstOrDefault();
     }
 }

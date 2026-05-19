@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 - Added IsDefined unit tests; improved GetName and GetDescription test coverage with parameterised tests and obsolete/unknown value cases
 ### Fixed
+- Replaced SuppressMessage attributes that are now prohibited by FunFair.CodeAnalysis 7.2.0.1978 with proper fixes
 ### Changed
 - Dependencies - Updated FunFair.CodeAnalysis to 7.2.0.1978
 - Dependencies - Updated FunFair.Test.Common to 6.2.23.2204
