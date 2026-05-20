@@ -10,5 +10,6 @@ Use three standard helpers for all firewall rule management. See [shell.firewall
 
 - Always use `--permanent` so rules survive reboots.
 - Always call `firewall-cmd --reload` after adding rules — call it once after all rules for a given operation are added, not once per rule.
+- `allow_ipv4`, `allow_ipv6`, and `open_port_for_private_networks` do **not** call `firewall-cmd --reload` internally — the caller is responsible for calling it once after all operations are complete.
 - Never open ports to `0.0.0.0/0` or `::/0` without an explicit security review.
 - Use `open_port_for_private_networks` as the default when a service should be reachable from LAN/VPN; only open to the internet if the service is intentionally public-facing.
