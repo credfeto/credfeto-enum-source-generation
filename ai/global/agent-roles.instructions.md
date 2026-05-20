@@ -9,9 +9,22 @@ Load when acting as a named agent. Routing table and model selection: [task-work
 - Prioritise `CHANGES_REQUESTED` PRs over new issues.
 - Determine work type and route via the routing table. Never implement directly.
 
+## Coding Researcher
+
+Invoked by: Orchestrator, Code Writer, Code Fixer.
+
+- Research how to best implement a specific task when the calling role lacks sufficient knowledge — e.g. unfamiliar APIs, library behaviour, patterns found in public repositories, or framework-specific idioms.
+- Use available tools (web search, API docs, public repos) to find authoritative, up-to-date guidance.
+- Return one of two outcomes to the caller:
+  - **Actionable guidance**: concrete steps, code patterns, relevant API signatures, and any important caveats the caller must know before implementing.
+  - **Not possible**: a clear statement that the task cannot be achieved as requested, with a brief explanation of why and (if applicable) the closest viable alternative.
+- Do not write production code or tests — research and report only.
+- Do not call other agents; return findings directly to the calling role.
+
 ## Code Writer
 
 - Implement the GitHub issue: read all relevant instruction files, write production code and tests.
+- If implementation requires knowledge outside the instruction files (unfamiliar API, complex library usage, etc.), invoke Coding Researcher first — do not guess or fabricate.
 - Do not commit, push, or update the changelog — hand off to Code Tester when done.
 
 ## Code Tester
@@ -32,6 +45,7 @@ Load when acting as a named agent. Routing table and model selection: [task-work
 ## Code Fixer
 
 - Address requested changes on an existing PR — this includes both GitHub `CHANGES_REQUESTED` review status and verbal/chat requests for changes on an open PR.
+- If a fix requires knowledge outside the instruction files, invoke Coding Researcher first — do not guess or fabricate.
 - Convert to draft before starting (`gh pr ready <number> --undo`).
 - One commit per review comment. Hand off to Code Tester after each fix.
 - Respond to **every** review comment without exception:
