@@ -230,7 +230,6 @@ dotnet_diagnostic.FFS0039.severity = error # FunFair.CodeAnalysis - FFS0039 - On
 dotnet_diagnostic.FFS0040.severity = suggestion # FunFair.CodeAnalysis - FFS0040 - File should have the same name as the type that is defined in it
 dotnet_diagnostic.FFS0041.severity = error # FunFair.CodeAnalysis - FFS0041 - Do not use System.Console in test assemblies
 dotnet_diagnostic.FFS0042.severity = suggestion # FunFair.CodeAnalysis - FFS0042 - Do not have TODO's in SuppressMessage justifications.
-dotnet_diagnostic.FFS0042.severity = suggestion # FunFair.CodeAnalysis - FFS0042 - Do not have TODO's in SuppressMessage justifications.
 dotnet_diagnostic.FFS0043.severity = error # FunFair.CodeAnalysis - FFS0043 - Do not use ``StringComparer.InvariantCulture`` use ``StringComparer.Ordinal`` instead.
 dotnet_diagnostic.FFS0044.severity = error # FunFair.CodeAnalysis - FFS0044 - Do not use ``StringComparer.InvariantCultureIgnoreCase`` use ``StringComparer.OrdinalIgnoreCase`` instead.
 dotnet_diagnostic.FFS0045.severity = error # FunFair.CodeAnalysis - FFS0045 - Do not use ``StringCompaison.InvariantCulture`` use ``StringCompaison.Ordinal`` instead.
