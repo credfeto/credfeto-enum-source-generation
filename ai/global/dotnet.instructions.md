@@ -79,6 +79,22 @@ Use `AddMockedService<T>()` in tests deriving from `DependencyInjectionTestsBase
 - Never create concrete no-op inner classes to satisfy DI mocking.
 - `GetSubstitute<T>()` is safe in `static` Configure methods.
 
+## Naming Conventions
+
+| Identifier | Convention | Example |
+| ---------- | ---------- | ------- |
+| Private constants (`const`) | `UPPER_SNAKE_CASE` | `private const int MAX_RETRY_COUNT = 3;` |
+| Enum members | `UPPER_SNAKE_CASE` | `NO_REFERRER_WHEN_DOWNGRADE` |
+| Private instance fields | `_camelCase` | `private readonly string _emailAddress;` |
+| Private static readonly fields | `PascalCase` | `private static readonly Regex HostRegex = ...;` |
+| Public/internal constants (`const`) | `PascalCase` | `public const int MaximumStringLength = 255;` |
+| Public/internal properties | `PascalCase` | `public int PageSize { get; }` |
+| Public/internal methods | `PascalCase` | `public bool TryParse(...)` |
+| Local variables | `camelCase` | `int retryCount = 0;` |
+| Method parameters | `camelCase` | `void Method(int retryCount, ...)` |
+| Interfaces | `IPascalCase` | `IHostedBackgroundService` |
+| Type parameters (generics) | `TPascalCase` | `<TKey, TValue>` |
+
 ## Source File Organisation
 
 - One type per file — class, record, struct, interface, or enum.
