@@ -51,8 +51,6 @@ open_port_for_private_networks() {
     for subnet in "${IPV6_PRIVATE_RANGES[@]}"; do
         allow_ipv6 "${subnet}" "${port}" "${protocol}"
     done
-
-    firewall-cmd --reload
 }
 ```
 
