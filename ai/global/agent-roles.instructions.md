@@ -115,6 +115,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Conditionals: incorrect boolean logic, missing negation, wrong operator.
 - Edge cases: null/empty input, zero values, empty collections, missing default cases.
 - Business logic: code that does not match the intent described in the issue or PR.
+- Rule Breaking: there should not be any files that change the linting rules or building rules that weaken the repo.
 
 ### Code Reviewer: **Security**
 
