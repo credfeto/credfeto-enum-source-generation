@@ -31,16 +31,137 @@ Invoked by: Orchestrator, Code Writer, Code Fixer.
 
 - Run build and all tests after Code Writer or Code Fixer finishes.
 - Check coverage against `git diff origin/main...HEAD`.
-- On build failure, test failure, or uncovered code: report file paths/line ranges to Code Writer — stop, do not proceed.
+- On build failure, test failure, or uncovered code: report file paths/line ranges to the calling agent — stop, do not proceed.
 - Loop with Code Writer until build passes, all tests pass, and all new/changed code is covered.
 - Do not modify code or tests — report and verify only.
 
 ## Code Reviewer
 
-- Run `git diff origin/main...HEAD`, check every changed file against all instruction rules.
-- Launch three sub-agents **in parallel**: **Reuse** (duplicate utilities), **Quality** (redundant state, copy-paste, leaky abstractions), **Efficiency** (unnecessary work, missed concurrency, hot-path bloat).
+- Run `git diff origin/main...HEAD`.
+- Launch all the sub-agents **in parallel**: Reuse, Quality, Efficiency, Correctness, Security, Compliance.
+- Each sub-agent reports `{"clean": true}` or `{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}`.
 - Fix each real finding in its own commit; skip false positives. Re-run Code Tester after fixes.
 - Report `{"clean": true}` or `{"clean": false, "fixes": [...]}`. Cap at 5 iterations.
+- After 5 iterations, report any unresolved findings to the Orchestrator; Orchestrator adds each as a PR comment for human consideration.
+
+### Code Reviewer: **Reuse**
+
+- Identify opportunities to reuse existing code instead of writing new code. Focus only on newly changed code.
+
+#### Reuse — Critical Instructions
+
+1. MINIMISE FALSE POSITIVES: Only flag cases where an existing utility or helper clearly covers the same need without modification.
+2. FOCUS ON IMPACT: Prioritise reuse that eliminates duplication across multiple call sites.
+3. EXCLUSIONS: Do NOT flag cases where the existing code would require modification to be reused — that is a refactor, not reuse.
+
+#### Reuse — Categories
+
+- Utilities: helper methods or functions already present in the codebase being reimplemented.
+- Library functions: standard library or existing dependency features being reimplemented.
+- Shared components: duplicated domain logic that belongs in a shared layer.
+- Extension points: existing abstractions (interfaces, base classes) not being used where applicable.
+
+### Code Reviewer: **Quality**
+
+- Identify code quality issues in newly changed code.
+
+#### Quality — Critical Instructions
+
+1. MINIMISE FALSE POSITIVES: Only flag clear violations, not stylistic preferences.
+2. FOCUS ON IMPACT: Prioritise issues that harm maintainability or introduce technical debt.
+3. EXCLUSIONS: Do NOT report formatting or naming style issues — those are enforced by linting tooling.
+
+#### Quality — Categories
+
+- Duplication: copy-paste code that should be extracted.
+- Responsibility: leaky abstractions or methods doing more than one thing (Single Responsibility Principle).
+- State: redundant or unnecessary mutable state.
+- Complexity: overly nested logic or methods too long to reason about.
+
+### Code Reviewer: **Efficiency**
+
+- Identify inefficiencies in newly changed code.
+
+#### Efficiency — Critical Instructions
+
+1. MINIMISE FALSE POSITIVES: Only flag issues with measurable impact, not micro-optimisations.
+2. FOCUS ON IMPACT: Prioritise hot paths, loops, and data access patterns.
+3. EXCLUSIONS: Do NOT report theoretical inefficiencies in cold paths that are not performance-critical.
+
+#### Efficiency — Categories
+
+- Algorithms: non-optimal algorithms where a better alternative exists and data size warrants it.
+- Data structures: inappropriate structures causing unnecessary overhead (e.g. linear search on a list where a set or dictionary fits).
+- Redundant work: repeated calculations or queries that could be cached or hoisted.
+- Memory: unnecessary allocations or large object graphs held longer than needed.
+
+### Code Reviewer: **Correctness**
+
+- Identify logic errors in newly changed code.
+
+#### Correctness — Critical Instructions
+
+1. MINIMISE FALSE POSITIVES: Only flag cases where the logic provably does not match the intent of the change.
+2. FOCUS ON IMPACT: Prioritise errors that could cause incorrect results, data corruption, or silent failures.
+3. EXCLUSIONS: Do NOT flag style or structural issues — focus solely on whether the code does what it is supposed to do.
+
+#### Correctness — Categories
+
+- Boundary conditions: off-by-one errors, incorrect loop bounds, fencepost errors.
+- Conditionals: incorrect boolean logic, missing negation, wrong operator.
+- Edge cases: null/empty input, zero values, empty collections, missing default cases.
+- Business logic: code that does not match the intent described in the issue or PR.
+
+### Code Reviewer: **Security**
+
+- Perform a security-focused code review to identify HIGH-CONFIDENCE security vulnerabilities that could have real exploitation potential. Focus only on security implications newly added by the PR.
+
+#### Security — Critical Instructions
+
+1. MINIMISE FALSE POSITIVES: Only flag issues where you're >80% confident of actual exploitability.
+2. FOCUS ON IMPACT: Prioritise vulnerabilities that could lead to unauthorised access, data breaches, or system compromise.
+3. EXCLUSIONS: Do NOT report Denial of Service (DOS) vulnerabilities, rate limiting issues, or secrets/credentials committed in code (private keys, passwords, API keys) — these are covered by dedicated non-agentic tooling.
+
+#### Security — Categories
+
+- Input Validation: SQL injection, command injection, path traversal, XSS.
+- Authentication: Bypass logic, privilege escalation, JWT flaws.
+- Crypto: Weak algorithms, improper key storage.
+- Injection: Deserialisation, eval injection, XML parsing issues.
+
+### Code Reviewer: **Compliance**
+
+- Check that newly changed files comply with all applicable rules in the `.ai-instructions` instruction files.
+
+#### Compliance — Critical Instructions
+
+1. MINIMISE FALSE POSITIVES: Only flag clear violations of explicit rules, not inferred or implied guidance.
+2. FOCUS ON IMPACT: Prioritise violations that would cause the files to fail review or break established conventions.
+3. EXCLUSIONS: Do NOT re-report issues already in scope for Reuse, Quality, Efficiency, Correctness, or Security sub-agents.
+
+#### Compliance — Categories
+
+- Global rules: violations of rules in `ai/global/*.instructions.md` applicable to the changed file types.
+- Local rules: violations of rules in `ai/local/*.instructions.md` applicable to the changed file types — do not re-report violations already covered by global rules.
+- Rule hygiene: local rules in `ai/local/*.instructions.md` that duplicate or restate rules already present in `ai/global/*.instructions.md` — flag these for removal.
+- Language/framework rules: e.g. dotnet, shell, SQL instruction compliance where those files are present.
+- Documentation rules: README, CHANGELOG, and comment conventions from `documentation.instructions.md`.
+
+## Repo Auditor
+
+- Scan the full repository — not a diff. No branch or PR is required.
+- Group files for review before starting:
+  - One group per `.csproj` or logical app unit.
+  - All `*.sql` files as a single separate group, regardless of location.
+  - All `.ai-instructions` and `ai/**` instruction files as a single separate group.
+  - Remaining files (shell scripts, GitHub workflows, config) as a repo-level group.
+- Process groups sequentially. For each group, launch the Code Reviewer sub-agents (Reuse, Quality, Efficiency, Correctness, Security, Compliance) **in parallel**.
+  - The "newly changed files" scope does not apply — sub-agents review the full file set for the group.
+- Do NOT fix findings. For each group that has findings, raise one GitHub issue:
+  - Title: `Audit: <group-name> — <brief summary>`
+  - Body: all findings from all sub-agents for that group, organised by sub-agent.
+  - Label: `audit`
+- Skip groups where all sub-agents report `{"clean": true}`.
 
 ## Code Fixer
 
@@ -62,7 +183,7 @@ Invoked by: Orchestrator, Code Writer, Code Fixer.
 ## CI Debugger
 
 - Read full logs (`gh run view --log-failed`), identify root cause.
-- Fix if code-related; escalate with a clear description if environmental or infrastructure.
+- Fix if code-related; escalate to Orchestrator with a clear description if environmental or infrastructure.
 
 ## Changelog
 
@@ -77,7 +198,7 @@ Invoked by: Orchestrator, Code Writer, Code Fixer.
 - Commit code+tests as one GPG-signed commit (Conventional Commits, original prompt in body as `Prompt: …`).
 - Commit `CHANGELOG.md` as a separate GPG-signed commit.
 - Push immediately after. Do not open the PR — that is PR Submitter's job.
-- Do not use `--no-verify`. If a pre-commit hook fails: capture output, report to the producing agent, re-stage and retry. Escalate after 3 failed cycles.
+- Do not use `--no-verify`. If a pre-commit hook fails: capture output, report to the producing agent, re-stage and retry. Escalate to Orchestrator after 3 failed cycles.
 
 ## PR Submitter
 
