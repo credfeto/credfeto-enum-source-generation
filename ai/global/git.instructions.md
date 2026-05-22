@@ -51,7 +51,10 @@ When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a 
 
 ## Running Git Commands in a Specific Directory
 
-- Never use `cd <dir> && git <command>` — use `git -C <dir> <command>` instead.
+- Always use `git -C <dir> <command>` — never `cd <dir> && git <command>`.
+- `git -C` runs the command in the specified directory without changing the shell's working directory, using a single invocation and avoiding leaving the shell in the wrong directory for subsequent commands.
+- In Claude Code the `cd` form also triggers an unnecessary permission prompt for the directory change itself.
+- This applies to all git subcommands: `git -C /path status`, `git -C /path add`, `git -C /path commit`, etc.
 
 ## Branching
 
