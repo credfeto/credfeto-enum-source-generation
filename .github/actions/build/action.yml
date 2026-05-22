@@ -158,10 +158,13 @@ runs:
 
     - name: "Parameter Summary"
       uses: actions/github-script@v9.0.0
+      env:
+        NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
       with:
         script: |
+          if (process.env.NUGET_API_KEY) { core.setSecret(process.env.NUGET_API_KEY); }
           core.info('PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}');
-          core.info('NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}');
+          core.info('NUGET_API_KEY: ' + (process.env.NUGET_API_KEY ? '[set]' : '[not set]'));
           core.info('NUGET_FEED: ${{inputs.NUGET_FEED}}');
           core.info('NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}');
           core.info('NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}');
@@ -250,9 +253,13 @@ runs:
     - name: "Check Build Tools Requirements"
       id: build_tools
       shell: bash
+      env:
+        CSPROJ_EXIST: ${{steps.check_files.outputs.CSPROJ_EXIST}}
+        SLN_EXIST: ${{steps.check_files.outputs.SLN_EXIST}}
+        NPM_EXIST_SRC: ${{steps.check_files.outputs.NPM_EXIST_SRC}}
+        NPM_EXIST_ROOT: ${{steps.check_files.outputs.NPM_EXIST_ROOT}}
       run: |
-        [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST_SRC == 'true' || steps.check_files.outputs.NPM_EXIST_ROOT == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
-        [[ (${{steps.check_files.outputs.CSPROJ_EXIST == 'true' && steps.check_files.outputs.SLN_EXIST == 'true'}}) || steps.check_files.outputs.NPM_EXIST_SRC == 'true' || steps.check_files.outputs.NPM_EXIST_ROOT == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
+        [[ ("$CSPROJ_EXIST" == 'true' && "$SLN_EXIST" == 'true') || "$NPM_EXIST_SRC" == 'true' || "$NPM_EXIST_ROOT" == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
 # yamllint enable rule:line-length
 
     - name: "Install Multi-push tool"
