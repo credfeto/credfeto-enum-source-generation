@@ -70,8 +70,12 @@ jobs:
         uses: actions/checkout@v6.0.2
         with:
           clean: true
-          fetch-depth: 0
-          fetch-tags: true
+          fetch-depth: 2
+
+      - name: "Fetch Base Branch"
+        if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
+        shell: bash
+        run: git fetch origin ${{github.base_ref}} --depth=1
 
       - name: "Diff Changes"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
@@ -169,7 +173,6 @@ jobs:
         with:
           clean: true
           fetch-depth: 0
-          fetch-tags: true
 
       - name: "Check for leaks"
         uses: trufflesecurity/trufflehog@v3.95.3
