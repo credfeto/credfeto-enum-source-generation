@@ -54,7 +54,7 @@ jobs:
             for (const cache of caches) {
               core.info(`Deleting cache: ${cache.key} (id: ${cache.id})`);
               try {
-                await octokit.rest.actions.deleteActionsCacheById({
+                await github.rest.actions.deleteActionsCacheById({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   cache_id: cache.id,
