@@ -3,19 +3,6 @@ name: "Build: Pre-Release"
 
 on:
   push:
-    paths:
-      - 'cloudformation.json'
-      - 'Dockerfile'
-      - 'healthcheck'
-      - 'db/**/*'
-      - 'src/**/*'
-      - '.editorconfig'
-      - '.github/actions/**/*'
-      - '.github/workflows/*'
-      - '**/package.json'
-      - '**/package-lock.json'
-      - 'package.json'
-      - 'package-lock.json'
     branches-ignore:
       - 'release/*'
       - 'hotfix/*'
