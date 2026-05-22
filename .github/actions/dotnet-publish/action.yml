@@ -61,8 +61,7 @@ runs:
                   "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
                   "-p:NoWarn=NETSDK1179" \
                   "-p:Optimize=true" \
-                  "-p:PublishAot=false" \
-                  "-p:PublishReadyToRun=True" \
+                  "-p:PublishReadyToRun=false" \
                   "-p:PublishReadyToRunShowWarnings=True" \
                   "-p:PublishSingleFile=true" \
                   "-p:SolutionDir=..\\" \
