@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   requirements:
-    if: vars.DEPENDABOT_AUTOMERGE == 'true'
+    if: vars.DEPENDABOT_AUTOMERGE == 'true' && github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: "Check Required Secrets"
@@ -32,58 +32,12 @@ jobs:
             exit 1
           fi
 
-  enable-auto-merge-github-actions:
+  enable-auto-merge:
     needs: [requirements]
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
-      startsWith(github.head_ref, 'dependabot/github_actions/')
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      pull-requests: write
-
-
-    # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
-
-    steps:
-      - name: "Initialise Workspace"
-        if: runner.environment == 'self-hosted'
-        shell: bash
-        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-
-      - name: "Set Active Environment"
-        shell: bash
-        run: |
-          {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-            echo "ACTIVE_HOSTNAME=$HOSTNAME"
-            echo "ACTIVE_USER=$USER"
-          } >> "$GITHUB_ENV"
-
-      - name: "Check Repo Owner"
-        uses: actions/github-script@v9.0.0
-        with:
-          script: |
-            core.info(`Owner: ${context.repo.owner}`);
-
-      - name: "Checkout Source"
-        uses: actions/checkout@v6.0.2
-        with:
-          clean: true
-          fetch-depth: 1
-
-      - name: "Auto Merge"
-        uses: ./.github/actions/enable-automerge
-        with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          merge-method: "MERGE"
-
-  enable-auto-merge-npm:
-    needs: [requirements]
-    if: |-
-      vars.DEPENDABOT_AUTOMERGE == 'true' &&
-      startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
+      github.actor == 'dependabot[bot]' &&
+      (startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/'))
     runs-on: ubuntu-latest
 
     permissions:
@@ -107,17 +61,12 @@ jobs:
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
 
-      - name: "Check Repo Owner"
-        uses: actions/github-script@v9.0.0
-        with:
-          script: |
-            core.info(`Owner: ${context.repo.owner}`);
-
       - name: "Checkout Source"
         uses: actions/checkout@v6.0.2
         with:
           clean: true
           fetch-depth: 1
+          ref: ${{github.event.pull_request.base.sha}}
 
       - name: "Auto Merge"
         uses: ./.github/actions/enable-automerge
@@ -125,11 +74,12 @@ jobs:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           merge-method: "MERGE"
 
-  auto-approve-dependabot-gitub-actions:
+  auto-approve-dependabot:
     needs: [requirements]
     if: |-
       vars.DEPENDABOT_AUTOMERGE == 'true' &&
-      startsWith(github.head_ref, 'dependabot/github_actions/')
+      github.actor == 'dependabot[bot]' &&
+      (startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/'))
     runs-on: ubuntu-latest
 
     permissions:
@@ -151,60 +101,12 @@ jobs:
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
 
-      - name: "Check Repo Owner"
-        uses: actions/github-script@v9.0.0
-        with:
-          script: |
-            core.info(`Owner: ${context.repo.owner}`);
-
       - name: "Checkout Source"
         uses: actions/checkout@v6.0.2
         with:
           clean: true
           fetch-depth: 1
-
-      - name: "Approve"
-        uses: ./.github/actions/approve-pr
-        with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-
-  auto-approve-dependabot-npm:
-    needs: [requirements]
-    if: |-
-      vars.DEPENDABOT_AUTOMERGE == 'true' &&
-      startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      pull-requests: write
-
-    steps:
-      - name: "Initialise Workspace"
-        if: runner.environment == 'self-hosted'
-        shell: bash
-        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-
-      - name: "Set Active Environment"
-        shell: bash
-        run: |
-          {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-            echo "ACTIVE_HOSTNAME=$HOSTNAME"
-            echo "ACTIVE_USER=$USER"
-          } >> "$GITHUB_ENV"
-
-      - name: "Check Repo Owner"
-        uses: actions/github-script@v9.0.0
-        with:
-          script: |
-            core.info(`Owner: ${context.repo.owner}`);
-
-      - name: "Checkout Source"
-        uses: actions/checkout@v6.0.2
-        with:
-          clean: true
-          fetch-depth: 1
+          ref: ${{github.event.pull_request.base.sha}}
 
       - name: "Approve"
         uses: ./.github/actions/approve-pr
