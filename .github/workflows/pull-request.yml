@@ -24,32 +24,6 @@ env:
   REPO_OWNER: ${{github.repository_owner}}
 
 jobs:
-  info:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Initialise Workspace"
-        if: runner.environment == 'self-hosted'
-        shell: bash
-        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-
-      - name: "Set Active Environment"
-        shell: bash
-        run: |
-          {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-            echo "ACTIVE_HOSTNAME=$HOSTNAME"
-            echo "ACTIVE_USER=$USER"
-          } >> "$GITHUB_ENV"
-
-      - name: "Info"
-        uses: actions/github-script@v9.0.0
-        with:
-          script: |
-            core.info(`Branch: ${process.env.HEAD_REF}`);
-            core.info(`Base Branch: ${process.env.BASE_REF}`);
-            core.info(`Repo: ${process.env.REPO}`);
-            core.info(`Owner: ${process.env.REPO_OWNER}`);
-
   pull-request:
     runs-on: ubuntu-latest
 
@@ -79,8 +53,8 @@ jobs:
           fetch-depth: 1
 
       - name: "Find PR For branch"
-        uses: ./.github/actions/find-pull-request
         id: findPr
+        uses: ./.github/actions/find-pull-request
         with:
           branch: ${{github.ref_name}}
 
@@ -95,22 +69,22 @@ jobs:
             core.info(`URL: https://github.com/${process.env.REPO}/pull/${process.env.PR_NUMBER}`);
 
       - name: "Read PR Template"
-        if: steps.findPr.outputs.number == ''
         id: pr-template
+        if: steps.findPr.outputs.number == ''
         uses: ./.github/actions/read-file
         with:
           path: ./.github/PULL_REQUEST_TEMPLATE.md
 
       - name: "Get last commit info"
-        if: steps.findPr.outputs.number == ''
         id: commit-info
+        if: steps.findPr.outputs.number == ''
         shell: bash
         run: |
           title="$(git log -1 --pretty=%s)"
           echo "commit-title=$title" >> "$GITHUB_OUTPUT"
 
       - name: "Check Required Secrets"
-        if: env.REPO_STATUS == '' && steps.findPr.outputs.number == ''
+        if: steps.findPr.outputs.number == ''
         shell: bash
         run: |
           if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
@@ -172,15 +146,6 @@ jobs:
             core.info(`URL: ${process.env.PR_URL}`);
             core.info(`PR: ${process.env.PR_NUMBER}`);
             core.info(`CF: ${process.env.HAS_CHANGED_FILES}`);
-
-      - name: "Check Required Secrets"
-        if: steps.findPr.outputs.number == ''
-        shell: bash
-        run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
-            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
-            exit 1
-          fi
 
       - name: "Sync Labels"
         if: steps.findPr.outputs.number == ''
