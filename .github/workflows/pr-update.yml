@@ -100,10 +100,10 @@ jobs:
   assign-to-creator:
     needs: [requirements]
     if: |-
-      ${{!github.event.pull_request.assignee.login
+      !github.event.pull_request.assignee.login
       && github.event_name == 'pull_request'
       && ( github.event.action == 'opened' || github.event.action == 'reopened')
-      && github.actor != 'dependabot[bot]'}}
+      && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
