@@ -63,6 +63,12 @@ When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a 
 - Continue in the same branch until the task changes.
 - Before continuing work on an existing branch, check if `origin/main` has advanced — if so, rebase first.
 
+## Pushing Branches
+
+- **Always push a new branch with `-u`** to set up tracking: `git -C <repodir> push -u origin <branch>`.
+- Subsequent pushes on a tracked branch can use `git -C <repodir> push`.
+- **Never push without `-u` on the first push** — without it the branch has no upstream and later `git push` and `git pull` commands will fail.
+
 ## Branch Naming
 
 Format: `<type>/<name>` (mirroring Conventional Commits types):
