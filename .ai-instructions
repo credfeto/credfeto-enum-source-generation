@@ -4,23 +4,23 @@ Create AI instructions in markdown files in the [Local AI Memory](ai/local) fold
 
 Before performing any work, read this file and the [Global AI Memory Index](ai/global/index.md) and [Local AI Memory Index](ai/local/index.md). Load instruction files according to the rules in those indexes — do **not** load every file unconditionally. If there are any inconsistencies between local memory and this file, stop and ask for clarification.
 
-* [Global](ai/global/index.md) is the master list of all global instructions that should be maintained in the git@github.com:credfeto/cs-template.git repo.
-* [Local](ai/local/index.md) is the master list of all local instructions that should be maintained in repo other than the git@github.com:credfeto/cs-template.git repo.
+* [Global](ai/global/index.md) is the master list of all global instructions that should be maintained in the [git@github.com:credfeto/cs-template.git](https://github.com/credfeto/cs-template) repo.
+* [Local](ai/local/index.md) is the master list of all local instructions that should be maintained in repo other than the [git@github.com:credfeto/cs-template.git](https://github.com/credfeto/cs-template) repo.
 
 Precedence is given to local instructions over global instructions.
 
 ## Environment Safety (MANDATORY)
 
-- Never take any action that could damage, destabilise, or corrupt the working environment — including uninstalling packages, modifying system config, or changing global tool versions.
+* Never take any action that could damage, destabilise, or corrupt the working environment — including uninstalling packages, modifying system config, or changing global tool versions.
 
 ## Management Rules
 
-- Whenever an instruction to remember to do something is given, update the appropriate memory file and this index.
-- Whenever adding a new rule, read every existing instruction file and the index and check for consistency — update anything that conflicts with, duplicates, or is made stale by the new rule. Take that as an opportunity to re-organise how rules are categorised: split files that have grown too broad, merge files that cover the same topic, and rename files whose category label no longer fits. Apply this in whichever of `ai/global` or `ai/local` is relevant to the current work.
-- Whenever these files change, re-evaluate memory against it.
-- If there is a massive difference between memory and these files, stop and ask for clarification.
-- If a memory file's description diverges from the source code, update it to reflect the changes.
-- Whenever rebasing from main, take the the current branch's changes, but merge the changes in from main into the current fileset.
-- Whenever starting work - re-read all these files and use this as a basis for how the work is performed.
-- If work requires a missing CLI tool, **stop and ask the user to install it** — do not attempt to find, locate, or install it automatically. Do not spend time searching for alternative paths or making random installs.
-- This file (.ai-instructions) should only be edited in git@github.com:credfeto/cs-template.git.
+* Whenever an instruction to remember to do something is given, update the appropriate memory file and this index.
+* Whenever adding a new rule, read every existing instruction file and the index and check for consistency — update anything that conflicts with, duplicates, or is made stale by the new rule. Take that as an opportunity to re-organise how rules are categorised: split files that have grown too broad, merge files that cover the same topic, and rename files whose category label no longer fits. Apply this in whichever of `ai/global` or `ai/local` is relevant to the current work.
+* Whenever these files change, re-evaluate memory against it.
+* If there is a massive difference between memory and these files, stop and ask for clarification.
+* If a memory file's description diverges from the source code, update it to reflect the changes.
+* Whenever rebasing from main, take the current branch's changes, but merge the changes in from main into the current fileset.
+* Whenever starting work - re-read all these files and use this as a basis for how the work is performed.
+* If work requires a missing CLI tool, **stop and ask the user to install it** — do not attempt to find, locate, or install it automatically. Do not spend time searching for alternative paths or making random installs.
+* This file (.ai-instructions) should only be edited in [git@github.com:credfeto/cs-template.git](https://github.com/credfeto/cs-template).
