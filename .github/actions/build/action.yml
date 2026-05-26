@@ -347,7 +347,6 @@ runs:
         SLEET_CONFIG: ${{inputs.SLEET_CONFIG}}
         SLEET_FEED: ${{inputs.SLEET_FEED}}
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
-        REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
         PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}
         DOTNET_DOCKER_PLATFORM: ${{inputs.DOTNET_DOCKER_PLATFORM}}
 
@@ -359,8 +358,6 @@ runs:
       uses: ./.github/actions/npm
       with:
         BUILD_VERSION: ${{env.BUILD_VERSION}}
-        REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
-        NPM_PRODUCTION_PACKAGER_VERSION: ${{inputs.NPM_PRODUCTION_PACKAGER_VERSION}}
         NPM_CONTENT_PACKAGE_WALLET_PASSWORD: ${{inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD}}
         NPM_PACKAGE_STORE_SIGNING_WALLET: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
         NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
@@ -433,10 +430,13 @@ runs:
         steps.check_files.outputs.SQL_EXIST == 'true' &&
         inputs.CLOUD_FORMATION_DEPLOY == 'true' &&
         inputs.DOCKER_APP_NAME != '' &&
+        inputs.SQL_SERVER != '' &&
+        inputs.SQL_DB != '' &&
+        inputs.SQL_USER != '' &&
+        inputs.SQL_PASSWORD != '' &&
         env.DEPLOY == 'true'
       uses: ./.github/actions/database-deploy
       with:
-        BUILD_VERSION: ${{env.BUILD_VERSION}}
         SQL_SERVER: "${{inputs.SQL_SERVER}}"
         SQL_DB: "${{inputs.SQL_DB}}"
         SQL_USER: "${{inputs.SQL_USER}}"
@@ -505,7 +505,6 @@ runs:
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
       uses: ./.github/actions/sbom
       with:
-        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
         REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
 
     ############################################################################################################
@@ -514,5 +513,4 @@ runs:
     - name: "Upload SARIF file for diagnostics"
       uses: ./.github/actions/sarif
       with:
-        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
         REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
