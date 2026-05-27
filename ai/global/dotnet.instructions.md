@@ -17,6 +17,73 @@
 
 Run `dotnet build` and `dotnet test` before every commit — see [git.instructions.md](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push).
 
+## Code Coverage (MANDATORY)
+
+Testing uses **Microsoft.Testing.Platform** (not VSTest). To collect coverage, run **one unit test project at a time** — this gives a clear picture of how well each assembly is covered by its own tests.
+
+**Two working invocation patterns** (the `cd` step is required for both):
+
+Project form — target one test project directly:
+
+```bash
+cd {solution-src-dir}
+dotnet test {AssemblyName}.Tests/{AssemblyName}.Tests.csproj \
+  -c Release \
+  -p:SolutionDir={solution-src-dir}/ \
+  -- --coverage --coverage-output-format cobertura \
+     --coverage-output {repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml
+```
+
+Critical rules:
+
+- **`cd` to the solution `src/` directory first** and use a **relative** project path — absolute paths trigger the legacy VSTest bridge, which MTP 2.0+ rejects on .NET 10 SDK.
+- **`--` separator is required** — coverage flags must be passed to the test host, not the `dotnet test` CLI. Passing `--coverage` before `--` conflicts with xunit's argument parsing.
+- **`-c Release`** — always run coverage in Release mode.
+- **`-p:SolutionDir=`** — must be an absolute path ending with `/` so `UnitTests.props` is found via `$(SolutionDir)`.
+- **`--coverage-output`** — use an absolute path pointing into the repo's `/coverage/` directory (gitignored). Name the file `{AssemblyName}.coverage.cobertura.xml`.
+
+**Only run unit test projects (`<AssemblyName>.Tests`) for coverage.** Exclude:
+
+- `<AssemblyName>.Integration.Tests` — integration tests inflate coverage numbers and test external dependencies, not isolated units.
+- `<AssemblyName>.Benchmark.Tests` — benchmarks are not functionality tests and must never be included in coverage runs.
+
+`UnitTests.props` **must** contain the coverage extension package. If it is missing, stop and demand it is added:
+
+```xml
+<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="*" />
+```
+
+Do not install `coverlet.collector`, `coverlet.msbuild`, or any VSTest data collector — they do not work with Microsoft.Testing.Platform. Do not switch to `dotnet-coverage` or any wrapper tool. If coverage is still not collected, verify that `UnitTests.props` is imported by the test project and that `Microsoft.Testing.Extensions.CodeCoverage` is present.
+
+## Coverage Reporting with reportgenerator
+
+After collecting `.cobertura.xml` files, generate reports using `dotnet reportgenerator`.
+
+**Always generate one report per assembly** — pass only that assembly's `.cobertura.xml` as input:
+
+```bash
+dotnet reportgenerator \
+  -reports:{repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml \
+  -targetdir:{repo-root}/coverage/{AssemblyName} \
+  -reporttypes:Html
+```
+
+**Do not pass multiple assemblies' `.cobertura.xml` files into a single `reportgenerator` run.** If assembly A references types from assembly B, running them together causes B's components to appear in A's coverage report, which falsely lowers A's measured coverage.
+
+When a combined view is needed (e.g. for a summary dashboard), run each assembly individually first, then produce one additional combined report as a separate step:
+
+```bash
+dotnet reportgenerator \
+  -reports:"{repo-root}/coverage/*.coverage.cobertura.xml" \
+  -targetdir:{repo-root}/coverage/combined \
+  -reporttypes:Html
+```
+
+The per-assembly reports remain the authoritative measure of test quality for each project.
+
+### Specifics Coverage rules (MANDATGORY)
+* If a source generator is used then its because we _WANT_ the source generated version. Don't turn it off to get 100% code coverage
+
 ## Source-Generated Logging
 
 - Prefer `LoggerMessage` source generators over runtime string-based logging — faster, allocation-free, and compile-time structured.
