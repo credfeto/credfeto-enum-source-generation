@@ -33,6 +33,8 @@ bld/
 
 # Tests
 .runsettings
+*.runsettings
+coverage.settings.xml
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
