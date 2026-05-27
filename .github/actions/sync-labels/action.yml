@@ -14,7 +14,7 @@ runs:
   using: composite
   steps:
     - name: "Sync Labels"
-      uses: actions/labeler@v6.0.1
+      uses: actions/labeler@v6.1.0
       with:
         repo-token: ${{inputs.github-token}}
         configuration-path: .github/labeler.yml
