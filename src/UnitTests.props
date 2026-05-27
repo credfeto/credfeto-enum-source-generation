@@ -25,4 +25,30 @@
         <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="*" />
     </ItemGroup>
 
+    <!-- Generate a settings file that restricts coverage to the sister assembly, passed via coverage-settings flag -->
+    <PropertyGroup>
+        <_CoverageSisterAssembly>$(MSBuildProjectName.Replace('.Tests', ''))</_CoverageSisterAssembly>
+        <_CoverageSettingsFile>$(MSBuildProjectDirectory)/coverage.settings.xml</_CoverageSettingsFile>
+        <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --coverage-settings "$(_CoverageSettingsFile)"</TestingPlatformCommandLineArguments>
+    </PropertyGroup>
+
+    <Target Name="GenerateCoverageSettings" BeforeTargets="Build">
+        <ItemGroup>
+            <!-- %3F = ?, %2A = * : percent-encode glob chars so MSBuild does not expand these items as filesystem globs -->
+            <_CoverageSettingsLines Include="&lt;Configuration&gt;" />
+            <_CoverageSettingsLines Include="  &lt;CodeCoverage&gt;" />
+            <_CoverageSettingsLines Include="    &lt;ModulePaths&gt;" />
+            <_CoverageSettingsLines Include="      &lt;Include&gt;" />
+            <_CoverageSettingsLines Include="        &lt;ModulePath&gt;.%2A$(_CoverageSisterAssembly).dll&lt;/ModulePath&gt;" />
+            <_CoverageSettingsLines Include="      &lt;/Include&gt;" />
+            <_CoverageSettingsLines Include="    &lt;/ModulePaths&gt;" />
+            <_CoverageSettingsLines Include="  &lt;/CodeCoverage&gt;" />
+            <_CoverageSettingsLines Include="&lt;/Configuration&gt;" />
+        </ItemGroup>
+        <WriteLinesToFile
+            File="$(_CoverageSettingsFile)"
+            Lines="@(_CoverageSettingsLines)"
+            Overwrite="true" />
+    </Target>
+
 </Project>
