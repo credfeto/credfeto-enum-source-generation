@@ -20,4 +20,9 @@
         <PackageReference Include="GitHubActionsTestLogger" Version="*" />
     </ItemGroup>
 
+    <!-- Enable Code Coverage for unit tests -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="*" />
+    </ItemGroup>
+
 </Project>
