@@ -387,8 +387,7 @@ runs:
         steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
         steps.check_files.outputs.SLN_EXIST == 'true' &&
         steps.check_files.outputs.DOCKERFILE_EXIST == 'true' &&
-        inputs.DOCKER_APP_NAME != '' &&
-        env.DEPLOY == 'true'
+        inputs.DOCKER_APP_NAME != ''
       shell: bash
       run: cp "${{github.workspace}}/Dockerfile" "${{github.workspace}}/server-dist/${{inputs.DOTNET_DOCKER_PLATFORM}}"
 
@@ -397,8 +396,7 @@ runs:
         steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
         steps.check_files.outputs.SLN_EXIST == 'true' &&
         steps.check_files.outputs.HEALTHCHECK_EXIST == 'true' &&
-        inputs.DOCKER_APP_NAME != '' &&
-        env.DEPLOY == 'true'
+        inputs.DOCKER_APP_NAME != ''
       shell: bash
       run: cp "${{github.workspace}}/healthcheck" "${{github.workspace}}/server-dist/${{inputs.DOTNET_DOCKER_PLATFORM}}"
 
@@ -407,10 +405,8 @@ runs:
         steps.check_files.outputs.CSPROJ_EXIST == 'true' &&
         steps.check_files.outputs.SLN_EXIST == 'true' &&
         steps.check_files.outputs.DOCKERFILE_EXIST == 'true' &&
-        inputs.DOCKER_CONTAINER_REGISTRY != '' &&
         inputs.DOCKER_APP_OWNER != '' &&
-        inputs.DOCKER_APP_NAME != '' &&
-        env.DEPLOY == 'true'
+        inputs.DOCKER_APP_NAME != ''
       uses: ./.github/actions/docker-build-to-registry
       with:
         DEPLOY: ${{env.DEPLOY}}
