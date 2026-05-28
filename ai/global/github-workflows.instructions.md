@@ -75,6 +75,23 @@ Whenever you add or modify a `uses:` reference, check all actions in that file a
 2. If behind, update in the same commit.
 3. Never leave a file with a mix of updated and stale versions after touching it.
 
+## Handling Node.js Deprecation Warnings
+
+When reviewing a PR run and you see a message similar to:
+
+> Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: `<action>@<version>`. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026.
+
+Take the following steps:
+
+1. **Identify the action** named in the warning (e.g. `azure/sql-action@v2.3`).
+2. **Locate the workflow file** that references it — it could live in `funfair-tech/funfair-server-template`, `credfeto/cs-template`, or the current repo. Search `.github/workflows/` in each.
+3. **Find the minimum compliant version**: enumerate candidate releases with `gh api --paginate repos/<owner>/<action>/releases --jq '.[].tag_name'` (or browse the action's releases), then inspect tagged `action.yml`/`action.yaml` `runs.using` values to confirm the earliest release that ships a Node.js 24 runtime.
+4. **Raise an issue in the repo that owns the workflow file**, with:
+   - **Title**: `chore: update <action> to a Node.js 24 compatible version`
+   - **Labels**: `AI-Work`, `dependencies`, `github-actions`, `High`
+   - **Body**: include the current version, the minimum compliant version (if one exists), a link to the upstream release, and the deprecation deadline.
+5. Do **not** silently ignore the warning or defer it — raise the issue even if no compliant version is available yet (note that in the issue body).
+
 ## Bash Steps vs github-script
 
 **Default to `actions/github-script`** for any step doing more than a single command.
