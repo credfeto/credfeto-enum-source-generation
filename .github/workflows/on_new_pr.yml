@@ -1,3 +1,4 @@
+--- # Pull Request
 name: Pull Request
 on:
   # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
@@ -6,11 +7,11 @@ on:
   # https://github.com/ahmadnassri/action-dependabot-auto-merge/issues/60
   pull_request_target:
     types:
-    - opened
-    - edited
-    - reopened
-    - synchronize
-    - ready_for_review
+      - opened
+      - edited
+      - reopened
+      - synchronize
+      - ready_for_review
 
 permissions:
   contents: read
@@ -26,10 +27,11 @@ jobs:
     # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
     if: contains(github.event.pull_request.labels.*.name, 'dependencies')
     steps:
-    - uses: alexwilson/enable-github-automerge-action@2.0.0
-      with:
-        github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-        merge-method: "MERGE"
+      - name: "Auto Merge"
+        uses: ./.github/actions/enable-automerge
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          merge-method: "MERGE"
 
   auto_approve_dependabot:
     runs-on: ubuntu-latest
@@ -40,6 +42,7 @@ jobs:
 
     if: contains(github.event.pull_request.labels.*.name, 'dependencies')
     steps:
-    - uses: hmarr/auto-approve-action@v4
-      with:
-        github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+      - name: "Auto Approve"
+        uses: ./.github/actions/approve-pr
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
