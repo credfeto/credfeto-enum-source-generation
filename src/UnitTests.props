@@ -13,6 +13,7 @@
     <!-- Hide any test results -->
     <ItemGroup>
         <None Remove="TestResults\**\*" />
+        <None Remove="coverage.settings.xml" />
     </ItemGroup>
 
     <!-- if building in github reference the github actions test logger -->
