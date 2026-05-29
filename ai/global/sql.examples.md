@@ -1,6 +1,6 @@
 # SQL Examples
 
-[Back to Global Instructions Index](index.md)
+[Back to SQL Instructions](sql.instructions.md) | [Back to Global Instructions Index](index.md)
 
 Reference examples for [sql.instructions.md](sql.instructions.md). Load when writing or debugging SQL, database connection scripts, or stored procedures.
 
