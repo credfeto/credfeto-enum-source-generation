@@ -1,7 +1,5 @@
 # Logging Instructions
 
-> Load when: writing code that produces log output.
-
 [Back to Global Instructions Index](index.md)
 
 ## Rules
