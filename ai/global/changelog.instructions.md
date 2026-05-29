@@ -6,7 +6,7 @@ Load this file when adding changelog entries or acting as the Changelog agent.
 
 ## Rules
 
-- Use `Credfeto.Changelog.Cmd` — never edit `CHANGELOG.md` manually.
+- Use `Credfeto.Changelog.Cmd` — never edit `CHANGELOG.md` manually. `Credfeto.Changelog.Cmd` is the dotnet tool package that provides the `dotnet changelog` command; no separate install step is required if the repo's dotnet tool manifest already includes it.
 - `CHANGELOG.md` must be listed in `.markdownlintignore` at the repo root (create the file if absent).
 - Entries must describe what changed and why it matters — not how it was implemented.
 
