@@ -1,6 +1,6 @@
 # Firewall Script Examples
 
-[Back to Global Instructions Index](index.md)
+[Back to Shell Firewall Instructions](shell.firewall.instructions.md) | [Back to Global Instructions Index](index.md)
 
 Reference implementations for the firewall helpers described in [shell.firewall.instructions.md](shell.firewall.instructions.md). Load this file when actively writing or modifying firewall scripts.
 
