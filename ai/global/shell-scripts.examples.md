@@ -1,6 +1,6 @@
 # Shell Script Examples
 
-[Back to Global Instructions Index](index.md)
+[Back to Shell Script Instructions](shell-scripts.instructions.md) | [Back to Global Instructions Index](index.md)
 
 Reference implementations for the helper functions described in [shell-scripts.instructions.md](shell-scripts.instructions.md). Load this file when actively writing or modifying shell scripts.
 
