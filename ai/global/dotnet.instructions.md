@@ -81,8 +81,9 @@ dotnet reportgenerator \
 
 The per-assembly reports remain the authoritative measure of test quality for each project.
 
-### Specifics Coverage rules (MANDATGORY)
-* If a source generator is used then its because we _WANT_ the source generated version. Don't turn it off to get 100% code coverage
+### Specific Coverage Rules (MANDATORY)
+
+- If a source generator is used then it is because we _WANT_ the source generated version. Don't turn it off to get 100% code coverage.
 
 ## Source-Generated Logging
 
