@@ -46,13 +46,22 @@ When creating or updating a PR linked to one or more issues:
 
 Repeat after every push or PR update.
 
+## Missing CLI Tools (MANDATORY)
+
+If a required CLI tool is not found, **stop immediately and ask the user to install it**. Never:
+
+- Search for the binary in alternative locations
+- Manipulate PATH to try to find it
+- Attempt to install it without being asked
+
 ## Rules Compliance for In-Flight Work
 
 Whenever an instruction file is added or updated, re-evaluate all open branches and PRs against the new rules. Fix any non-compliance before continuing — treat it the same as a CI failure.
 
 ## Instruction File Source Routing
 
-- If the file originates from `funfair/funfair-server-template` or `credfeto/cs-template`, raise an issue there first.
+- For changes to shared global instruction files (`ai/global/**`), raise an issue in `credfeto/cs-template` — it is the canonical source for those files.
+- For changes specific to FunFair server projects, raise an issue in `funfair-tech/funfair-server-template` instead.
 - Otherwise, make the change directly in the current repository.
 
 ## Large Multi-Handler / Multi-App Tasks
