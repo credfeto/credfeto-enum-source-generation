@@ -1,7 +1,5 @@
 # Documentation Instructions
 
-> Load when: writing code, documentation, comments, or commit messages.
-
 [Back to Global Instructions Index](index.md)
 
 ## README
