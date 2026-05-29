@@ -50,7 +50,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 
 ### Code Reviewer: **Reuse**
 
-- Identify opportunities to reuse existing code instead of writing new code. Focus only on newly changed code.
+- Identify opportunities to reuse existing code instead of writing new code. Scope: newly changed code for Code Reviewer; full file set when dispatched by Repo Auditor.
 
 #### Reuse — Critical Instructions
 
@@ -67,7 +67,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 
 ### Code Reviewer: **Quality**
 
-- Identify code quality issues in newly changed code.
+- Identify code quality issues. Scope: newly changed code for Code Reviewer; full file set when dispatched by Repo Auditor.
 
 #### Quality — Critical Instructions
 
@@ -84,7 +84,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 
 ### Code Reviewer: **Efficiency**
 
-- Identify inefficiencies in newly changed code.
+- Identify inefficiencies. Scope: newly changed code for Code Reviewer; full file set when dispatched by Repo Auditor.
 
 #### Efficiency — Critical Instructions
 
@@ -101,7 +101,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 
 ### Code Reviewer: **Correctness**
 
-- Identify logic errors in newly changed code.
+- Identify logic errors. Scope: newly changed code for Code Reviewer; full file set when dispatched by Repo Auditor.
 
 #### Correctness — Critical Instructions
 
@@ -115,11 +115,10 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Conditionals: incorrect boolean logic, missing negation, wrong operator.
 - Edge cases: null/empty input, zero values, empty collections, missing default cases.
 - Business logic: code that does not match the intent described in the issue or PR.
-- Rule Breaking: there should not be any files that change the linting rules or building rules that weaken the repo.
 
 ### Code Reviewer: **Security**
 
-- Perform a security-focused code review to identify HIGH-CONFIDENCE security vulnerabilities that could have real exploitation potential. Focus only on security implications newly added by the PR.
+- Perform a security-focused review to identify HIGH-CONFIDENCE security vulnerabilities with real exploitation potential. Scope: security implications newly added by the PR for Code Reviewer; full file set when dispatched by Repo Auditor.
 
 #### Security — Critical Instructions
 
@@ -136,7 +135,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 
 ### Code Reviewer: **Compliance**
 
-- Check that newly changed files comply with all applicable rules in the `.ai-instructions` instruction files.
+- Check that files comply with all applicable rules in the `.ai-instructions` instruction files. Scope: newly changed files for Code Reviewer; full file set when dispatched by Repo Auditor.
 
 #### Compliance — Critical Instructions
 
@@ -149,6 +148,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Global rules: violations of rules in `ai/global/*.instructions.md` applicable to the changed file types.
 - Local rules: violations of rules in `ai/local/*.instructions.md` applicable to the changed file types — do not re-report violations already covered by global rules.
 - Rule hygiene: local rules in `ai/local/*.instructions.md` that duplicate or restate rules already present in `ai/global/*.instructions.md` — flag these for removal.
+- Rule Breaking: files that change linting rules or build rules in a way that weakens the repo's quality gates.
 - Language/framework rules: e.g. dotnet, shell, SQL instruction compliance where those files are present.
 - Documentation rules: README, CHANGELOG, and comment conventions from `documentation.instructions.md`.
 
@@ -212,7 +212,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Wait up to 1 minute for GitHub to auto-create a PR (`gh pr list --head <branch>`); create one if absent.
 - Title: Conventional Commits format matching the primary commit. Body: summary + `Closes #<n>` (or `Related to #<n>`).
 - Update body if PR already exists. Add yourself as assignee.
-- Mark ready (`gh pr ready <number>`) only if Code Tester and Code Reviewer signed off — rebase first (`git fetch origin && git rebase origin/main`). Otherwise leave as draft.
+- Mark ready (`gh pr ready <number>`) only if Code Tester and Code Reviewer signed off — do not rebase here (hand off to Rebase Agent first if the branch needs rebasing). Otherwise leave as draft.
 
 ## CI Monitor _(not currently enabled)_
 
