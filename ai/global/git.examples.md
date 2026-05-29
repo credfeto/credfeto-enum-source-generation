@@ -9,9 +9,11 @@ Run before any commit to verify identity and GPG signing:
 ```bash
 #!/bin/sh
 # Checks that git is configured with a valid identity and GPG signing.
+# The die() and info() helpers below mirror the canonical implementations in
+# shell-scripts.examples.md — keep them in sync if either changes.
 
 die() {
-    printf '\n\033[31m✗\033[0m %s\n' "$*"
+    printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
     exit 1
 }
 
