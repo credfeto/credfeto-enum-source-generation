@@ -1,7 +1,5 @@
 # Package Management Instructions
 
-> Load when: adding, updating, or reviewing package/library dependencies.
-
 [Back to Global Instructions Index](index.md)
 
 - Use only secure package versions — see [security.instructions.md](security.instructions.md#dependency-vulnerability-scanning).
