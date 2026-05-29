@@ -22,5 +22,5 @@ Precedence is given to local instructions over global instructions.
 * If a memory file's description diverges from the source code, update it to reflect the changes.
 * Whenever rebasing from main, take the current branch's changes, but merge the changes in from main into the current fileset.
 * Whenever starting work - re-read all these files and use this as a basis for how the work is performed.
-* If work requires a missing CLI tool, **stop and ask the user to install it** — do not attempt to find, locate, or install it automatically. Do not spend time searching for alternative paths or making random installs.
+* If work requires a missing CLI tool, see the **Missing CLI Tools** section in `ai/global/task-workflow.instructions.md`.
 * This file (.ai-instructions) should only be edited in [git@github.com:credfeto/cs-template.git](https://github.com/credfeto/cs-template).
