@@ -21,7 +21,7 @@ runs:
         script: |
           const mergeMethod = process.env.MERGE_METHOD;
           const nodeId = context.payload.pull_request.node_id;
-          await octokit.graphql(`
+          await github.graphql(`
             mutation EnableAutoMerge($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
               enablePullRequestAutoMerge(input: {
                 pullRequestId: $pullRequestId,
