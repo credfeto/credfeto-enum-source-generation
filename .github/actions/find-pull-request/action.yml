@@ -26,7 +26,7 @@ runs:
       with:
         script: |
           const branch = process.env.BRANCH;
-          const { data: pulls } = await octokit.rest.pulls.list({
+          const { data: pulls } = await github.rest.pulls.list({
             owner: context.repo.owner,
             repo: context.repo.repo,
             state: 'open',
