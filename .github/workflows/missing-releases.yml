@@ -49,7 +49,7 @@ jobs:
         with:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           script: |
-            const { data: releaseBranches } = await octokit.rest.git.listMatchingRefs({
+            const { data: releaseBranches } = await github.rest.git.listMatchingRefs({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: 'heads/release/',
@@ -57,28 +57,33 @@ jobs:
             const existingReleases = new Set(
               releaseBranches.map(b => b.ref.replace('refs/heads/release/', ''))
             );
-            const commits = await octokit.paginate(octokit.rest.repos.listCommits, {
+            const REGEX_CHANGELOG = /Changelog\sfor\s(\d+\.\d+\.\d+)$/;
+            for await (const { data: commits } of github.paginate.iterator(github.rest.repos.listCommits, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               sha: 'main',
-            });
-            const REGEX_CHANGELOG = /Changelog\sfor\s(\d+\.\d+\.\d+)$/;
-            for (const commit of commits) {
-              const subject = commit.commit.message.split('\n')[0];
-              const match = subject.match(REGEX_CHANGELOG);
-              if (!match) continue;
-              const version = match[1];
-              if (existingReleases.has(version)) {
-                core.info(`* Found Release ${version} at ${commit.sha}`);
-                continue;
+              per_page: 100,
+            })) {
+              let foundExisting = false;
+              for (const commit of commits) {
+                const subject = commit.commit.message.split('\n')[0];
+                const match = subject.match(REGEX_CHANGELOG);
+                if (!match) continue;
+                const version = match[1];
+                if (existingReleases.has(version)) {
+                  core.info(`* Found Release ${version} at ${commit.sha}`);
+                  foundExisting = true;
+                  continue;
+                }
+                core.info(`- Missing Release ${version} at ${commit.sha} - creating branch`);
+                await github.rest.git.createRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `refs/heads/release/${version}`,
+                  sha: commit.sha,
+                });
+                existingReleases.add(version);
+                core.info(`+++ Created branch release/${version}`);
               }
-              core.info(`- Missing Release ${version} at ${commit.sha} - creating branch`);
-              await octokit.rest.git.createRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `refs/heads/release/${version}`,
-                sha: commit.sha,
-              });
-              existingReleases.add(version);
-              core.info(`+++ Created branch release/${version}`);
+              if (foundExisting) break;
             }
