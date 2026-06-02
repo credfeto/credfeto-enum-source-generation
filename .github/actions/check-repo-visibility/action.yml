@@ -21,7 +21,7 @@ runs:
       with:
         github-token: ${{inputs.github-token}}
         script: |
-          const { data: repo } = await octokit.rest.repos.get({
+          const { data: repo } = await github.rest.repos.get({
             owner: context.repo.owner,
             repo: context.repo.repo,
           });
