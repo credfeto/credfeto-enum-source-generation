@@ -15,7 +15,7 @@ runs:
       with:
         github-token: ${{inputs.github-token}}
         script: |
-          await octokit.rest.pulls.createReview({
+          await github.rest.pulls.createReview({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: context.payload.pull_request.number,
