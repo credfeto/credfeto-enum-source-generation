@@ -9,6 +9,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 - Unit test project for Credfeto.Enumeration.Source.Generation.Attributes to achieve 100% code coverage
+- Unit test project for Credfeto.Enumeration.Source.Generation.Generics with 100% line, branch, and method coverage
 ### Fixed
 ### Changed
 - Dependencies - Updated Meziantou.Analyzer to 3.0.98
