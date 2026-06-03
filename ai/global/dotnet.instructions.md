@@ -104,7 +104,7 @@ The per-assembly reports remain the authoritative measure of test quality for ea
 
 ### Specific Coverage Rules (MANDATORY)
 
-- If a source generator is used then it is because we _WANT_ the source generated version. Don't turn it off to get 100% code coverage.
+- If a source generator is used then it is because we **WANT** the source generated version. Don't turn it off to get 100% code coverage.
 
 ## Source-Generated Logging
 
@@ -145,7 +145,25 @@ See [code-quality.instructions.md](code-quality.instructions.md) for general asy
 - All test projects must reference the latest release of `FunFair.Test.Common`.
 - All test projects must import the latest release of `FunFair.Test.Source.Generator`.
 - All test projects must include `<Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />`.
-- Test fixture classes must derive from `FunFair.Test.Common.TestBase`.
+- Test fixture classes must derive from `FunFair.Test.Common.TestBase` or one of its derivatives — see the table below for guidance.:
+
+| Test type | Base class |
+| --------- | ---------- |
+| General unit tests | `TestBase` |
+| Dependency injection registration tests | `DependencyInjectionTestsBase` |
+| Validator tests | `ComplexValidatorTestBase` |
+| Simple validator tests | `ValidatorTestBase` |
+| Comparable object type tests | `ComparableObjectTestBase` |
+| Comparable value type tests | `ComparableValueTestBase` |
+| Equatable object type tests | `EquatableObjectTestBase` |
+| Equatable value type tests | `EquatableValueTestBase` |
+| Integration tests | `IntegrationTestBase` |
+| General unit tests where we want logging | `LoggingTestBase` |
+| Value type JSON converters | `JsonConverterStructTestBase` |
+| Object type JSON converters | `JsonConverterTestBase` |
+| Unit tests where we want to write temp files to disk and have them cleaned up | `LoggingFolderCleanupTestBase` |
+| Tests on model binders | `ModelBinderTestsBase` |
+
 
 ## Benchmark Guidance
 
@@ -214,6 +232,18 @@ Use `AddMockedService<T>()` in tests deriving from `DependencyInjectionTestsBase
 - Never use `Credfeto.Date.ICurrentTimeSource` or `FunFair.Common.Services.IDateTimeSource` — these are obsolete.
 - In tests, use `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing` — never roll a custom mock.
 - Migrate any code touching `ICurrentTimeSource` or `IDateTimeSource` to `TimeProvider`/`FakeTimeProvider` as part of that work.
+
+### Test Date Values (MANDATORY)
+
+Never use hardcoded literal dates (e.g. `new DateTime(2024, 1, 1)`) in tests. Use the `MockDateTimeSources` helpers instead:
+
+| Scenario | Use |
+| -------- | --- |
+| A date in the past | `MockDateTimeSources.Past` |
+| A date in the future | `MockDateTimeSources.Future` |
+| A date that advances over time (use sparingly) | `MockDateTimeSources.AdvancingDateTimeUseWithCaution` |
+
+- `MockDateTimeSources.AdvancingDateTimeUseWithCaution` advances the clock as the test runs — only use it when the test genuinely requires elapsed time. Prefer `Past` or `Future` for all other cases.
 
 ## Warning Suppression and Errors
 
