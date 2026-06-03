@@ -30,11 +30,13 @@ A project is a test project **only** if its assembly name ends with one of these
 **Rules that must never be broken:**
 
 - **Never** use "contains 'Test'" in a project name as a heuristic — a project named `*.TestHarness`, `*.Tests.Mocks`, or `*.Tests.Common` is NOT a test project.
-- **Never** target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>`.
+- **Never** target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`.
 - **Do not** rely on `OutputType` or the project SDK as a discriminator — with Microsoft.Testing.Platform, legitimate test projects also use `OutputType=Exe`, and some test projects use `Microsoft.NET.Sdk.Web`.
-- **Always** verify by reading the csproj before deciding whether a project is a test project — the naming convention and `IsTestProject` are the only reliable signals.
+- **Always** verify `IsTestingPlatformApplication` in the csproj — this is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`. The naming convention and `IsTestingPlatformApplication` are the only reliable signals.
 
 Test support libraries (e.g. `*.Tests.Mocks`, `*.Tests.Common`) exist to be referenced by test projects. They are **not** test projects themselves and must never be targeted for test runs.
+
+Any non-test project that transitively references test packages (xunit, FunFair.Test.Common, etc.) **must** explicitly set `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>` — those packages set it to `true`, and `dotnet test` in .NET 10 uses this property to drive discovery.
 
 ## Code Coverage (MANDATORY)
 
