@@ -15,6 +15,7 @@
   <Project Path="Credfeto.Enumeration.Source.Generation.Attributes.Tests/Credfeto.Enumeration.Source.Generation.Attributes.Tests.csproj" />
   <Project Path="Credfeto.Enumeration.Source.Generation.Benchmark.Tests\Credfeto.Enumeration.Source.Generation.Benchmark.Tests.csproj" />
   <Project Path="Credfeto.Enumeration.Source.Generation.Generics/Credfeto.Enumeration.Source.Generation.Generics.csproj" />
+  <Project Path="Credfeto.Enumeration.Source.Generation.Generics.Tests/Credfeto.Enumeration.Source.Generation.Generics.Tests.csproj" />
   <Project Path="Credfeto.Enumeration.Source.Generation.Models.Tests/Credfeto.Enumeration.Source.Generation.Models.Tests.csproj" />
   <Project Path="Credfeto.Enumeration.Source.Generation.Models/Credfeto.Enumeration.Source.Generation.Models.csproj" />
   <Project Path="Credfeto.Enumeration.Source.Generation/Credfeto.Enumeration.Source.Generation.csproj" />
