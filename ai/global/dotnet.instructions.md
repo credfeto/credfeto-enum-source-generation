@@ -17,6 +17,25 @@
 
 Run `dotnet build` and `dotnet test` before every commit — see [git.instructions.md](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push).
 
+## Identifying Test Projects (MANDATORY)
+
+A project is a test project **only** if its assembly name ends with one of these suffixes:
+
+| Suffix | Type |
+| ------ | ---- |
+| `.Tests` | Unit tests |
+| `.Integration.Tests` | Integration tests |
+| `.Benchmark.Tests` | Benchmarks |
+
+**Rules that must never be broken:**
+
+- **Never** use "contains 'Test'" in a project name as a heuristic — a project named `*.TestHarness`, `*.Tests.Mocks`, or `*.Tests.Common` is NOT a test project.
+- **Never** target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>`.
+- **Do not** rely on `OutputType` or the project SDK as a discriminator — with Microsoft.Testing.Platform, legitimate test projects also use `OutputType=Exe`, and some test projects use `Microsoft.NET.Sdk.Web`.
+- **Always** verify by reading the csproj before deciding whether a project is a test project — the naming convention and `IsTestProject` are the only reliable signals.
+
+Test support libraries (e.g. `*.Tests.Mocks`, `*.Tests.Common`) exist to be referenced by test projects. They are **not** test projects themselves and must never be targeted for test runs.
+
 ## Code Coverage (MANDATORY)
 
 Testing uses **Microsoft.Testing.Platform** (not VSTest). To collect coverage, run **one unit test project at a time** — this gives a clear picture of how well each assembly is covered by its own tests.
@@ -42,7 +61,7 @@ Critical rules:
 - **`-p:SolutionDir=`** — must be an absolute path ending with `/` so `UnitTests.props` is found via `$(SolutionDir)`.
 - **`--coverage-output`** — use an absolute path pointing into the repo's `/coverage/` directory (gitignored). Name the file `{AssemblyName}.coverage.cobertura.xml`.
 
-**Only run unit test projects (`<AssemblyName>.Tests`) for coverage.** Exclude:
+**Only run unit test projects (`<AssemblyName>.Tests`) for coverage** — see [Identifying Test Projects](#identifying-test-projects-mandatory) for the authoritative definition. Exclude:
 
 - `<AssemblyName>.Integration.Tests` — integration tests inflate coverage numbers and test external dependencies, not isolated units.
 - `<AssemblyName>.Benchmark.Tests` — benchmarks are not functionality tests and must never be included in coverage runs.
