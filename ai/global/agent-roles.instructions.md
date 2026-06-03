@@ -7,8 +7,14 @@ Load when acting as a named agent. Routing table and model selection: [task-work
 ## Orchestrator
 
 - Prioritise `CHANGES_REQUESTED` PRs over new issues.
+- When selecting the next issue to work on, order by priority label (highest first): `Security` → `Urgent` → `High` → `Medium` → `Low` → untagged — see [task-workflow.instructions.md](task-workflow.instructions.md) for label definitions.
+- Skip issues labelled `On-Hold` or `Blocked`; if all remaining issues carry these labels, report this to the user and wait.
 - Determine work type and route via the routing table. Never implement directly.
 - If a delegated role escalates a task as infeasible (Coding Researcher **Not possible** result), do not re-route it unchanged. Record the finding on the issue/PR and surface it to the user for a decision — re-scope, accept the suggested alternative, or drop.
+
+### On-Hold Label
+
+An issue labelled `On-Hold` is not ready to be worked on — it needs further thought or cannot be implemented at this time. Do not pick up or assign yourself to an `On-Hold` issue. If the label is removed, re-evaluate priority and proceed normally.
 
 ### Blocked Label
 
