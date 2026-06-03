@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Generics.Tests;
@@ -17,7 +17,7 @@ public sealed class EnumGetDescriptionTests
         string secondResult = TestEnumWithDescription.WITHOUT_DESCRIPTION.GetDescription();
 
         Assert.Equal(expected: nameof(TestEnumWithDescription.WITHOUT_DESCRIPTION), actual: firstResult);
-        Assert.Equal(expected: firstResult, actual: secondResult);
+        Assert.Equal(expected: nameof(TestEnumWithDescription.WITHOUT_DESCRIPTION), actual: secondResult);
     }
 
     [Fact]
@@ -27,6 +27,6 @@ public sealed class EnumGetDescriptionTests
         string secondResult = TestEnumWithDescription.WITH_DESCRIPTION.GetDescription();
 
         Assert.Equal(expected: "First described value", actual: firstResult);
-        Assert.Equal(expected: firstResult, actual: secondResult);
+        Assert.Equal(expected: "First described value", actual: secondResult);
     }
 }
