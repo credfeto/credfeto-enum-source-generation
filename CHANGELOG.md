@@ -8,6 +8,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
+- Unit test project for Credfeto.Enumeration.Source.Generation.Attributes to achieve 100% code coverage
 ### Fixed
 ### Changed
 - Dependencies - Updated Meziantou.Analyzer to 3.0.98
