@@ -18,5 +18,5 @@ runs:
       with:
         repo-token: ${{inputs.github-token}}
         configuration-path: .github/labeler.yml
-        sync-labels: true
+        sync-labels: false
         pr-number: ${{inputs.pr-number}}
