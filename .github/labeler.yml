@@ -11,19 +11,19 @@
 "Config Change":
  - any: [ 'src/**/*.json', '!src/global.json' ]
 "credfeto-enumeration-source-generation":
- - any: [ 'src/$Credfeto.Enumeration.Source.Generation/**/*' ]
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation/**/*' ]
 "credfeto-enumeration-source-generation-attributes":
- - any: [ 'src/$Credfeto.Enumeration.Source.Generation.Attributes/**/*' ]
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation.Attributes/**/*' ]
 "credfeto-enumeration-source-generation-attributes-tests":
- - any: [ 'src/$Credfeto.Enumeration.Source.Generation.Attributes.Tests/**/*' ]
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation.Attributes.Tests/**/*' ]
 "credfeto-enumeration-source-generation-benchmark-tests":
- - any: [ 'src/$Credfeto.Enumeration.Source.Generation.Benchmark.Tests/**/*' ]
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation.Benchmark.Tests/**/*' ]
 "credfeto-enumeration-source-generation-generics":
- - any: [ 'src/$Credfeto.Enumeration.Source.Generation.Generics/**/*' ]
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation.Generics/**/*' ]
 "credfeto-enumeration-source-generation-models":
- - any: [ 'src/$Credfeto.Enumeration.Source.Generation.Models/**/*' ]
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation.Models/**/*' ]
 "credfeto-enumeration-source-generation-models-tests":
- - any: [ 'src/$Credfeto.Enumeration.Source.Generation.Models.Tests/**/*' ]
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation.Models.Tests/**/*' ]
 "dotnet":
  - any: [ 'src/**/*.csproj' ]
 "Editorconfig":
