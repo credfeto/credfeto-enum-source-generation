@@ -26,6 +26,21 @@ Before any commit, verify identity and GPG signing are correct — see [git.exam
 - Never commit if the current branch is `main`.
 - If the branch has switched to `main` and the upstream no longer exists (merged and deleted), create a new branch before continuing.
 
+## GitHub CLI Comment Bodies (MANDATORY)
+
+When posting comment or PR bodies via the GitHub CLI (`gh issue comment`, `gh pr comment`, `gh pr create`, `gh pr edit`, etc.), always pass multi-line text using a HEREDOC so that real newline characters are embedded. **Never** use escaped `\n` sequences — GitHub renders them as literal characters, not line breaks:
+
+```bash
+gh issue comment <number> --repo <owner/repo> --body "$(cat <<'COMMENT'
+First paragraph.
+
+Second paragraph.
+COMMENT
+)"
+```
+
+This applies to any `--body` argument that contains or may contain newlines.
+
 ## GitHub Issues
 
 - If `gh` is available, use it to manage issues for every piece of work.
