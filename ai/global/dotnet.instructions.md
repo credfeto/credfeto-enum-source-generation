@@ -164,7 +164,6 @@ See [code-quality.instructions.md](code-quality.instructions.md) for general asy
 | Unit tests where we want to write temp files to disk and have them cleaned up | `LoggingFolderCleanupTestBase` |
 | Tests on model binders | `ModelBinderTestsBase` |
 
-
 ## Benchmark Guidance
 
 - For .NET benchmark implementation and threshold assertions, follow [performance.instructions.md](performance.instructions.md#benchmarks-and-optimisation).
@@ -262,3 +261,21 @@ Suppress per-project using the advisory URL — never globally in shared `.props
   <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-xxxx-xxxx-xxxx" />
 </ItemGroup>
 ```
+
+## Publishing Executables (Trimming and AOT)
+
+When working on a .NET project that produces a publishable executable (`OutputType=Exe` or `OutputType=WinExe`), follow these steps in order:
+
+1. **Enable trimming first** — add `<PublishTrimmed>true</PublishTrimmed>` to the project file and verify the project builds without trim warnings or errors.
+   - Fix all `IL2xxx` trim-analysis warnings before committing.
+   - Replace reflection-based patterns with source-generated equivalents — for example, replace `JsonSerializer` usage with a `JsonSerializerContext` annotated with `[JsonSerializable]`.
+   - Apply `[DynamicallyAccessedMembers]` only where reflection is genuinely unavoidable and cannot be replaced with a source generator.
+   - Do not suppress trim warnings — treat them as blocking, consistent with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
+
+2. **Enable AOT only after trimming is clean** — once `<PublishTrimmed>true</PublishTrimmed>` builds without warnings, replace it with `<PublishAot>true</PublishAot>` (AOT implies trimming; both properties do not need to be set simultaneously).
+   - Fix all `IL3xxx` AOT-compatibility warnings.
+   - Remove any runtime code generation: `Emit`, `DynamicMethod`, `Expression.Compile`, `CSharpCodeProvider`, etc.
+   - Verify that every third-party package used by the executable has AOT-compatible code paths. Check for `IsAotCompatible=true` in the package metadata or a corresponding `[RequiresUnreferencedCode]` annotation indicating the incompatibility.
+   - Do not suppress AOT warnings — treat them as blocking.
+
+3. **If either step is blocked by an incompatible third-party dependency** — raise a GitHub issue in the current repository describing the incompatibility (package name, version, and the specific warning or error), then stop. Do not work around the incompatibility by suppressing warnings or downgrading the property.
