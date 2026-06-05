@@ -69,6 +69,11 @@ When creating or updating a PR linked to one or more issues:
 
 Repeat after every push or PR update.
 
+## Label Management (MANDATORY)
+
+- Always use `--add-label` when adding labels — **never** `--label`, which replaces all existing labels and destroys automatically-applied classification labels.
+- Never remove labels from issues or PRs. GitHub workflows add classification labels automatically; removing them breaks automation.
+
 ## Missing CLI Tools (MANDATORY)
 
 If a required CLI tool is not found, **stop immediately and ask the user to install it**. Never:
