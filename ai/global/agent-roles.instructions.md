@@ -33,6 +33,21 @@ Reply to every PR or issue comment that prompted an action:
 - Question answered inline (no code change): reply with the full answer.
 - No reply means no acknowledgement — always close the loop.
 
+### CI Checks (MANDATORY)
+
+When working on a PR, check CI state **once**:
+
+```bash
+gh pr checks <number> --repo <owner/repo>
+```
+
+Then act immediately — do **not** loop, sleep, or use `--watch`:
+
+- All required checks passed → proceed with the next step.
+- Any check pending or in_progress → post a brief status comment on the PR and stop. The orchestrator re-invokes the session automatically when the PR state changes (checks complete, review arrives, etc.).
+- Any check failed → investigate, fix, push, post a status comment, and stop. Do not wait for the new run to complete.
+- CI consistently failing and cannot be fixed → mark the PR blocked: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`
+
 ## Coding Researcher
 
 Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
