@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 3.0.98
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.27.0.140913
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.126.1251
+- Dependencies - Updated FunFair.CodeAnalysis to 7.2.1.2035
 ### Deprecated
 ### Removed
 ### Deployment Changes
