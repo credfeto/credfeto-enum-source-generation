@@ -19,4 +19,5 @@
   <Project Path="Credfeto.Enumeration.Source.Generation.Models.Tests/Credfeto.Enumeration.Source.Generation.Models.Tests.csproj" />
   <Project Path="Credfeto.Enumeration.Source.Generation.Models/Credfeto.Enumeration.Source.Generation.Models.csproj" />
   <Project Path="Credfeto.Enumeration.Source.Generation/Credfeto.Enumeration.Source.Generation.csproj" />
+  <Project Path="Credfeto.Enumeration.Source.Generation.Tests/Credfeto.Enumeration.Source.Generation.Tests.csproj" />
 </Solution>
