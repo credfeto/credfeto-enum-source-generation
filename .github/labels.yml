@@ -62,6 +62,10 @@
   color: "96f7d2"
   description: "Changes in Credfeto.Enumeration.Source.Generation.Generics project"
 
+- name: "credfeto-enumeration-source-generation-generics-tests"
+  color: "0e8a16"
+  description: "Changes in Credfeto.Enumeration.Source.Generation.Generics.Tests project"
+
 - name: "credfeto-enumeration-source-generation-models"
   color: "96f7d2"
   description: "Changes in Credfeto.Enumeration.Source.Generation.Models project"

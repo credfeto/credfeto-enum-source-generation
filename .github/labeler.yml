@@ -20,6 +20,8 @@
  - any: [ 'src/Credfeto.Enumeration.Source.Generation.Benchmark.Tests/**/*' ]
 "credfeto-enumeration-source-generation-generics":
  - any: [ 'src/Credfeto.Enumeration.Source.Generation.Generics/**/*' ]
+"credfeto-enumeration-source-generation-generics-tests":
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation.Generics.Tests/**/*' ]
 "credfeto-enumeration-source-generation-models":
  - any: [ 'src/Credfeto.Enumeration.Source.Generation.Models/**/*' ]
 "credfeto-enumeration-source-generation-models-tests":
