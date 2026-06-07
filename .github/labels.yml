@@ -74,6 +74,10 @@
   color: "0e8a16"
   description: "Changes in Credfeto.Enumeration.Source.Generation.Models.Tests project"
 
+- name: "credfeto-enumeration-source-generation-tests"
+  color: "0e8a16"
+  description: "Changes in Credfeto.Enumeration.Source.Generation.Tests project"
+
 - name: "dependencies"
   color: "0366d6"
   description: "Updates to dependencies"

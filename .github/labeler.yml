@@ -26,6 +26,8 @@
  - any: [ 'src/Credfeto.Enumeration.Source.Generation.Models/**/*' ]
 "credfeto-enumeration-source-generation-models-tests":
  - any: [ 'src/Credfeto.Enumeration.Source.Generation.Models.Tests/**/*' ]
+"credfeto-enumeration-source-generation-tests":
+ - any: [ 'src/Credfeto.Enumeration.Source.Generation.Tests/**/*' ]
 "dotnet":
  - any: [ 'src/**/*.csproj' ]
 "Editorconfig":
