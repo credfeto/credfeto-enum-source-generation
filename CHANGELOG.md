@@ -13,10 +13,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Unit test project for Credfeto.Enumeration.Source.Generation to achieve 100% code coverage
 ### Fixed
 ### Changed
-- Dependencies - Updated Meziantou.Analyzer to 3.0.98
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.27.0.140913
 - Dependencies - Updated FunFair.CodeAnalysis to 7.2.1.2035
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.127.1265
+- Dependencies - Updated Meziantou.Analyzer to 3.0.100
 ### Deprecated
 ### Removed
 ### Deployment Changes
