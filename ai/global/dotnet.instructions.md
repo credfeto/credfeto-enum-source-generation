@@ -104,7 +104,7 @@ The per-assembly reports remain the authoritative measure of test quality for ea
 
 ### Specific Coverage Rules (MANDATORY)
 
-- If a source generator is used then it is because we **WANT** the source generated version. Don't turn it off to get 100% code coverage.
+- If a source generator is used then it is because we **WANT** the source generated version. Don't turn it off to get 100% code coverage. Source-generated code (classes decorated with `[GeneratedCode]`) should be excluded from coverage measurements — it is considered tested by the generator's author, not by us.
 
 ## Source-Generated Logging
 
