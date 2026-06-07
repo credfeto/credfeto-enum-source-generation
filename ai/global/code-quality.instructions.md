@@ -38,6 +38,10 @@ Prefer parameterised tests over duplicated test methods — each behavioural var
 - Test behaviour, not implementation — refactoring production code must not unnecessarily break tests.
 - Use constants, builders, or factory helpers rather than hardcoded values likely to change.
 
+## Mock Setup Helpers
+
+When a mock setup expression (NSubstitute, Moq, or equivalent) is used in more than one test, extract it into a dedicated `private static` method named `Mock<InterfaceName><MethodName>` — for example, `MockBranchClassificationIsPullRequest`. The helper accepts the mock instance and any variable arguments, and returns the configured mock (or `void` if chaining is not needed). Do not inline the same setup expression across multiple tests.
+
 ## Refactoring
 
 - Review code after writing and testing to determine whether refactoring is needed.
