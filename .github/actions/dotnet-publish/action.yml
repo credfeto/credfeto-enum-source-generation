@@ -37,11 +37,7 @@ runs:
       env:
         PLATFORM: ${{inputs.PLATFORM}}
 
-    # TODO: Investigate changing the settings for these to be project settings like with "-p:PublishTrimmed=False" so can
-    #       optimise the projects that better suit the settings.
-    #
-    # -p:PublishAot=false
-    # -p:PublishReadyToRun=False
+    # PublishTrimmed and PublishAot are controlled per-project in .csproj files so each project can opt in independently.
     ## Notes: NETSDK1094  can't use --no-restore
     - name: "Dotnet: Publish"
       working-directory: ${{github.workspace}}/src/${{inputs.PROJECT_TO_PUBLISH}}
@@ -73,3 +69,27 @@ runs:
                   ${{env.DOTNET_RELEASE_DEFINES}}
       env:
         ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+
+    - name: "Report publish output size"
+      uses: actions/github-script@v9.0.0
+      env:
+        OUTPUT_DIR: "${{github.workspace}}/server-dist/${{inputs.PLATFORM}}"
+        PLATFORM: "${{inputs.PLATFORM}}"
+      with:
+        script: |
+          const { execSync } = require('child_process');
+          const outputDir = process.env.OUTPUT_DIR;
+          const platform = process.env.PLATFORM;
+          let sizes = '';
+          try {
+            sizes = execSync(`du -sh "${outputDir}"/*`, { encoding: 'utf8', shell: true }).trim();
+          } catch {
+            // no output files found
+          }
+          if (sizes) {
+            const message = `Published output sizes for ${platform}:\n${sizes}`;
+            core.info(`\u001b[36m${message}\u001b[0m`);
+            core.notice(message, { title: `Publish output size: ${platform}` });
+          } else {
+            core.info(`No output files found for ${platform}`);
+          }
