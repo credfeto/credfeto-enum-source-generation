@@ -244,6 +244,15 @@ Never use hardcoded literal dates (e.g. `new DateTime(2024, 1, 1)`) in tests. Us
 
 - `MockDateTimeSources.AdvancingDateTimeUseWithCaution` advances the clock as the test runs — only use it when the test genuinely requires elapsed time. Prefer `Past` or `Future` for all other cases.
 
+## Conditional Compilation and Dead Code
+
+When all target frameworks listed in a project file are .NET 9 or later, framework version guards whose condition is unconditionally true become dead structure:
+
+- `#if NET9_0_OR_GREATER`, `#if NET8_0_OR_GREATER`, `#if NET7_0_OR_GREATER`, `#if NET6_0_OR_GREATER`, and any earlier `OR_GREATER` variants are always true — remove the directive, keep the body, and delete the `#else` branch and fallback implementation.
+- The corresponding negated guards (`#if !NET9_0_OR_GREATER`, etc.) are always false — remove the entire block including the body.
+- Delete any source files that exist solely as pre-.NET 9 fallback implementations (e.g. files named `*.net6.cs` or `*SourceGenerated.net6.cs` containing a `new Regex(...)` fallback for the `[GeneratedRegex]` source generator).
+- After removing the conditional blocks, verify the project still builds and all tests still pass — treat this as a separate commit from any feature or fix work.
+
 ## Warning Suppression and Errors
 
 - Every project must build with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
