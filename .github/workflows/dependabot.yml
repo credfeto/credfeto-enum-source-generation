@@ -1,4 +1,5 @@
 --- # Dependabot: rebase open pull requests
+# Maintain in repo: funfair-server-template
 name: "Dependabot: Rebase"
 on:
   push:
