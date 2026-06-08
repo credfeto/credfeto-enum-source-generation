@@ -1,10 +1,14 @@
 --- # Dependabot: approve dependency updates
+# Maintain in repo: funfair-server-template
 name: "Dependabot: Approve updates"
 on:
   # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
-  # could and should work, at least for public repos;
-  # tracking issue for this action's issue:
-  # https://github.com/ahmadnassri/action-dependabot-auto-merge/issues/60
+  # pull_request_target is required here to grant the workflow write permissions on Dependabot PRs.
+  # NOTE: pull_request_target resolves local composite actions from the filesystem rather than git
+  # storage, and since the workspace is empty at job initialisation (before any steps run), local
+  # uses: ./.github/actions/... references will always fail — even with an actions/checkout step,
+  # because step execution happens after action path resolution. As a result, any steps in this
+  # workflow that would otherwise use local composite actions must inline their logic directly.
   pull_request_target:
     types:
       - opened
@@ -44,35 +48,35 @@ jobs:
       contents: write
       pull-requests: write
 
-    # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
-
     steps:
-      - name: "Initialise Workspace"
-        if: runner.environment == 'self-hosted'
-        shell: bash
-        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-
-      - name: "Set Active Environment"
-        shell: bash
-        run: |
-          {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-            echo "ACTIVE_HOSTNAME=$HOSTNAME"
-            echo "ACTIVE_USER=$USER"
-          } >> "$GITHUB_ENV"
-
-      - name: "Checkout Source"
-        uses: actions/checkout@v6.0.3
-        with:
-          clean: true
-          fetch-depth: 1
-          ref: ${{github.event.pull_request.base.sha}}
-
       - name: "Auto Merge"
-        uses: ./.github/actions/enable-automerge
+        uses: actions/github-script@v9.0.0
         with:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          merge-method: "MERGE"
+          script: |
+            const mergeMethod = process.env.MERGE_METHOD;
+            const nodeId = context.payload.pull_request.node_id;
+            await github.graphql(`
+              mutation EnableAutoMerge($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
+                enablePullRequestAutoMerge(input: {
+                  pullRequestId: $pullRequestId,
+                  mergeMethod: $mergeMethod
+                }) {
+                  pullRequest {
+                    autoMergeRequest {
+                      mergeMethod
+                    }
+                  }
+                }
+              }
+            `, {
+              pullRequestId: nodeId,
+              mergeMethod: mergeMethod,
+            });
+            core.info(`✅ Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
+            core.notice(`Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
+        env:
+          MERGE_METHOD: "MERGE"
 
   auto-approve-dependabot:
     needs: [requirements]
@@ -87,28 +91,16 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: "Initialise Workspace"
-        if: runner.environment == 'self-hosted'
-        shell: bash
-        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
-
-      - name: "Set Active Environment"
-        shell: bash
-        run: |
-          {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
-            echo "ACTIVE_HOSTNAME=$HOSTNAME"
-            echo "ACTIVE_USER=$USER"
-          } >> "$GITHUB_ENV"
-
-      - name: "Checkout Source"
-        uses: actions/checkout@v6.0.3
-        with:
-          clean: true
-          fetch-depth: 1
-          ref: ${{github.event.pull_request.base.sha}}
-
       - name: "Approve"
-        uses: ./.github/actions/approve-pr
+        uses: actions/github-script@v9.0.0
         with:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              event: 'APPROVE',
+            });
+            core.info(`✅ Approved PR #${context.payload.pull_request.number}`);
+            core.notice(`Approved PR #${context.payload.pull_request.number}`);
