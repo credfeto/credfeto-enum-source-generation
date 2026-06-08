@@ -1,4 +1,5 @@
 --- # Software Bill of Materials (SBOM) Action
+# Maintain in repo: funfair-server-template
 name: 'Run Software Bill of Materials'
 description: 'Software Bill of materials'
 runs:
