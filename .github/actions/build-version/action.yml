@@ -1,4 +1,5 @@
 --- # Define build version properties
+# Maintain in repo: funfair-server-template
 name: 'Define Build Version'
 description: 'Defines the build version properties'
 inputs:
