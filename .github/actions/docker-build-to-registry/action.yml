@@ -1,4 +1,5 @@
 --- # Build Docker container and optionally deploy to ACR
+# Maintain in repo: funfair-server-template
 name: 'Build Docker container and optionally deploy to ACR'
 description: 'Builds a docker image and optionally pushes it to AWS ECR'
 inputs:
