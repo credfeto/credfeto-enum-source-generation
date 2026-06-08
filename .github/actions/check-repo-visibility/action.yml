@@ -1,4 +1,5 @@
 --- # Check if the current repository is public or private
+# Maintain in repo: funfair-server-template
 name: "Check Repository Visibility"
 description: "Checks if the current repository is public or private"
 
