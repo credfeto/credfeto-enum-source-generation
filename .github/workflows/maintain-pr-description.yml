@@ -1,5 +1,6 @@
 --- # Keeps PR descriptions in sync with the PR template and auto-generates the
 # Description section via GitHub Copilot. Also ticks CI/change-type checkboxes.
+# Maintain in repo: cs-template
 name: Maintain PR Description
 
 on:
