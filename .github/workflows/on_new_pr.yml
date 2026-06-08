@@ -1,4 +1,5 @@
 --- # Pull Request
+# Maintain in repo: cs-template
 name: Pull Request
 on:
   # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
