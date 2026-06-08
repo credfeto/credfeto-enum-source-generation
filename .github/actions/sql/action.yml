@@ -1,4 +1,5 @@
 --- # Build SQL
+# Maintain in repo: funfair-server-template
 name: 'Build SQL'
 description: 'Builds SQL Package'
 inputs:
