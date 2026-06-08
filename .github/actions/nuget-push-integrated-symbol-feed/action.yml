@@ -1,4 +1,5 @@
 --- # Build and deploy packages
+# Maintain in repo: funfair-server-template
 name: 'Publish to nuget using multi-push (With integrated symbol feed)'
 description: 'Publishes Nuget packages with multi-push (With integrated symbol feed)'
 inputs:
