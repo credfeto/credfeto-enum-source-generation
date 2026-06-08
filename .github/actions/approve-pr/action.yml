@@ -1,4 +1,5 @@
 --- # Approve the current pull request
+# Maintain in repo: funfair-server-template
 name: "Approve PR"
 description: "Approves the current pull request"
 
