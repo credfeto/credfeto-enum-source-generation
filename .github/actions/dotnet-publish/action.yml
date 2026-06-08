@@ -1,4 +1,5 @@
 --- # Publishes a Dotnet app to an executable
+# Maintain in repo: funfair-server-template
 name: 'Publishes a Dotnet app to an executable'
 description: 'Publishes a Dotnet app to an executable'
 inputs:
