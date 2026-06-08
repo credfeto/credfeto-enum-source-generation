@@ -1,4 +1,5 @@
 --- # Repo: update GitHub labels from definitions file
+# Maintain in repo: funfair-server-template
 name: "Repo: Update Labels"
 
 on:
