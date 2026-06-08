@@ -1,4 +1,5 @@
 --- # Dotnet Build Check
+# Maintain in repo: funfair-server-template
 name: 'Dotnet Build Check'
 description: 'Dotnet Build Check'
 inputs:
