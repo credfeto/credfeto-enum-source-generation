@@ -1,4 +1,5 @@
 --- # Deploy docker image using cloudformation template to aws
+# Maintain in repo: funfair-server-template
 name: 'Deploy to Cloudformation template'
 description: 'Deploy docker image using cloudformation template to aws'
 inputs:
