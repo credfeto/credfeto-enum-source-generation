@@ -1,4 +1,5 @@
 --- # PR: update pull request metadata
+# Maintain in repo: funfair-server-template
 name: "PR: Update"
 on:
   pull_request:
