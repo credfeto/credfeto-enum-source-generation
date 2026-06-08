@@ -1,4 +1,5 @@
 --- # PR: find branches without open pull requests
+# Maintain in repo: funfair-server-template
 name: "PR: Find branches without PR's"
 
 on:
