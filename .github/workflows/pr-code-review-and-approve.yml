@@ -1,4 +1,5 @@
 --- # Code review of PRs
+# Maintain in repo: cs-template
 name: "PR: Require Code Review"
 
 on:
@@ -45,4 +46,3 @@ jobs:
               pull_number: context.payload.pull_request.number,
               reviewers: ['copilot']
             });
-
