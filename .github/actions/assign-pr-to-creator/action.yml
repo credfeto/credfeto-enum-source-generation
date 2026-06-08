@@ -1,4 +1,5 @@
 --- # Assign the pull request to its creator
+# Maintain in repo: funfair-server-template
 name: "Assign PR to Creator"
 description: "Assigns the pull request to the user who created it"
 
