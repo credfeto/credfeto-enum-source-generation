@@ -1,4 +1,5 @@
 --- # Build and deploy packages
+# Maintain in repo: funfair-server-template
 name: 'Upload sarif files'
 description: 'Builds and deploys the source'
 inputs:
