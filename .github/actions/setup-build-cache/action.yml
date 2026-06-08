@@ -1,4 +1,5 @@
 --- # Configure NuGet and NPM cache env vars and check repo visibility
+# Maintain in repo: funfair-server-template
 name: "Setup Build Cache"
 description: "Configures nuget/npm cache env vars and checks repo visibility"
 
