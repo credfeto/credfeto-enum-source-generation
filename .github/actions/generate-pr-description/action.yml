@@ -1,6 +1,7 @@
 --- # Compares two commits and uses GitHub Copilot (GitHub Models) to generate
 # a concise description of what changed. The description can then be inserted
 # into a pull request body by the calling workflow.
+# Maintain in repo: cs-template
 name: 'Generate PR Description'
 description: >
   Diffs base_sha..head_sha via the GitHub API and asks GitHub Copilot
