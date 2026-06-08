@@ -1,4 +1,5 @@
 --- # Enable auto-merge on the current pull request
+# Maintain in repo: funfair-server-template
 name: "Enable Auto-Merge"
 description: "Enables auto-merge on the current pull request"
 
