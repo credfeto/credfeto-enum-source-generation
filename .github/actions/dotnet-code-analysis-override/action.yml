@@ -1,4 +1,5 @@
 --- # Override Code Dotnet Analysis settings
+# Maintain in repo: funfair-server-template
 name: 'Override Code Dotnet Analysis settings'
 description: 'Override Code Dotnet Analysis settings'
 inputs:
