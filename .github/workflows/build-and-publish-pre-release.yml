@@ -1,4 +1,5 @@
 --- # Build: pre-release package build and publish
+# Maintain in repo: funfair-server-template
 name: "Build: Pre-Release"
 
 on:
