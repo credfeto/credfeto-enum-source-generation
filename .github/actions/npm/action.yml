@@ -1,4 +1,5 @@
 --- # Build and deploy packages
+# Maintain in repo: funfair-server-template
 name: 'Build using NPM'
 description: 'Builds using NPM'
 inputs:
@@ -130,8 +131,8 @@ runs:
         sed -i "s|https://npm.local:5555/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
 
 # Note that NPM will gladly tell you to add --use-system-ca to use the certs in the system store
-#, but it doesn't actually work...  So instead we have to add the cert to the npm config above
-#   --use-system-ca sia deprecated setting!
+# but it doesn't actually work...  So instead we have to add the cert to the npm config above
+# --use-system-ca is a deprecated setting!
     - name: "NPM: Install dependencies"
       working-directory: ${{steps.build_context.outputs.WORK_DIR}}
       shell: bash
