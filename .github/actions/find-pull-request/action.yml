@@ -1,4 +1,5 @@
 --- # Find an open pull request for a given branch
+# Maintain in repo: funfair-server-template
 name: "Find Pull Request"
 description: "Finds an open pull request for a given branch and returns its number and head SHA"
 
