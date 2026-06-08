@@ -1,4 +1,5 @@
 --- # Run dotnet tool
+# Maintain in repo: funfair-server-template
 name: 'Run dotnet tool'
 description: 'Run dotnet tool'
 inputs:
