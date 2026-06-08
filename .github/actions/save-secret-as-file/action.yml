@@ -1,4 +1,5 @@
 --- # Save a secret to file
+# Maintain in repo: funfair-server-template
 name: 'Save Secret To File'
 description: 'Saves a secret to a file'
 inputs:
