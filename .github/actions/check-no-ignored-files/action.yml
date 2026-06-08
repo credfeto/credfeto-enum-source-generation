@@ -1,4 +1,5 @@
 --- # Fail if any tracked files are matched by gitignore rules
+# Maintain in repo: funfair-server-template
 name: "Check No Ignored Files"
 description: "Fails if tracked files are matched by ignore rules"
 
