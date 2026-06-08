@@ -1,4 +1,5 @@
 --- # Build and deploy packages
+# Maintain in repo: funfair-server-template
 name: 'Build Dotnet'
 description: 'Builds and deploys the source'
 inputs:
