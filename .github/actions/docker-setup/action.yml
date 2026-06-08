@@ -1,4 +1,5 @@
 --- # Setup Docker
+# Maintain in repo: funfair-server-template
 name: 'Setup Docker'
 description: 'Setup docker'
 inputs:
