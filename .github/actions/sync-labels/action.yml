@@ -1,4 +1,5 @@
 --- # Sync labels on a pull request based on the labeler configuration
+# Maintain in repo: funfair-server-template
 name: "Sync PR Labels"
 description: "Syncs labels on a pull request based on the labeler configuration"
 
