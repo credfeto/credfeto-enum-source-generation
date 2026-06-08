@@ -1,4 +1,5 @@
 --- # Cleanup on PR Close
+# Maintain in repo: funfair-server-template
 name: "PR: Closed"
 on:
   pull_request:
