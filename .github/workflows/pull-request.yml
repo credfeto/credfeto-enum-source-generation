@@ -1,4 +1,5 @@
 --- # PR: create pull requests for pushed branches
+# Maintain in repo: funfair-server-template
 name: "PR: Create"
 on:
   push:
