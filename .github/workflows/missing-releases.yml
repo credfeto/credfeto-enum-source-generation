@@ -1,4 +1,5 @@
 --- # Create a new branch for anything that has a changelog entry, but no branch
+# Maintain in repo: funfair-server-template
 name: "Repo: Create missing releases"
 on:
   push:
