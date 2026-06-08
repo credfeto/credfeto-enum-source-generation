@@ -1,4 +1,5 @@
 --- # Fail if the pull request contains any merge commits
+# Maintain in repo: funfair-server-template
 name: "Check No Merge Commits"
 description: "Fails if the pull request contains any merge commits"
 
