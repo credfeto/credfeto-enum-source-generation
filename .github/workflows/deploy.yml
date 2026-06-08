@@ -1,4 +1,5 @@
 --- # Deploy: Cloudformation deployment workflow
+# Maintain in repo: funfair-server-template
 name: "!!Deploy: Using Cloudformation"
 on:
   workflow_dispatch:
