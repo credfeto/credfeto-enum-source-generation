@@ -1,4 +1,5 @@
 --- # Build and deploy packages
+# Maintain in repo: funfair-server-template
 name: 'Configure Nuget Feeds'
 description: 'Configure Nuget Feeds'
 inputs:
