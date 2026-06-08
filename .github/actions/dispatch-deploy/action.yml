@@ -1,4 +1,5 @@
 --- # Dispatch to deploy workflow for deployment.
+# Maintain in repo: funfair-server-template
 name: 'Dispatch to deploy workflow'
 description: 'Dispatches deployment to a separate workflow'
 inputs:
@@ -35,7 +36,6 @@ inputs:
   GITHUB_TOKEN:
     description: 'github token for accessing github'
     required: true
-    default: ${{github.token}}
 
 runs:
   using: "composite"
