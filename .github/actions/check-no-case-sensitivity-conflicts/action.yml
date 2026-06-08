@@ -1,4 +1,5 @@
 --- # Fail if files differ only by case
+# Maintain in repo: funfair-server-template
 name: "Check No Case Sensitivity Conflicts"
 description: "Fails if files differ only by case"
 
