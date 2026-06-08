@@ -262,6 +262,27 @@ public sealed record GlobalJsonInfo(string? SdkVersion, string? RollForward, boo
 - Avoid mutable structs — unexpected copy semantics cause subtle bugs.
 - Do not use `struct` for types that need inheritance or will be boxed frequently.
 
+## Exception Classes
+
+Use `Credfeto.Exceptions.SourceGenerator` to define exception types — it generates all required constructors automatically.
+
+1. Add the package to the project (analyzer only — not a runtime dependency):
+
+   ```xml
+   <PackageReference Include="Credfeto.Exceptions.SourceGenerator" Version="0.0.1.30" PrivateAssets="All" ExcludeAssets="runtime" />
+   ```
+
+2. Declare the exception as a `sealed partial class` with a `[Description]` attribute for the default message:
+
+   ```csharp
+   [Description("Default message")]
+   public sealed partial class MyException : Exception;
+   ```
+
+- Always use the **latest stable release** of `Credfeto.Exceptions.SourceGenerator`.
+- Never hand-write exception constructors when this generator is available.
+- Apply the same rule to any project that already defines exceptions: add the package and convert existing hand-written exception classes to `partial`.
+
 ## Debugger Diagnostics
 
 - All value types (`struct`, `record struct`, records with positional parameters) must have `[DebuggerDisplay("...")]` showing key fields.
