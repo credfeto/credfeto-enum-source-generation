@@ -8,21 +8,25 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ## [Unreleased]
 ### Security
 ### Added
-- Unit test project for Credfeto.Enumeration.Source.Generation.Attributes to achieve 100% code coverage
-- Unit test project for Credfeto.Enumeration.Source.Generation.Generics with 100% line, branch, and method coverage
-- Unit test project for Credfeto.Enumeration.Source.Generation to achieve 100% code coverage
 ### Fixed
 ### Changed
-- Dependencies - Updated SonarAnalyzer.CSharp to 10.27.0.140913
-- Dependencies - Updated FunFair.CodeAnalysis to 7.2.1.2035
-- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.127.1265
-- Dependencies - Updated Meziantou.Analyzer to 3.0.100
 ### Deprecated
 ### Removed
 ### Deployment Changes
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.2.145] - 2026-06-09
+### Added
+- Unit test project for Credfeto.Enumeration.Source.Generation.Attributes to achieve 100% code coverage
+- Unit test project for Credfeto.Enumeration.Source.Generation.Generics with 100% line, branch, and method coverage
+- Unit test project for Credfeto.Enumeration.Source.Generation to achieve 100% code coverage
+### Changed
+- Dependencies - Updated SonarAnalyzer.CSharp to 10.27.0.140913
+- Dependencies - Updated FunFair.CodeAnalysis to 7.2.1.2035
+- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.127.1265
+- Dependencies - Updated Meziantou.Analyzer to 3.0.100
+
 ## [1.2.144] - 2026-05-28
 ### Changed
 - Dependencies - Updated FunFair.Test.Common to 6.2.25.2243
