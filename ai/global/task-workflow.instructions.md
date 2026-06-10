@@ -82,6 +82,8 @@ If a required CLI tool is not found, **stop immediately and ask the user to inst
 - Manipulate PATH to try to find it
 - Attempt to install it without being asked
 
+**Exception — pre-commit hook tools:** Do not assume a tool is missing because `command -v` returns nothing in the current shell. Instead, follow the verification steps in [git.instructions.md](git.instructions.md) — stage your changes and run the hook directly. Only block if it actually fails.
+
 ## Rules Compliance for In-Flight Work
 
 Whenever an instruction file is added or updated, re-evaluate all open branches and PRs against the new rules. Fix any non-compliance before continuing — treat it the same as a CI failure.
