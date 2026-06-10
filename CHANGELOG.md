@@ -9,6 +9,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 ### Fixed
+- Fixed CI failure: add checkout step before local composite actions in on_new_pr.yml workflow
 ### Changed
 - Dependencies - Updated Meziantou.Analyzer to 3.0.101
 ### Deprecated
