@@ -33,7 +33,7 @@ runs:
   steps:
     - name: "Generate description from diff"
       id: generate
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9.0.0
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
       with:
