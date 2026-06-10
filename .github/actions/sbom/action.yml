@@ -10,7 +10,7 @@ runs:
       run: echo "Create SBOM..."
 
 #    - name: "Create SBOM"
-#      uses: anchore/sbom-action@v0.15.10
+#      uses: anchore/sbom-action@v0.24.0
 #      with:
 #        github-token: ${{inputs.GITHUB_TOKEN}}
 #        format: spdx-json
@@ -25,7 +25,7 @@ runs:
 #
 #    - name: "Scan SBOM (public Repo)"
 #      if: inputs.REPO_VISIBILITY == 'public'
-#      uses: anchore/scan-action@v3.6.4
+#      uses: anchore/scan-action@v7.4.0
 #      id: sbom
 #      with:
 #        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
@@ -46,7 +46,7 @@ runs:
 #        cat "${{ steps.sbom.outputs.sarif }}"
 #
 #    - name: "Scan SBOM (private repo)"
-#      uses: anchore/scan-action@v3.6.4
+#      uses: anchore/scan-action@v7.4.0
 #      if: inputs.REPO_VISIBILITY == 'private'
 #      with:
 #        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
