@@ -220,6 +220,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 
 - Rebase the named branch onto `origin/main`.
 - CHANGELOG conflicts: keep entries from both sides.
+- Version conflicts in dependency manifests, action pins, or runtime versions: take the latest secure candidate per [git.instructions.md](git.instructions.md#resolving-version-conflicts-when-merging-or-rebasing). If the chosen version breaks the build, report to Orchestrator — fixing build breakage is not the Rebase Agent's job.
 - Any other conflict: report verbatim to Orchestrator — do not resolve.
 - Force-push with `--force-with-lease` only after all conflicts are resolved.
 
