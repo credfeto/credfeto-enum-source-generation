@@ -80,6 +80,24 @@ When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a 
 - Continue in the same branch until the task changes.
 - Before continuing work on an existing branch, check if `origin/main` has advanced — if so, rebase first.
 
+## Resolving Version Conflicts When Merging or Rebasing
+
+When a merge or rebase produces conflicting versions of the same package, action, or runtime (both branches changed the version), resolve each conflicting entry individually — never take a whole file wholesale from one side.
+
+This applies to every version-bearing file, including:
+
+- Dependency manifests: `.csproj`, `Directory.Packages.props`, `packages.config`, `package.json`, `requirements.txt`
+- GitHub Actions `uses:` version pins in workflows and composite actions
+- Runtime and tool versions: .NET SDK (`global.json`), `dotnet-tools.json`, Node.js (`.nvmrc`, `engines`, `setup-node` versions), Python (`.python-version`, `setup-python` versions), and similar
+
+Rules:
+
+1. Take the **latest** of the candidate versions.
+2. **Security exception**: if the latest candidate is known to be less secure than another candidate (e.g. it has a published security advisory that the other does not), take the most recent candidate that is not affected.
+3. Never resolve by downgrading below every candidate, and never invent a version that appears on neither side.
+4. Lock files (`package-lock.json` and similar): do not hand-merge — resolve the manifest first, then regenerate the lock file with the package manager.
+5. After the merge or rebase completes, run the build and tests. If the chosen version broke the build (API changes, removed features), fix the breakage on the same branch as part of the merge work — do not downgrade to avoid the fix.
+
 ## Pushing Branches
 
 - **Always push a new branch with `-u`** to set up tracking: `git -C <repodir> push -u origin <branch>`.
