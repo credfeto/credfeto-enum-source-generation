@@ -9,16 +9,20 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 ### Fixed
-- Fixed CI failure: add checkout step before local composite actions in on_new_pr.yml workflow
 ### Changed
-- Dependencies - Updated Meziantou.Analyzer to 3.0.101
-- SDK - Updated DotNet SDK to 10.0.301
 ### Deprecated
 ### Removed
 ### Deployment Changes
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.2.146] - 2026-06-11
+### Fixed
+- Fixed CI failure: add checkout step before local composite actions in on_new_pr.yml workflow
+### Changed
+- Dependencies - Updated Meziantou.Analyzer to 3.0.101
+- SDK - Updated DotNet SDK to 10.0.301
+
 ## [1.2.145] - 2026-06-09
 ### Added
 - Unit test project for Credfeto.Enumeration.Source.Generation.Attributes to achieve 100% code coverage
