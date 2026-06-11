@@ -14,7 +14,7 @@ Read all of these before starting any task, regardless of language or context.
 
 | File | Covers |
 | --- | --- |
-| [git.instructions.md](git.instructions.md) | Prerequisites, build/test verification, git identity/GPG, branching, commits, GitHub issues |
+| [git.instructions.md](git.instructions.md) | Prerequisites, build/test verification, git identity/GPG, branching, version-conflict merge resolution, commits, GitHub issues |
 | [task-workflow.instructions.md](task-workflow.instructions.md) | Agent routing table, model selection, failure handling, issue/PR assignment, commit cadence, resuming work |
 | [code-quality.instructions.md](code-quality.instructions.md) | Code coverage, tests, async, immutability, parameterised tests, refactoring |
 | [documentation.instructions.md](documentation.instructions.md) | README, CHANGELOG conventions |
