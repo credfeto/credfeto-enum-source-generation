@@ -67,6 +67,8 @@ Pin all `uses:` to a specific released version tag. Never use `@latest`, `@main`
 Correct: `uses: actions/github-script@v9.0.0`
 Wrong: `@latest`, `@v6`, branch refs
 
+When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate — see [git.instructions.md](git.instructions.md#resolving-version-conflicts-when-merging-or-rebasing).
+
 ## Keeping Actions Up to Date
 
 Whenever you add or modify a `uses:` reference, check all actions in that file are on the latest released version:
