@@ -116,6 +116,16 @@ Bash is acceptable only for steps meeting **all** of:
 
 Extract non-trivial bash logic appearing in more than one workflow or composite action (after checkout) into a local composite action at `.github/actions/<name>/action.yml`.
 
+## github-script API Client (MANDATORY)
+
+In `actions/github-script` steps, always use the `github` object for API calls:
+
+- REST API: `github.rest.*`
+- Pagination: `github.paginate`
+- GraphQL: `github.graphql`
+
+Never use `octokit` — it is not a valid variable in the `actions/github-script` context and will cause runtime failures.
+
 ## Step Field Ordering
 
 Use this consistent field order — omit fields not needed. `name:` is always first.
