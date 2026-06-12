@@ -59,6 +59,18 @@ This applies to any `--body` argument that contains or may contain newlines.
 - Reference issue numbers in commit messages and branch names.
 - If work on an issue is abandoned, comment with findings before closing — do not abandon silently.
 
+### AI-Initiated Issues (MANDATORY)
+
+When raising a GitHub issue autonomously (not directly requested by a human):
+
+1. Search for existing issues (both **open** and **closed**) covering the same topic before creating — do not create duplicates.
+2. Add the `Blocked` label immediately after creating the issue so it is held for human review before being acted upon.
+
+**Exceptions — do not add `Blocked`:**
+
+- A human explicitly asked you to raise the issue: ask for the priority label instead, then apply it.
+- The issue is raised by the dependency security detection rule (e.g. flagged during `npm install` or from a Dependabot advisory): use only the labels specified by that rule.
+
 ## GitHub CLI (`gh`) Proxy Behavior
 
 When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a proxy:
