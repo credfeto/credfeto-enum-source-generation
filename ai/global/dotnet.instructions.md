@@ -13,6 +13,21 @@
 - Always invoke dotnet tools via `dotnet <toolname>` (e.g. `dotnet changelog`, `dotnet buildcheck`).
 - Never search for the tool binary, add it to `PATH`, or invoke it directly as `~/.dotnet/tools/toolname` or similar.
 
+## Pre-Work Repository Health Check (MANDATORY)
+
+Before starting any work on an issue or PR in a .NET repository:
+
+1. Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
+2. Run: `dotnet buildcheck -solution <solutionfilename>`
+3. If it fails:
+   - Fix all reported issues.
+   - Verify with `dotnet build` and `dotnet test`.
+   - Commit the fixes with a conventional commit message and push.
+   - Only proceed with the original work once buildcheck passes cleanly.
+4. If buildcheck still fails after all fixing attempts:
+   - For an issue: add a comment and label it `Blocked` — do not start work.
+   - For a PR: comment on the PR and label it `Blocked` — do not continue work.
+
 ## Build and Test Before Commit (MANDATORY)
 
 Run `dotnet build` and `dotnet test` before every commit — see [git.instructions.md](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push).
