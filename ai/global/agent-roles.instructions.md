@@ -24,6 +24,7 @@ When asking a question in a PR or issue comment and waiting for an answer before
    - Issue: `gh issue edit <number> --repo <owner/repo> --add-label "Blocked"`
    - PR: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`
 2. Do **not** continue working on the item until the label is removed.
+3. Use **only** the `Blocked` label for this purpose — do **not** use labels like `do not merge`, `needs review`, or any other substitute. The orchestrator only recognises `Blocked` when deciding whether to skip an item.
 
 ### Comment Replies (MANDATORY)
 
