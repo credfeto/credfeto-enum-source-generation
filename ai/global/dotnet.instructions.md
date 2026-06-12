@@ -158,6 +158,23 @@ See [code-quality.instructions.md](code-quality.instructions.md) for general asy
 
   This makes `$(SolutionDir)` resolve correctly in solution-less build contexts (e.g. BenchmarkDotNet host processes, `dotnet watch`, direct project builds) without changing any project files.
 
+## Source Generator Test Projects
+
+When writing unit tests that directly reference a source generator project via `<ProjectReference>` on .NET 10+, add the following MSBuild target to the test project's `.csproj`:
+
+```xml
+<Target Name="RemoveGeneratorNuGetCompileDependencies"
+        AfterTargets="ResolveProjectReferences"
+        BeforeTargets="ResolveAssemblyReferences">
+  <ItemGroup>
+    <_ResolvedProjectReferencePaths Remove="@(_ResolvedProjectReferencePaths)"
+        Condition="'%(_ResolvedProjectReferencePaths.NuGetPackageId)' != '' And '%(_ResolvedProjectReferencePaths.IncludeRuntimeDependency)' == 'false'" />
+  </ItemGroup>
+</Target>
+```
+
+This prevents the generator's Roslyn NuGet dependencies (e.g. `System.Collections.Immutable 9.0` exported via `GetDependencyTargetPaths`) from appearing alongside the .NET 10 in-box versions in the test project's reference list, which would cause CS1685 ("predefined type defined in multiple assemblies").
+
 ## Test Assembly Naming
 
 | Test type | Assembly name pattern |
