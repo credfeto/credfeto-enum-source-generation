@@ -10,6 +10,22 @@ Verify all required languages and runtimes are installed. If any are missing, st
 
 If the environment is too broken to work in without first fixing infrastructure or tooling, **stop** and demand it be fixed. Do not work around broken tooling.
 
+## Pre-Work Baseline Check (MANDATORY before starting any work)
+
+Before starting any work on an issue or PR, run the pre-commit hooks against all tracked files to verify the repo is clean:
+
+```bash
+pre-commit run --all-files
+```
+
+1. If hooks **auto-fix** files (e.g. trailing whitespace, end-of-file): commit those fixes separately before starting the original work.
+2. If hooks **fail** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
+3. If hooks **still fail** after all fixing attempts:
+   - For an issue: comment on the issue, label it `Blocked`, and do not start work.
+   - For a PR: comment on the PR, label it `Blocked`, and do not continue work.
+
+This ensures CI results are unambiguous — pre-existing failures are resolved before any new changes are introduced.
+
 ## Pre-Commit Hook Verification (MANDATORY before blocking)
 
 Never block work based on inspecting config files and deducing that a tool might be missing. Always verify by actually running the hook:
