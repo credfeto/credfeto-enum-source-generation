@@ -7,6 +7,15 @@
 - 100% code coverage must be maintained.
 - Test organisation in non-.NET projects is detailed in local AI instructions.
 
+### Infrastructure-Dependent Success Paths
+
+Some methods open real network connections, file handles, or database sessions, and their success-path (the line that returns a live resource) is only reachable when actual infrastructure is available. In a unit-test environment that path is unreachable.
+
+- Do **not** add `[ExcludeFromCodeCoverage]`, `[SuppressMessage]`, or any `coverage.settings.xml` `<Functions>` exclusion for these gaps.
+- Accept the coverage gap and note it; do not block work on it.
+- Prefer mocking the success path instead — if the underlying type or interface can be substituted, write a test that exercises it.
+- If the path is genuinely unreachable in unit tests **and** is not covered by an integration-test project, raise a GitHub issue labelled `AI-Work`, `Low`, and `Blocked` to track getting it covered by integration tests.
+
 ## Pre-Commit
 
 - Write unit tests before every commit — every new behaviour must have corresponding tests.
