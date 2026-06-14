@@ -56,7 +56,7 @@ Do not replace these — specialised tooling required:
 - **Docker toolchain**: `docker/build-push-action`, `docker/login-action`, `docker/setup-buildx-action`, `docker/setup-qemu-action`
 - **AWS credential management**: `aws-actions/configure-aws-credentials`
 - **Git operations** (rebase, auto-commit): `stefanzweifel/git-auto-commit-action`, `bbeesley/gha-auto-dependabot-rebase`
-- **Security scanning**: `trufflesecurity/trufflehog`
+- **Security scanning**: `trufflesecurity/trufflehog`, `aquasecurity/trivy-action`
 - **Multi-language linting**: `super-linter/super-linter`
 - **Complex config-driven label sync**: `crazy-max/ghaction-github-labeler`
 
@@ -205,6 +205,7 @@ Steps with side effects are never dead:
 - `aws-actions/configure-aws-credentials` — configures shell environment with credentials
 - `actions/setup-dotnet` / `actions/setup-node` — installs a runtime
 - `trufflesecurity/trufflehog` — fails the job if secrets are found
+- `aquasecurity/trivy-action` — fails the job if vulnerabilities are found
 - `super-linter/super-linter` — fails the job on lint errors
 - Any step writing to `$GITHUB_ENV` as its primary purpose
 
