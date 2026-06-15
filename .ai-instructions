@@ -19,6 +19,10 @@ Precedence is given to local instructions over global instructions.
 ## Management Rules
 
 * Whenever an instruction to remember to do something is given, update the appropriate memory file and this index.
+* If you learn something doing work, update the memory file and this index so it is retained for the future.  These changes should be committed to the repo with a clear commit message.
+* Memory file updates must always be committed on a branch — never directly to main.
+  * If the update is related to a code change, commit it on the same branch as that code change.
+  * For purely administrative updates (e.g. reorganising or correcting existing instructions), create a dedicated branch.
 * Whenever adding a new rule, read every existing instruction file and the index and check for consistency — update anything that conflicts with, duplicates, or is made stale by the new rule. Take that as an opportunity to re-organise how rules are categorised: split files that have grown too broad, merge files that cover the same topic, and rename files whose category label no longer fits. Apply this in whichever of `ai/global` or `ai/local` is relevant to the current work.
 * Whenever these files change, re-evaluate memory against it.
 * If there is a massive difference between memory and these files, stop and ask for clarification.
