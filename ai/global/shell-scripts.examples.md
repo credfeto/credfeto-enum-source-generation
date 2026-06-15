@@ -8,20 +8,32 @@ Reference implementations for the helper functions described in [shell-scripts.i
 
 ```sh
 die() {
-    printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
+    if [ -t 2 ]; then
+        printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
+    else
+        printf '\n✗ %s\n' "$*" >&2
+    fi
     exit 1
 }
 
 success() {
-    printf '\n\033[32m✓\033[0m %s\n' "$*"
+    if [ -t 1 ]; then
+        printf '\n\033[32m✓\033[0m %s\n' "$*"
+    else
+        printf '\n✓ %s\n' "$*"
+    fi
 }
 
 info() {
-    printf '\n\033[32m→\033[0m %s\n' "$*"
+    if [ -t 1 ]; then
+        printf '\n\033[32m→\033[0m %s\n' "$*"
+    else
+        printf '\n→ %s\n' "$*"
+    fi
 }
 ```
 
-Always direct `die()` to stderr (`>&2`) so error messages are not captured by stdout pipelines. Use `"$*"` to pass the message as a single string (required for `shellcheck` and `checkbashisms` compliance).
+Always direct `die()` to stderr (`>&2`) so error messages are not captured by stdout pipelines. Use `"$*"` to pass the message as a single string (required for `shellcheck` and `checkbashisms` compliance). The `[ -t N ]` guards suppress ANSI codes when output is piped to a file, which lets tools like `grep` match the plain `→` and `✓` characters without escape sequences.
 
 ### Usage Example
 
