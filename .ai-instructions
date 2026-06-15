@@ -2,12 +2,15 @@
 
 Create AI instructions in markdown files in the [Local AI Memory](ai/local) folder. This file maintains an index of the instruction files in that folder — keep it up-to-date when adding or removing them.
 
+MANDATORY: Rather than writing to your own memory, write to the appropriate file in the .ai-instructions. This way, all instructions are stored in a single place and can be easily updated and referred back to.
+
 Before performing any work, read this file and the [Global AI Memory Index](ai/global/index.md) and [Local AI Memory Index](ai/local/index.md). Load instruction files according to the rules in those indexes — do **not** load every file unconditionally. If there are any inconsistencies between local memory and this file, stop and ask for clarification.
 
 * [Global](ai/global/index.md) is the master list of all global instructions that should be maintained in the [git@github.com:credfeto/cs-template.git](https://github.com/credfeto/cs-template) repo.
 * [Local](ai/local/index.md) is the master list of all local instructions that should be maintained in repo other than the [git@github.com:credfeto/cs-template.git](https://github.com/credfeto/cs-template) repo.
 
 Precedence is given to local instructions over global instructions.
+
 
 ## Environment Safety (MANDATORY)
 
