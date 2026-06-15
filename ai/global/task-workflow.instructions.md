@@ -126,6 +126,54 @@ For complex files, commit+push+update after each round — do not wait until ful
 
 > Pre-commit hooks may make commits slow — wait for them to complete before assuming failure.
 
+## Background Tasks and Monitor Tool (MANDATORY)
+
+When using the Monitor tool to watch a background Bash task, the poll condition in the `until` loop **must** be provably satisfiable — a condition that can never be met loops forever and blocks the entire session.
+
+### Rules for poll conditions
+
+1. **Never poll for `"exit code"`** — that string is not reliably written to background task output files. Poll for a specific string the command itself writes (see table below).
+
+2. **Do not pipe after `grep -q` in a negation check.** `! grep -q "pattern" file | tail -1` does NOT detect absence — the pipe applies to grep's (empty) stdout, so `tail -1` exits 0 regardless, and `!` inverts that to always-false. Write `! grep -q "pattern" file` with no trailing pipe.
+
+3. **Verify the poll string exists in real output before writing the loop.** If you cannot confirm what string the command writes, run the command in the foreground first and read its output.
+
+4. **Prefer foreground over background for bounded work.** Use `run_in_background: true` only when a command genuinely takes many minutes (e.g. a full integration-test run) and you have independent work to do while waiting. A `dotnet build` or `git commit` should always run in the foreground.
+
+5. **Time-box every poll loop — die after 30 minutes.** Always include a deadline so the session cannot hang forever:
+
+   ```bash
+   deadline=$(( $(date +%s) + 1800 ))
+   until grep -q "Build succeeded." "${output_file}" 2>/dev/null; do
+       sleep 15
+       if [ "$(date +%s)" -ge "${deadline}" ]; then
+           echo "ERROR: timed out after 30 minutes waiting for build" >&2
+           exit 1
+       fi
+   done
+   ```
+
+   If the deadline fires, mark the work item Blocked and stop:
+
+   ```bash
+   gh issue edit <number> --repo <owner/repo> --add-label "Blocked"
+   gh issue comment <number> --repo <owner/repo> \
+       --body "Blocked: timed out after 30 minutes waiting for <what>. Last output: $(tail -5 "${output_file}" 2>/dev/null)"
+   ```
+
+   Use `gh pr edit` / `gh pr comment` instead if the work item is a PR. Then exit — do not continue work.
+
+### Reliable poll strings by command
+
+| Command / scenario | String to poll for |
+| --- | --- |
+| `dotnet build` succeeded | `Build succeeded.` |
+| `dotnet test` all passed | `Passed!` |
+| pre-commit hooks passed | `→ All checks passed.` |
+| pre-commit hooks failed | `→` followed by `Failed` (check for both to distinguish pass/fail) |
+| `git push` completed | `branch` (branch tracking line in push output) |
+| `gh pr create` / `gh pr ready` | poll not needed — these exit immediately |
+
 ## Multi-Agent Implementation and Review Pattern
 
 ### Model Selection
