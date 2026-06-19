@@ -68,7 +68,7 @@ jobs:
 
       - name: "Checkout Source"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 2
@@ -110,7 +110,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 0
@@ -170,7 +170,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 0
@@ -207,7 +207,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -234,7 +234,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -261,7 +261,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -297,7 +297,7 @@ jobs:
 
       - name: "Checkout Source"
         if: steps.visibility.outputs.is_public == 'true'
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 0
@@ -330,7 +330,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -357,7 +357,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -407,7 +407,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 0
