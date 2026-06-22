@@ -30,6 +30,7 @@ Load these only when the work involves the relevant technology or context.
 | File | Load When | Covers |
 | --- | --- | --- |
 | [dotnet.instructions.md](dotnet.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present | Build/test, solution structure, test patterns, ValueTask, CancellationToken, NuGet audit |
+| [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present, or a `Credfeto.*`/`FunFair.*` package is encountered | Registry of org-owned NuGet packages with source repos — never decompile these |
 | [sql.instructions.md](sql.instructions.md) | Any `.sql` file or SQL project is present | SQL linting, local DB connection, performance optimisation |
 | [shell-scripts.instructions.md](shell-scripts.instructions.md) | Any `.sh` file is present or shell script work is needed | Shebang, linting, output helper conventions (`die`/`success`/`info`) |
 | [shell.firewall.instructions.md](shell.firewall.instructions.md) | Firewall rule management is needed | `firewall-cmd` rules, private network constants |
