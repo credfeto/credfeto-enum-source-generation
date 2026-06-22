@@ -65,7 +65,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout"
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -83,6 +83,11 @@ jobs:
           echo "AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}"
           echo "DOCKER_CONTAINER_REGISTRY: ${{inputs.DOCKER_CONTAINER_REGISTRY}}"
           echo "AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}"
+
+      - name: "Run Cloud Formation Linter"
+        uses: ./.github/actions/cfn-lint
+        with:
+          template: "${{github.workspace}}/${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}"
 
       - name: "Configure AWS Credentials"
         uses: aws-actions/configure-aws-credentials@v6.2.0
