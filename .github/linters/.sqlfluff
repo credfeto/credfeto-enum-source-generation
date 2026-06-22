@@ -101,4 +101,3 @@ forbid_subquery_in = join
 [sqlfluff:rules:convention.not_equal]
 # Default to preferring the "ansi" (i.e. `<>`)
 preferred_not_equal_style = ansi
-
