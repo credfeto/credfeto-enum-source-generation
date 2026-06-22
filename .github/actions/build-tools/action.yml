@@ -65,3 +65,9 @@ runs:
       with:
         TOOL_NAME: "Credfeto.DotNet.Code.Analysis.Overrides.Cmd"
         TOOL_VERSION: "latest"
+
+    - name: "Install Dotnet Build Check tool"
+      uses: ./.github/actions/dotnet-tool
+      with:
+        TOOL_NAME: "FunFair.BuildCheck"
+        TOOL_VERSION: "latest"
