@@ -18,7 +18,7 @@ inputs:
     required: false
   NPM_REGISTRY:
     description: 'The NPM Registry to use'
-    required: true
+    required: false
   NPM_CACHE_CERT:
     description: 'The NPM Registry cert'
     required: false
@@ -123,6 +123,7 @@ runs:
         echo "Error: no package-lock.json" && exit 1
 
     - name: "NPM: Force registry before restore"
+      if: inputs.NPM_REGISTRY != ''
       working-directory: ${{steps.build_context.outputs.WORK_DIR}}
       shell: bash
       run: |
@@ -134,6 +135,7 @@ runs:
 # but it doesn't actually work...  So instead we have to add the cert to the npm config above
 # --use-system-ca is a deprecated setting!
     - name: "NPM: Install dependencies"
+      if: inputs.NPM_REGISTRY != ''
       working-directory: ${{steps.build_context.outputs.WORK_DIR}}
       shell: bash
       run: |
@@ -144,6 +146,17 @@ runs:
               --prefer-offline \
               --no-progress \
               --registry="${{inputs.NPM_REGISTRY}}"
+
+    - name: "NPM: Install dependencies (public registry)"
+      if: inputs.NPM_REGISTRY == ''
+      working-directory: ${{steps.build_context.outputs.WORK_DIR}}
+      shell: bash
+      run: |
+        npm install \
+              --ignore-scripts \
+              --no-fund \
+              --no-audit \
+              --no-progress
 
     # Running tests doesn't work as they're crap
     # - name: "NPM: Test"
