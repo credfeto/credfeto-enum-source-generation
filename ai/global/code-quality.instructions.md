@@ -77,6 +77,14 @@ When deprecation warnings appear in test output (e.g. framework or runtime warni
 
 Do not suppress or ignore deprecation warnings.
 
+## Code Comments (MANDATORY)
+
+- **Never write XMLDoc (`///`) or Javadoc (`/** */`) comments.** Code must speak for itself through well-chosen names and clear structure.
+- If you feel a doc comment is needed to explain what something does, that is a signal that the code is too complex or the names are wrong — fix the code, not the documentation.
+- The only acceptable inline comments explain a non-obvious **why**: a hidden constraint, a subtle invariant, a deliberate workaround for a known bug. If removing the comment would not confuse a future reader, do not write it.
+- Do not write comments that describe what the code does — well-named identifiers already do that.
+- Do not reference the current task, issue, PR, or caller in comments — those belong in the commit message or PR description and rot as the codebase evolves.
+
 ## Code Complexity
 
 - Prefer clean code — readable, well-named, single-responsibility.
