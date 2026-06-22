@@ -1,0 +1,43 @@
+--- # Check for outdated GitHub Action version pins in composite action files
+# Maintain in repo: funfair-server-template
+name: "Repo: Check composite action versions"
+on:
+  schedule:
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-composite-action-versions:
+    if: endsWith(github.repository, '-template')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+          echo "ACTIVE_HOSTNAME=$HOSTNAME"
+          echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout"
+        uses: actions/checkout@v7.0.0
+
+      - name: "Check Composite Action Versions"
+        uses: ./.github/actions/check-composite-action-versions
+        with:
+          GITHUB_TOKEN: ${{github.token}}
