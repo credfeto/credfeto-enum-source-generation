@@ -1,0 +1,28 @@
+--- # Action: Run Cloud Formation Linter
+name: 'Run Cloud Formation Linter'
+description: 'Installs cfn-lint via pip and lints a CloudFormation template'
+
+inputs:
+  template:
+    description: 'Path to the CloudFormation template file to lint'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: 'Setup Python'
+      uses: actions/setup-python@v6.2.0
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+        cache-dependency-path: '${{github.workspace}}/.github/actions/cfn-lint/requirements.txt'
+
+    - name: 'Install cfn-lint'
+      shell: bash
+      run: pip install -r "$GITHUB_ACTION_PATH/requirements.txt"
+
+    - name: 'Run Cloud Formation Linter'
+      shell: bash
+      run: cfn-lint --info --template "$TEMPLATE"
+      env:
+        TEMPLATE: ${{inputs.template}}
