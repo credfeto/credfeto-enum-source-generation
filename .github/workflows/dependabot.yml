@@ -45,6 +45,41 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Rebase"
-        uses: bbeesley/gha-auto-dependabot-rebase@v1.5.225
-        env:
-          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
+        uses: actions/github-script@v9.0.0
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          script: |
+            const pulls = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+            const dependabotPrs = pulls.filter(pr => pr.user.login === 'dependabot[bot]');
+            for (const pr of dependabotPrs) {
+              const { data: detail } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+              });
+              if (detail.mergeable_state === 'dirty' || detail.mergeable_state === 'behind') {
+                const comments = await github.paginate(github.rest.issues.listComments, {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number
+                });
+                const alreadyUpToDate = comments.some(c =>
+                  c.user.login === 'dependabot[bot]' && (
+                    c.body.includes("Looks like this PR is already up-to-date with main!") ||
+                    c.body.includes("Looks like this PR has been edited by someone other than Dependabot.")
+                  )
+                );
+                if (!alreadyUpToDate) {
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: pr.number,
+                    body: '@dependabot rebase'
+                  });
+                }
+              }
+            }
