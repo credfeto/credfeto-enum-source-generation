@@ -277,13 +277,6 @@ runs:
       with:
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
 
-    - name: "Install Dotnet Build Check tool"
-      if: steps.check_files.outputs.SLN_EXIST == 'true'
-      uses: ./.github/actions/dotnet-tool
-      with:
-        TOOL_NAME: "FunFair.BuildCheck"
-        TOOL_VERSION: "latest"
-
     - name: "Deploy check - Default"
       shell: bash
       run: |
