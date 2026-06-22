@@ -242,6 +242,40 @@ This prevents the generator's Roslyn NuGet dependencies (e.g. `System.Collection
 
 - Never call `Substitute.For<T>()` in classes deriving from `TestBase` or `DependencyInjectionTestsBase`.
 - Remove unused `using NSubstitute;` after replacing all `Substitute.For<>()` calls.
+- All instance method calls on `TestBase` (including `GetTypedLogger<T>()`, `GetSubstitute<T>()`, `CancellationToken()`, and custom helpers) require explicit `this.` — IDE0009 is enforced as an error. Static helpers (e.g. `GetSubstitute<T>()`) must remain `static` to avoid this requirement.
+
+## FunFair.Test.* — Prefer Library Code Over Custom Implementations (MANDATORY)
+
+**Do not write code that FunFair.Test.* already provides.** Before implementing a custom test helper, check what `FunFair.Test.Common` and `FunFair.Test.Infrastructure` offer.
+
+### FunFair.Test.Infrastructure
+
+Add `FunFair.Test.Infrastructure` as a package reference when your tests need HTTP mocking beyond what `FunFair.Test.Common` provides. It supplies:
+
+**`HttpClientFactoryExtensions`** (`FunFair.Test.Infrastructure.Extensions`):
+
+Use `MockCreateClientWithResponse` to set up a named `IHttpClientFactory` substitute with a fixed response — do NOT hand-write `GetSubstitute<IHttpClientFactory>()` + `.Returns()` for simple cases:
+
+```csharp
+IHttpClientFactory factory = GetSubstitute<IHttpClientFactory>();
+factory.MockCreateClientWithResponse(
+    clientName: "MyClientName",
+    httpStatusCode: HttpStatusCode.OK,
+    responseMessage: """{"data":[]}"""
+);
+```
+
+Overloads accept `string`, typed object (serialised to JSON), or `HttpStatusCode`-only. Use the typed overload when the response is a .NET object to avoid manual serialisation.
+
+**Limitation**: `MockCreateClientWithResponse` sets up one fixed response per named client. For tests that need sequential different responses from the same client, use `NSubstitute`'s `.Returns()` with a delegate or a custom `HttpMessageHandler`.
+
+### General rule
+
+If `FunFair.Test.Common` or `FunFair.Test.Infrastructure` provides a helper for a pattern you are about to write from scratch, use the library version. Examples of patterns NOT to reinvent:
+
+- Custom `ILogger<T>` mocks → `this.GetTypedLogger<T>()`
+- Custom `TimeProvider` fakes → `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`
+- Custom `IHttpClientFactory` setups → `MockCreateClientWithResponse`
 
 ## xunit Assertion Patterns
 
