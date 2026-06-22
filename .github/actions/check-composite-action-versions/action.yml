@@ -1,0 +1,155 @@
+--- # Check for outdated GitHub Action version pins in workflow and composite action files
+# Maintain in repo: funfair-server-template
+name: "Check Composite Action Versions"
+description: "Raises an issue when external action version pins in .github/workflows/ or .github/actions/ are outdated. No-op on non-template repositories."
+inputs:
+  GITHUB_TOKEN:
+    description: "GitHub token with issues:write permission"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Check Composite Action Versions"
+      uses: actions/github-script@v9.0.0
+      with:
+        github-token: ${{inputs.GITHUB_TOKEN}}
+        script: |
+          const { readFileSync, readdirSync } = require('fs');
+          const path = require('path');
+
+          const { data: repoInfo } = await github.rest.repos.get({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          if (!repoInfo.is_template) {
+            core.info('ℹ️ Not a template repository — skipping action version check');
+            return;
+          }
+          core.info('✅ Repository is a template — checking action version pins');
+
+          function findFiles(dir, predicate) {
+            const results = [];
+            for (const entry of readdirSync(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) results.push(...findFiles(full, predicate));
+              else if (predicate(entry.name)) results.push(full);
+            }
+            return results;
+          }
+
+          function extractRefs(files) {
+            const map = new Map();
+            for (const file of files) {
+              for (const line of readFileSync(file, 'utf8').split('\n')) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('#')) continue;
+                const m = trimmed.match(/^uses:\s+([^#\s]+)/);
+                if (!m) continue;
+                const ref = m[1];
+                if (ref.startsWith('.')) continue;
+                const at = ref.lastIndexOf('@');
+                if (at === -1) continue;
+                const parts = ref.slice(0, at).split('/');
+                if (parts.length < 2) continue;
+                const key = `${parts[0]}/${parts[1]}`;
+                if (!map.has(key)) map.set(key, { owner: parts[0], repo: parts[1], version: ref.slice(at + 1) });
+              }
+            }
+            return map;
+          }
+
+          async function latestMatchingTag(owner, repo, current) {
+            try {
+              const { data } = await github.rest.repos.getLatestRelease({ owner, repo });
+              if (/^v\d+/.test(current) && /^v\d+/.test(data.tag_name)) return data.tag_name;
+            } catch {}
+            const prefix = current.match(/^(v\d+)\./)?.[1];
+            if (!prefix) return null;
+            for await (const page of github.paginate.iterator(
+              github.rest.repos.listReleases, { owner, repo, per_page: 50 }
+            )) {
+              const match = page.data
+                .filter(r => !r.prerelease && r.tag_name.startsWith(`${prefix}.`))
+                .sort((a, b) => new Date(b.published_at) - new Date(a.published_at))[0];
+              if (match) return match.tag_name;
+            }
+            return null;
+          }
+
+          const githubDir = path.join(process.env.GITHUB_WORKSPACE, '.github');
+          const isYaml = n => n.endsWith('.yml') || n.endsWith('.yaml');
+          const isActionFile = n => n === 'action.yml' || n === 'action.yaml';
+
+          const files = [
+            ...findFiles(path.join(githubDir, 'workflows'), isYaml),
+            ...findFiles(path.join(githubDir, 'actions'), isActionFile),
+          ];
+          const refs = extractRefs(files);
+          core.info(`ℹ️ Checking ${refs.size} unique external actions across ${files.length} files`);
+
+          const outdated = [];
+          for (const [key, { owner, repo, version }] of refs) {
+            try {
+              const latest = await latestMatchingTag(owner, repo, version);
+              if (!latest) {
+                core.warning(`⚠️ No matching release found for ${key}`);
+                continue;
+              }
+              if (latest !== version) {
+                core.info(`❌ ${key}: ${version} -> ${latest}`);
+                outdated.push({ action: key, current: version, latest });
+              } else {
+                core.info(`✅ ${key}: ${version}`);
+              }
+            } catch (e) {
+              core.warning(`⚠️ ${key}: ${e.message}`);
+            }
+          }
+
+          if (outdated.length === 0) {
+            core.info('✅ All action version pins are up to date');
+            core.notice('All action version pins are up to date');
+            return;
+          }
+
+          const issueTitle = 'chore: update GitHub Actions version pins';
+          const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            labels: 'AI-Work',
+          });
+          const existing = openIssues.find(i => i.title === issueTitle);
+          if (existing) {
+            core.info(`⚠️ Issue #${existing.number} already open — skipping`);
+            core.notice(`Existing issue: ${existing.html_url}`);
+            return;
+          }
+
+          const rows = outdated.map(({ action, current, latest }) =>
+            `| \`${action}\` | \`${current}\` | \`${latest}\` |`
+          );
+          const body = [
+            'The following GitHub Actions have outdated version pins in `.github/workflows/` or `.github/actions/`:',
+            '',
+            '| Action | Current | Latest |',
+            '| --- | --- | --- |',
+            ...rows,
+            '',
+            'Note: workflow-file pins should be updated by Dependabot automatically.',
+            'Composite action file pins (`github/actions/`) are not updated by Dependabot because this',
+            'repository is marked as a template (`is_template: true`).',
+            '',
+            'Update the version pins in the relevant files.',
+          ].join('\n');
+
+          const { data: issue } = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: issueTitle,
+            body,
+            labels: ['AI-Work', 'github-actions', 'dependencies', 'Urgent'],
+          });
+          core.info(`✅ Created issue #${issue.number}`);
+          core.notice(`New issue: ${issue.html_url}`);
