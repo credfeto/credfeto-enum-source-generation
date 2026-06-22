@@ -52,7 +52,27 @@ A project is a test project **only** if its assembly name ends with one of these
 
 Test support libraries (e.g. `*.Tests.Mocks`, `*.Tests.Common`) exist to be referenced by test projects. They are **not** test projects themselves and must never be targeted for test runs.
 
-Any non-test project that transitively references test packages (xunit, FunFair.Test.Common, etc.) **must** explicitly set `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>` — those packages set it to `true`, and `dotnet test` in .NET 10 uses this property to drive discovery.
+### Setting Up a Test Support Library (MANDATORY)
+
+When a project is a test support library (provides mocks, helpers, or base types for test projects) but is **not** itself a test runner, it must have all three of the following properties set explicitly:
+
+```xml
+<IsTestProject>false</IsTestProject>
+<IsTestingPlatformApplication>false</IsTestingPlatformApplication>
+<UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+```
+
+It must also import `UnitTests.props` (required by `FunFair.BuildCheck` until [funfair-tech/funfair-build-check#417](https://github.com/funfair-tech/funfair-build-check/issues/417) is resolved):
+
+```xml
+<Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />
+```
+
+- `IsTestProject=false` — tells `FunFair.BuildCheck` this is not a test project; without it, buildcheck errors because a project referencing test packages that lacks this flag is expected to be a test runner.
+- `IsTestingPlatformApplication=false` — overrides the implicit `true` set by `FunFair.Test.Common`, xunit, and similar packages; without it, `dotnet test` on .NET 10 attempts to run the project as an executable and fails because `OutputType=Library`.
+- `UseMicrosoftTestingPlatformRunner=true` — required by `FunFair.BuildCheck` for any project that references test packages, even when `IsTestProject=false`.
+
+These projects keep `OutputType=Library`.
 
 ## Code Coverage (MANDATORY)
 
