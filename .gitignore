@@ -355,3 +355,6 @@ node_modules
 
 # NEVER commit a .env as thay'll have secrets in it
 .env
+
+# AI Config
+.junie
