@@ -132,6 +132,24 @@ Rules:
 - Subsequent pushes on a tracked branch can use `git -C <repodir> push`.
 - **Never push without `-u` on the first push** — without it the branch has no upstream and later `git push` and `git pull` commands will fail.
 
+## Command Failure Reporting (MANDATORY)
+
+When any git command fails (push, rebase, fetch, etc.), you **must** quote the exact stdout and stderr output verbatim in any issue or PR comment before posting any explanation or diagnosis. Never substitute a narrative about why a command might have failed for the actual error output.
+
+Capture the output into a variable and embed it in the comment body:
+
+```bash
+push_output=$(git -C /path push --force-with-lease 2>&1) || true
+gh pr comment NUMBER --repo OWNER/REPO --body "$(cat <<COMMENT
+git push failed with:
+
+${push_output}
+COMMENT
+)"
+```
+
+This rule exists because AI-generated diagnoses of command failures are frequently wrong. The verbatim output is always correct; the explanation is not.
+
 ## Branch Naming
 
 Format: `<type>/<name>` (mirroring Conventional Commits types):
