@@ -12,6 +12,129 @@ Load when acting as a named agent. Routing table and model selection: [task-work
 - Determine work type and route via the routing table. Never implement directly.
 - If a delegated role escalates a task as infeasible (Coding Researcher **Not possible** result), do not re-route it unchanged. Record the finding on the issue/PR and surface it to the user for a decision — re-scope, accept the suggested alternative, or drop.
 
+### Issue Workflow — Plan First (new issues only)
+
+When picking up an **Issue** that has no existing PR:
+
+1. Check whether you have already posted a plan comment:
+
+   ```bash
+   gh issue view <number> --repo <owner/repo> --json comments \
+     --jq '[.comments[].body] | any(test("## Implementation Plan"; "i"))'
+   ```
+
+   - `false` → Plan mode (steps 2–3 below).
+   - `true` → Plan exists. How approval is signalled depends on whether a Workflow board is configured (the orchestrator passes this context in your CLAUDE.md):
+     - **Board configured**: check whether a human has set the board status to **Approved**. If yes → skip to implementation. If not yet → revise or re-post the plan, mark Blocked, STOP (step 2).
+     - **No board**: check for a human approval comment posted **after** the plan comment (keywords: `approved` / `go ahead` / `looks good` / `lgtm` — case-insensitive, whole word). If found → skip to implementation. If not → revise or re-post, mark Blocked, STOP (step 2).
+
+2. **Plan mode**: produce a concrete implementation plan using `/plan`, then post it as an issue comment in **exactly** this format:
+
+   ```text
+   ## Implementation Plan
+
+   ### Files to change
+   - `path/to/file` — reason
+
+   ### Approach
+   <one-paragraph description>
+
+   ### Test strategy
+   <what will be tested and how>
+
+   ### Assumptions
+   <list or "None">
+
+   ### Open questions
+   <list or "None — ready to proceed pending approval">
+   ```
+
+3. Mark the issue as Blocked and update the Workflow board to **Planning** (if board data is present), then **STOP**:
+
+   ```bash
+   gh issue edit <number> --repo <owner/repo> --add-label Blocked
+   ```
+
+   **Approval requires an explicit human action — the orchestrator never removes `Blocked` automatically:**
+   - **Board configured**: human sets board status to **Approved** and removes `Blocked`.
+   - **No board**: human posts an approval comment (`approved` / `go ahead` / `looks good` / `lgtm`) and removes `Blocked`.
+
+### PR Workflow — AI Review Loop
+
+After all code changes are pushed and all required CI checks pass, **before** enabling auto-merge:
+
+#### Phase A — Code review (up to `MAX_REVIEW_ITERATIONS` rounds)
+
+1. Update Workflow board to **AI Review** (if board data is present in your CLAUDE.md).
+2. Run: `/code-review --comment`
+3. If inline PR comment findings were posted: fix each in its own commit, push, return to step 2.
+4. After `MAX_REVIEW_ITERATIONS` rounds with unresolved findings: post a PR comment listing them, add `Blocked` label, and **STOP**:
+
+   ```bash
+   gh pr edit <number> --repo <owner/repo> --add-label Blocked
+   ```
+
+#### Phase B — Security review (up to `MAX_REVIEW_ITERATIONS` rounds)
+
+1. Update Workflow board to **AI Security Review** (if board data present).
+2. Run: `/security-review`
+3. If findings are reported (inline or in output): post them as a PR comment if not already inline, fix each in its own commit, push, return to step 2.
+4. After `MAX_REVIEW_ITERATIONS` rounds with unresolved findings: post a PR comment, add `Blocked` label, **STOP**.
+
+#### Phase C — Mark ready
+
+Only when both reviews pass (or no reviewable changes):
+
+1. Update Workflow board to **Human Review** (if board data present).
+2. Enable auto-merge:
+
+   ```bash
+   gh pr merge --auto --merge <number> --repo <owner/repo>
+   ```
+
+   If that fails (auto-merge not supported): `gh pr ready <number> --repo <owner/repo>`
+
+### Workflow Board
+
+Each generated `CLAUDE.md` may contain Workflow board data in this format:
+
+```text
+Workflow board (see agent-roles.instructions.md for update commands):
+  WF_PROJECT_ID=PVT_xxx
+  WF_STATUS_FIELD_ID=PVTSSF_xxx
+  WF_NOT_STARTED=<option-id>
+  WF_PLANNING=<option-id>
+  WF_APPROVED=<option-id>
+  WF_DEVELOPMENT=<option-id>
+  WF_AI_REVIEW=<option-id>
+  WF_AI_SECURITY_REVIEW=<option-id>
+  WF_HUMAN_REVIEW=<option-id>
+  WF_COMPLETE=<option-id>
+```
+
+If this section is **absent** from your CLAUDE.md, skip all board updates silently.
+
+To update the board status, run these two commands in sequence. Replace `<STATUS_OPTION_ID>` with the appropriate `WF_*` value from the CLAUDE.md, and `<ISSUE_OR_PR_NUMBER>` with the issue or PR number:
+
+```bash
+# Step 1 — resolve the item node ID (use 'issues' for issues, 'pulls' for PRs)
+ITEM_NODE_ID=$(gh api repos/<owner/repo>/issues/<number> --jq '.node_id')
+
+# Step 2 — add item to project and capture the project item ID
+PROJECT_ITEM_ID=$(gh api graphql \
+  -f query='mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{projectId:$p,contentId:$c}){item{id}}}' \
+  -f p="${WF_PROJECT_ID}" -f c="${ITEM_NODE_ID}" \
+  --jq '.data.addProjectV2ItemById.item.id')
+
+# Step 3 — set the Status field
+gh api graphql \
+  -f query='mutation($p:ID!,$i:ID!,$f:ID!,$v:String!){updateProjectV2ItemFieldValue(input:{projectId:$p,itemId:$i,fieldId:$f,value:{singleSelectOptionId:$v}}){projectV2Item{id}}}' \
+  -f p="${WF_PROJECT_ID}" -f i="${PROJECT_ITEM_ID}" \
+  -f f="${WF_STATUS_FIELD_ID}" -f v="<STATUS_OPTION_ID>" > /dev/null
+```
+
+`addProjectV2ItemById` is idempotent — calling it again for an item already in the project just returns the existing item ID.
+
 ### On-Hold Label
 
 An issue labelled `On-Hold` is not ready to be worked on — it needs further thought or cannot be implemented at this time. Do not pick up or assign yourself to an `On-Hold` issue. If the label is removed, re-evaluate priority and proceed normally.
@@ -252,7 +375,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Wait up to 1 minute for GitHub to auto-create a PR (`gh pr list --head <branch>`); create one if absent.
 - Title: Conventional Commits format matching the primary commit. Body: summary + `Closes #<n>` (or `Related to #<n>`).
 - Update body if PR already exists. Add yourself as assignee.
-- Mark ready (`gh pr ready <number>`) only if Code Tester and Code Reviewer signed off — do not rebase here (hand off to Rebase Agent first if the branch needs rebasing). Otherwise leave as draft.
+- Do **not** mark ready or enable auto-merge here — that is the Orchestrator's job after the AI review loop (see [PR Workflow — AI Review Loop](#pr-workflow--ai-review-loop)). Leave the PR as draft.
 
 ## CI Monitor _(not currently enabled)_
 
