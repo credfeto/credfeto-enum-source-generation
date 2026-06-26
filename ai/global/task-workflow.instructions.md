@@ -61,14 +61,30 @@ github is configured to automatically create PRs from pushed branches. These PRs
 
 ## PR Title, Body, and Label Sync (MANDATORY)
 
-When creating or updating a PR linked to one or more issues:
+On every agent run, for every PR being interacted with:
 
 1. Ensure the **title** accurately reflects all changes in the PR — update it if the scope has changed.
-2. Ensure the **body** summarises all changes and includes `Closes #<n>` for each linked issue.
-3. Copy all issue labels: `gh issue view <n> --json labels --jq '.labels[].name'` → `gh pr edit <n> --add-label "<label>"`
-4. Never remove any label from a PR or issue — GitHub workflows add labels automatically and they must not be removed.
+2. Ensure the **body** summarises all changes and includes `Closes #<n>` for each linked issue, if any.
+3. Sync labels from all linked closing issues to the PR:
 
-Repeat after every push or PR update.
+   ```bash
+   gh pr view <pr> --repo <owner/repo> --json closingIssuesReferences \
+     --jq '.closingIssuesReferences[].number' \
+   | while IFS= read -r n; do
+       gh issue view "$n" --repo <owner/repo> --json labels --jq '.labels[].name' \
+         || echo "Warning: could not fetch labels for issue $n" >&2
+     done \
+   | sort -u \
+   | grep -vE '^(Blocked|On-Hold)$' \
+   | while IFS= read -r label; do
+       gh pr edit <pr> --repo <owner/repo> --add-label "$label" \
+         || echo "Warning: could not add label '$label' to PR" >&2
+     done
+   ```
+
+   The `Blocked` and `On-Hold` labels are explicitly excluded — workflow-control labels must never be synced from an issue to its PR.
+
+4. Never remove any label from a PR or issue — GitHub workflows add labels automatically and they must not be removed.
 
 ## Label Management (MANDATORY)
 
