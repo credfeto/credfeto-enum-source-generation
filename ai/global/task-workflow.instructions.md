@@ -32,6 +32,15 @@ When selecting the next issue to work on, prefer issues with higher-priority lab
 | `On-Hold` | Needs further thought or cannot be implemented yet — do not start work |
 | `Blocked` | Needs human input before work can continue — see the Orchestrator section in [agent-roles.instructions.md](agent-roles.instructions.md) |
 
+## GitHub Issue Creation (MANDATORY)
+
+When asked to create or add a GitHub issue:
+
+1. Enter Plan Mode.
+2. Work out at a high level what code change the issue would represent — scope, affected files, approach.
+3. Exit Plan Mode and return to auto.
+4. Create the issue, using the plan output to write a meaningful description.
+
 ## PR Lifecycle
 
 - Only one active branch or open PR per repository at a time; do not create another until the current one is merged and closed.
