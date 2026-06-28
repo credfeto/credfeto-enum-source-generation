@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.131.1336
 - Dependencies - Updated FunFair.CodeAnalysis to 7.2.2.2066
 - Dependencies - Updated Meziantou.Analyzer to 3.0.114
+- Dependencies - Updated Microsoft.VisualStudio.Threading.Analyzers to 18.7.23
 ### Deprecated
 ### Removed
 ### Deployment Changes
