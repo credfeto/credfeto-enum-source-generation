@@ -27,6 +27,7 @@ runs:
       run: |
         mkdir -p "$(dirname "$CFN_LINT_VENV")"
         python -m venv "$CFN_LINT_VENV"
+        echo "cfn-lint" > "$GITHUB_ACTION_PATH/requirements.txt"
         "$CFN_LINT_VENV/bin/pip" install --quiet -r "$GITHUB_ACTION_PATH/requirements.txt"
 
     - name: 'Run Cloud Formation Linter'
