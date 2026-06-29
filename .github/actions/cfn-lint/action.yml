@@ -33,6 +33,6 @@ runs:
     - name: 'Run Cloud Formation Linter'
       shell: bash
       run: |
-        "$CFN_LINT_VENV/bin/cfn-lint" --info --template "$TEMPLATE"
+        "$CFN_LINT_VENV/bin/cfn-lint" --info --include-checks I --template "$TEMPLATE"
       env:
         TEMPLATE: ${{inputs.template}}
