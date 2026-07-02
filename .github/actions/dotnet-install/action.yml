@@ -102,7 +102,7 @@ runs:
 
     - if: steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'true'
       name: "Install dotnet (For Build)"
-      uses: actions/setup-dotnet@v5.3.0
+      uses: actions/setup-dotnet@v5.4.0
       env:
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       with:
@@ -113,7 +113,7 @@ runs:
 
     - if: steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'false'
       name: "Install dotnet (Tools)"
-      uses: actions/setup-dotnet@v5.3.0
+      uses: actions/setup-dotnet@v5.4.0
       env:
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       with:
