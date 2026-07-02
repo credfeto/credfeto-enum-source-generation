@@ -303,24 +303,27 @@ public sealed class EnumGeneratorTests : TestBase
     }
 
     [Theory]
-    [InlineData(false, false, true)]
-    [InlineData(false, true, true)]
-    [InlineData(true, false, false)]
-    [InlineData(true, true, false)]
-    public void DetectGenerationOptionsReturnsCorrectFlag(
-        bool useMinimalCompilation,
-        bool checkUnreachable,
-        bool expected
-    )
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    public void DetectGenerationOptionsHasDoesNotReturnAttribute(bool useMinimalCompilation, bool expected)
     {
         CSharpCompilation compilation = useMinimalCompilation
             ? CompilationHelpers.CreateMinimalCompilation("// empty")
             : CompilationHelpers.CreateCompilation("// empty");
         GenerationOptions options = SyntaxExtractor.DetectGenerationOptions(compilation);
+        Assert.Equal(expected, options.HasDoesNotReturnAttribute);
+    }
 
-        bool actual = checkUnreachable ? options.SupportsUnreachableException : options.HasDoesNotReturnAttribute;
-
-        Assert.Equal(expected, actual);
+    [Theory]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    public void DetectGenerationOptionsSupportsUnreachableException(bool useMinimalCompilation, bool expected)
+    {
+        CSharpCompilation compilation = useMinimalCompilation
+            ? CompilationHelpers.CreateMinimalCompilation("// empty")
+            : CompilationHelpers.CreateCompilation("// empty");
+        GenerationOptions options = SyntaxExtractor.DetectGenerationOptions(compilation);
+        Assert.Equal(expected, options.SupportsUnreachableException);
     }
 
     [Theory]
