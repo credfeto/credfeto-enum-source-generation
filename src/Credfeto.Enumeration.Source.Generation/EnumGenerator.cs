@@ -147,15 +147,20 @@ public sealed class EnumGenerator : IIncrementalGenerator
 
         IReadOnlyList<EnumGeneration> updatedEnums =
         [
-            .. c.Enums.Select(e => new EnumGeneration(
-                accessType: e.AccessType,
-                name: e.Name,
-                @namespace: e.Namespace,
-                members: e.Members,
-                location: e.Location,
-                options: pair.options,
-                equalsValueIdentifiers: e.EqualsValueIdentifiers
-            )),
+            .. c.Enums.Select(e =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                return new EnumGeneration(
+                    accessType: e.AccessType,
+                    name: e.Name,
+                    @namespace: e.Namespace,
+                    members: e.Members,
+                    location: e.Location,
+                    options: pair.options,
+                    equalsValueIdentifiers: e.EqualsValueIdentifiers
+                );
+            }),
         ];
 
         return (
