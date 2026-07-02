@@ -81,4 +81,40 @@ public sealed class ClassEnumGenerationTests : TestBase
 
         Assert.NotEqual(expected: first, actual: second);
     }
+
+    [Fact]
+    public void EqualityReturnsTrueForDifferentEnumListReferencesSameContent()
+    {
+        Location location = Location.None;
+        EnumGeneration enumGen = new(
+            accessType: AccessType.PUBLIC,
+            name: "TestEnum",
+            @namespace: "Test.NS",
+            members: [],
+            location: Location.None,
+            options: default
+        );
+        IReadOnlyList<EnumGeneration> enums1 = [enumGen];
+        IReadOnlyList<EnumGeneration> enums2 = [enumGen];
+
+        Assert.NotSame(expected: enums1, actual: enums2);
+
+        ClassEnumGeneration first = new(
+            accessType: AccessType.INTERNAL,
+            name: "Foo",
+            @namespace: "Bar",
+            enums: enums1,
+            location: location
+        );
+
+        ClassEnumGeneration second = new(
+            accessType: AccessType.INTERNAL,
+            name: "Foo",
+            @namespace: "Bar",
+            enums: enums2,
+            location: location
+        );
+
+        Assert.Equal(expected: first, actual: second);
+    }
 }
