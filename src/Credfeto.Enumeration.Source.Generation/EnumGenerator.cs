@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Credfeto.Enumeration.Source.Generation.Builders;
 using Credfeto.Enumeration.Source.Generation.Models;
@@ -11,20 +13,23 @@ namespace Credfeto.Enumeration.Source.Generation;
 [Generator(LanguageNames.CSharp)]
 public sealed class EnumGenerator : IIncrementalGenerator
 {
+    private const string ENUM_TEXT_ATTRIBUTE_FULL_NAME =
+        "Credfeto.Enumeration.Source.Generation.Attributes.EnumTextAttribute";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterSourceOutput(ExtractEnums(context), action: GenerateEnums);
+        IncrementalValueProvider<GenerationOptions> optionsProvider = context.CompilationProvider.Select(
+            static (compilation, _) => SyntaxExtractor.DetectGenerationOptions(compilation)
+        );
 
-        context.RegisterSourceOutput(ExtractClasses(context), action: GenerateClasses);
-    }
+        context.RegisterSourceOutput(
+            ExtractEnums(context).Combine(optionsProvider).Select(ApplyOptionsToEnum),
+            action: GenerateEnums
+        );
 
-    private static IncrementalValuesProvider<(ClassEnumGeneration? classInfo, ErrorInfo? errorInfo)> ExtractClasses(
-        in IncrementalGeneratorInitializationContext context
-    )
-    {
-        return context.SyntaxProvider.CreateSyntaxProvider(
-            predicate: static (n, _) => n is ClassDeclarationSyntax,
-            transform: GetClassDetails
+        context.RegisterSourceOutput(
+            ExtractClasses(context).Combine(optionsProvider).Select(ApplyOptionsToClass),
+            action: GenerateClasses
         );
     }
 
@@ -38,27 +43,15 @@ public sealed class EnumGenerator : IIncrementalGenerator
         );
     }
 
-    private static (ClassEnumGeneration? classInfo, ErrorInfo? errorInfo) GetClassDetails(
-        GeneratorSyntaxContext generatorSyntaxContext,
-        CancellationToken cancellationToken
+    private static IncrementalValuesProvider<(ClassEnumGeneration? classInfo, ErrorInfo? errorInfo)> ExtractClasses(
+        in IncrementalGeneratorInitializationContext context
     )
     {
-        ClassDeclarationSyntax classDeclarationSyntax = (ClassDeclarationSyntax)generatorSyntaxContext.Node;
-
-        try
-        {
-            ClassEnumGeneration? classInfo = SyntaxExtractor.ExtractClass(
-                context: generatorSyntaxContext,
-                classDeclarationSyntax: classDeclarationSyntax,
-                cancellationToken: cancellationToken
-            );
-
-            return (classInfo, null);
-        }
-        catch (Exception exception)
-        {
-            return (null, new ErrorInfo(classDeclarationSyntax.GetLocation(), exception: exception));
-        }
+        return context.SyntaxProvider.ForAttributeWithMetadataName(
+            fullyQualifiedMetadataName: ENUM_TEXT_ATTRIBUTE_FULL_NAME,
+            predicate: static (n, _) => n is ClassDeclarationSyntax,
+            transform: GetClassDetails
+        );
     }
 
     private static (EnumGeneration? enumInfo, ErrorInfo? errorInfo) GetEnumDetails(
@@ -71,8 +64,9 @@ public sealed class EnumGenerator : IIncrementalGenerator
         try
         {
             EnumGeneration? enumInfo = SyntaxExtractor.ExtractEnum(
-                context: generatorSyntaxContext,
+                semanticModel: generatorSyntaxContext.SemanticModel,
                 enumDeclarationSyntax: enumDeclarationSyntax,
+                options: default,
                 cancellationToken: cancellationToken
             );
 
@@ -82,6 +76,98 @@ public sealed class EnumGenerator : IIncrementalGenerator
         {
             return (null, new ErrorInfo(enumDeclarationSyntax.GetLocation(), exception: exception));
         }
+    }
+
+    private static (ClassEnumGeneration? classInfo, ErrorInfo? errorInfo) GetClassDetails(
+        GeneratorAttributeSyntaxContext generatorAttributeSyntaxContext,
+        CancellationToken cancellationToken
+    )
+    {
+        ClassDeclarationSyntax classDeclarationSyntax = (ClassDeclarationSyntax)
+            generatorAttributeSyntaxContext.TargetNode;
+
+        try
+        {
+            ClassEnumGeneration? classInfo = SyntaxExtractor.ExtractClass(
+                semanticModel: generatorAttributeSyntaxContext.SemanticModel,
+                classDeclarationSyntax: classDeclarationSyntax,
+                options: default,
+                cancellationToken: cancellationToken
+            );
+
+            return (classInfo, null);
+        }
+        catch (Exception exception)
+        {
+            return (null, new ErrorInfo(classDeclarationSyntax.GetLocation(), exception: exception));
+        }
+    }
+
+    private static (EnumGeneration? enumInfo, ErrorInfo? errorInfo) ApplyOptionsToEnum(
+        ((EnumGeneration? enumInfo, ErrorInfo? errorInfo) result, GenerationOptions options) pair,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (pair.result.enumInfo is null)
+        {
+            return pair.result;
+        }
+
+        EnumGeneration e = pair.result.enumInfo.Value;
+
+        return (
+            new EnumGeneration(
+                accessType: e.AccessType,
+                name: e.Name,
+                @namespace: e.Namespace,
+                members: e.Members,
+                location: e.Location,
+                options: pair.options,
+                equalsValueIdentifiers: e.EqualsValueIdentifiers
+            ),
+            pair.result.errorInfo
+        );
+    }
+
+    private static (ClassEnumGeneration? classInfo, ErrorInfo? errorInfo) ApplyOptionsToClass(
+        ((ClassEnumGeneration? classInfo, ErrorInfo? errorInfo) result, GenerationOptions options) pair,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (pair.result.classInfo is null)
+        {
+            return pair.result;
+        }
+
+        ClassEnumGeneration c = pair.result.classInfo.Value;
+
+        IReadOnlyList<EnumGeneration> updatedEnums =
+        [
+            .. c.Enums.Select(e => new EnumGeneration(
+                accessType: e.AccessType,
+                name: e.Name,
+                @namespace: e.Namespace,
+                members: e.Members,
+                location: e.Location,
+                options: pair.options,
+                equalsValueIdentifiers: e.EqualsValueIdentifiers
+            )),
+        ];
+
+        return (
+            new ClassEnumGeneration(
+                accessType: c.AccessType,
+                name: c.Name,
+                @namespace: c.Namespace,
+                enums: updatedEnums,
+                location: c.Location
+            ),
+            pair.result.errorInfo
+        );
     }
 
     private static void GenerateClasses(
