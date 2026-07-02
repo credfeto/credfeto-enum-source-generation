@@ -16,9 +16,9 @@ internal static class SyntaxExtractor
     public static GenerationOptions DetectGenerationOptions(Compilation compilation)
     {
         bool hasDoesNotReturnAttribute =
-            compilation.GetTypeByMetadataName("System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute") is not null;
+            compilation.GetTypesByMetadataName("System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute").Length > 0;
         bool supportsUnreachableException =
-            compilation.GetTypeByMetadataName("System.Diagnostics.UnreachableException") is not null;
+            compilation.GetTypesByMetadataName("System.Diagnostics.UnreachableException").Length > 0;
 
         return new(
             hasDoesNotReturnAttribute: hasDoesNotReturnAttribute,
