@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+- Optimised incremental source generator pipeline: lifted GenerationOptions computation to compilation level, switched class extraction to ForAttributeWithMetadataName, fixed GetTypeByMetadataName lookup
 ### Deprecated
 ### Removed
 ### Deployment Changes
