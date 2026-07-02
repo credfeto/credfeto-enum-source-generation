@@ -72,7 +72,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
 
             return (enumInfo, null);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             return (null, new ErrorInfo(enumDeclarationSyntax.GetLocation(), exception: exception));
         }
@@ -97,7 +97,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
 
             return (classInfo, null);
         }
-        catch (Exception exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             return (null, new ErrorInfo(classDeclarationSyntax.GetLocation(), exception: exception));
         }
