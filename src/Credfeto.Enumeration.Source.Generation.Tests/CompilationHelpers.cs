@@ -50,6 +50,16 @@ internal static class CompilationHelpers
         );
     }
 
+    public static CSharpCompilation CreateMinimalCompilation(string source)
+    {
+        return CSharpCompilation.Create(
+            assemblyName: "MinimalTestAssembly",
+            syntaxTrees: [CSharpSyntaxTree.ParseText(source, cancellationToken: TestContext.Current.CancellationToken)],
+            references: [],
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+        );
+    }
+
     private static void AddReference(List<MetadataReference> references, HashSet<string> addedPaths, Type type)
     {
         TryAddReference(references, addedPaths, type.Assembly.Location);
