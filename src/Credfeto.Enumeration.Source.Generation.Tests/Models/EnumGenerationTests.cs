@@ -88,4 +88,33 @@ public sealed class EnumGenerationTests : TestBase
 
         Assert.Equal(expected: first, actual: second);
     }
+
+    [Fact]
+    public void EqualityReturnsTrueForDifferentMembersListReferencesWithSameContent()
+    {
+        IReadOnlyList<IFieldSymbol> members1 = [];
+        IReadOnlyList<IFieldSymbol> members2 = [];
+        Location location = Location.None;
+        GenerationOptions options = new(hasDoesNotReturnAttribute: false, supportsUnreachableException: false);
+
+        EnumGeneration first = new(
+            accessType: AccessType.PUBLIC,
+            name: "Foo",
+            @namespace: "Bar",
+            members: members1,
+            location: location,
+            options: options
+        );
+
+        EnumGeneration second = new(
+            accessType: AccessType.PUBLIC,
+            name: "Foo",
+            @namespace: "Bar",
+            members: members2,
+            location: location,
+            options: options
+        );
+
+        Assert.Equal(expected: first, actual: second);
+    }
 }
