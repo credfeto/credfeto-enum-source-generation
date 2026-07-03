@@ -305,24 +305,13 @@ public sealed class EnumGeneratorTests : TestBase
     [Theory]
     [InlineData(false, true)]
     [InlineData(true, false)]
-    public void DetectGenerationOptionsHasDoesNotReturnAttribute(bool useMinimalCompilation, bool expected)
+    public void DetectGenerationOptions(bool useMinimalCompilation, bool expected)
     {
         CSharpCompilation compilation = useMinimalCompilation
             ? CompilationHelpers.CreateMinimalCompilation("// empty")
             : CompilationHelpers.CreateCompilation("// empty");
         GenerationOptions options = SyntaxExtractor.DetectGenerationOptions(compilation);
         Assert.Equal(expected, options.HasDoesNotReturnAttribute);
-    }
-
-    [Theory]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    public void DetectGenerationOptionsSupportsUnreachableException(bool useMinimalCompilation, bool expected)
-    {
-        CSharpCompilation compilation = useMinimalCompilation
-            ? CompilationHelpers.CreateMinimalCompilation("// empty")
-            : CompilationHelpers.CreateCompilation("// empty");
-        GenerationOptions options = SyntaxExtractor.DetectGenerationOptions(compilation);
         Assert.Equal(expected, options.SupportsUnreachableException);
     }
 
