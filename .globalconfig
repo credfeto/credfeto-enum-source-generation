@@ -543,6 +543,7 @@ dotnet_diagnostic.S1135.severity = suggestion # SonarAnalyzer.CSharp - S1135 - T
 dotnet_diagnostic.S1168.severity = none # SonarAnalyzer.CSharp - S1168 - Returning <code>null</code> instead of an actual array or collection forces callers of the method to explicitly test for nullity, making them more complex and less readable.
 dotnet_diagnostic.S1172.severity = error # SonarAnalyzer.CSharp - S1172 - Remove Unused method parameter
 dotnet_diagnostic.S125.severity = none # SonarAnalyzer.CSharp - S125 - Commented out code
+dotnet_diagnostic.S1313.severity = error # SonarAnalyzer.CSharp - S1313 - IP addresses should not be hardcoded
 dotnet_diagnostic.S1450.severity = none # SonarAnalyzer.CSharp - S1450 - Private fields only used as local variables in methods should become local variables
 dotnet_diagnostic.S1764.severity = none # SonarAnalyzer.CSharp - S1764 - Identical expressions should not be used on both sides of a binary operator
 dotnet_diagnostic.S1854.severity = none # SonarAnalyzer.CSharp - S1854 - Dead stores should be removed
