@@ -176,7 +176,7 @@ jobs:
           fetch-depth: 0
 
       - name: "Check for leaks"
-        uses: trufflesecurity/trufflehog@v3.95.7
+        uses: trufflesecurity/trufflehog@v3.95.8
         id: trufflehog
         with:
           path: "${{ github.workspace }}"
