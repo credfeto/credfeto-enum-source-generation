@@ -52,6 +52,12 @@ public readonly record struct ClassEnumGeneration
             hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(this.Namespace);
             hashCode = (hashCode * 397) ^ (this.Location?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ this.Enums.Count;
+
+            foreach (EnumGeneration e in this.Enums)
+            {
+                hashCode = (hashCode * 397) ^ e.GetHashCode();
+            }
+
             return hashCode;
         }
     }
