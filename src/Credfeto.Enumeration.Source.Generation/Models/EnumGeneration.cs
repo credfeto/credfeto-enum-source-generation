@@ -61,6 +61,13 @@ public readonly record struct EnumGeneration
             hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(this.Namespace);
             hashCode = (hashCode * 397) ^ this.Members.Count;
             hashCode = (hashCode * 397) ^ this.Options.GetHashCode();
+
+            foreach (IFieldSymbol member in this.Members)
+            {
+                hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(member.Name);
+                hashCode = (hashCode * 397) ^ (member.ConstantValue?.GetHashCode() ?? 0);
+            }
+
             return hashCode;
         }
     }
