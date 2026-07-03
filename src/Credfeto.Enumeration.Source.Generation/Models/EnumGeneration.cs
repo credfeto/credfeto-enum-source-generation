@@ -74,7 +74,7 @@ public readonly record struct EnumGeneration
 
         for (int i = 0; i < a.Count; i++)
         {
-            if (!StringComparer.Ordinal.Equals(a[i].Name, b[i].Name))
+            if (!StringComparer.Ordinal.Equals(a[i].Name, b[i].Name) || !Equals(a[i].ConstantValue, b[i].ConstantValue))
             {
                 return false;
             }
