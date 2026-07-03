@@ -6,8 +6,43 @@ using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Tests.Models;
 
-public sealed class ClassEnumGenerationTests : TestBase
+public sealed class ClassEnumGenerationTests : EquatableValueTestBase<ClassEnumGeneration>
 {
+    public ClassEnumGenerationTests()
+        : base(
+            new ClassEnumGeneration(
+                accessType: AccessType.PUBLIC,
+                name: "Different",
+                @namespace: "Bar",
+                enums: [],
+                location: Location.None
+            ),
+            new ClassEnumGeneration(
+                accessType: AccessType.PUBLIC,
+                name: "Foo",
+                @namespace: "Bar",
+                enums: [],
+                location: Location.None
+            ),
+            new ClassEnumGeneration(
+                accessType: AccessType.PUBLIC,
+                name: "Foo",
+                @namespace: "Bar",
+                enums: [],
+                location: Location.None
+            )
+        ) { }
+
+    protected override bool OperatorEquals(in ClassEnumGeneration x, in ClassEnumGeneration y)
+    {
+        return x == y;
+    }
+
+    protected override bool OperatorNotEquals(in ClassEnumGeneration x, in ClassEnumGeneration y)
+    {
+        return x != y;
+    }
+
     [Fact]
     public void ConstructorSetsAllProperties()
     {
