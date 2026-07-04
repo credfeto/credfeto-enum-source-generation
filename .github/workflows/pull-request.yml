@@ -122,12 +122,21 @@ jobs:
             core.info(`Owner OK: ${process.env.REPO_OWNER !== 'funfair-tech'}`);
             core.info(`Status OK: ${process.env.REPO_STATUS === 'private'}`);
 
+      - name: "Check Required Secrets"
+        if: steps.findPr.outputs.number == ''
+        shell: bash
+        run: |
+          if [ -z "${{secrets.PR_CREATE_TOKEN}}" ]; then
+            echo "::error::PR_CREATE_TOKEN is required but not set"
+            exit 1
+          fi
+
       - name: "Create Pull Request"
         if: steps.findPr.outputs.number == ''
         id: open-pr
         uses: ./.github/actions/create-pull-request
         with:
-          github-token: ${{github.token}}
+          github-token: ${{secrets.PR_CREATE_TOKEN}}
           destination-branch: "main"
           assignee: ${{github.actor}}
           labels: "auto-pr"
