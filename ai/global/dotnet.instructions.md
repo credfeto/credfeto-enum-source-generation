@@ -166,6 +166,8 @@ See [code-quality.instructions.md](code-quality.instructions.md) for general asy
 
 ## Project and Solution Structure
 
+`FunFair.BuildCheck` is an org-owned package — see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) for the GitHub source repository.
+
 - All projects must be added to the solution file (`.slnx` or `.sln`).
 - All projects must pass `FunFair.BuildCheck` before committing: `dotnet buildcheck` (run from solution root; `dotnet buildcheck --help` for options).
 - If a build fails because `$(SolutionDir)` is undefined (e.g. imports guarded by `Exists('$(SolutionDir)...')` are silently skipped, leading to errors such as `NU5017`), fix it by ensuring the solution's `src/` directory has a `Directory.Build.props` that sets a fallback:
@@ -207,6 +209,8 @@ This prevents the generator's Roslyn NuGet dependencies (e.g. `System.Collection
 
 ## Test Dependencies
 
+The `FunFair.Test.*` packages are org-owned — see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) for the GitHub source repository.
+
 - All test projects must reference the latest release of `FunFair.Test.Common`.
 - All test projects must import the latest release of `FunFair.Test.Source.Generator`.
 - All test projects must include `<Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />`.
@@ -245,6 +249,8 @@ This prevents the generator's Roslyn NuGet dependencies (e.g. `System.Collection
 - All instance method calls on `TestBase` (including `GetTypedLogger<T>()`, `GetSubstitute<T>()`, `CancellationToken()`, and custom helpers) require explicit `this.` — IDE0009 is enforced as an error. Static helpers (e.g. `GetSubstitute<T>()`) must remain `static` to avoid this requirement.
 
 ## FunFair.Test.* — Prefer Library Code Over Custom Implementations (MANDATORY)
+
+The `FunFair.Test.*` packages in this section are org-owned — see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) for the GitHub source repository.
 
 **Do not write code that FunFair.Test.* already provides.** Before implementing a custom test helper, check what `FunFair.Test.Common` and `FunFair.Test.Infrastructure` offer.
 
@@ -315,6 +321,8 @@ Use `AddMockedService<T>()` in tests deriving from `DependencyInjectionTestsBase
 
 ## String Comparison
 
+`FunFair.CodeAnalysis` is an org-owned package that enforces FFS rules in this section — see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) for the GitHub source repository.
+
 - Prefer `StringComparer.<type>.Equals(x, y)` over `string.Equals(x, y, StringComparison.<type>)` — enforced by FFS0050.
 - This applies to all `StringComparison` variants (`Ordinal`, `OrdinalIgnoreCase`, etc.).
 - Do not use `StringComparison.InvariantCulture`, `StringComparison.InvariantCultureIgnoreCase`, `StringComparison.CurrentCulture`, or `StringComparison.CurrentCultureIgnoreCase` — enforced by FFS0045–FFS0048.
@@ -362,6 +370,8 @@ public sealed record GlobalJsonInfo(string? SdkVersion, string? RollForward, boo
 - Do not use `struct` for types that need inheritance or will be boxed frequently.
 
 ## Exception Classes
+
+`Credfeto.Exceptions.SourceGenerator` is an org-owned package — see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) for the GitHub source repository.
 
 Use `Credfeto.Exceptions.SourceGenerator` to define exception types — it generates all required constructors automatically.
 
