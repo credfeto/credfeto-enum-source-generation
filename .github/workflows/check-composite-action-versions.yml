@@ -37,7 +37,15 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v7.0.0
 
+      - name: "Check Required Secrets"
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
+
       - name: "Check Composite Action Versions"
         uses: ./.github/actions/check-composite-action-versions
         with:
-          GITHUB_TOKEN: ${{github.token}}
+          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
