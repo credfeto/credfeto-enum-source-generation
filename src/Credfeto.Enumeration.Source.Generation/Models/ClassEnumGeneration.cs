@@ -39,7 +39,6 @@ public readonly record struct ClassEnumGeneration
         return this.AccessType == other.AccessType
             && StringComparer.Ordinal.Equals(this.Name, other.Name)
             && StringComparer.Ordinal.Equals(this.Namespace, other.Namespace)
-            && EqualityComparer<Location>.Default.Equals(this.Location, other.Location)
             && this.Enums.SequenceEqual(other.Enums);
     }
 
@@ -50,7 +49,6 @@ public readonly record struct ClassEnumGeneration
             int hashCode = this.AccessType.GetHashCode();
             hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(this.Name);
             hashCode = (hashCode * 397) ^ StringComparer.Ordinal.GetHashCode(this.Namespace);
-            hashCode = (hashCode * 397) ^ (this.Location?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ this.Enums.Count;
 
             foreach (EnumGeneration e in this.Enums)
