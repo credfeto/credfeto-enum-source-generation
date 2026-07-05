@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Credfeto.Enumeration.Source.Generation.Extensions;
 
-internal static class EnumGenerationExtensions
+public static class EnumGenerationExtensions
 {
     public static IReadOnlyList<string> GetDescriptionCaseOptions(
         in this EnumGeneration enumDeclaration,

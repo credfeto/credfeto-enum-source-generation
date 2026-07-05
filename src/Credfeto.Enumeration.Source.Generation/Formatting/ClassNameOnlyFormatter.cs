@@ -2,7 +2,7 @@ using Credfeto.Enumeration.Source.Generation.Models;
 
 namespace Credfeto.Enumeration.Source.Generation.Formatting;
 
-internal sealed class ClassNameOnlyFormatter : IFormatConfig
+public sealed class ClassNameOnlyFormatter : IFormatConfig
 {
     public ClassNameOnlyFormatter(in EnumGeneration enumGeneration)
     {

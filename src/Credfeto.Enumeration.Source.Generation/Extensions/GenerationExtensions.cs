@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Credfeto.Enumeration.Source.Generation.Extensions;
 
-internal static class GenerationExtensions
+public static class GenerationExtensions
 {
     private const string IS_DEFINED_METHOD_NAME = nameof(Enum.IsDefined);
     private const string GET_NAME_METHOD_NAME = "GetName";

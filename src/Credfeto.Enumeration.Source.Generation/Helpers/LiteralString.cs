@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Credfeto.Enumeration.Source.Generation.Helpers;
 
-internal sealed class LiteralString : LocalizableString
+public sealed class LiteralString : LocalizableString
 {
     private readonly string _value;
 

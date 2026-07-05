@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Credfeto.Enumeration.Source.Generation.Helpers;
 
-internal static class SupportedDiagnosticsList
+public static class SupportedDiagnosticsList
 {
     public static ImmutableArray<DiagnosticDescriptor> Build(DiagnosticDescriptor rule)
     {
