@@ -46,7 +46,6 @@ public readonly record struct EnumGeneration
         return this.AccessType == other.AccessType
             && StringComparer.Ordinal.Equals(this.Name, other.Name)
             && StringComparer.Ordinal.Equals(this.Namespace, other.Namespace)
-            && EqualityComparer<Location>.Default.Equals(this.Location, other.Location)
             && this.Options == other.Options
             && MembersEqual(this.Members, other.Members)
             && DictionariesEqual(this.EqualsValueIdentifiers, other.EqualsValueIdentifiers);
