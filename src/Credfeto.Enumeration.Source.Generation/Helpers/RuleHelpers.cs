@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Credfeto.Enumeration.Source.Generation.Helpers;
 
-internal static class RuleHelpers
+public static class RuleHelpers
 {
     public static DiagnosticDescriptor CreateRule(string code, string category, string title, string message)
     {

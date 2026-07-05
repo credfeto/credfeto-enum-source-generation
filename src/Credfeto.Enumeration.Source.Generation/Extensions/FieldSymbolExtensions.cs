@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Credfeto.Enumeration.Source.Generation.Extensions;
 
-internal static class FieldSymbolExtensions
+public static class FieldSymbolExtensions
 {
     public static string BuildClassMemberName(this IFieldSymbol member, string className)
     {
