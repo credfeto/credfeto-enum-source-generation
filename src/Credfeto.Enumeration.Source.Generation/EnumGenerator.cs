@@ -13,9 +13,6 @@ namespace Credfeto.Enumeration.Source.Generation;
 [Generator(LanguageNames.CSharp)]
 public sealed class EnumGenerator : IIncrementalGenerator
 {
-    private const string ENUM_TEXT_ATTRIBUTE_FULL_NAME =
-        "Credfeto.Enumeration.Source.Generation.Attributes.EnumTextAttribute";
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         IncrementalValueProvider<GenerationOptions> optionsProvider = context.CompilationProvider.Select(
@@ -48,7 +45,7 @@ public sealed class EnumGenerator : IIncrementalGenerator
     )
     {
         return context.SyntaxProvider.ForAttributeWithMetadataName(
-            fullyQualifiedMetadataName: ENUM_TEXT_ATTRIBUTE_FULL_NAME,
+            fullyQualifiedMetadataName: SyntaxExtractor.EnumTextAttributeMetadataName,
             predicate: static (n, _) => n is ClassDeclarationSyntax,
             transform: GetClassDetails
         );
