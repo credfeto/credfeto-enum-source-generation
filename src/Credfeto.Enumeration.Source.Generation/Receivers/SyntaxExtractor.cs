@@ -11,8 +11,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Credfeto.Enumeration.Source.Generation.Receivers;
 
-internal static class SyntaxExtractor
+public static class SyntaxExtractor
 {
+    private const string EnumTextAttributeNamespace = "Credfeto.Enumeration.Source.Generation.Attributes";
+    private const string EnumTextAttributeShortName = "EnumTextAttribute";
+    public const string EnumTextAttributeMetadataName = EnumTextAttributeNamespace + "." + EnumTextAttributeShortName;
+
     public static GenerationOptions DetectGenerationOptions(Compilation compilation)
     {
         bool hasDoesNotReturnAttribute =
@@ -152,8 +156,8 @@ internal static class SyntaxExtractor
 
         return StringComparer.Ordinal.Equals(
                 item.AttributeClass.ContainingNamespace.ToDisplayString(),
-                y: "Credfeto.Enumeration.Source.Generation.Attributes"
-            ) && StringComparer.Ordinal.Equals(x: item.AttributeClass.Name, y: "EnumTextAttribute");
+                EnumTextAttributeNamespace
+            ) && StringComparer.Ordinal.Equals(item.AttributeClass.Name, EnumTextAttributeShortName);
     }
 
     public static EnumGeneration? ExtractEnum(

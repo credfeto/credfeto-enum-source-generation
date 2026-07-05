@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Credfeto.Enumeration.Source.Generation.Extensions;
 
-internal static class EnumerableExtensions
+public static class EnumerableExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<T> RemoveNulls<T>(this IEnumerable<T?> source)

@@ -3,7 +3,7 @@ using Credfeto.Enumeration.Source.Generation.Models;
 
 namespace Credfeto.Enumeration.Source.Generation;
 
-internal static class AccessTypeExtensions
+public static class AccessTypeExtensions
 {
     public static string ConvertAccessType(this AccessType accessType)
     {
