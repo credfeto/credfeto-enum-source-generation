@@ -1,4 +1,5 @@
 --- # Action: Run Cloud Formation Linter
+# Maintain in repo: funfair-server-template
 name: "Run Cloud Formation Linter"
 description: "Installs cfn-lint via pip and lints a CloudFormation template"
 
