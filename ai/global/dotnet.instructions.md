@@ -54,12 +54,13 @@ Test support libraries (e.g. `*.Tests.Mocks`, `*.Tests.Common`) exist to be refe
 
 ### Setting Up a Test Support Library (MANDATORY)
 
-When a project is a test support library (provides mocks, helpers, or base types for test projects) but is **not** itself a test runner, it must have all three of the following properties set explicitly:
+When a project is a test support library (provides mocks, helpers, or base types for test projects) but is **not** itself a test runner, it must have all four of the following properties set explicitly:
 
 ```xml
 <IsTestProject>false</IsTestProject>
 <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
 <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+<TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
 ```
 
 It must also import `UnitTests.props` (required by `FunFair.BuildCheck` until [funfair-tech/funfair-build-check#417](https://github.com/funfair-tech/funfair-build-check/issues/417) is resolved):
@@ -71,6 +72,7 @@ It must also import `UnitTests.props` (required by `FunFair.BuildCheck` until [f
 - `IsTestProject=false` — tells `FunFair.BuildCheck` this is not a test project; without it, buildcheck errors because a project referencing test packages that lacks this flag is expected to be a test runner.
 - `IsTestingPlatformApplication=false` — overrides the implicit `true` set by `FunFair.Test.Common`, xunit, and similar packages; without it, `dotnet test` on .NET 10 attempts to run the project as an executable and fails because `OutputType=Library`.
 - `UseMicrosoftTestingPlatformRunner=true` — required by `FunFair.BuildCheck` for any project that references test packages, even when `IsTestProject=false`.
+- `TestingPlatformDotnetTestSupport=true` — required by `dotnet buildcheck` for any project that references test packages (e.g. `xunit.v3.extensibility.core`, `FunFair.Test.Common`), even when `IsTestProject=false`; without it, buildcheck reports `Should specify TestingPlatformDotnetTestSupport as true`.
 
 These projects keep `OutputType=Library`.
 
