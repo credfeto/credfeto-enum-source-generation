@@ -6,8 +6,43 @@ using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Tests.Models;
 
-public sealed class ClassEnumGenerationTests : TestBase
+public sealed class ClassEnumGenerationTests : EquatableValueTestBase<ClassEnumGeneration>
 {
+    public ClassEnumGenerationTests()
+        : base(
+            new ClassEnumGeneration(
+                accessType: AccessType.PUBLIC,
+                name: "Different",
+                @namespace: "Bar",
+                enums: [],
+                location: Location.None
+            ),
+            new ClassEnumGeneration(
+                accessType: AccessType.PUBLIC,
+                name: "Foo",
+                @namespace: "Bar",
+                enums: [],
+                location: Location.None
+            ),
+            new ClassEnumGeneration(
+                accessType: AccessType.PUBLIC,
+                name: "Foo",
+                @namespace: "Bar",
+                enums: [],
+                location: Location.None
+            )
+        ) { }
+
+    protected override bool OperatorEquals(in ClassEnumGeneration x, in ClassEnumGeneration y)
+    {
+        return x == y;
+    }
+
+    protected override bool OperatorNotEquals(in ClassEnumGeneration x, in ClassEnumGeneration y)
+    {
+        return x != y;
+    }
+
     [Fact]
     public void ConstructorSetsAllProperties()
     {
@@ -80,5 +115,41 @@ public sealed class ClassEnumGenerationTests : TestBase
         );
 
         Assert.NotEqual(expected: first, actual: second);
+    }
+
+    [Fact]
+    public void EqualityReturnsTrueForDifferentEnumListReferencesSameContent()
+    {
+        Location location = Location.None;
+        EnumGeneration enumGen = new(
+            accessType: AccessType.PUBLIC,
+            name: "TestEnum",
+            @namespace: "Test.NS",
+            members: [],
+            location: Location.None,
+            options: default
+        );
+        IReadOnlyList<EnumGeneration> enums1 = [enumGen];
+        IReadOnlyList<EnumGeneration> enums2 = [enumGen];
+
+        Assert.NotSame(expected: enums1, actual: enums2);
+
+        ClassEnumGeneration first = new(
+            accessType: AccessType.INTERNAL,
+            name: "Foo",
+            @namespace: "Bar",
+            enums: enums1,
+            location: location
+        );
+
+        ClassEnumGeneration second = new(
+            accessType: AccessType.INTERNAL,
+            name: "Foo",
+            @namespace: "Bar",
+            enums: enums2,
+            location: location
+        );
+
+        Assert.Equal(expected: first, actual: second);
     }
 }

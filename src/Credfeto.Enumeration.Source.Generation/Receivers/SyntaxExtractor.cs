@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -11,11 +11,29 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Credfeto.Enumeration.Source.Generation.Receivers;
 
-internal static class SyntaxExtractor
+public static class SyntaxExtractor
 {
+    private const string EnumTextAttributeNamespace = "Credfeto.Enumeration.Source.Generation.Attributes";
+    private const string EnumTextAttributeShortName = "EnumTextAttribute";
+    public const string EnumTextAttributeMetadataName = EnumTextAttributeNamespace + "." + EnumTextAttributeShortName;
+
+    public static GenerationOptions DetectGenerationOptions(Compilation compilation)
+    {
+        bool hasDoesNotReturnAttribute =
+            compilation.GetTypesByMetadataName("System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute").Length > 0;
+        bool supportsUnreachableException =
+            compilation.GetTypesByMetadataName("System.Diagnostics.UnreachableException").Length > 0;
+
+        return new(
+            hasDoesNotReturnAttribute: hasDoesNotReturnAttribute,
+            supportsUnreachableException: supportsUnreachableException
+        );
+    }
+
     public static ClassEnumGeneration? ExtractClass(
-        in GeneratorSyntaxContext context,
+        SemanticModel semanticModel,
         ClassDeclarationSyntax classDeclarationSyntax,
+        in GenerationOptions options,
         CancellationToken cancellationToken
     )
     {
@@ -40,10 +58,8 @@ internal static class SyntaxExtractor
             return null;
         }
 
-        GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
-
         IReadOnlyList<EnumGeneration> attributesForGeneration = GetEnumsToGenerateForClass(
-            context: context,
+            semanticModel: semanticModel,
             classDeclarationSyntax: classDeclarationSyntax,
             options: options,
             cancellationToken: cancellationToken
@@ -57,7 +73,7 @@ internal static class SyntaxExtractor
         cancellationToken.ThrowIfCancellationRequested();
 
         if (
-            context.SemanticModel.GetDeclaredSymbol(
+            semanticModel.GetDeclaredSymbol(
                 declaration: classDeclarationSyntax,
                 cancellationToken: CancellationToken.None
             )
@@ -77,17 +93,14 @@ internal static class SyntaxExtractor
     }
 
     private static IReadOnlyList<EnumGeneration> GetEnumsToGenerateForClass(
-        in GeneratorSyntaxContext context,
+        SemanticModel semanticModel,
         ClassDeclarationSyntax classDeclarationSyntax,
         in GenerationOptions options,
         CancellationToken cancellationToken
     )
     {
         if (
-            context.SemanticModel.GetDeclaredSymbol(
-                declaration: classDeclarationSyntax,
-                cancellationToken: cancellationToken
-            )
+            semanticModel.GetDeclaredSymbol(declaration: classDeclarationSyntax, cancellationToken: cancellationToken)
             is not INamedTypeSymbol classSymbol
         )
         {
@@ -143,18 +156,19 @@ internal static class SyntaxExtractor
 
         return StringComparer.Ordinal.Equals(
                 item.AttributeClass.ContainingNamespace.ToDisplayString(),
-                y: "Credfeto.Enumeration.Source.Generation.Attributes"
-            ) && StringComparer.Ordinal.Equals(x: item.AttributeClass.Name, y: "EnumTextAttribute");
+                EnumTextAttributeNamespace
+            ) && StringComparer.Ordinal.Equals(item.AttributeClass.Name, EnumTextAttributeShortName);
     }
 
     public static EnumGeneration? ExtractEnum(
-        GeneratorSyntaxContext context,
+        SemanticModel semanticModel,
         EnumDeclarationSyntax enumDeclarationSyntax,
+        in GenerationOptions options,
         CancellationToken cancellationToken
     )
     {
         if (
-            context.SemanticModel.GetDeclaredSymbol(
+            semanticModel.GetDeclaredSymbol(
                 declaration: enumDeclarationSyntax,
                 cancellationToken: CancellationToken.None
             )
@@ -185,17 +199,13 @@ internal static class SyntaxExtractor
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    return context.SemanticModel.GetDeclaredSymbol(
-                            declaration: member,
-                            cancellationToken: cancellationToken
-                        ) as IFieldSymbol;
+                    return semanticModel.GetDeclaredSymbol(declaration: member, cancellationToken: cancellationToken)
+                        as IFieldSymbol;
                 })
                 .RemoveNulls(),
         ];
 
         cancellationToken.ThrowIfCancellationRequested();
-
-        GenerationOptions options = DetectGenerationOptions(context: context, cancellationToken: cancellationToken);
 
         IReadOnlyDictionary<string, string>? equalsValueIdentifiers = ExtractEqualsValueIdentifiers(
             enumDeclarationSyntax.Members
@@ -230,31 +240,5 @@ internal static class SyntaxExtractor
         }
 
         return result;
-    }
-
-    private static GenerationOptions DetectGenerationOptions(
-        in GeneratorSyntaxContext context,
-        CancellationToken cancellationToken
-    )
-    {
-        bool hasDoesNotReturnAttribute = !HasAttribute(
-            context: context,
-            name: "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute"
-        );
-
-        cancellationToken.ThrowIfCancellationRequested();
-        bool hasUnreachableException = !HasAttribute(context: context, name: "System.Diagnostics.UnreachableException");
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        return new(
-            hasDoesNotReturnAttribute: hasDoesNotReturnAttribute,
-            supportsUnreachableException: hasUnreachableException
-        );
-    }
-
-    private static bool HasAttribute(in GeneratorSyntaxContext context, string name)
-    {
-        return context.SemanticModel.LookupNamespacesAndTypes(position: 0, container: null, name: name).IsEmpty;
     }
 }

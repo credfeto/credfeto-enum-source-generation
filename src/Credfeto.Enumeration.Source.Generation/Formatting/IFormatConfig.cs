@@ -1,6 +1,6 @@
 namespace Credfeto.Enumeration.Source.Generation.Formatting;
 
-interface IFormatConfig
+public interface IFormatConfig
 {
     string ClassName { get; }
 }
