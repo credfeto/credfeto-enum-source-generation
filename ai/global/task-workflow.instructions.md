@@ -199,6 +199,16 @@ When using the Monitor tool to watch a background Bash task, the poll condition 
 | `git push` completed | `branch` (branch tracking line in push output) |
 | `gh pr create` / `gh pr ready` | poll not needed — these exit immediately |
 
+## Never Truncate Test/Commit Commands (MANDATORY)
+
+This is a distinct concern from the poll-loop timeouts above: those govern how long you wait for something _else_ to finish; this governs the timeout on the command _actually doing the work_.
+
+Never pass a tool-level timeout that could truncate `pre-commit`, a `git commit` in a repo with pre-commit enabled (globally via `core.hooksPath` or locally via `.pre-commit-config.yaml`), `dotnet test`, `npm test`, or `bun test` — these must run to completion.
+
+- Pass the maximum available timeout rather than a short one (e.g. Claude Code's Bash tool supports up to 600000ms/10 minutes — use it, don't default to a shorter value).
+- If even the maximum available timeout is not enough, use `run_in_background` and the Monitor tool instead of accepting a truncated run.
+- A killed run does not just fail — it skips the target process's own cleanup (a bash `EXIT` trap, .NET's `IDisposable` teardown, etc.), leaving orphaned temp directories, lock files, or half-applied state behind. Confirmed in practice: a killed `bats` run left thousands of orphaned fixture directories under a shared runtime directory, which went on to break an unrelated tool (`firejail`) that walked the same path.
+
 ## Multi-Agent Implementation and Review Pattern
 
 ### Model Selection
