@@ -93,6 +93,17 @@ When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a 
 
 - If a `gh` command fails, raise an issue on `credfeto/github-api-proxy` with the exact subcommand and flags, the API method (if visible), and the full error message.
 - Commit and push operations are always rejected by the proxy — use `git` CLI directly for all commit and push operations.
+- **`gh pr create` (MANDATORY when `GH_HOST` is set):** Always pass both `--repo <owner>/<repo>` and `--head <owner>:<branch>`. Without `--repo`, gh CLI performs a client-side check that a git remote URL has a hostname matching `GH_HOST` — since remotes use `github.com` but `GH_HOST` is the proxy host, no remote matches and `gh` refuses to proceed before any API request reaches the proxy. Without `--head`, gh may try to detect the branch from git remotes, leading to a blank head ref at the proxy GraphQL layer. With both flags supplied, `gh` relies solely on API calls and bypasses the remote-URL check entirely.
+
+  ```bash
+  gh pr create \
+    --repo <owner>/<repo> \
+    --head <owner>:<branch-name> \
+    --base main \
+    --draft \
+    --title "..." \
+    --body "..."
+  ```
 
 ## Running Git Commands in a Specific Directory
 
