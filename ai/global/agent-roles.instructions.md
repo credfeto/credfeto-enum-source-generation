@@ -166,6 +166,48 @@ When a Blocked-ing failure is diagnosed as an environment/infrastructure problem
 
 This convention only applies to PRs (there is no container session, and therefore no image to diagnose against, before a PR/branch exists). Everything else about the Blocked-label convention above is unchanged.
 
+### Human Comment Requests — Run First (MANDATORY)
+
+Before processing CI checks or continuing the review loop, scan **all** comments on the current PR and its linked issue(s) from trusted commenters for ad-hoc requests to create a new GitHub issue.
+
+A request is identified by any natural-language phrasing such as: "raise an issue", "create an issue", "add an issue", "open an issue", "file an issue", or similar variants (case-insensitive).
+
+For each such request that has not already been actioned (i.e. no reply from you linking to a newly created issue):
+
+1. Search for an existing open **or closed** issue covering the same topic — do not create duplicates.
+2. If no duplicate exists, create the issue immediately:
+
+   ```bash
+   gh issue create --repo <owner/repo> \
+     --title "<concise title from the request>" \
+     --body "<description from the request>" \
+     --label "<priority label from the request, or 'Medium' if unspecified>"
+   ```
+
+3. Reply to the original comment with the new issue number. Use the correct command depending on where the request appeared:
+
+   - If the request was on a **PR**:
+
+     ```bash
+     gh pr comment <pr-number> --repo <owner/repo> --body "$(cat <<'COMMENT'
+     Raised as #<new-issue-number>.
+     COMMENT
+     )"
+     ```
+
+   - If the request was on an **issue** (including a linked issue):
+
+     ```bash
+     gh issue comment <issue-number> --repo <owner/repo> --body "$(cat <<'COMMENT'
+     Raised as #<new-issue-number>.
+     COMMENT
+     )"
+     ```
+
+4. Only after all such requests are actioned, continue with the normal CI/review workflow.
+
+The same rule applies when picking up an **issue**: if any comment on that issue requests a sub-issue to be raised, create it and reply (using `gh issue comment`) before proceeding with implementation work.
+
 ### Comment Replies (MANDATORY)
 
 Reply to every PR or issue comment that prompted an action:
