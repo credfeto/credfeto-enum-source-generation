@@ -34,12 +34,38 @@ When selecting the next issue to work on, prefer issues with higher-priority lab
 
 ## GitHub Issue Creation (MANDATORY)
 
-When asked to create or add a GitHub issue:
+When asked to create or update a GitHub issue (i.e. the issue itself is the requested deliverable):
 
 1. Enter Plan Mode.
 2. Work out at a high level what code change the issue would represent — scope, affected files, approach.
 3. Exit Plan Mode and return to auto.
-4. Create the issue, using the plan output to write a meaningful description.
+4. Create the issue, or update the existing issue, using the plan output to write a meaningful description.
+
+This is distinct from [Ad-Hoc Prompt Intake](#ad-hoc-prompt-intake-mandatory) below — that section covers being asked to _do_ something, where the issue is a tracking side-effect rather than the deliverable itself.
+
+## Ad-Hoc Prompt Intake (MANDATORY)
+
+Applies whenever a human asks you to _do_ something in the context of a repo (a task — not a request to raise an issue, which is covered above), and no existing issue or PR has already been specified as the thing to work on. No exception for triviality of the request, and no exception for the `credfeto/cs-template` repo itself.
+
+1. Before taking any other action (including answering a read-only question), create a GitHub issue in the current repo:
+   - Title: a concise summary of the prompt.
+   - Body: the prompt, verbatim, as the starting point.
+   - Labels: `AI-Work` and `Blocked` (minimum) — always, regardless of who initiated the underlying task; add other relevant labels (e.g. priority) as appropriate.
+2. Use Plan Mode to work out scope, affected files, and approach, and post it as an `## Implementation Plan` issue comment per the format in [agent-roles.instructions.md](agent-roles.instructions.md#issue-workflow--plan-first-new-issues-only).
+3. As open questions are identified, add each as an issue comment as soon as it's identified — do not batch them all until the end.
+4. Do not proceed until an explicit human approval comment exists (`approved` / `go ahead` / `looks good` / `lgtm`) and `Blocked` is removed — if approval came via live chat, mirror it as a GitHub comment first (see [Blocked Label](agent-roles.instructions.md#blocked-label)).
+5. Once approved and `Blocked` is removed:
+   - If the request needs a code change, proceed via the routing table below and open a PR referencing the issue when ready.
+   - If the request is read-only/informational (no code change), post the answer as an issue comment and close the issue.
+6. See [Prompt Traceability](#prompt-traceability-mandatory) below for further prompts once an issue or PR already exists for the work.
+
+## Prompt Traceability (MANDATORY)
+
+Once a request is already tracked by an issue or PR (including one just created under [Ad-Hoc Prompt Intake](#ad-hoc-prompt-intake-mandatory) above), every subsequent prompt from the human that changes, redirects, or adds detail to that work must be recorded on that issue/PR:
+
+- Comment with the prompt (verbatim, or a faithful summary for long prompts) and how it was resolved — a code change, an answered question, a scope adjustment, etc.
+- Post this before or immediately after acting on the prompt — do not let several prompts accumulate unrecorded.
+- This applies whether the prompt arrived as a live chat message or as a GitHub comment (GitHub comments are already covered by [Comment Replies](agent-roles.instructions.md#comment-replies-mandatory)).
 
 ## PR Lifecycle
 
