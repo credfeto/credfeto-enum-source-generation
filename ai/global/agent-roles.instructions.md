@@ -148,6 +148,7 @@ When asking a question in a PR or issue comment and waiting for an answer before
    - PR: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`
 2. Do **not** continue working on the item until the label is removed.
 3. Use **only** the `Blocked` label for this purpose — do **not** use labels like `do not merge`, `needs review`, or any other substitute. The orchestrator only recognises `Blocked` when deciding whether to skip an item.
+4. **Live-chat approval is not sufficient on its own.** If a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself — quoting the live instruction — before resuming work (and before asking for `Blocked` to be removed). The record must survive even if the chat session is lost.
 
 ### Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 
