@@ -57,6 +57,13 @@ When a mock setup expression (NSubstitute, Moq, or equivalent) is used in more t
 - Refactoring must be a separate commit from feature/fix changes.
 - Tests must pass after every refactoring commit.
 
+## Incidental File Cleanup
+
+- If a file you are already working on has issues unrelated to your current change (e.g. unused imports/usings, unreachable branches, inconsistent formatting, stale comments), clean them up so the file is the best it can be — while keeping to existing project standards, not inventing new ones.
+- Commit this cleanup separately from the feature/fix change.
+- If there are multiple distinct fix types in the file (e.g. unused imports and stale comments), fix and commit them one type at a time — each fix type is its own commit, per file.
+- Tests must pass after every cleanup commit.
+
 ## Compile-Time Configuration
 
 Cover compile-time configuration (environment constants, build-time feature flags) with unit tests — not runtime assertions, which pollute production code.
