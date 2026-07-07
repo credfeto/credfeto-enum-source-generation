@@ -16,6 +16,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Optimised incremental source generator pipeline: lifted GenerationOptions computation to compilation level, switched class extraction to ForAttributeWithMetadataName, fixed GetTypeByMetadataName lookup
 - Dependencies - Updated Meziantou.Analyzer to 3.0.121
 - Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 5.6.0
+- Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 5.6.0
 ### Deprecated
 ### Removed
 ### Deployment Changes
