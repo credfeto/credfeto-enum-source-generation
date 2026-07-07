@@ -42,7 +42,7 @@ runs:
         echo "DOCKER_CONTENT_TRUST=1" >> "$GITHUB_ENV"
 
     - name: "Build and export docker container"
-      uses: docker/build-push-action@v7.2.0
+      uses: docker/build-push-action@v7.3.0
       with:
         context: ${{inputs.CONTAINER_SOURCE}}
         load: true
@@ -60,7 +60,7 @@ runs:
 
     - name: "Docker: Build with tags"
       if: inputs.DEPLOY == 'true'
-      uses: docker/build-push-action@v7.2.0
+      uses: docker/build-push-action@v7.3.0
       with:
         context: ${{inputs.CONTAINER_SOURCE}}
         platforms: ${{inputs.CONTAINER_PLATFORM}}
