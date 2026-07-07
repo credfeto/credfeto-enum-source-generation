@@ -237,7 +237,7 @@ runs:
 
     - name: "Set up QEMU"
       if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
-      uses: docker/setup-qemu-action@v4.1.0
+      uses: docker/setup-qemu-action@v4.2.0
 
     - name: "Configure Docker"
       if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
