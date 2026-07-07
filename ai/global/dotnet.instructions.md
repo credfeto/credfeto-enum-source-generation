@@ -258,7 +258,21 @@ The `FunFair.Test.*` packages in this section are org-owned — see [dotnet-owne
 
 ### FunFair.Test.Infrastructure
 
-Add `FunFair.Test.Infrastructure` as a package reference when your tests need HTTP mocking beyond what `FunFair.Test.Common` provides. It supplies:
+`FunFair.Test.Infrastructure` is already a transitive dependency of `FunFair.Test.Common` — no explicit `<PackageReference>` is needed. It supplies:
+
+**`MockBase<T>`** (`FunFair.Test.Infrastructure.Mocks`):
+
+As of `FunFair.Test.Common` 6.3.1.2342, `MockBase<T>` was moved from `FunFair.Test.Common.Mocks` to `FunFair.Test.Infrastructure.Mocks`. When upgrading to 6.3.1.2342 or later, update the `using` directive in any file that references `MockBase<T>`:
+
+```csharp
+// BEFORE (FunFair.Test.Common < 6.3.1.2342)
+using FunFair.Test.Common.Mocks;
+
+// AFTER (FunFair.Test.Common >= 6.3.1.2342)
+using FunFair.Test.Infrastructure.Mocks;
+```
+
+No new `<PackageReference>` is required — `FunFair.Test.Infrastructure` is already a transitive dependency.
 
 **`HttpClientFactoryExtensions`** (`FunFair.Test.Infrastructure.Extensions`):
 
