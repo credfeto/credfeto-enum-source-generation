@@ -24,3 +24,9 @@
 - Assert memory allocation limits using `FunFair.Test.Common` extensions (zero or explicit byte threshold); do not roll custom helpers.
 - Ensure tests and benchmarks pass before optimising; commit them first as a standalone commit.
 - Only commit an optimisation if it produces a measurable gain against the baseline; otherwise discard it but keep the tests and benchmarks.
+
+## Environment Variables
+
+- `FUNFAIR_TEST_BENCHMARK_BUILD_TIMEOUT_SECONDS` — overrides how long BenchmarkDotNet is allowed to spend building the isolated host project it generates for each benchmark, in `*.Benchmark.Tests` projects. Default: `600` (10 minutes).
+  - Raise it when a benchmark run fails during the *build* phase (not the measurement phase) purely because the environment is slow — e.g. a virtual machine or a constrained CI runner — not to mask a genuine regression.
+  - If raising this value is what makes a build/test run pass, comment on the PR stating the value that was required, so the default can be reconsidered for that environment.
