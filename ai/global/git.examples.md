@@ -4,7 +4,7 @@
 
 ## Git Identity Check Script
 
-Run before any commit to verify identity and GPG signing:
+This check is enforced automatically on every commit by the global pre-commit hook (`credfeto-global-pre-commit`'s `src/scripts/check-identity`) — see [Git Identity Check](git.instructions.md#git-identity-check-mandatory-before-any-commit). Use the script below only as a manual fallback when [Pre-Commit Hook Verification](git.instructions.md#pre-commit-hook-verification-mandatory-before-blocking) finds the hook is not installed in any git config scope:
 
 ```bash
 #!/bin/sh
