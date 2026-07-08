@@ -280,7 +280,7 @@ runs:
     - name: "Deploy check - Default"
       shell: bash
       run: |
-        { echo "DEPLOY=false"; } >> "$GITHUB_ENV"
+        { echo "DEPLOY=false"; echo "RELEASE=false"; } >> "$GITHUB_ENV"
 
     - name: "Deploy check - Is main or master"
       if: endsWith(env.BUILD_VERSION, '-main') || endsWith(env.BUILD_VERSION, '-master')
