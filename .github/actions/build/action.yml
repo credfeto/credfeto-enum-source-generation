@@ -132,9 +132,6 @@ inputs:
   GITHUB_TOKEN:
     description: 'Github Token'
     required: true
-  REPO_VISIBILITY:
-    description: 'Visibility of the repo'
-    required: true
   CREATE_RELEASE:
     description: 'Whether to create a release in github'
     required: true
@@ -156,6 +153,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+
+    - name: "Check Repo Visibility"
+      uses: ./.github/actions/check-repo-visibility
+      id: visibility
 
     - name: "Parameter Summary"
       uses: actions/github-script@v9.0.0
@@ -495,7 +496,7 @@ runs:
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
       uses: ./.github/actions/sbom
       with:
-        REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
+        REPO_VISIBILITY: ${{steps.visibility.outputs.is_public == 'true' && 'public' || 'private'}}
 
     ############################################################################################################
     # Upload Sarif files to GitHub
@@ -503,4 +504,4 @@ runs:
     - name: "Upload SARIF file for diagnostics"
       uses: ./.github/actions/sarif
       with:
-        REPO_VISIBILITY: ${{inputs.REPO_VISIBILITY}}
+        REPO_VISIBILITY: ${{steps.visibility.outputs.is_public == 'true' && 'public' || 'private'}}
