@@ -47,7 +47,7 @@ jobs:
             core.info(`Base Branch: ${process.env.BASE_REF}`);
             core.info(`Repo: ${context.repo.owner}/${context.repo.repo}`);
             core.info(`Owner: ${context.repo.owner}`);
-
+  # @@required: merge
   include-changelog-entry:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -151,6 +151,7 @@ jobs:
           TOOL_NAME: "changelog"
           TOOL_ARGUMENTS: "--changelog \"${{github.workspace}}/CHANGELOG.md\" --check-insert \"origin/${{github.base_ref}}\""
 
+  # @@required: merge
   does-not-contain-secrets:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -188,6 +189,7 @@ jobs:
         if: steps.trufflehog.outcome == 'failure'
         run: exit 1
 
+  # @@required: merge
   has-no-merge-conflicts:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -215,6 +217,7 @@ jobs:
       - name: "Check for merge conflicts"
         uses: ./.github/actions/check-no-merge-conflicts
 
+  # @@required: merge
   has-no-file-or-folder-case-sensitivity-issues:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -242,6 +245,7 @@ jobs:
       - name: "Check for case conflicts"
         uses: ./.github/actions/check-no-case-sensitivity-conflicts
 
+  # @@required: merge
   no-ignored-files:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -269,6 +273,7 @@ jobs:
       - name: "Check for ignored files"
         uses: ./.github/actions/check-no-ignored-files
 
+  # @@required: merge
   dependency-review:
     # Check that there are no dependencies with security problems in the PR
     if: github.event.pull_request.draft == false
@@ -386,6 +391,7 @@ jobs:
           TOOL_NAME: "changelog"
           TOOL_ARGUMENTS: "--changelog \"${{github.workspace}}/CHANGELOG.md\" --lint"
 
+  # @@required: main
   lint-code:
     if: |-
       github.event.pull_request.draft == false &&
