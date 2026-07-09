@@ -8,7 +8,6 @@ on:
       - "main"
     paths:
       - ".github/workflows/create-prs-for-stale-branches.yml"
-      - ".github/actions/check-repo-visibility/**"
       - ".github/actions/find-pull-request/**"
       - ".github/actions/read-file/**"
       - ".github/actions/create-pull-request/**"
@@ -88,8 +87,6 @@ jobs:
         branch: ${{fromJson(needs.build-matrix.outputs.branches)}}
     env:
       BRANCH: ${{matrix.branch}}
-      CREATE_DRAFT: true
-      REPO_STATUS: private
 
     steps:
       - name: "Initialise Workspace"
@@ -116,25 +113,12 @@ jobs:
           repository: ${{github.repository}}
 
       - name: "Check Required Secrets"
-        if: env.REPO_STATUS == '' && github.repository_owner != 'funfair-tech'
         shell: bash
         run: |
           if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
             echo "::error::SOURCE_PUSH_TOKEN is required but not set"
             exit 1
           fi
-
-      - name: "Check Repo Visibility"
-        if: env.REPO_STATUS == '' && github.repository_owner != 'funfair-tech'
-        uses: ./.github/actions/check-repo-visibility
-        id: visibility
-        with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-
-      - name: "Override DRAFT Flag"
-        if: github.repository_owner != 'funfair-tech' && env.REPO_STATUS == 'private'
-        shell: bash
-        run: echo "CREATE_DRAFT=false" >> "$GITHUB_ENV"
 
       - name: "Branch Detection"
         id: detection
@@ -243,7 +227,7 @@ jobs:
           destination-branch: ${{steps.detection.outputs.defaultbranch}}
           assignee: ${{github.actor}}
           labels: "auto-pr,stale"
-          draft: ${{env.CREATE_DRAFT}}
+          draft: true
           title: "${{steps.aheadbehind.outputs.COMMIT_MSG}} [No commits for ${{steps.aheadbehind.outputs.dayssinceupdate}} days]"
           body: "${{steps.pr-template.outputs.content}}"
 
