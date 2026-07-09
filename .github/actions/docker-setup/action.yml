@@ -30,7 +30,7 @@ runs:
 
     - name: "Configure AWS Credentials"
       if: inputs.AWS_ACCESS_KEY_ID != ''
-      uses: aws-actions/configure-aws-credentials@v6.2.0
+      uses: aws-actions/configure-aws-credentials@v6.2.2
       with:
         aws-access-key-id: ${{inputs.AWS_ACCESS_KEY_ID}}
         aws-secret-access-key: ${{inputs.AWS_SECRET_ACCESS_KEY}}
@@ -38,7 +38,7 @@ runs:
 
     - name: "Docker: Login to Docker Hub"
       if: inputs.DOCKER_ACCESS_TOKEN != ''
-      uses: docker/login-action@v4.3.0
+      uses: docker/login-action@v4.4.0
       with:
         username: ${{inputs.DOCKER_USERNAME}}
         password: ${{inputs.DOCKER_ACCESS_TOKEN}}
@@ -46,7 +46,7 @@ runs:
 
     - name: "Docker: Login to AWS ECR"
       if: inputs.AWS_ACCESS_KEY_ID != ''
-      uses: docker/login-action@v4.3.0
+      uses: docker/login-action@v4.4.0
       with:
         registry: ${{inputs.DOCKER_CONTAINER_REGISTRY}}
         ecr: true
