@@ -235,6 +235,15 @@ Never pass a tool-level timeout that could truncate `pre-commit`, a `git commit`
 - If even the maximum available timeout is not enough, use `run_in_background` and the Monitor tool instead of accepting a truncated run.
 - A killed run does not just fail — it skips the target process's own cleanup (a bash `EXIT` trap, .NET's `IDisposable` teardown, etc.), leaving orphaned temp directories, lock files, or half-applied state behind. Confirmed in practice: a killed `bats` run left thousands of orphaned fixture directories under a shared runtime directory, which went on to break an unrelated tool (`firejail`) that walked the same path.
 
+### Sandbox-Caused False Timeouts in Benchmark/Perf Tests (MANDATORY)
+
+If a `dotnet test`/`dotnet build` run that includes a benchmark or performance-test project fails with a timeout-shaped error (e.g. "configured timeout ... reached", "command took longer than the timeout", "Failed to set up high priority (Permission denied)"), do not conclude this is a genuine pre-existing/environmental limitation in the codebase before ruling out your own execution sandbox as the cause:
+
+1. Re-run the identical command with sandboxing disabled if your tool supports it (e.g. a `dangerouslyDisableSandbox`-style flag).
+2. Reproducing the same failure on a clean `main`/base branch does **not** rule out the sandbox — if you're still running inside the same sandboxed shell, that reproduction is confounded and proves nothing about the codebase itself.
+3. If the failure disappears or measurably improves with sandboxing disabled, the sandbox was throttling CPU/resources — report this plainly; do not describe the benchmark suite as broken or flaky.
+4. If still uncertain after disabling sandboxing, say so explicitly and ask the user to run the identical command in their own terminal before asserting any diagnosis — never present a sandbox artifact as a confirmed pre-existing bug.
+
 ## Multi-Agent Implementation and Review Pattern
 
 ### Model Selection
