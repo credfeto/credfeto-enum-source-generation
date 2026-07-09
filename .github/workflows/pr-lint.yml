@@ -18,7 +18,6 @@ concurrency:
 env:
   HEAD_REF: ${{github.head_ref}}
   BASE_REF: ${{github.base_ref}}
-  REPO_STATUS: private
 
 jobs:
   info:
@@ -293,20 +292,16 @@ jobs:
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
 
-      - if: env.REPO_STATUS == ''
-        name: "Check repo visibility"
-        uses: ./.github/actions/check-repo-visibility
-        id: visibility
-        with:
-          github-token: ${{github.token}}
-
       - name: "Checkout Source"
-        if: steps.visibility.outputs.is_public == 'true'
         uses: actions/checkout@v7.0.0
         with:
           clean: true
           fetch-depth: 0
           fetch-tags: true
+
+      - name: "Check repo visibility"
+        uses: ./.github/actions/check-repo-visibility
+        id: visibility
 
       - name: "Dependency Review"
         if: steps.visibility.outputs.is_public == 'true'
