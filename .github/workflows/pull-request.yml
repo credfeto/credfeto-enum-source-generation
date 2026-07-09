@@ -28,10 +28,6 @@ jobs:
   pull-request:
     runs-on: ubuntu-latest
 
-    env:
-      CREATE_DRAFT: true
-      REPO_STATUS: private
-
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -93,22 +89,6 @@ jobs:
             exit 1
           fi
 
-      - name: "Check Repo Visibility"
-        if: env.REPO_STATUS == '' && steps.findPr.outputs.number == ''
-        uses: ./.github/actions/check-repo-visibility
-        id: visibility
-        with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-
-      - name: "Override DRAFT Flag"
-        id: draft-flag
-        if: |-
-          steps.findPr.outputs.number == ''
-          && env.REPO_OWNER != 'funfair-tech'
-          && env.REPO_STATUS == 'private'
-        shell: bash
-        run: echo "create-draft=false" >> "$GITHUB_OUTPUT"
-
       - name: "Status"
         uses: actions/github-script@v9.0.0
         env:
@@ -117,10 +97,7 @@ jobs:
           script: |
             core.info(`Repo: ${process.env.REPO}`);
             core.info(`Owner: ${process.env.REPO_OWNER}`);
-            core.info(`Repo Status: ${process.env.REPO_STATUS}`);
             core.info(`PR OK: ${process.env.FIND_PR_NUMBER === ''}`);
-            core.info(`Owner OK: ${process.env.REPO_OWNER !== 'funfair-tech'}`);
-            core.info(`Status OK: ${process.env.REPO_STATUS === 'private'}`);
 
       - name: "Check Required Secrets"
         if: steps.findPr.outputs.number == ''
@@ -140,7 +117,7 @@ jobs:
           destination-branch: "main"
           assignee: ${{github.actor}}
           labels: "auto-pr"
-          draft: ${{steps.draft-flag.outputs.create-draft || env.CREATE_DRAFT}}
+          draft: true
           title: ${{steps.commit-info.outputs.commit-title}}
           body: ${{steps.pr-template.outputs.content}}
 
