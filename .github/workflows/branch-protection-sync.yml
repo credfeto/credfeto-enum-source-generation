@@ -1,0 +1,59 @@
+--- # Sync required status checks derived from @@required tags to branch protection
+# Maintain in repo: funfair-server-template
+name: "Repo: Sync branch protection"
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/**"
+      - ".github/actions/branch-protection-sync/**"
+  schedule:
+    - cron: "17 4 * * *"
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync-branch-protection:
+    # Repos can opt out by setting the BRANCH_PROTECTION_SYNC_DISABLED repo variable to 'true'
+    if: vars.BRANCH_PROTECTION_SYNC_DISABLED != 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Check Required Secrets"
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
+
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@v7.0.0
+        with:
+          clean: true
+          fetch-depth: 1
+
+      - name: "Sync Branch Protection"
+        uses: ./.github/actions/branch-protection-sync
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
