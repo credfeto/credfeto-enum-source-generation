@@ -67,8 +67,7 @@ runs:
             ? process.env.LABELS.split(',').map(l => l.trim()).filter(Boolean)
             : [];
 
-          let pr;
-          try {
+          async function createPr(asDraft) {
             const { data } = await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -76,9 +75,14 @@ runs:
               body: body,
               head: sourceBranch,
               base: destinationBranch,
-              draft: draft,
+              draft: asDraft,
             });
-            pr = data;
+            return data;
+          }
+
+          let pr;
+          try {
+            pr = await createPr(draft);
           } catch (err) {
             const isPrAlreadyExists =
               err.status === 422 &&
@@ -90,7 +94,18 @@ runs:
               core.info(`PR already exists for branch ${sourceBranch} - nothing to do`);
               return;
             }
-            throw err;
+
+            const isDraftUnsupported =
+              draft &&
+              err.status === 422 &&
+              typeof err.response?.data?.message === 'string' &&
+              err.response.data.message.includes('Draft pull requests are not supported');
+            if (!isDraftUnsupported) {
+              throw err;
+            }
+
+            core.warning('Draft pull requests are not supported in this repository - creating a regular pull request instead');
+            pr = await createPr(false);
           }
 
           if (assignees.length > 0) {
