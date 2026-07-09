@@ -1,7 +1,7 @@
---- # Build and deploy packages
+--- # Deploy SQL Server database package
 # Maintain in repo: funfair-server-template
-name: 'Build and deploy'
-description: 'Builds and deploys the source'
+name: 'Deploy Database'
+description: 'Deploys the database dacpac package to a SQL Server instance using sqlpackage'
 inputs:
   SQL_SERVER:
     description: 'SQL Server to connect to'
@@ -23,6 +23,14 @@ runs:
   using: "composite"
   steps:
 
+    - name: "Dotnet: Test SQL Password"
+      if: inputs.SQL_PASSWORD == ''
+      working-directory: ${{github.workspace}}/src
+      shell: bash
+      run: |
+        echo "Missing SQL Password!"
+        exit 1
+
     - name: "Dotnet: Find Dacpac"
       id: find_dacpac
       working-directory: ${{github.workspace}}/src
@@ -39,32 +47,6 @@ runs:
       with:
         TOOL_NAME: "microsoft.sqlpackage"
         TOOL_VERSION: "latest"
-
-# yamllint disable rule:line-length
-#     Would be nice to use this, but it requires a dotnet tool to be installed anyway so may as well do it all ourselves
-#    - name: "DB: Deploy..."
-#      uses: azure/sql-action@v2.3
-#      with:
-#        connection-string: "Server=${{inputs.SQL_SERVER}};Database=${{inputs.SQL_DB}};User Id=${{inputs.SQL_USER}};Password=${{inputs.SQL_PASSWORD}};Connection Timeout=720;TrustServerCertificate=true;Application Name=Deploy Database"
-#        path: "${{steps.find_solution.outputs.DACPAC}}"
-#        action: 'publish'
-#        arguments: '/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers'
-# yamllint enable rule:line-length
-
-    - name: "Pass"
-      working-directory: ${{github.workspace}}/src
-      shell: bash
-      env:
-        PASS: ${{inputs.SQL_PASSWORD}}
-      run: echo "$PASS" | base64
-
-    - name: "Dotnet: Test SQL Password"
-      if: inputs.SQL_PASSWORD == ''
-      working-directory: ${{github.workspace}}/src
-      shell: bash
-      run:
-        echo "Missing SQL Password!"
-        exit 1
 
 # yamllint disable rule:line-length
     - name: "Dotnet: Deploy/Live Server"
@@ -97,27 +79,3 @@ runs:
         SQL_PASSWORD: "${{inputs.SQL_PASSWORD}}"
         TIMEOUT: 720
 # yamllint enable rule:line-length
-
-# yamllint disable rule:line-length
-#    - name: "Dotnet: Deploy/Live Server"
-#      uses: ./.github/actions/dotnet-tool-run
-#      with:
-#        WORKING_DIRECTORY: "${{github.workspace}}/src"
-#        TOOL_NAME: "sqlpackage"
-#        TOOL_ARGUMENTS: "/Action:publish \
-#            /sf:\"${{steps.find_solution.outputs.DACPAC}}\" \
-#            /tsn:\"${{inputs.SQL_SERVER}}\" \
-#            /tdn:\"${{inputs.SQL_DB}}\" \
-#            /tu:\"${{inputs.SQL_USER}}\" \
-#            /tp:\"${{inputs.SQL_PASSWORD}}\" \
-#            /tec:false \
-#            /d:true \
-#            /p:CommandTimeout=720 \
-#            /p:BackupDatabaseBeforeChanges=False \
-#            /p:BlockOnPossibleDataLoss=True \
-#            /p:DropObjectsNotInSource=True \
-#            \"/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers\" \
-#            /p:IncludeCompositeObjects=True"
-# yamllint enable rule:line-length
-#
-#
