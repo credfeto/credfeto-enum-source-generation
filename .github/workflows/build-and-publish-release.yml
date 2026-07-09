@@ -23,8 +23,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Optimisation for repo visibility check
-      REPO_STATUS: ${{vars.REPO_VISIBILITY}}
       # Which NPM Registry to use
       NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
       NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
@@ -105,7 +103,6 @@ jobs:
           CLOUD_FORMATION_DEPLOY: ${{vars.CLOUD_FORMATION_DEPLOY}}
           CLOUD_FORMATION_STACK: ${{vars.CLOUD_FORMATION_STACK}}
           GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          REPO_VISIBILITY: ${{env.REPO_STATUS}}
           AWS_ACCESS_KEY_ID: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}
           AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY}}
           AWS_REGION: ${{vars.AWS_REGION}}
