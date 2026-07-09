@@ -1,0 +1,141 @@
+--- # Sync branch protection required checks from @@required tags in workflow files
+# Maintain in repo: funfair-server-template
+name: "Branch Protection Sync"
+description: "Derives required status checks from @@required tags in .github/workflows and applies them to main, release/* and hotfix/* branch protection"
+
+inputs:
+  github-token:
+    description: "GitHub token with repo administration permission"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: "Sync Branch Protection"
+      uses: actions/github-script@v9.0.0
+      with:
+        github-token: ${{inputs.github-token}}
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+
+          // GraphQL node id of the "GitHub Actions" app (REST app_id 15368) — required status
+          // checks are pinned to this app, matching how funfair-server-repo-config's
+          // update_repos.py pins REST app_id 15368 today.
+          const GITHUB_ACTIONS_APP_ID = 'MDM6QXBwMTUzNjg=';
+
+          const WORKFLOWS_DIR = '.github/workflows';
+          const TAG_RE = /^\s*#\s*@@required:\s*(\S+)\s*$/;
+          const JOB_RE = /^  ([A-Za-z0-9_.-]+):\s*$/;
+
+          const scopes = { main: new Set(), merge: new Set() };
+
+          const files = fs.readdirSync(WORKFLOWS_DIR).filter(f => f.endsWith('.yml') || f.endsWith('.yaml'));
+          for (const file of files) {
+            const lines = fs.readFileSync(path.join(WORKFLOWS_DIR, file), 'utf8').split('\n');
+            for (let i = 0; i < lines.length - 1; i++) {
+              const tagMatch = lines[i].match(TAG_RE);
+              if (!tagMatch) continue;
+
+              const scope = tagMatch[1];
+              const jobMatch = lines[i + 1].match(JOB_RE);
+              if (!jobMatch) {
+                core.warning(`${file}:${i + 2}: @@required tag not immediately followed by a job key — skipped`);
+                continue;
+              }
+              if (scope !== 'main' && scope !== 'merge') {
+                core.warning(`${file}: unknown @@required scope '${scope}' on job '${jobMatch[1]}' — skipped`);
+                continue;
+              }
+              scopes[scope].add(jobMatch[1]);
+            }
+          }
+
+          const mainContexts = [...new Set([...scopes.main, ...scopes.merge])].sort();
+
+          // release/* and hotfix/* intentionally get no required status checks: every workflow
+          // that reports a @@required-tagged context today only triggers for PRs targeting main
+          // (or, for build-pre-release, only on push), so requiring any of them here would leave
+          // release/hotfix PRs permanently stuck on "Expected" with no way to merge a patch.
+          const releaseContexts = [];
+
+          core.info(`main required checks: ${mainContexts.join(', ') || '(none)'}`);
+          core.info(`release/hotfix required checks: ${releaseContexts.join(', ') || '(none)'}`);
+
+          // Same review/admin baseline as funfair-server-repo-config's update_repos.py
+          // base_main_branch_protection_settings, applied identically to all three patterns.
+          const BASELINE = {
+            requiresStatusChecks: true,
+            requiresStrictStatusChecks: true,
+            requiresApprovingReviews: true,
+            requiredApprovingReviewCount: 1,
+            requiresCodeOwnerReviews: true,
+            dismissesStaleReviews: true,
+            requiresConversationResolution: true,
+            isAdminEnforced: false,
+            requiresLinearHistory: false,
+            allowsForcePushes: false,
+            allowsDeletions: false,
+            requiresCommitSignatures: false,
+          };
+
+          const TARGETS = [
+            { pattern: 'main', contexts: mainContexts },
+            { pattern: 'release/*', contexts: releaseContexts },
+            { pattern: 'hotfix/*', contexts: releaseContexts, renameFrom: 'hotfix' },
+          ];
+
+          const { repository } = await github.graphql(`
+            query($owner: String!, $name: String!) {
+              repository(owner: $owner, name: $name) {
+                id
+                branchProtectionRules(first: 50) {
+                  nodes { id pattern }
+                }
+              }
+            }
+          `, { owner: context.repo.owner, name: context.repo.repo });
+
+          for (const target of TARGETS) {
+            const requiredStatusChecks = target.contexts.map(c => ({ context: c, appId: GITHUB_ACTIONS_APP_ID }));
+
+            let rule = repository.branchProtectionRules.nodes.find(r => r.pattern === target.pattern);
+            if (!rule && target.renameFrom) {
+              rule = repository.branchProtectionRules.nodes.find(r => r.pattern === target.renameFrom);
+            }
+
+            if (!rule) {
+              await github.graphql(`
+                mutation($input: CreateBranchProtectionRuleInput!) {
+                  createBranchProtectionRule(input: $input) {
+                    branchProtectionRule { id }
+                  }
+                }
+              `, {
+                input: {
+                  repositoryId: repository.id,
+                  pattern: target.pattern,
+                  requiredStatusChecks,
+                  ...BASELINE,
+                },
+              });
+              core.notice(`✅ Created branch protection rule for '${target.pattern}' (${target.contexts.length} required checks)`);
+              continue;
+            }
+
+            await github.graphql(`
+              mutation($input: UpdateBranchProtectionRuleInput!) {
+                updateBranchProtectionRule(input: $input) {
+                  branchProtectionRule { id pattern }
+                }
+              }
+            `, {
+              input: {
+                branchProtectionRuleId: rule.id,
+                pattern: target.pattern,
+                requiredStatusChecks,
+                ...BASELINE,
+              },
+            });
+            core.notice(`✅ Updated branch protection rule for '${target.pattern}' (${target.contexts.length} required checks)`);
+          }
