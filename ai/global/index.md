@@ -57,4 +57,4 @@ These contain code examples only. Load them when actively writing or modifying t
 | [github-workflows.examples.md](github-workflows.examples.md) | Creating or scaffolding a local composite action — provides action template, explicit inputs, env-var validation step |
 | [sql.examples.md](sql.examples.md) | Writing SQL or database connection scripts — provides `.database` file format, `sqlcmd` invocation, and `SET STATISTICS` baseline template |
 | [dotnet.examples.md](dotnet.examples.md) | Writing .NET DI setup tests — provides `AddMockedService` and `IOptions` patterns |
-| [git.examples.md](git.examples.md) | Implementing or debugging git identity checks — provides GPG validation script and template escalation command |
+| [git.examples.md](git.examples.md) | Filing a template rule escalation issue — provides the `gh issue create` command |
