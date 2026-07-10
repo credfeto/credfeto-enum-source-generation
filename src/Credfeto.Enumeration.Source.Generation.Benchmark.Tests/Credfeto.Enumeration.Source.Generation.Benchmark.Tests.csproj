@@ -71,7 +71,7 @@
     <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="CSharpIsNullAnalyzer" Version="0.1.593" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="FunFair.CodeAnalysis" Version="7.2.7.2152" PrivateAssets="All" ExcludeAssets="runtime" />
-    <PackageReference Include="FunFair.Test.Source.Generator" Version="6.3.3.2407" PrivateAssets="All" ExcludeAssets="runtime" />
+    <PackageReference Include="FunFair.Test.Source.Generator" Version="6.3.4.2441" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Meziantou.Analyzer" Version="3.0.122" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="NSubstitute.Analyzers.CSharp" Version="1.0.17" PrivateAssets="All" ExcludeAssets="runtime" />

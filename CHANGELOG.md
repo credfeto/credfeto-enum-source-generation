@@ -10,7 +10,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated FunFair.Test.Source.Generator to 6.3.3.2407
 - Optimised incremental source generator pipeline: lifted GenerationOptions computation to compilation level, switched class extraction to ForAttributeWithMetadataName, fixed GetTypeByMetadataName lookup
 - Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 5.6.0
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 5.6.0
@@ -18,6 +17,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.CodeAnalysis to 7.2.7.2152
 - Dependencies - Updated Meziantou.Analyzer to 3.0.122
 - Dependencies - Updated FunFair.Test to 6.3.4.2441
+- Dependencies - Updated FunFair.Test.Source.Generator to 6.3.4.2441
 ### Deprecated
 ### Removed
 ### Deployment Changes
