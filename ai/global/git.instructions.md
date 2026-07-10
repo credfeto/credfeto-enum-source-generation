@@ -12,15 +12,15 @@ If the environment is too broken to work in without first fixing infrastructure 
 
 ## Pre-Work Baseline Check (MANDATORY before starting any work)
 
-Before starting any work on an issue or PR, run the pre-commit hooks against all tracked files to verify the repo is clean:
+Before starting any work on an issue or PR, run the hook against every tracked file to verify the repo is clean. Resolve `<hooks-path>` using the same `core.hooksPath` scope lookup as [Pre-Commit Hook Verification](#pre-commit-hook-verification-mandatory-before-blocking) below:
 
 ```bash
-pre-commit run --all-files
+<hooks-path>/pre-commit --all-files
 ```
 
-1. If hooks **auto-fix** files (e.g. trailing whitespace, end-of-file): commit those fixes separately before starting the original work.
-2. If hooks **fail** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
-3. If hooks **still fail** after all fixing attempts:
+1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes on a **new, dedicated branch and issue** — a clean base-point, kept separate from the branch/issue for the requested work — and mark the original work item `Blocked` until the base-fix branch is merged. Do not start the requested work on top of an unmerged, auto-mutated baseline.
+2. If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
+3. If the check **still fails** after all fixing attempts:
    - For an issue: comment on the issue, label it `Blocked`, and do not start work.
    - For a PR: comment on the PR, label it `Blocked`, and do not continue work.
 
