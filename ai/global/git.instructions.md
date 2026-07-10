@@ -61,18 +61,7 @@ If [Pre-Commit Hook Verification](#pre-commit-hook-verification-mandatory-before
 
 ## GitHub CLI Comment Bodies (MANDATORY)
 
-When posting comment or PR bodies via the GitHub CLI (`gh issue comment`, `gh pr comment`, `gh pr create`, `gh pr edit`, etc.), always pass multi-line text using a HEREDOC so that real newline characters are embedded. **Never** use escaped `\n` sequences — GitHub renders them as literal characters, not line breaks:
-
-```bash
-gh issue comment <number> --repo <owner/repo> --body "$(cat <<'COMMENT'
-First paragraph.
-
-Second paragraph.
-COMMENT
-)"
-```
-
-This applies to any `--body` argument that contains or may contain newlines.
+For the HEREDOC rule for any `gh` `--body` argument that contains or may contain newlines, see [github-cli.instructions.md](github-cli.instructions.md#comment-and-body-text-mandatory--heredoc-never-n).
 
 ## GitHub Issues
 
@@ -96,21 +85,7 @@ When raising a GitHub issue autonomously (not directly requested by a human):
 
 ## GitHub CLI (`gh`) Proxy Behavior
 
-When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a proxy:
-
-- If a `gh` command fails, raise an issue on `credfeto/github-api-proxy` with the exact subcommand and flags, the API method (if visible), and the full error message.
-- Commit and push operations are always rejected by the proxy — use `git` CLI directly for all commit and push operations.
-- **`gh pr create` (MANDATORY when `GH_HOST` is set):** Always pass both `--repo <owner>/<repo>` and `--head <owner>:<branch>`. Without `--repo`, gh CLI performs a client-side check that a git remote URL has a hostname matching `GH_HOST` — since remotes use `github.com` but `GH_HOST` is the proxy host, no remote matches and `gh` refuses to proceed before any API request reaches the proxy. Without `--head`, gh may try to detect the branch from git remotes, leading to a blank head ref at the proxy GraphQL layer. With both flags supplied, `gh` relies solely on API calls and bypasses the remote-URL check entirely.
-
-  ```bash
-  gh pr create \
-    --repo <owner>/<repo> \
-    --head <owner>:<branch-name> \
-    --base main \
-    --draft \
-    --title "..." \
-    --body "..."
-  ```
+For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [github-cli.instructions.md](github-cli.instructions.md#gh_host-proxy-behavior-mandatory-when-set). In short: commit and push operations are always rejected by the proxy — use `git` CLI directly for those.
 
 ## Running Git Commands in a Specific Directory
 
