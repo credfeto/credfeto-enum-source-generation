@@ -2,7 +2,7 @@
 
 [Back to Global Instructions Index](index.md)
 
-Load this file when about to commit or acting as the Committer agent. See [git.instructions.md](git.instructions.md) for the mandatory identity check and branch verification.
+Load this file when about to commit or acting as the Committer agent. See [git.instructions.md](git.instructions.md) for the mandatory branch verification.
 
 ## Commit Rules (MANDATORY)
 
