@@ -427,7 +427,6 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 ## Committer
 
 - Use `git` CLI only — never `gh` or the GitHub API for commit/push.
-- Verify git identity and GPG signing before any commit (see [git.instructions.md](git.instructions.md#git-identity-check-mandatory-before-any-commit)). Stop and report if either check fails.
 - Commit code+tests as one GPG-signed commit (Conventional Commits, original prompt in body as `Prompt: …`).
 - Commit `CHANGELOG.md` as a separate GPG-signed commit.
 - Push immediately after. Do not open the PR — that is PR Submitter's job.
