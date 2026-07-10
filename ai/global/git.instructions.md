@@ -12,7 +12,15 @@ If the environment is too broken to work in without first fixing infrastructure 
 
 ## Pre-Work Baseline Check (MANDATORY before starting any work)
 
-Before starting any work on an issue or PR, run the hook against every tracked file to verify the repo is clean. Resolve `<hooks-path>` using the same `core.hooksPath` scope lookup as [Pre-Commit Hook Verification](#pre-commit-hook-verification-mandatory-before-blocking) below:
+If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date **before** running the baseline hook below, as three distinct, ordered steps:
+
+1. **Fetch**: `git -C <repodir> fetch origin main` — always fetch first, regardless of whether a rebase turns out to be needed.
+2. **Check**: `git -C <repodir> rev-list --count HEAD..origin/main` — a non-zero count means `origin/main` has advanced and a rebase is needed.
+3. **Rebase**: only if step 2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below. Run the build and tests once the rebase completes.
+
+A branch just created fresh from an up-to-date `main` doesn't need this — it starts current by construction.
+
+Then, before starting any work on an issue or PR, run the hook against every tracked file to verify the repo is clean. Resolve `<hooks-path>` using the same `core.hooksPath` scope lookup as [Pre-Commit Hook Verification](#pre-commit-hook-verification-mandatory-before-blocking) below:
 
 ```bash
 <hooks-path>/pre-commit --all-files
@@ -91,7 +99,7 @@ For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [g
 - All new work must be in a branch — never commit directly to `main`.
 - Ensure `main` is up-to-date with `origin` before starting.
 - Continue in the same branch until the task changes.
-- Before continuing work on an existing branch, check if `origin/main` has advanced — if so, rebase first.
+- Before continuing work on an existing branch, check if `origin/main` has advanced — if so, rebase first. This is done as part of the [Pre-Work Baseline Check](#pre-work-baseline-check-mandatory-before-starting-any-work) above, before the baseline hook runs.
 
 ## Resolving Version Conflicts When Merging or Rebasing
 
