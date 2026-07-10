@@ -1,0 +1,25 @@
+--- # Linting of pull requests
+timeout: 10m
+format: json
+dependency-tree: true
+list-all-pkgs: true
+exit-code: 1
+output: result.json
+severity:
+  - HIGH
+  - CRITICAL
+scan:
+  skip-dirs:
+    - /lib64
+    - /lib
+    - /usr/lib
+    - /usr/include
+
+  scanners:
+    - vuln
+    - secret
+vulnerability:
+  type:
+    - os
+    - library
+  ignore-unfixed: true
