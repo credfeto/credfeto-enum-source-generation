@@ -358,3 +358,6 @@ node_modules
 
 # AI Config
 .junie
+
+# Trivy
+result.json
