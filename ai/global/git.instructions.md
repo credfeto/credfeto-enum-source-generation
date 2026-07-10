@@ -34,7 +34,7 @@ Never block work based on inspecting config files and deducing that a tool might
    1. `git config --system --get core.hooksPath`
    2. `git config --global --get core.hooksPath`
    3. `git config --local --get core.hooksPath` (run inside the repo)
-   If none of the three scopes returns a value, the hook is **not installed** — see [Git Identity Check](#git-identity-check-mandatory-before-any-commit) for what that means for identity verification.
+   If none of the three scopes returns a value, the hook is **not installed**.
 2. Stage your changes.
 3. Run the pre-commit hook directly: `<hooks-path>/pre-commit`, using the path found in step 1.
 4. Only block if the hook **actually fails** with a real error.
@@ -44,14 +44,6 @@ Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is
 ## Build and Test Verification (MANDATORY before any commit or push)
 
 Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask.
-
-## Git Identity Check (MANDATORY before any commit)
-
-Identity and GPG signing (`user.email`, `commit.gpgsign`, `user.signingkey`) are verified automatically on every commit by the global pre-commit hook (`credfeto-global-pre-commit`'s `src/scripts/check-identity`) — see [git.examples.md](git.examples.md) for the check it runs.
-
-**If the hook fails with an identity or signing error: stop all work, do not commit, and report the misconfiguration.**
-
-If [Pre-Commit Hook Verification](#pre-commit-hook-verification-mandatory-before-blocking) finds the hook is **not installed** in any git config scope, automatic enforcement does not apply — run the identity check manually using the script in [git.examples.md](git.examples.md) before committing.
 
 ## Pre-Commit Branch Check
 
