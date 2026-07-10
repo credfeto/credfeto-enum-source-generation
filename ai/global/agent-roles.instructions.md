@@ -16,6 +16,8 @@ Load when acting as a named agent. Routing table and model selection: [task-work
 
 When picking up an **Issue** that has no existing PR:
 
+0. Run the [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work) before anything else in this flow — including before checking for an existing plan comment. Follow its auto-fix/failure/block rules there; only continue to step 1 once the baseline is clean.
+
 1. Check whether you have already posted a plan comment:
 
    ```bash
