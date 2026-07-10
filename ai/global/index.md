@@ -39,6 +39,7 @@ Load these only when the work involves the relevant technology or context.
 | [npm.instructions.md](npm.instructions.md) | Any `package.json` is present or npm packages are being added/updated | Exact version pinning, `--save-exact`, no semver ranges, explicit updates |
 | [api.instructions.md](api.instructions.md) | An HTTP API is being created or modified | `.http` test file requirements |
 | [performance.instructions.md](performance.instructions.md) | Performance-critical code is being written or optimised | Design principles, benchmarks, optimisation workflow |
+| [github-cli.instructions.md](github-cli.instructions.md) | Running any `gh` command | Full `gh` command reference (issues, PRs, labels, search, api/graphql, proxy behaviour, HEREDOC bodies), common mistakes learned from real failures |
 | [agent-roles.instructions.md](agent-roles.instructions.md) | You are acting as a named agent (Orchestrator, Code Writer, Code Tester, etc.) | Detailed per-agent responsibilities and behaviour |
 | [changelog.instructions.md](changelog.instructions.md) | You need to add or update a changelog entry, or you are the Changelog agent | Format, tooling (`dotnet changelog`), when to add entries, add/remove commands |
 | [git-commits.instructions.md](git-commits.instructions.md) | You are about to commit, or you are the Committer agent | Commit size rules, empty commit check, push cadence, Conventional Commits format |
