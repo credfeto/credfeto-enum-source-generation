@@ -260,15 +260,17 @@ Mechanical agents must not interpret or fix failures. When a check fails: captur
 
 Standard loop pattern: Code Writer/Fixer loops ≤5 with Code Tester; Code Reviewer loops ≤5 re-running both each round. Code Writer, Code Fixer, Code Reviewer, and CI Debugger may invoke Coding Researcher on demand at any point when the knowledge to implement or fix is lacking — this does not count toward the standard loop limits, but each calling role may invoke Coding Researcher at most 3 times per work item. Before invoking, the calling role checks the work item's issue/PR for an existing `### Coding Researcher` comment answering the same question and reuses it if found — reused findings do not count toward the cap. After Coding Researcher returns, the calling role records the question and outcome as a `### Coding Researcher` comment on the issue/PR so it can be reused. On reaching the cap, or if Coding Researcher returns **Not possible**, the calling role stops and escalates to Orchestrator rather than continuing the loop or guessing.
 
+Every sequence below starts with the [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work) — it is step 0, not merely a standalone rule, and must actually run before the first agent in the row is invoked.
+
 | Work type | Agent sequence |
 | --- | --- |
-| New feature / bug fix / refactor | Code Writer → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
-| `CHANGES_REQUESTED` on existing PR, or verbal/chat request for changes on an open PR | Code Fixer (respond to every comment) → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
-| Coverage-only task | Code Writer (tests only) → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
-| Documentation-only | Code Writer (docs only) → PR Submitter |
-| Rebase requested | Rebase Agent → PR Submitter |
-| CI failure (unknown cause) | CI Debugger |
-| Dependabot / dependency update | Dependency Updater |
+| New feature / bug fix / refactor | Pre-Work Baseline Check → Code Writer → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
+| `CHANGES_REQUESTED` on existing PR, or verbal/chat request for changes on an open PR | Pre-Work Baseline Check → Code Fixer (respond to every comment) → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
+| Coverage-only task | Pre-Work Baseline Check → Code Writer (tests only) → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
+| Documentation-only | Pre-Work Baseline Check → Code Writer (docs only) → PR Submitter |
+| Rebase requested | Pre-Work Baseline Check → Rebase Agent → PR Submitter |
+| CI failure (unknown cause) | Pre-Work Baseline Check → CI Debugger |
+| Dependabot / dependency update | Pre-Work Baseline Check → Dependency Updater |
 
 For detailed agent role definitions, see [agent-roles.instructions.md](agent-roles.instructions.md).
 
