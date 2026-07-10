@@ -123,7 +123,7 @@ On every agent run, for every PR being interacted with:
 
 ## Label Management (MANDATORY)
 
-- Always use `--add-label` when adding labels — **never** `--label`, which replaces all existing labels and destroys automatically-applied classification labels.
+- Always use `--add-label` when adding labels — **never** `--label`, which replaces all existing labels and destroys automatically-applied classification labels. See [github-cli.instructions.md](github-cli.instructions.md#labels) for command syntax.
 - Never remove labels from issues or PRs. GitHub workflows add classification labels automatically; removing them breaks automation.
 
 ## Missing CLI Tools (MANDATORY)
