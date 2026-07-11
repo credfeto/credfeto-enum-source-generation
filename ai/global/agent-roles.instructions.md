@@ -213,7 +213,7 @@ The same rule applies when picking up an **issue**: if any comment on that issue
 
 ### Comment Replies (MANDATORY)
 
-Reply to every PR or issue comment that prompted an action:
+Reply to every PR or issue comment that prompted an action. "Every PR or issue comment" spans both comment surfaces: top-level PR/issue comments and review summaries (`gh pr view <n> --json comments,reviews`) **and** inline/diff-level review comments (`gh api repos/<owner>/<repo>/pulls/<n>/comments`) — a review can carry an empty top-level body with the actual feedback only in an inline comment, so both must be checked before concluding there is nothing to reply to.
 
 - Code change made: reply with `Fixed in <commit-sha> — <one sentence describing what changed and why>`.
 - Question answered inline (no code change): reply with the full answer.
@@ -397,6 +397,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 ## Code Fixer
 
 - Address requested changes on an existing PR — this includes both GitHub `CHANGES_REQUESTED` review status and verbal/chat requests for changes on an open PR.
+- Fetch **both** comment surfaces before deciding there is nothing to address: top-level PR comments and review summaries (`gh pr view <n> --repo <owner/repo> --json comments,reviews,reviewDecision`) **and** inline/diff-level review comments (`gh api repos/<owner>/<repo>/pulls/<n>/comments`). A reviewer can submit a `CHANGES_REQUESTED` review with an empty top-level summary and put their actual feedback only in an inline diff comment — the review decision alone is enough to treat the PR as having unaddressed work, and the inline-comment endpoint is the only place its content is visible.
 - If a fix requires knowledge outside the instruction files, invoke Coding Researcher first — do not guess or fabricate. If Coding Researcher returns **Not possible**, stop and escalate to Orchestrator with the explanation; do not partially apply the fix.
 - Convert to draft before starting (`gh pr ready <number> --undo`).
 - One commit per review comment. Hand off to Code Tester after each fix.
