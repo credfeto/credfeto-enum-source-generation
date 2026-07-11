@@ -10,6 +10,14 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+### Deprecated
+### Removed
+### Deployment Changes
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+## [1.2.150] - 2026-07-11
+### Changed
 - Optimised incremental source generator pipeline: lifted GenerationOptions computation to compilation level, switched class extraction to ForAttributeWithMetadataName, fixed GetTypeByMetadataName lookup
 - Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 5.6.0
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 5.6.0
@@ -18,12 +26,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 3.0.122
 - Dependencies - Updated FunFair.Test to 6.3.4.2441
 - Dependencies - Updated FunFair.Test.Source.Generator to 6.3.4.2441
-### Deprecated
-### Removed
-### Deployment Changes
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
+
 ## [1.2.149] - 2026-06-29
 ### Added
 - Tests: Increased unit test coverage to 100% for Credfeto.Enumeration.Source.Generation.Models
