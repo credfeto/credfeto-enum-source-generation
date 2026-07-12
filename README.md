@@ -8,9 +8,9 @@ Add a reference to the ``Credfeto.Enumeration.Source.Generation`` package in eac
 
 ```xml
 <ItemGroup>
-  <PackageReference 
-            Include="Credfeto.Enumeration.Source.Generation" 
-            Version="1.0.0.11" 
+  <PackageReference
+            Include="Credfeto.Enumeration.Source.Generation"
+            Version="1.0.0.11"
             PrivateAssets="All" ExcludeAssets="runtime" />
 </ItemGroup>
 ```
@@ -87,8 +87,7 @@ run below.
 |  IsDefinedCodeReflectionCached |    21.4452 ns |  0.3169 ns |  0.2965 ns |    21.3938 ns |      24 B |
 |         IsDefinedCodeGenerated |     0.0012 ns |  0.0041 ns |  0.0037 ns |     0.0000 ns |         - |
 
-
-```
+```text
 // * Warnings *
 ZeroMeasurement
   EnumBench.GetNameCodeGenerated: Default        -> The method duration is indistinguishable from the empty method duration
