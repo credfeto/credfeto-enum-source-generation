@@ -5,24 +5,24 @@
 ## README
 
 - Keep `README.md` accurate and up to date; rewrite template placeholder content before starting work.
-- Update the configuration section in the same commit whenever a config option (`appsettings.json`, options class, or env var) is added, removed, or renamed — include type, default, and description.
+- Update the configuration section in the same commit whenever a config option (`appsettings.json`, options class, or env var) is added, removed, or renamed; include type, default, and description.
 - For changelog format and tooling see [changelog.instructions.md](changelog.instructions.md).
 
 ### Required Sections (in this order)
 
-1. **Title and one-line description** — state what the project does, not just what it is named.
-2. **Badges** — see [Badge Guidelines](#badge-guidelines) below.
-3. **Overview** — 2–3 sentences explaining the purpose and key features.
-4. **Quick Start / Simple Example** — the minimal copy-paste snippet that gets something working; no preamble.
-5. **Installation** — e.g. `dotnet add package <Name>` or the NuGet Package Manager command.
-6. **Usage / Examples** — one or two brief, self-contained examples; link to `docs/` for more complex ones.
-7. **Documentation** — link to the `docs/` folder and any generated API documentation (e.g. DocFX, Doxygen, GitHub Pages).
-8. **Changelog** — link to `CHANGELOG.md`.
-9. **Contributing** — link to `CONTRIBUTING.md`.
-10. **Security** — link to `SECURITY.md`.
-11. **Licence** — link to `LICENSE`.
-12. **Contributors** — all-contributors section; see the [Contributors section](#contributors) below for when to include it.
-13. **Reference links** — all image and URL references used by badges and links, collected at the very bottom of the file, sorted alphabetically by label.
+1. **Title and one-line description**: state what the project does, not just what it is named.
+2. **Badges**: see [Badge Guidelines](#badge-guidelines) below.
+3. **Overview**: 2–3 sentences explaining the purpose and key features.
+4. **Quick Start / Simple Example**: the minimal copy-paste snippet that gets something working; no preamble.
+5. **Installation**: e.g. `dotnet add package <Name>` or the NuGet Package Manager command.
+6. **Usage / Examples**: one or two brief, self-contained examples; link to `docs/` for more complex ones.
+7. **Documentation**: link to the `docs/` folder and any generated API documentation (e.g. DocFX, Doxygen, GitHub Pages).
+8. **Changelog**: link to `CHANGELOG.md`.
+9. **Contributing**: link to `CONTRIBUTING.md`.
+10. **Security**: link to `SECURITY.md`.
+11. **Licence**: link to `LICENSE`.
+12. **Contributors**: all-contributors section; see the [Contributors section](#contributors) below for when to include it.
+13. **Reference links**: all image and URL references used by badges and links, collected at the very bottom of the file, sorted alphabetically by label.
 
 Omit any section that does not apply (e.g. no Installation section for a library with no NuGet package), but never invent placeholder sections.
 
@@ -32,7 +32,7 @@ Place all badges near the top of the file, after the title but before the overvi
 
 #### Link Format (MANDATORY)
 
-All badges and hyperlinks must use **reference-style** markdown — never inline URLs. Use descriptive named labels; never use bare numbers (`[1]`, `[2]`). Collect all reference definitions at the very bottom of the file, sorted alphabetically by label.
+All badges and hyperlinks must use **reference-style** markdown, never inline URLs. Use descriptive named labels; never use bare numbers (`[1]`, `[2]`). Collect all reference definitions at the very bottom of the file, sorted alphabetically by label.
 
 ```markdown
 [![Alt text][image-ref]][link-ref]
@@ -107,12 +107,12 @@ Only include badges that are actively maintained and reflect real state. Remove 
 
 - All non-template repos must have a `docs/` folder; template repos must not.
 - Place all docs and architecture diagrams (except `README.md`/`CHANGELOG.md`) in `docs/`; keep them current.
-- Architecture diagrams: show folder structure only — omit individual files and package versions; prefer SVG over raster formats.
+- Architecture diagrams: show folder structure only, omit individual files and package versions; prefer SVG over raster formats.
 
 ## Contributors
 
 - Include a `## Contributors` section in `README.md` using the [all-contributors](https://allcontributors.org) spec **only when the repository has more than one known human contributor**. Omit the section entirely when there is only one.
-- When the condition is met, preserve the auto-generated comment markers exactly — do not reformat, reorder, or remove them:
+- When the condition is met, preserve the auto-generated comment markers exactly; do not reformat, reorder, or remove them:
 
 ```markdown
 ## Contributors
@@ -127,4 +127,4 @@ Only include badges that are actively maintained and reflect real state. Remove 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 ```
 
-- Never manually edit the content between the `START` and `END` markers — the all-contributors bot manages that block.
+- Never manually edit the content between the `START` and `END` markers; the all-contributors bot manages that block.
