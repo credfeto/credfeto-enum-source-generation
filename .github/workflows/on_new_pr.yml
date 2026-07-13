@@ -8,7 +8,7 @@ on:
   # https://github.com/ahmadnassri/action-dependabot-auto-merge/issues/60
   # NOTE: pull_request_target resolves local composite actions from the filesystem rather than git
   # storage, and since the workspace is empty at job initialisation (before any steps run), local
-  # uses: ./.github/actions/... references will always fail — even with an actions/checkout step,
+  # uses: ./.github/actions/... references will always fail, even with an actions/checkout step,
   # because step execution happens after action path resolution. As a result, any steps in this
   # workflow that would otherwise use local composite actions must inline their logic directly.
   pull_request_target:
