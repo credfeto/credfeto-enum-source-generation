@@ -2,7 +2,7 @@
 
 [Back to Git Instructions](git.instructions.md) | [Back to Global Instructions Index](index.md)
 
-## Template Rule Escalation — Issue Command
+## Template Rule Escalation: Issue Command
 
 ```bash
 gh issue create --repo credfeto/cs-template \
