@@ -72,7 +72,7 @@ runs:
         ReleaseNotes: ${{inputs.RELEASE_NOTES}}
 
     - name: "Report publish output size"
-      uses: actions/github-script@v9.0.0
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
         OUTPUT_DIR: "${{github.workspace}}/server-dist/${{inputs.PLATFORM}}"
         PLATFORM: "${{inputs.PLATFORM}}"
