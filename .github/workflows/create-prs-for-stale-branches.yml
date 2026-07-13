@@ -54,7 +54,7 @@ jobs:
         run: sudo apt install -y jq
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 0
@@ -104,7 +104,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 0
@@ -130,7 +130,7 @@ jobs:
       # On Default branch
       - name: "On Default Branch"
         if: steps.detection.outputs.defaultbranch == matrix.branch
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             core.info("On Default branch - don't do anything");
@@ -138,7 +138,7 @@ jobs:
       # On Non-Default branch
       - name: "On Non-Default branch"
         if: steps.detection.outputs.defaultbranch != matrix.branch
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             core.info('On non-default branch');
@@ -237,7 +237,7 @@ jobs:
           && steps.find-pull-request.outputs.number == ''
           && steps.aheadbehind.outputs.ahead != 0
           && steps.aheadbehind.outputs.dayssinceupdate > 7
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             core.info('URL: ${{steps.open-pr.outputs.pr_url}}');
@@ -267,7 +267,7 @@ jobs:
           && steps.aheadbehind.outputs.behind != 0
           && steps.aheadbehind.outputs.ahead != 0
           && steps.aheadbehind.outputs.dayssinceupdate > 7
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             core.info('Rebase?');
@@ -300,7 +300,7 @@ jobs:
         if: |-
           steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             core.info('Ahead: ${{steps.aheadbehind.outputs.ahead}}');
