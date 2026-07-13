@@ -38,8 +38,8 @@ Always direct `die()` to stderr (`>&2`) so error messages are not captured by st
 ### Usage Example
 
 ```sh
-info "Opening port ${PORT}/tcp..."   # correct — uses helper
-printf '→ Opening port %s/tcp...\n' "${PORT}"  # wrong — naked printf
+info "Opening port ${PORT}/tcp..."   # correct: uses helper
+printf '→ Opening port %s/tcp...\n' "${PORT}"  # wrong: naked printf
 ```
 
 ## AI Agent Detection
@@ -58,7 +58,7 @@ Usage:
 
 ```sh
 if is_ai_agent; then
-    die "Prohibited — did you read the .ai-instructions?"
+    die "Prohibited: did you read the .ai-instructions?"
 else
     die "Normal human-facing error message"
 fi
