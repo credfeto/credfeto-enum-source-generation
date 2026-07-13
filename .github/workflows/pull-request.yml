@@ -95,9 +95,21 @@ jobs:
           FIND_PR_NUMBER: ${{steps.findPr.outputs.number}}
         with:
           script: |
+            const prOk = process.env.FIND_PR_NUMBER === '';
+
             core.info(`Repo: ${process.env.REPO}`);
             core.info(`Owner: ${process.env.REPO_OWNER}`);
-            core.info(`PR OK: ${process.env.FIND_PR_NUMBER === ''}`);
+            core.info(`PR OK: ${prOk}`);
+
+            await core.summary
+              .addHeading('Status')
+              .addTable([
+                [{data: 'Property', header: true}, {data: 'Value', header: true}],
+                ['Repo', process.env.REPO],
+                ['Owner', process.env.REPO_OWNER],
+                ['PR OK', prOk ? '✅ Yes' : '❌ No'],
+              ])
+              .write();
 
       - name: "Check Required Secrets"
         if: steps.findPr.outputs.number == ''
@@ -133,6 +145,16 @@ jobs:
             core.info(`URL: ${process.env.PR_URL}`);
             core.info(`PR: ${process.env.PR_NUMBER}`);
             core.info(`CF: ${process.env.HAS_CHANGED_FILES}`);
+
+            await core.summary
+              .addHeading('New PR Details')
+              .addTable([
+                [{data: 'Property', header: true}, {data: 'Value', header: true}],
+                ['URL', process.env.PR_URL],
+                ['PR', process.env.PR_NUMBER],
+                ['CF', process.env.HAS_CHANGED_FILES],
+              ])
+              .write();
 
       - name: "Sync Labels"
         if: steps.findPr.outputs.number == ''
