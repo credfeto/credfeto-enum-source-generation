@@ -75,23 +75,23 @@ When env vars cannot be avoided, add this as the **first step** in the action:
           }
 ```
 
-## Step Output Formatting — github-script
+## Step Output Formatting: github-script
 
 ```javascript
 core.info(`✅ Branch ${branchName} already exists`);
 core.info(`✅ Updated global.json to version ${version}`);
-core.info(`❌ Branch ${branchName} not found — creating`);
+core.info(`❌ Branch ${branchName} not found, creating`);
 core.setFailed(`❌ Found ${mergeCommits.length} merge commit(s). Please rebase.`);
-core.warning(`⚠️ No releases found — nothing to do`);
+core.warning(`⚠️ No releases found, nothing to do`);
 ```
 
-## Step Output Formatting — bash
+## Step Output Formatting: bash
 
 ```bash
 echo "✅ No merge conflict markers found."
-echo "❌ Merge conflict markers found — resolve before merging."
-echo "✅ src/global.json found — detected SDK version: $version"
-echo "⚠️ src/global.json not found — using fallback version: 10.0.*"
+echo "❌ Merge conflict markers found, resolve before merging."
+echo "✅ src/global.json found, detected SDK version: $version"
+echo "⚠️ src/global.json not found, using fallback version: 10.0.*"
 ```
 
 ## Surfacing Key Values (core.info + core.notice)
@@ -103,12 +103,12 @@ core.info(`Version: \u001b[38;5;6m${version}`);
 core.notice(`Version: ${version}`);
 ```
 
-## Unifying Invocations — Caller Pattern
+## Unifying Invocations: Caller Pattern
 
 ```yaml
-# pull_request trigger — PR is the current event
+# pull_request trigger: PR is the current event
 pr-number: ${{github.event.pull_request.number}}
 
-# push trigger — PR was just created by a previous step
+# push trigger: PR was just created by a previous step
 pr-number: ${{steps.open-pr.outputs.pr_number}}
 ```
