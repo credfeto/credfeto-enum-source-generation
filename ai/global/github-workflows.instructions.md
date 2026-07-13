@@ -62,10 +62,20 @@ Do not replace these — specialised tooling required:
 
 ## Version Pinning
 
-Pin all `uses:` to a specific released version tag. Never use `@latest`, `@main`, `@master`, bare major tags (e.g. `@v6`), or branch refs.
+Never use `@latest`, `@main`, `@master`, bare major tags (e.g. `@v6`), or branch refs.
+
+**Preferred form — full commit SHA with a trailing version comment**, when the repo's `.github/dependabot.yml` has the `github-actions` ecosystem configured (`package-ecosystem: github-actions`): Dependabot resolves a new release to its commit SHA and opens the same kind of update PR it would for a tag, keeping the version comment in sync — so SHA pinning does not lose auto-update coverage.
+
+Correct: `uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0` (the SHA shown is an example only and may be stale by the time you read this — resolve the current release's SHA before pinning, see below)
+
+**Fallback form — released version tag**, when the repo has no `github-actions` Dependabot ecosystem configured (or for a local composite action reference, `uses: ./.github/actions/<name>`, which is never SHA-pinned):
 
 Correct: `uses: actions/github-script@v9.0.0`
-Wrong: `@latest`, `@v6`, branch refs
+Wrong (either form): `@latest`, `@v6`, branch refs
+
+This preference is opportunistic: switch a `uses:` line to SHA pinning when you are already touching that line for another reason — it is not a mandate to mass-migrate every workflow in one pass.
+
+Resolve a tag to its commit SHA with `gh api repos/<owner>/<action>/commits/<tag> --jq '.sha'`.
 
 When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate — see [git.instructions.md](git.instructions.md#resolving-version-conflicts-when-merging-or-rebasing).
 
@@ -74,7 +84,7 @@ When a merge or rebase produces conflicting pins for the same action (or for run
 Whenever you add or modify a `uses:` reference, check all actions in that file are on the latest released version:
 
 1. For each `uses:`, run `gh api repos/<owner>/<action>/releases/latest --jq '.tag_name'`.
-2. If behind, update in the same commit.
+2. If behind, update in the same commit — for a SHA-pinned action, resolve the new tag to its commit SHA (see above) and update both the SHA and the trailing version comment; for a tag-pinned action, update the tag directly.
 3. Never leave a file with a mix of updated and stale versions after touching it.
 
 ## Handling Node.js Deprecation Warnings
