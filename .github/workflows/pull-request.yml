@@ -44,7 +44,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -57,7 +57,7 @@ jobs:
 
       - name: "Existing PR Information"
         if: steps.findPr.outputs.number != ''
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           PR_NUMBER: ${{steps.findPr.outputs.number}}
         with:
@@ -90,7 +90,7 @@ jobs:
           fi
 
       - name: "Status"
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           FIND_PR_NUMBER: ${{steps.findPr.outputs.number}}
         with:
@@ -135,7 +135,7 @@ jobs:
 
       - name: "New PR Details"
         if: steps.findPr.outputs.number == ''
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           PR_URL: ${{steps.open-pr.outputs.pr_url}}
           PR_NUMBER: ${{steps.open-pr.outputs.pr_number}}
