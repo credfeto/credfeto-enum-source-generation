@@ -6,15 +6,15 @@ Load this file when adding changelog entries or acting as the Changelog agent.
 
 ## Rules
 
-- Use `Credfeto.Changelog.Cmd` — never edit `CHANGELOG.md` manually. `Credfeto.Changelog.Cmd` is the dotnet tool package that provides the `dotnet changelog` command; no separate install step is required if the repo's dotnet tool manifest already includes it.
+- Use `Credfeto.Changelog.Cmd`; never edit `CHANGELOG.md` manually. `Credfeto.Changelog.Cmd` is the dotnet tool package that provides the `dotnet changelog` command; no separate install step is required if the repo's dotnet tool manifest already includes it.
 - `CHANGELOG.md` must be listed in `.markdownlintignore` at the repo root (create the file if absent).
-- Entries must describe what changed and why it matters — not how it was implemented.
+- Entries must describe what changed and why it matters, not how it was implemented.
 
 ## When to Skip
 
 Do **not** add an entry if:
 
-- The repository name contains `-template` (e.g. `credfeto/cs-template`) — kept blank for template consumers.
+- The repository name contains `-template` (e.g. `credfeto/cs-template`), kept blank for template consumers.
 - The change is documentation-only with no effect on production code.
 - The change is to AI instruction files.
 
