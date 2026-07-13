@@ -23,10 +23,10 @@ runs:
             repo: context.repo.repo,
           });
           if (!repoInfo.is_template) {
-            core.info('ℹ️ Not a template repository — skipping action version check');
+            core.info('ℹ️ Not a template repository - skipping action version check');
             return;
           }
-          core.info('✅ Repository is a template — checking action version pins');
+          core.info('✅ Repository is a template - checking action version pins');
 
           function findFiles(dir, predicate) {
             const results = [];
@@ -51,7 +51,7 @@ runs:
               for (const line of content.split('\n')) {
                 const trimmed = line.trim();
                 if (trimmed.startsWith('#')) continue;
-                // SHA-pinned form: `uses: owner/repo@<sha> # vX.Y.Z` — the trailing comment holds the
+                // SHA-pinned form: `uses: owner/repo@<sha> # vX.Y.Z` - the trailing comment holds the
                 // human-readable version; the ref itself only carries a commit SHA.
                 const m = trimmed.match(/^uses:\s+(\S+)(?:\s+#\s*(v\S+))?/);
                 if (!m) continue;
@@ -132,7 +132,7 @@ runs:
           });
           const existing = openIssues.find(i => i.title === issueTitle);
           if (existing) {
-            core.info(`⚠️ Issue #${existing.number} already open — skipping`);
+            core.info(`⚠️ Issue #${existing.number} already open - skipping`);
             core.notice(`Existing issue: ${existing.html_url}`);
             return;
           }
