@@ -39,7 +39,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Info"
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             core.info(`Branch: ${process.env.HEAD_REF}`);
@@ -78,7 +78,7 @@ jobs:
 
       - name: "Checkout Source"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template'))
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 2
@@ -95,7 +95,7 @@ jobs:
 
       - name: "Report unchanged"
         if: (github.actor != 'dependabot[bot]' && !endsWith(github.repository , '-template')) && env.CHANGES == '0'
-        uses: actions/github-script@v9.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             core.setFailed('Changelog has not changed')
@@ -120,7 +120,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 0
@@ -181,13 +181,13 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 0
 
       - name: "Check for leaks"
-        uses: trufflesecurity/trufflehog@v3.95.9
+        uses: trufflesecurity/trufflehog@27b0417c16317ca9a472a9a8092acce143b49c55 # v3.95.9
         id: trufflehog
         with:
           path: "${{ github.workspace }}"
@@ -219,7 +219,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -247,7 +247,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -275,7 +275,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -304,7 +304,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 0
@@ -316,7 +316,7 @@ jobs:
 
       - name: "Dependency Review"
         if: steps.visibility.outputs.is_public == 'true'
-        uses: actions/dependency-review-action@v5.0.0
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
 
   no-merge-commits:
     # Check that there are no merge commits in the PR
@@ -341,7 +341,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -368,7 +368,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -419,7 +419,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 0
@@ -433,7 +433,7 @@ jobs:
           fi
 
       - name: "Run Linter"
-        uses: super-linter/super-linter@v8.7.0
+        uses: super-linter/super-linter@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
         env:
           CLOUDFORMATION_CONFIG_FILE: .cfnlintrc.yaml
           DEFAULT_BRANCH: main
