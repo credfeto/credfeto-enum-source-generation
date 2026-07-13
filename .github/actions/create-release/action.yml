@@ -38,8 +38,8 @@ runs:
           }).catch(e => e.status === 404 ? null : Promise.reject(e));
 
           if (existing) {
-            core.info(`\u001b[38;5;3m⚠️ Release ${tag} already exists — skipping`);
-            core.notice(`Release ${tag} already exists — skipping`);
+            core.info(`\u001b[38;5;3m⚠️ Release ${tag} already exists - skipping`);
+            core.notice(`Release ${tag} already exists - skipping`);
             return;
           }
 
@@ -49,7 +49,7 @@ runs:
             body = fs.readFileSync(notesFile, 'utf8');
             generate_release_notes = false;
           } else {
-            core.warning(`\u001b[38;5;3m⚠️ Release notes file not found: ${notesFile} — using generated notes`);
+            core.warning(`\u001b[38;5;3m⚠️ Release notes file not found: ${notesFile} - using generated notes`);
           }
 
           const release = await github.rest.repos.createRelease({
