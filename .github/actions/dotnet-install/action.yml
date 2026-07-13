@@ -77,7 +77,7 @@ runs:
 
     - name: "Determine dotnet version"
       id: check_dotnet
-      uses: actions/github-script@v9.0.0
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
         script: |
           const { existsSync, readFileSync } = require('fs');
@@ -102,7 +102,7 @@ runs:
 
     - if: steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'true'
       name: "Install dotnet (For Build)"
-      uses: actions/setup-dotnet@v5.4.0
+      uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
       env:
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       with:
@@ -113,7 +113,7 @@ runs:
 
     - if: steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'false'
       name: "Install dotnet (Tools)"
-      uses: actions/setup-dotnet@v5.4.0
+      uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
       env:
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       with:
