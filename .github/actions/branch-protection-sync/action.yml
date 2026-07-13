@@ -19,7 +19,7 @@ runs:
           const fs = require('fs');
           const path = require('path');
 
-          // GraphQL node id of the "GitHub Actions" app (REST app_id 15368) — required status
+          // GraphQL node id of the "GitHub Actions" app (REST app_id 15368) - required status
           // checks are pinned to this app, matching how funfair-server-repo-config's
           // update_repos.py pins REST app_id 15368 today.
           const GITHUB_ACTIONS_APP_ID = 'MDM6QXBwMTUzNjg=';
@@ -40,11 +40,11 @@ runs:
               const scope = tagMatch[1];
               const jobMatch = lines[i + 1].match(JOB_RE);
               if (!jobMatch) {
-                core.warning(`${file}:${i + 2}: @@required tag not immediately followed by a job key — skipped`);
+                core.warning(`${file}:${i + 2}: @@required tag not immediately followed by a job key - skipped`);
                 continue;
               }
               if (scope !== 'main' && scope !== 'merge') {
-                core.warning(`${file}: unknown @@required scope '${scope}' on job '${jobMatch[1]}' — skipped`);
+                core.warning(`${file}: unknown @@required scope '${scope}' on job '${jobMatch[1]}' - skipped`);
                 continue;
               }
               scopes[scope].add(jobMatch[1]);
