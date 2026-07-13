@@ -31,7 +31,7 @@ Load these only when the work involves the relevant technology or context.
 | --- | --- | --- |
 | [dotnet.instructions.md](dotnet.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present | Build/test, solution structure, test patterns, ValueTask, CancellationToken, NuGet audit |
 | [docker.instructions.md](docker.instructions.md) | Any `Dockerfile`, `Containerfile`, `.dockerignore`, `docker-compose*.yml`, `docker-compose*.yaml`, `compose.yml`, or `compose.yaml` is present, or container work is needed | Docker/Podman runner detection, Dockerfile authoring, compose conventions, image security basics |
-| [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present, or a `Credfeto.*`/`FunFair.*` package is encountered | Registry of org-owned NuGet packages with source repos — never decompile these |
+| [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present, or a `Credfeto.*`/`FunFair.*` package is encountered | Registry of org-owned NuGet packages with source repos: never decompile these |
 | [sql.instructions.md](sql.instructions.md) | Any `.sql` file or SQL project is present | SQL linting, local DB connection, performance optimisation |
 | [shell-scripts.instructions.md](shell-scripts.instructions.md) | Any `.sh` file is present or shell script work is needed | Shebang, linting, output helper conventions (`die`/`success`/`info`) |
 | [shell.firewall.instructions.md](shell.firewall.instructions.md) | Firewall rule management is needed | `firewall-cmd` rules, private network constants |
@@ -44,17 +44,17 @@ Load these only when the work involves the relevant technology or context.
 | [changelog.instructions.md](changelog.instructions.md) | You need to add or update a changelog entry, or you are the Changelog agent | Format, tooling (`dotnet changelog`), when to add entries, add/remove commands |
 | [git-commits.instructions.md](git-commits.instructions.md) | You are about to commit, or you are the Committer agent | Commit size rules, empty commit check, push cadence, Conventional Commits format |
 | [gitignore.instructions.md](gitignore.instructions.md) | Any `.gitignore` file is being created or modified | IDE file exclusions, root `.gitignore` ownership, consistency checks |
-| [language.instructions.md](language.instructions.md) | Writing code, documentation, comments, or commit messages | UK English for docs/comments; platform convention for identifiers |
+| [language.instructions.md](language.instructions.md) | Writing code, documentation, comments, or commit messages | UK English for docs/comments; platform convention for identifiers; no em dash characters |
 
 ## Reference Files (Load on Demand)
 
-These contain code examples only. Load them when actively writing or modifying the scripts they describe — not as part of routine rule-loading.
+These contain code examples only. Load them when actively writing or modifying the scripts they describe, not as part of routine rule-loading.
 
 | File | Load When |
 | --- | --- |
-| [shell-scripts.examples.md](shell-scripts.examples.md) | Writing or modifying shell scripts — provides `die`, `success`, `info`, `is_ai_agent` implementations |
-| [shell.firewall.examples.md](shell.firewall.examples.md) | Writing firewall scripts — provides `allow_ipv4`, `allow_ipv6`, `open_port_for_private_networks` implementations |
-| [github-workflows.examples.md](github-workflows.examples.md) | Creating or scaffolding a local composite action — provides action template, explicit inputs, env-var validation step |
-| [sql.examples.md](sql.examples.md) | Writing SQL or database connection scripts — provides `.database` file format, `sqlcmd` invocation, and `SET STATISTICS` baseline template |
-| [dotnet.examples.md](dotnet.examples.md) | Writing .NET DI setup tests — provides `AddMockedService` and `IOptions` patterns |
-| [git.examples.md](git.examples.md) | Filing a template rule escalation issue — provides the `gh issue create` command |
+| [shell-scripts.examples.md](shell-scripts.examples.md) | Writing or modifying shell scripts: provides `die`, `success`, `info`, `is_ai_agent` implementations |
+| [shell.firewall.examples.md](shell.firewall.examples.md) | Writing firewall scripts: provides `allow_ipv4`, `allow_ipv6`, `open_port_for_private_networks` implementations |
+| [github-workflows.examples.md](github-workflows.examples.md) | Creating or scaffolding a local composite action: provides action template, explicit inputs, env-var validation step |
+| [sql.examples.md](sql.examples.md) | Writing SQL or database connection scripts: provides `.database` file format, `sqlcmd` invocation, and `SET STATISTICS` baseline template |
+| [dotnet.examples.md](dotnet.examples.md) | Writing .NET DI setup tests: provides `AddMockedService` and `IOptions` patterns |
+| [git.examples.md](git.examples.md) | Filing a template rule escalation issue: provides the `gh issue create` command |
