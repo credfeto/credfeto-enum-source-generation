@@ -29,7 +29,7 @@ runs:
         WORKING_DIRECTORY: ${{github.workspace}}
 
     - name: "SQL: Lint SQL Files (SQLFluff)"
-      uses: super-linter/super-linter@v8.7.0
+      uses: super-linter/super-linter@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
       env:
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
         ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false
