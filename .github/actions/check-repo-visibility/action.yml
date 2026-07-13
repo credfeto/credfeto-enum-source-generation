@@ -36,7 +36,7 @@ runs:
               repo: context.repo.repo,
             }));
           } catch (err) {
-            core.warning(`⚠️ Could not retrieve repository info — defaulting to restrictive values: ${err.message}`);
+            core.warning(`⚠️ Could not retrieve repository info - defaulting to restrictive values: ${err.message}`);
             core.setOutput('is_public', 'false');
             core.setOutput('is_template', 'false');
             core.setOutput('is_fork', 'false');
