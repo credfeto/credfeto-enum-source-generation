@@ -46,6 +46,17 @@ jobs:
             core.info(`Base Branch: ${process.env.BASE_REF}`);
             core.info(`Repo: ${context.repo.owner}/${context.repo.repo}`);
             core.info(`Owner: ${context.repo.owner}`);
+
+            await core.summary
+              .addHeading('Info')
+              .addTable([
+                [{data: 'Property', header: true}, {data: 'Value', header: true}],
+                ['Branch', `${process.env.HEAD_REF}`],
+                ['Base Branch', `${process.env.BASE_REF}`],
+                ['Repo', `${context.repo.owner}/${context.repo.repo}`],
+                ['Owner', `${context.repo.owner}`],
+              ])
+              .write();
   # @@required: merge
   include-changelog-entry:
     if: github.event.pull_request.draft == false
