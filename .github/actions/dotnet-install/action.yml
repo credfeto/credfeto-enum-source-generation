@@ -93,7 +93,7 @@ runs:
           } else {
             core.exportVariable('DOTNET_VERSION', '10.0.*');
             core.setOutput('GLOBAL_JSON_EXIST', 'false');
-            core.warning('⚠️ src/global.json not found — using fallback version: 10.0.*');
+            core.warning('⚠️ src/global.json not found - using fallback version: 10.0.*');
           }
 
     - name: "Explicitly kill any existing dotnet"
