@@ -237,8 +237,7 @@ runs:
     - name: "Dotnet: Publish Packages using sleet"
       if: |-
         inputs.NUGET_API_KEY == 'SLEET' &&
-        inputs.NUGET_PACK == 'true' &&
-        !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')
+        inputs.NUGET_PACK == 'true'
       uses: ./.github/actions/sleet
       with:
         SLEET_CONFIG: ${{ inputs.SLEET_CONFIG }}
