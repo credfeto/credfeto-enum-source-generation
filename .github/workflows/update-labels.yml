@@ -51,7 +51,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           clean: true
           fetch-depth: 1
@@ -59,7 +59,7 @@ jobs:
 
       - name: "Update Github label config"
         if: success()
-        uses: crazy-max/ghaction-github-labeler@v6.0.0
+        uses: crazy-max/ghaction-github-labeler@548a7c3603594ec17c819e1239f281a3b801ab4d # v6.0.0
         with:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           yaml-file: .github/labels.yml
