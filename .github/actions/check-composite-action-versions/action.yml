@@ -11,7 +11,7 @@ runs:
   using: "composite"
   steps:
     - name: "Check Composite Action Versions"
-      uses: actions/github-script@v9.0.0
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
         github-token: ${{inputs.GITHUB_TOKEN}}
         script: |
@@ -51,7 +51,9 @@ runs:
               for (const line of content.split('\n')) {
                 const trimmed = line.trim();
                 if (trimmed.startsWith('#')) continue;
-                const m = trimmed.match(/^uses:\s+([^#\s]+)/);
+                // SHA-pinned form: `uses: owner/repo@<sha> # vX.Y.Z` — the trailing comment holds the
+                // human-readable version; the ref itself only carries a commit SHA.
+                const m = trimmed.match(/^uses:\s+(\S+)(?:\s+#\s*(v\S+))?/);
                 if (!m) continue;
                 const ref = m[1];
                 if (ref.startsWith('.')) continue;
@@ -60,7 +62,8 @@ runs:
                 const parts = ref.slice(0, at).split('/');
                 if (parts.length < 2) continue;
                 const key = `${parts[0]}/${parts[1]}`;
-                if (!map.has(key)) map.set(key, { owner: parts[0], repo: parts[1], version: ref.slice(at + 1) });
+                const version = m[2] ?? ref.slice(at + 1);
+                if (!map.has(key)) map.set(key, { owner: parts[0], repo: parts[1], version });
               }
             }
             return map;
