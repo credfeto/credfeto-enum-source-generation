@@ -16,7 +16,7 @@ inputs:
     description: 'Head commit SHA (what to compare to)'
     required: true
   github_token:
-    description: 'GitHub token — requires contents:read, models:read, and issues:read'
+    description: 'GitHub token: requires contents:read, models:read, and issues:read'
     required: true
   pr_title:
     description: 'Pull request title (used to extract issue references)'
@@ -87,7 +87,7 @@ runs:
           // ── Extract issue references from commit messages and PR title ─────
           // Two separate passes so each regex always has a single capture group.
           // First pass: keyword-prefixed references (closes/fixes/resolves #N).
-          // Second pass: bare references (#N) — the Set deduplicates overlaps.
+          // Second pass: bare references (#N); the Set deduplicates overlaps.
           const issueNumbers = new Set();
           const allText = [PR_TITLE, ...commitMessages].join('\n');
           const keywordIssueRe =
@@ -129,7 +129,7 @@ runs:
                   `#${num}: ${issue.title}${indentedBodyPreview ? `\n${indentedBodyPreview}` : ''}`,
                 );
               } catch {
-                // Issue may not exist or is not accessible — skip silently
+                // Issue may not exist or is not accessible, skip silently
               }
             }
             if (issueDetails.length > 0) {
