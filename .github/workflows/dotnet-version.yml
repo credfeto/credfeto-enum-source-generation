@@ -50,7 +50,6 @@ jobs:
       - name: "Checkout Source"
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          ref: ${{ github.head_ref }}
           clean: true
           fetch-depth: 0
           token: ${{secrets.SOURCE_PUSH_TOKEN}}
@@ -113,9 +112,13 @@ jobs:
         run: |
           CURRENT_VER="${{env.DOTNET_VERSION}}"
           LATEST_RELEASE_VER="${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          VER=$(echo "$CURRENT_VER $LATEST_RELEASE_VER" | tr ' ' '\n' | uniq | sort --version-sort | tail -1)
-          echo "Latest Version: $VER"
-          [[ "$VER" == "$LATEST_RELEASE_VER" ]] && echo "NEW_VERSION=true" >> "$GITHUB_OUTPUT" || echo "NEW_VERSION=false" >> "$GITHUB_OUTPUT"
+          echo "Current: $CURRENT_VER, Latest: $LATEST_RELEASE_VER"
+          HIGHEST=$(printf '%s\n' "$CURRENT_VER" "$LATEST_RELEASE_VER" | sort -V | tail -1)
+          if [[ "$CURRENT_VER" != "$LATEST_RELEASE_VER" && "$HIGHEST" == "$LATEST_RELEASE_VER" ]]; then
+            echo "NEW_VERSION=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "NEW_VERSION=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: "Update global.json"
         if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
