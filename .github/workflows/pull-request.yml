@@ -19,8 +19,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  HEAD_REF: ${{github.head_ref}}
-  BASE_REF: ${{github.base_ref}}
   REPO: ${{github.repository}}
   REPO_OWNER: ${{github.repository_owner}}
 
