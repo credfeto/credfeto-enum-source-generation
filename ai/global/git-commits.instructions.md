@@ -7,8 +7,8 @@ Load this file when about to commit or acting as the Committer agent. See [git.i
 ## Commit Rules (MANDATORY)
 
 - **Never create an empty commit.** Verify `git diff --cached --name-only` lists at least one file before running `git commit`.
-- Never amend an existing commit — always create a new one.
-  - **Exception:** for a commit that has not yet been pushed to `origin`, the commit message may be amended (e.g. to fix wording or apply [Commit Message Format](#commit-message-format)). The set of files in the commit and their content must never be changed by such an amend — only the message.
+- Never amend an existing commit; always create a new one.
+  - **Exception:** for a commit that has not yet been pushed to `origin`, the commit message may be amended (e.g. to fix wording or apply [Commit Message Format](#commit-message-format)). The set of files in the commit and their content must never be changed by such an amend, only the message.
 - Push to `origin` after every commit.
 - **Never bypass hooks or formatters.** If they fail, stop and report the failure.
 - **Never bypass commit message validation.** If it fails, stop and report the failure.
@@ -27,4 +27,4 @@ If hooks or formatters modify files **not in your intended change set**:
 ## Commit Message Format
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
-- Include the user's original prompt verbatim in the commit body, prefixed with `Prompt:` followed by a space — not in the title.
+- Include the user's original prompt verbatim in the commit body, prefixed with `Prompt:` followed by a space, not in the title.
