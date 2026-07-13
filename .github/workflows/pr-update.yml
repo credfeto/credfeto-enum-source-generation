@@ -67,6 +67,23 @@ jobs:
             core.info(`PR Owner: ${context.payload.pull_request?.user?.login}`);
             core.info(`Actor: ${context.actor}`);
 
+            await core.summary
+              .addHeading('Info')
+              .addTable([
+                [{data: 'Property', header: true}, {data: 'Value', header: true}],
+                ['Branch', `${process.env.HEAD_REF}`],
+                ['Base Branch', `${process.env.BASE_REF}`],
+                ['Repo', `${context.repo.owner}/${context.repo.repo}`],
+                ['Owner', `${context.repo.owner}`],
+                ['Assignee', `${context.payload.pull_request?.assignee?.login}`],
+                ['Assignee (0)', `${context.payload.pull_request?.assignees?.[0]?.login}`],
+                ['Last Modified By', `${context.payload.pull_request?.head?.user?.login}`],
+                ['PR Creator', `${context.payload.pull_request?.user?.login}`],
+                ['PR Owner', `${context.payload.pull_request?.user?.login}`],
+                ['Actor', `${context.actor}`],
+              ])
+              .write();
+
   add-pr-label:
     needs: [requirements]
     if: ${{github.actor != 'dependabot[bot]'}}
