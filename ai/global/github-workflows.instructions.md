@@ -77,7 +77,7 @@ This preference is opportunistic: switch a `uses:` line to SHA pinning when you 
 
 Resolve a tag to its commit SHA with `gh api repos/<owner>/<action>/commits/<tag> --jq '.sha'`.
 
-When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate: see [git.instructions.md](git.instructions.md#resolving-version-conflicts-when-merging-or-rebasing).
+When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate: see [git-rebasing.instructions.md](git-rebasing.instructions.md#resolving-version-conflicts-when-merging-or-rebasing).
 
 ## Keeping Actions Up to Date
 
