@@ -1,3 +1,4 @@
 ---
+# Maintain in repo: funfair-server-template
 ignore_checks:
   - W1030 # Additional properties not allowed
