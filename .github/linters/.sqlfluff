@@ -1,3 +1,4 @@
+# Maintain in repo: funfair-server-template
 [sqlfluff]
 dialect = tsql
 templater = raw
