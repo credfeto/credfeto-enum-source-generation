@@ -65,10 +65,18 @@ When picking up an **Issue** that has no existing PR:
 
 After all code changes are pushed and all required CI checks pass, **before** enabling auto-merge:
 
-#### Phase A: Code review (up to `MAX_REVIEW_ITERATIONS` rounds)
+#### Phase A: Simplify (up to `MAX_REVIEW_ITERATIONS` rounds)
+
+1. Update Workflow board to **AI Simplify** (if board data is present in your CLAUDE.md).
+2. Run: `/simplify` against the diff. It applies reuse, simplification, efficiency, and altitude cleanups directly rather than just reporting them.
+3. If `/simplify` changed any files: commit and push them, then return to step 2 to re-run against the resulting diff.
+4. Once `/simplify` makes no further changes: proceed to Phase B.
+5. After `MAX_REVIEW_ITERATIONS` rounds where `/simplify` still keeps changing files (not converging): post a PR comment explaining that simplify is not converging, add `Blocked` label, and **STOP**.
+
+#### Phase B: Code review (up to `MAX_REVIEW_ITERATIONS` rounds)
 
 1. Update Workflow board to **AI Review** (if board data is present in your CLAUDE.md).
-2. Run: `/code-review --comment`
+2. Run: `/code-review --comment`. This intentionally re-covers the reuse/simplification/efficiency categories Phase A's `/simplify` already applied: `/simplify` fixes silently, and this step verifies nothing was missed and separately checks correctness, which `/simplify` does not (security and compliance are not covered by either command; they remain Phase C's job). Expect step 2 to usually find nothing in the reuse/simplification/efficiency categories Phase A already handled.
 3. If inline PR comment findings were posted: fix each in its own commit, push, return to step 2.
 4. After `MAX_REVIEW_ITERATIONS` rounds with unresolved findings: post a PR comment listing them, add `Blocked` label, and **STOP**:
 
@@ -76,16 +84,16 @@ After all code changes are pushed and all required CI checks pass, **before** en
    gh pr edit <number> --repo <owner/repo> --add-label Blocked
    ```
 
-#### Phase B: Security review (up to `MAX_REVIEW_ITERATIONS` rounds)
+#### Phase C: Security review (up to `MAX_REVIEW_ITERATIONS` rounds)
 
 1. Update Workflow board to **AI Security Review** (if board data present).
 2. Run: `/security-review`
 3. If findings are reported (inline or in output): post them as a PR comment if not already inline, fix each in its own commit, push, return to step 2.
 4. After `MAX_REVIEW_ITERATIONS` rounds with unresolved findings: post a PR comment, add `Blocked` label, **STOP**.
 
-#### Phase C: Mark ready
+#### Phase D: Mark ready
 
-Only when both reviews pass (or no reviewable changes):
+Only when all three phases pass (or no reviewable changes):
 
 1. Update Workflow board to **Human Review** (if board data present).
 2. Enable auto-merge:
@@ -108,6 +116,7 @@ Workflow board (see agent-roles.instructions.md for update commands):
   WF_PLANNING=<option-id>
   WF_APPROVED=<option-id>
   WF_DEVELOPMENT=<option-id>
+  WF_AI_SIMPLIFY=<option-id>
   WF_AI_REVIEW=<option-id>
   WF_AI_SECURITY_REVIEW=<option-id>
   WF_HUMAN_REVIEW=<option-id>
