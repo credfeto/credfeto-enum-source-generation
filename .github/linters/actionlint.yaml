@@ -1,4 +1,5 @@
 --- # actionlint configuration for super-linter
+# Maintain in repo: funfair-server-template
 self-hosted-runner:
   # Labels of self-hosted runner in array of string
   labels:
