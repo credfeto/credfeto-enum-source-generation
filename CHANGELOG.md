@@ -10,14 +10,17 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated SonarAnalyzer.CSharp to 10.29.0.143774
-- SDK - Updated DotNet SDK to 10.0.302
 ### Deprecated
 ### Removed
 ### Deployment Changes
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.2.151] - 2026-07-15
+### Changed
+- Dependencies - Updated SonarAnalyzer.CSharp to 10.29.0.143774
+- SDK - Updated DotNet SDK to 10.0.302
+
 ## [1.2.150] - 2026-07-11
 ### Changed
 - Optimised incremental source generator pipeline: lifted GenerationOptions computation to compilation level, switched class extraction to ForAttributeWithMetadataName, fixed GetTypeByMetadataName lookup
