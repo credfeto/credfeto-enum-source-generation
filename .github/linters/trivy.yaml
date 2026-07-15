@@ -1,4 +1,5 @@
 --- # Linting of pull requests
+# Maintain in repo: funfair-server-template
 timeout: 10m
 format: json
 dependency-tree: true
