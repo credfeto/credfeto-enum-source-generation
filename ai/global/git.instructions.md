@@ -88,6 +88,11 @@ For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [g
 - In Claude Code the `cd` form also triggers an unnecessary permission prompt for the directory change itself.
 - This applies to all git subcommands: `git -C /path status`, `git -C /path add`, `git -C /path commit`, etc.
 
+## Avoid `git worktree`
+
+- Do not use `git worktree` to create additional working trees for a repo.
+- Switch branches in the existing working directory (`git -C <dir> checkout <branch>` / `git -C <dir> switch <branch>`) instead.
+
 ## Branching
 
 - All new work must be in a branch; never commit directly to `main`.
