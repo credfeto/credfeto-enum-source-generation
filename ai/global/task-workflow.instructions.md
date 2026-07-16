@@ -189,7 +189,7 @@ When using the Monitor tool to watch a background Bash task, the poll condition 
 
 3. **Verify the poll string exists in real output before writing the loop.** If you cannot confirm what string the command writes, run the command in the foreground first and read its output.
 
-4. **Prefer foreground over background for bounded work.** Use `run_in_background: true` only when a command genuinely takes many minutes (e.g. a full integration-test run) and you have independent work to do while waiting. A `dotnet build` or `git commit` should always run in the foreground.
+4. **Prefer foreground for quick, bounded commands** (`git status`, a single `grep`, `ls`, and similar). **Always background project build/test/commit tooling instead** — `git commit`/`pre-commit`, `dotnet build`, `dotnet test`, `npm test`, `bun test` — regardless of how fast a specific run is expected to be; see [Never Truncate Test/Commit Commands](#never-truncate-testcommit-commands-mandatory) below for why and how. Use `run_in_background: true` for any other command that genuinely takes many minutes (e.g. a full integration-test run) and you have independent work to do while waiting.
 
 5. **Time-box every poll loop: die after 30 minutes.** Always include a deadline so the session cannot hang forever:
 
@@ -229,11 +229,13 @@ When using the Monitor tool to watch a background Bash task, the poll condition 
 
 This is a distinct concern from the poll-loop timeouts above: those govern how long you wait for something _else_ to finish; this governs the timeout on the command _actually doing the work_.
 
-Never pass a tool-level timeout that could truncate `pre-commit`, a `git commit` in a repo with pre-commit enabled (globally via `core.hooksPath` or locally via `.pre-commit-config.yaml`), `dotnet test`, `npm test`, or `bun test`; these must run to completion.
+`git commit`/`pre-commit`, `dotnet build`, `dotnet test`, `npm test`, and `bun test` have no bounded, predictable duration: `pre-commit` can run a heavy hook chain (`dotnet buildcheck` across every project, `trivy`, `hadolint`), `dotnet build` runs through a large analyzer stack (Roslynator, SonarAnalyzer, Meziantou, Threading, Security Code Scan, and more) plus NuGet restore, and test runs scale with what changed. A commit has already been killed mid-run on a foreground timeout in a live session. There is no timeout value that is both practical and safe to pick for any of these five commands, so do not try to pick one.
 
-- Pass the maximum available timeout rather than a short one (e.g. Claude Code's Bash tool supports up to 600000ms/10 minutes; use it, don't default to a shorter value).
-- If even the maximum available timeout is not enough, use `run_in_background` and the Monitor tool instead of accepting a truncated run.
-- A killed run does not just fail; it skips the target process's own cleanup (a bash `EXIT` trap, .NET's `IDisposable` teardown, etc.), leaving orphaned temp directories, lock files, or half-applied state behind. Confirmed in practice: a killed `bats` run left thousands of orphaned fixture directories under a shared runtime directory, which went on to break an unrelated tool (`firejail`) that walked the same path.
+- **Always run these five commands via `run_in_background`; never in the foreground, regardless of how fast the specific run is expected to be.** This is unconditional, not a per-invocation judgement call.
+- Poll with the Monitor tool using the strings in the [Reliable poll strings by command](#reliable-poll-strings-by-command) table above, subject to the same 30-minute deadline required by [Background Tasks and Monitor Tool](#background-tasks-and-monitor-tool-mandatory). Backgrounding these commands is not exempt from that deadline; it trades a short, unsafe foreground guess for a long, controlled one.
+- **A long stretch with no new output is normal and is not a hang.** Do not interpret silence as a failure and manually cancel or kill the command on that basis. The only valid reasons to stop waiting are: the tool itself reports its timeout was hit, or the poll-loop deadline actually fires.
+- A killed run does not just fail; it skips the target process's own cleanup (a bash `EXIT` trap, .NET's `IDisposable` teardown, etc.), leaving orphaned temp directories, lock files, or half-applied state behind. Confirmed in practice: a killed `bats` run left thousands of orphaned fixture directories under a shared runtime directory, which went on to break an unrelated tool (`firejail`) that walked the same path; a `git commit` has separately been killed mid-run on a foreground timeout.
+- Other `dotnet` commands (`dotnet restore`, a standalone `dotnet buildcheck`, `dotnet format`, etc.) are not covered by this section; they may run in the foreground, but **always with an explicit maximum timeout set on the tool call**, never the tool's built-in default (e.g. Claude Code's Bash tool defaults to 2 minutes when no `timeout` is given; use the maximum available, e.g. 600000ms/10 minutes, explicitly). If even that maximum is not enough, use `run_in_background` and the Monitor tool instead of accepting a truncated run.
 
 ### Sandbox-Caused False Timeouts in Benchmark/Perf Tests (MANDATORY)
 
