@@ -4,6 +4,8 @@
 
 [Back to Global Instructions Index](index.md)
 
+> For rootless podman run by an unprivileged **system** systemd service with no login session, see [docker-rootless-podman-systemd.instructions.md](docker-rootless-podman-systemd.instructions.md) as well.
+
 ## Container Runner Detection
 
 - The container runner on a given machine may be **Docker or Podman**, never assume one is installed. If neither is installed, stop immediately, do not attempt to install one yourself, and ask the user to install Docker or Podman before continuing.
