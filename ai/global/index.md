@@ -30,7 +30,7 @@ Load these only when the work involves the relevant technology or context.
 
 | File | Load When | Covers |
 | --- | --- | --- |
-| [dotnet.instructions.md](dotnet.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present | Build/test, solution structure, test patterns, ValueTask, CancellationToken, NuGet audit |
+| [dotnet.instructions.md](dotnet.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present | Build/test, solution structure, test patterns, ValueTask, CancellationToken, nullable reference types, NuGet audit |
 | [docker.instructions.md](docker.instructions.md) | Any `Dockerfile`, `Containerfile`, `.dockerignore`, `docker-compose*.yml`, `docker-compose*.yaml`, `compose.yml`, or `compose.yaml` is present, or container work is needed | Docker/Podman runner detection, Dockerfile authoring, compose conventions, image security basics |
 | [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present, or a `Credfeto.*`/`FunFair.*` package is encountered | Registry of org-owned NuGet packages with source repos: never decompile these |
 | [sql.instructions.md](sql.instructions.md) | Any `.sql` file or SQL project is present | SQL linting, local DB connection, performance optimisation |
