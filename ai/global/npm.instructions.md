@@ -4,6 +4,8 @@
 
 [Back to Global Instructions Index](index.md)
 
+- Adding any new npm package requires explicit human approval after a full security review; see [packages.instructions.md](packages.instructions.md#third-party-packages-require-human-approval-mandatory).
+
 ## Fixed Package Versions
 
 - Always use **exact (pinned) version numbers** in `package.json`, no `^` or `~` prefixes.
