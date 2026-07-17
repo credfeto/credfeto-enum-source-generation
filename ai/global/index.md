@@ -22,7 +22,7 @@ Read all of these before starting any task, regardless of language or context.
 | [security.instructions.md](security.instructions.md) | No secrets in code, input validation, output sanitisation |
 | [error-handling.instructions.md](error-handling.instructions.md) | Explicit error handling, propagation, safe surfacing |
 | [logging.instructions.md](logging.instructions.md) | Structured logging, log levels, no PII/secrets |
-| [packages.instructions.md](packages.instructions.md) | Secure versions, managed vs native, deprecated packages |
+| [packages.instructions.md](packages.instructions.md) | Secure versions, managed vs native, deprecated packages, human approval required for non-credfeto/funfair-tech packages |
 
 ## Load When Applicable
 
