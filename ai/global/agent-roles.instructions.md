@@ -84,6 +84,10 @@ After all code changes are pushed and all required CI checks pass, **before** en
    gh pr edit <number> --repo <owner/repo> --add-label Blocked
    ```
 
+#### Conflict Resolution: Simplify/Code Review vs. Static Analyzer
+
+If a change proposed by `/simplify` (Phase A) or a finding raised by `/code-review` (Phase B) would conflict with a rule enforced by the build-time static analyzer stack (Roslynator, SonarAnalyzer, Meziantou, Threading, Security Code Scan, and others; see [task-workflow.instructions.md](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory)) or by `FunFair.CodeAnalysis` (see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md)), the static analyzer's rule always wins: do not apply the conflicting simplify/code-review suggestion, and keep the analyzer-compliant code as-is.
+
 #### Phase C: Security review (up to `MAX_REVIEW_ITERATIONS` rounds)
 
 1. Update Workflow board to **AI Security Review** (if board data present).
