@@ -102,7 +102,7 @@ runs:
 
     - if: steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'true'
       name: "Install dotnet (For Build)"
-      uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
       env:
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       with:
@@ -113,7 +113,7 @@ runs:
 
     - if: steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'false'
       name: "Install dotnet (Tools)"
-      uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
       env:
         GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
       with:
