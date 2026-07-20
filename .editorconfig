@@ -16,11 +16,11 @@ end_of_line=crlf
 [*.csproj]
 charset=utf-8
 trim_trailing_whitespace=true
-insert_final_newline=false
 indent_style=space
 max_line_length=200
 indent_size=2
 end_of_line=crlf
+insert_final_newline=true
 
 [*.xml]
 charset=utf-8
