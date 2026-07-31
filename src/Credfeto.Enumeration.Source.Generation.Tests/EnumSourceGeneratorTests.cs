@@ -1,5 +1,5 @@
-using Credfeto.Enumeration.Source.Generation.Builders;
 using Credfeto.Enumeration.Source.Generation.Models;
+using Credfeto.SourceGeneration.Helpers.Builders;
 using FunFair.Test.Common;
 using Microsoft.CodeAnalysis;
 using NSubstitute;

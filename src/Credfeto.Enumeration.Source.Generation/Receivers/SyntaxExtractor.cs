@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Credfeto.Enumeration.Source.Generation.Extensions;
 using Credfeto.Enumeration.Source.Generation.Models;
+using Credfeto.SourceGeneration.Helpers.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

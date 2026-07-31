@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using Credfeto.Enumeration.Source.Generation.Builders;
 using Credfeto.Enumeration.Source.Generation.Extensions;
 using Credfeto.Enumeration.Source.Generation.Formatting;
 using Credfeto.Enumeration.Source.Generation.Models;
+using Credfeto.SourceGeneration.Helpers.Builders;
 
 namespace Credfeto.Enumeration.Source.Generation;
 
@@ -19,7 +19,7 @@ public static class EnumSourceGenerator
             source
                 .AppendLine("namespace " + enumDeclaration.Namespace + ";")
                 .AppendBlankLine()
-                .AppendGeneratedCodeAttribute()
+                .AppendGeneratedCodeAttribute(tool: VersionInformation.Product, version: VersionInformation.Version)
                 .StartBlock(enumDeclaration.AccessType.ConvertAccessType() + " static class " + className)
         )
         {
@@ -58,7 +58,7 @@ public static class EnumSourceGenerator
         source = AddUsingDeclarations(new CodeBuilder().AppendFileHeader())
             .AppendLine($"namespace {classDeclaration.Namespace};")
             .AppendBlankLine()
-            .AppendGeneratedCodeAttribute();
+            .AppendGeneratedCodeAttribute(tool: VersionInformation.Product, version: VersionInformation.Version);
 
         using (source.StartBlock($"{classDeclaration.AccessType.ConvertAccessType()} static partial class {className}"))
         {

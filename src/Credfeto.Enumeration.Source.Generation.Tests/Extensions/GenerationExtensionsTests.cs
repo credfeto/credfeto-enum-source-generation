@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Credfeto.Enumeration.Source.Generation.Builders;
 using Credfeto.Enumeration.Source.Generation.Extensions;
 using Credfeto.Enumeration.Source.Generation.Formatting;
 using Credfeto.Enumeration.Source.Generation.Models;
+using Credfeto.SourceGeneration.Helpers.Builders;
 using FunFair.Test.Common;
 using Microsoft.CodeAnalysis;
 using NSubstitute;
