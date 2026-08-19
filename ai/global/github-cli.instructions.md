@@ -69,6 +69,19 @@ gh issue close <number> --repo <owner>/<repo>
 gh issue reopen <number> --repo <owner>/<repo>
 ```
 
+### Adding an Issue to the Workflow Project
+
+Every issue raised must be added to the "Workflow" project linked to the repository it was raised in (see [task-workflow.instructions.md](task-workflow.instructions.md#workflow-project-board-mandatory)). Project titles are not unique across the owner, so find the project linked to the repository first; never resolve it by title with `--add-project`.
+
+```bash
+# Find the repo's linked Workflow project number
+gh api graphql -f query='query{repository(owner:"<owner>",name:"<repo>"){projectsV2(first:10){nodes{number title}}}}' \
+  --jq '.data.repository.projectsV2.nodes[] | select(.title=="Workflow") | .number'
+
+# Add the issue to it
+gh project item-add <project-number> --owner <owner> --url <issue-url>
+```
+
 ### Available JSON Fields: `gh issue view`/`gh issue list`
 
 ```text
