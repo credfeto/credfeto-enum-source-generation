@@ -4,23 +4,23 @@ name: 'Publishes a Dotnet app to an executable'
 description: 'Publishes a Dotnet app to an executable'
 inputs:
   # General
-  PRODUCTION_BUILD:
+  production-build:
     description: 'Whether to build a production build'
     required: true
 
-  BUILD_VERSION:
+  build-version:
     description: 'Build version'
     required: true
 
-  RELEASE_NOTES:
+  release-notes:
     description: 'Release notes'
     required: false
 
-  PLATFORM:
+  platform:
     description: 'Platform to build'
     required: true
 
-  PROJECT_TO_PUBLISH:
+  project-to-publish:
     description: 'Package (root) to deploy'
     required: false
 
@@ -36,18 +36,18 @@ runs:
           exit 1
         fi
       env:
-        PLATFORM: ${{inputs.PLATFORM}}
+        PLATFORM: ${{inputs.platform}}
 
     # PublishTrimmed and PublishAot are controlled per-project in .csproj files so each project can opt in independently.
     ## Notes: NETSDK1094  can't use --no-restore
     - name: "Dotnet: Publish"
-      working-directory: ${{github.workspace}}/src/${{inputs.PROJECT_TO_PUBLISH}}
+      working-directory: ${{github.workspace}}/src/${{inputs.project-to-publish}}
       shell: bash
       run: |
         dotnet publish \
                   --warnaserror  \
                   --configuration:Release \
-                  "-r:${{inputs.PLATFORM}}" \
+                  "-r:${{inputs.platform}}" \
                   --self-contained \
                   --ignore-failed-sources \
                   -nodeReuse:False \
@@ -55,7 +55,7 @@ runs:
                   "-p:DisableSwagger=${{env.RELEASE}}" \
                   "-p:FFPublishing=True" \
                   "-p:IncludeNativeLibrariesForSelfExtract=True" \
-                  "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
+                  "-p:IsProduction=${{inputs.production-build}}" \
                   "-p:NoWarn=NETSDK1179" \
                   "-p:Optimize=true" \
                   "-p:PublishReadyToRun=false" \
@@ -64,18 +64,18 @@ runs:
                   "-p:SolutionDir=..\\" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
                   "-p:TreatWarningsAsErrors=True" \
-                  "-p:Version=${{inputs.BUILD_VERSION}}" \
+                  "-p:Version=${{inputs.build-version}}" \
                   "-p:ContinuousIntegrationBuild=true" \
-                  --output ${{github.workspace}}/server-dist/${{inputs.PLATFORM}} \
+                  --output ${{github.workspace}}/server-dist/${{inputs.platform}} \
                   ${{env.DOTNET_RELEASE_DEFINES}}
       env:
-        ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+        ReleaseNotes: ${{inputs.release-notes}}
 
     - name: "Report publish output size"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        OUTPUT_DIR: "${{github.workspace}}/server-dist/${{inputs.PLATFORM}}"
-        PLATFORM: "${{inputs.PLATFORM}}"
+        OUTPUT_DIR: "${{github.workspace}}/server-dist/${{inputs.platform}}"
+        PLATFORM: "${{inputs.platform}}"
       with:
         script: |
           const { execSync } = require('child_process');
