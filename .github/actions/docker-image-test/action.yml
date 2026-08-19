@@ -3,13 +3,13 @@
 name: 'Run docker image tests'
 description: 'Docker image tests'
 inputs:
-  APP_OWNER:
+  app-owner:
     description: 'docker app owner'
     required: true
-  APP_NAME:
+  app-name:
     description: 'docker app name'
     required: true
-  GITHUB_TOKEN:
+  github-token:
     description: 'github token for accessing github'
     required: true
 
@@ -23,7 +23,7 @@ runs:
 #    - name: "Create SBOM"
 #      uses: anchore/sbom-action@v0.24.0
 #      with:
-#        github-token: ${{inputs.GITHUB_TOKEN}}
+#        github-token: ${{inputs.github-token}}
 #        format: spdx-json
 #        output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
 #        config: "${{ github.workspace }}.github/linters/syft.yml"
@@ -43,7 +43,7 @@ runs:
 #      if: always()
 #      uses: anchore/scan-action@v7.4.0
 #      with:
-#        image: "${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:test"
+#        image: "${{inputs.app-owner}}/${{inputs.app-name}}:test"
 #        fail-build: true
 #        output-format: table
 #        severity-cutoff: medium
@@ -55,14 +55,14 @@ runs:
 #      if: always()
 #      uses: erzz/dockle-action@v1.4.1
 #      with:
-#        image: "${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:test"
+#        image: "${{inputs.app-owner}}/${{inputs.app-name}}:test"
 #        report-format: json
 #        report-name: dockle-report
 #        failure-threshold: warn
 #        exit-code: 1
 #        dockle-version: latest
 #        accept-extensions: pem
-#        token: ${{inputs.GITHUB_TOKEN}}
+#        token: ${{inputs.github-token}}
 
 #    - name: "Upload dockle Report"
 #      uses: actions/upload-artifact@v7.0.1
@@ -78,7 +78,7 @@ runs:
 #      if: always()
 #      uses: aquasecurity/trivy-action@v0.36.0
 #      with:
-#        image-ref: "${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:test"
+#        image-ref: "${{inputs.app-owner}}/${{inputs.app-name}}:test"
 #        format: 'table'
 #        exit-code: '1'
 #        ignore-unfixed: true
