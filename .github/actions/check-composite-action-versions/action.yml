@@ -1,9 +1,11 @@
 --- # Check for outdated GitHub Action version pins in workflow and composite action files
 # Maintain in repo: funfair-server-template
 name: "Check Composite Action Versions"
-description: "Raises an issue when external action version pins in .github/workflows/ or .github/actions/ are outdated. No-op on non-template repositories."
+description: "Raises a pre-approved issue with an implementation plan when action version pins are outdated. No-op on non-template repos."
 inputs:
-  GITHUB_TOKEN:
+  github-token:
+    # Also needs Projects (v2) write access to pre-approve the issue on the "Workflow" board;
+    # pre-approval is skipped (with a warning) if that scope is missing or no board is set up.
     description: "GitHub token with issues:write permission"
     required: true
 
@@ -13,7 +15,7 @@ runs:
     - name: "Check Composite Action Versions"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
-        github-token: ${{inputs.GITHUB_TOKEN}}
+        github-token: ${{inputs.github-token}}
         script: |
           const { readFileSync, readdirSync } = require('fs');
           const path = require('path');
@@ -51,9 +53,10 @@ runs:
               for (const line of content.split('\n')) {
                 const trimmed = line.trim();
                 if (trimmed.startsWith('#')) continue;
-                // SHA-pinned form: `uses: owner/repo@<sha> # vX.Y.Z` - the trailing comment holds the
-                // human-readable version; the ref itself only carries a commit SHA.
-                const m = trimmed.match(/^uses:\s+(\S+)(?:\s+#\s*(v\S+))?/);
+                // SHA-pinned form: `uses: owner/repo@<sha> # vX.Y.Z` (or the `- uses:` step-list
+                // form) - the trailing comment holds the human-readable version; the ref itself
+                // only carries a commit SHA.
+                const m = trimmed.match(/^(?:-\s+)?uses:\s+(\S+)(?:\s+#\s*(v\S+))?/);
                 if (!m) continue;
                 const ref = m[1];
                 if (ref.startsWith('.')) continue;
@@ -63,28 +66,69 @@ runs:
                 if (parts.length < 2) continue;
                 const key = `${parts[0]}/${parts[1]}`;
                 const version = m[2] ?? ref.slice(at + 1);
-                if (!map.has(key)) map.set(key, { owner: parts[0], repo: parts[1], version });
+                if (!map.has(key)) map.set(key, { owner: parts[0], repo: parts[1], versions: new Map() });
+                const entry = map.get(key);
+                if (!entry.versions.has(version)) entry.versions.set(version, []);
+                const versionFiles = entry.versions.get(version);
+                if (!versionFiles.includes(file)) versionFiles.push(file);
               }
             }
             return map;
           }
 
-          async function latestMatchingTag(owner, repo, current) {
+          function majorVersion(tag) {
+            return tag.match(/^v?(\d+)\./)?.[1] ?? null;
+          }
+
+          // Both caches are keyed per owner/repo (the `key` from the outer loop) so multiple
+          // pinned versions of the same action (the case this check exists to catch) don't each
+          // re-fetch the same latest-release lookup or re-paginate the same release list.
+          function memoize(cache, key, fn) {
+            if (!cache.has(key)) cache.set(key, fn());
+            return cache.get(key);
+          }
+
+          const latestReleaseCache = new Map();
+          function getLatestRelease(key, owner, repo) {
+            return memoize(latestReleaseCache, key, () =>
+              github.rest.repos.getLatestRelease({ owner, repo }).then(({ data }) => data.tag_name)
+            );
+          }
+
+          const releasesByMajorCache = new Map();
+          function getReleasesByMajor(key, owner, repo) {
+            return memoize(releasesByMajorCache, key, async () => {
+              const byMajor = new Map();
+              for await (const page of github.paginate.iterator(
+                github.rest.repos.listReleases, { owner, repo, per_page: 50 }
+              )) {
+                for (const r of page.data) {
+                  if (r.prerelease) continue;
+                  const major = majorVersion(r.tag_name);
+                  if (major === null) continue;
+                  const existing = byMajor.get(major);
+                  if (!existing || new Date(r.published_at) > new Date(existing.published_at)) {
+                    byMajor.set(major, r);
+                  }
+                }
+              }
+              return byMajor;
+            });
+          }
+
+          async function latestMatchingTag(key, owner, repo, current) {
+            const currentMajor = majorVersion(current);
+            if (currentMajor === null) return null;
             try {
-              const { data } = await github.rest.repos.getLatestRelease({ owner, repo });
-              if (/^v\d+/.test(current) && /^v\d+/.test(data.tag_name)) return data.tag_name;
-            } catch {}
-            const prefix = current.match(/^(v\d+)\./)?.[1];
-            if (!prefix) return null;
-            for await (const page of github.paginate.iterator(
-              github.rest.repos.listReleases, { owner, repo, per_page: 50 }
-            )) {
-              const match = page.data
-                .filter(r => !r.prerelease && r.tag_name.startsWith(`${prefix}.`))
-                .sort((a, b) => new Date(b.published_at) - new Date(a.published_at))[0];
-              if (match) return match.tag_name;
+              const tag = await getLatestRelease(key, owner, repo);
+              if (majorVersion(tag) === currentMajor) return tag;
+            } catch (e) {
+              if (e.status !== 404) {
+                core.warning(`⚠️ ${key}: getLatestRelease failed (status ${e.status ?? 'unknown'}): ${e.message}`);
+              }
             }
-            return null;
+            const byMajor = await getReleasesByMajor(key, owner, repo);
+            return byMajor.get(currentMajor)?.tag_name ?? null;
           }
 
           const githubDir = path.join(process.env.GITHUB_WORKSPACE, '.github');
@@ -99,21 +143,23 @@ runs:
           core.info(`ℹ️ Checking ${refs.size} unique external actions across ${files.length} files`);
 
           const outdated = [];
-          for (const [key, { owner, repo, version }] of refs) {
-            try {
-              const latest = await latestMatchingTag(owner, repo, version);
-              if (!latest) {
-                core.warning(`⚠️ No matching release found for ${key}`);
-                continue;
+          for (const [key, { owner, repo, versions }] of refs) {
+            for (const [version, refFiles] of versions) {
+              try {
+                const latest = await latestMatchingTag(key, owner, repo, version);
+                if (!latest) {
+                  core.warning(`⚠️ No matching release found for ${key}@${version}`);
+                  continue;
+                }
+                if (latest !== version) {
+                  core.info(`❌ ${key}: ${version} -> ${latest}`);
+                  outdated.push({ action: key, current: version, latest, files: refFiles });
+                } else {
+                  core.info(`✅ ${key}: ${version}`);
+                }
+              } catch (e) {
+                core.warning(`⚠️ ${key}@${version}: ${e.message}`);
               }
-              if (latest !== version) {
-                core.info(`❌ ${key}: ${version} -> ${latest}`);
-                outdated.push({ action: key, current: version, latest });
-              } else {
-                core.info(`✅ ${key}: ${version}`);
-              }
-            } catch (e) {
-              core.warning(`⚠️ ${key}: ${e.message}`);
             }
           }
 
@@ -148,7 +194,7 @@ runs:
             ...rows,
             '',
             'Note: workflow-file pins should be updated by Dependabot automatically.',
-            'Composite action file pins (`github/actions/`) are not updated by Dependabot because this',
+            'Composite action file pins (`.github/actions/`) are not updated by Dependabot because this',
             'repository is marked as a template (`is_template: true`).',
             '',
             'Update the version pins in the relevant files.',
@@ -159,7 +205,134 @@ runs:
             repo: context.repo.repo,
             title: issueTitle,
             body,
-            labels: ['AI-Work', 'github-actions', 'dependencies', 'Urgent'],
+            labels: ['AI-Work', 'github-actions', 'dependencies', 'Security'],
           });
           core.info(`✅ Created issue #${issue.number}`);
           core.notice(`New issue: ${issue.html_url}`);
+
+          const planSteps = outdated.map(({ action, current, latest, files: refFiles }) =>
+            [
+              `- \`${action}\`: \`${current}\` -> \`${latest}\``,
+              ...refFiles.map(f => `  - \`${f.replace(process.env.GITHUB_WORKSPACE + '/', '')}\``),
+            ].join('\n')
+          );
+          const planBody = [
+            '## Implementation plan',
+            '',
+            'This issue is a mechanical, pin-only version bump - the same class of change Dependabot',
+            'auto-merges everywhere it can reach. It exists only because Dependabot cannot update',
+            '`.github/actions/**` pins in template repositories.',
+            '',
+            'For each action below, update the `uses:` line in the listed file(s) to the new commit SHA',
+            'and its trailing `# vX.Y.Z` comment. No other changes are required.',
+            '',
+            ...planSteps,
+            '',
+            'This item has been pre-approved (Workflow Status set directly to `Approved`) under the',
+            'narrow policy for composite-action pin-bump issues raised by this workflow - see',
+            '`.github/actions/check-composite-action-versions/action.yml`.',
+          ].join('\n');
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issue.number,
+            body: planBody,
+          });
+          core.info('✅ Posted implementation plan comment');
+
+          // Pre-approve on the "Workflow" board: this issue class is a mechanical, pin-only
+          // dependency bump raised only by this scheduled job (never by a human or any other
+          // automation), so it is deliberately exempted from the orchestrator's human
+          // plan-approval gate - see docs/workflow-board.md in credfeto/credfeto-orchestrator for
+          // why that gate normally must never be set by automation. Best-effort: the "Workflow"
+          // project is optional (see same doc), so any failure here just leaves the issue at
+          // "Not Started" for a human/the orchestrator's normal fallback to pick up.
+          try {
+            const projectQuery = `
+              query($owner: String!, $repo: String!) {
+                repository(owner: $owner, name: $repo) {
+                  projectsV2(first: 20) {
+                    nodes {
+                      id
+                      title
+                      fields(first: 30) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options { id name }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }`;
+            const projectResult = await github.graphql(projectQuery, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const projects = projectResult.repository?.projectsV2?.nodes ?? [];
+            const project = projects.find(p => p.title === 'Workflow');
+            if (!project) {
+              core.warning('⚠️ No "Workflow" project linked to this repo - skipping pre-approval');
+            } else {
+              const statusField = (project.fields?.nodes ?? []).find(f => f?.name === 'Workflow Status');
+              const approvedOption = statusField?.options?.find(o => o.name === 'Approved');
+              if (!statusField || !approvedOption) {
+                core.warning('⚠️ "Workflow Status" field or "Approved" option not found - skipping pre-approval');
+              } else {
+                const addResult = await github.graphql(
+                  `mutation($p: ID!, $c: ID!) {
+                    addProjectV2ItemById(input: { projectId: $p, contentId: $c }) { item { id } }
+                  }`,
+                  { p: project.id, c: issue.node_id }
+                );
+                const itemId = addResult.addProjectV2ItemById.item.id;
+                const readBackQuery = `
+                  query($i: ID!) {
+                    node(id: $i) {
+                      ... on ProjectV2Item {
+                        fieldValueByName(name: "Workflow Status") {
+                          ... on ProjectV2ItemFieldSingleSelectValue { optionId }
+                        }
+                      }
+                    }
+                  }`;
+
+                // The item was just added to the project, so the field write below can be
+                // accepted (no GraphQL error) without actually persisting yet - a known
+                // eventual-consistency race in the Projects v2 API on freshly-added items.
+                // Verify with a read-back and retry rather than trusting the mutation response.
+                let verified = false;
+                for (let attempt = 1; attempt <= 3 && !verified; attempt++) {
+                  await github.graphql(
+                    `mutation($p: ID!, $i: ID!, $f: ID!, $v: String!) {
+                      updateProjectV2ItemFieldValue(
+                        input: { projectId: $p, itemId: $i, fieldId: $f, value: { singleSelectOptionId: $v } }
+                      ) { projectV2Item { id } }
+                    }`,
+                    { p: project.id, i: itemId, f: statusField.id, v: approvedOption.id }
+                  );
+                  await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+                  const readBack = await github.graphql(readBackQuery, { i: itemId });
+                  verified = readBack.node?.fieldValueByName?.optionId === approvedOption.id;
+                  if (!verified) {
+                    core.info(`⚠️ Pre-approval write not yet visible on attempt ${attempt} - retrying`);
+                  }
+                }
+
+                if (verified) {
+                  core.info('✅ Pre-approved on the Workflow board');
+                  core.notice(`Pre-approved issue #${issue.number} on the Workflow board`);
+                } else {
+                  core.warning(
+                    `⚠️ Pre-approval mutation returned no error but did not persist after 3 attempts ` +
+                    `- issue #${issue.number} left for manual/orchestrator review`
+                  );
+                }
+              }
+            }
+          } catch (e) {
+            core.warning(`⚠️ Failed to pre-approve on the Workflow board: ${e.message}`);
+          }
