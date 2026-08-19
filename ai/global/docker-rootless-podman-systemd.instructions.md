@@ -61,7 +61,30 @@
 ## `ProtectHome=yes` Breaks `XDG_RUNTIME_DIR` (MANDATORY)
 
 - `ProtectHome=yes` also masks `/run/user/*` on the unit, which breaks the D-Bus session bus fix above.
-- Fix: use `ProtectSystem=strict` + `PrivateTmp=yes` + `NoNewPrivileges=yes` instead (all three confirmed compatible with rootless podman on a real host); drop `ProtectHome`.
+- Fix: use `ProtectSystem=strict` instead; drop `ProtectHome`. Do **not** add `NoNewPrivileges=yes` alongside this — see the next section for why. Do **not** add `PrivateTmp=yes` either — see the `PrivateTmp=yes` section further down for why.
+
+## `NoNewPrivileges=yes` Breaks `newuidmap`/`newgidmap` on Every Reboot (MANDATORY)
+
+- Rootless podman needs `newuidmap`/`newgidmap` to build a new user namespace, and those tools gain `cap_setuid`/`cap_setgid` at exec time via **file capabilities** (`getcap` shows `cap_setuid=ep`/`cap_setgid=ep`), not a setuid bit. `NoNewPrivileges=yes` on the unit stops the kernel from honouring file capabilities (and setuid/setgid bits) on exec for the whole process tree, so any descendant that execs `newuidmap`/`newgidmap` silently loses the capability it needs.
+- Symptom in `journalctl` for the container-runner unit — note the generic `podman-compose ... exit status 125` line alone does not show this; the actual cause is a few lines earlier:
+
+  ```text
+  time="..." level=error msg="running `/usr/bin/newuidmap <pid> 0 <uid> 1 1 200000 65536`: newuidmap: Could not set caps\n"
+  Error: cannot set up namespace using "/usr/bin/newuidmap": exit status 1
+  ```
+
+- This only bites **after a reboot**, not on every `systemctl restart` of the unit: podman only needs to build a brand-new user namespace once per boot (the namespace does not survive a reboot), while restarts within the same boot reuse the existing one and never exec `newuidmap` again. A restart "working fine" is not evidence `NoNewPrivileges=yes` is safe — only a real reboot exercises the failing path.
+- Verify by reproducing directly rather than guessing from the unit file alone: `sudo systemd-run --property=NoNewPrivileges=yes --property=User=<svc-user> --property=Group=<svc-group> /usr/bin/newuidmap <pid-owned-by-svc-user> 0 <uid> 1` reproduces `Could not set caps`; the same command with the property removed gets past that point (reaches an unrelated failure further down, e.g. `write to uid_map failed`, which confirms the capability was actually granted this time).
+- Fix: do not set `NoNewPrivileges=yes` on a rootless-podman container-runner unit at all.
+
+## `PrivateTmp=yes` Orphans the Rootless-Podman Pause Process (MANDATORY)
+
+- Rootless podman keeps a long-lived "pause" process per UID (`/run/user/<uid>/libpod/tmp/pause.pid`, cgroup `podman-pause-*.scope`, reparented to PID 1) so it doesn't have to rebuild the user namespace on every invocation — this is the same mechanism the `NoNewPrivileges=yes` section above depends on surviving across restarts within a boot. `PrivateTmp=yes` gives every *start* of the container-runner unit its own private `/tmp` and `/var/tmp` bind mounts, torn down when that particular service instance ends.
+- If the pause process is created (or first joined) while one of those private mount namespaces is current, it keeps that namespace's view of `/var/tmp` for as long as it lives — including after the owning service instance, and its private tmp, is gone. A later `podman pull`/`podman-compose pull` that joins the same still-alive pause process then tries to create its image-copy scratch directory inside a `/var/tmp` that, from its point of view, no longer exists.
+- Symptom: `podman pull` / `podman-compose pull` (and hence the container-runner unit) fails with `creating a temporary directory: mkdir /var/tmp/container_images_storageNNNNNNNN: no such file or directory`, even though `/var/tmp` plainly exists on the host and a plain `mkdir` there (outside podman) succeeds. Nothing auto-recovers — every subsequent pull attempt fails the same way until the pause process is reset.
+- Verify: `cat /run/user/<uid>/libpod/tmp/pause.pid`, then `cat /proc/<pid>/mountinfo | grep var/tmp` — a source path containing `.../<unit-name>.service-*/tmp//deleted` confirms this cause.
+- Recovery, if it happens: confirm no containers are currently running (`podman ps -a` as the service account) before killing the pause process directly (`kill <pause-pid>`, then remove the stale pidfile) — that is only safe when nothing depends on the namespace it's holding open. If containers *are* running, use `podman system migrate` instead; it resets the pause process safely but stops all running containers as part of doing so, so it is not something to run unconditionally as an automated reactive fix on every pull failure.
+- Fix: do not set `PrivateTmp=yes` on a rootless-podman container-runner unit at all. `ProtectSystem=strict` plus explicit `ReadWritePaths` for whatever the unit actually needs to write are the accepted substitute.
 
 ## Renaming a Systemd Timer During a Migration Leaves the Old One Active (MANDATORY)
 
@@ -106,4 +129,6 @@ Use `podman compose down` instead (stop + remove in one step) rather than a `sto
 
 ## Source
 
-Findings captured from real-host debugging during the `credfeto-notification-bot-docker` docker-to-rootless-podman migration; see [credfeto/cs-template#978](https://github.com/credfeto/cs-template/issues/978) and credfeto/credfeto-notification-bot-docker#12 / credfeto/credfeto-notification-bot-docker#14 for the full narrative and exact commands used to reproduce/diagnose each one.
+Findings captured from real-host debugging during the `credfeto-notification-bot-docker` docker-to-rootless-podman migration; see [credfeto/cs-template#978](https://github.com/credfeto/cs-template/issues/978) and credfeto/credfeto-notification-bot-docker#12 / credfeto/credfeto-notification-bot-docker#14 / credfeto/credfeto-notification-bot-docker#17 for the full narrative and exact commands used to reproduce/diagnose each one.
+
+The `PrivateTmp=yes` section was added 2026-08-06 after a real-host outage on `notifications.lan`: see credfeto/credfeto-notification-bot-docker#19.
