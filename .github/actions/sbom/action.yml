@@ -24,7 +24,7 @@ runs:
 #        ls "${{ github.event.repository.name }}-sbom.spdx.json"
 #
 #    - name: "Scan SBOM (public Repo)"
-#      if: inputs.REPO_VISIBILITY == 'public'
+#      if: inputs.repo-visibility == 'public'
 #      uses: anchore/scan-action@v7.4.0
 #      id: sbom
 #      with:
@@ -37,7 +37,7 @@ runs:
 #
 #    - name: "Copy SBOM to sarif (public Repo)"
 #      if: |-
-#        inputs.REPO_VISIBILITY == 'public' &&
+#        inputs.repo-visibility == 'public' &&
 #        steps.sbom.outputs.sarif != ''
 #      shell: bash
 #      run: |
@@ -47,7 +47,7 @@ runs:
 #
 #    - name: "Scan SBOM (private repo)"
 #      uses: anchore/scan-action@v7.4.0
-#      if: inputs.REPO_VISIBILITY == 'private'
+#      if: inputs.repo-visibility == 'private'
 #      with:
 #        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
 #        fail-build: false
