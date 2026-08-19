@@ -1,0 +1,26 @@
+--- # Fail if a required secret is not set
+# Maintain in repo: funfair-server-template
+name: "Check Required Secret"
+description: "Fails if a required secret is not set"
+
+inputs:
+  secret-name:
+    description: "Name of the secret, used in the error message"
+    required: true
+  secret-value:
+    description: "Value of the secret to check"
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: "Check Required Secret"
+      shell: bash
+      env:
+        SECRET_NAME: ${{inputs.secret-name}}
+        SECRET_VALUE: ${{inputs.secret-value}}
+      run: |
+        if [ -z "$SECRET_VALUE" ]; then
+          echo "::error::${SECRET_NAME} is required but not set"
+          exit 1
+        fi
