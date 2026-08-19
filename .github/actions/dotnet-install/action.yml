@@ -3,27 +3,27 @@
 name: 'Install dotnet'
 description: 'Install dotnet, configure nuget feeds and create tool manifest'
 inputs:
-  GITHUB_TOKEN:
+  github-token:
     description: 'Github Token'
     required: true
 
   # NUGET
-  NUGET_PUBLIC_RESTORE_FEED_CACHE:
+  nuget-public-restore-feed-cache:
     description: 'Local cache of public nuget feed'
     required: false
-  NUGET_PUBLIC_RESTORE_FEED:
+  nuget-public-restore-feed:
     description: 'Public nuget feed'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
+  nuget-additional-restore-feed-release-cache:
     description: 'Cache of any additional nuget feed to download packages from'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE:
+  nuget-additional-restore-feed-prerelease-cache:
     description: 'Cache of any additional nuget feed to download packages from'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE:
+  nuget-additional-restore-feed-release:
     description: 'Any additional nuget feed to download packages from'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE:
+  nuget-additional-restore-feed-prerelease:
     description: 'Any additional nuget feed to download packages from'
     required: false
 
@@ -104,7 +104,7 @@ runs:
       name: "Install dotnet (For Build)"
       uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
       env:
-        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+        GITHUB_TOKEN: ${{inputs.github-token}}
       with:
         cache: false
         global-json-file: "${{ github.workspace }}/src/global.json"
@@ -115,7 +115,7 @@ runs:
       name: "Install dotnet (Tools)"
       uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
       env:
-        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+        GITHUB_TOKEN: ${{inputs.github-token}}
       with:
         cache: false
         dotnet-version: |
@@ -125,12 +125,12 @@ runs:
     - name: "Configure nuget feeds"
       uses: ./.github/actions/nuget
       with:
-        NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}
-        NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}
-        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
-        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
+        nuget-public-restore-feed-cache: ${{inputs.nuget-public-restore-feed-cache}}
+        nuget-public-restore-feed: ${{inputs.nuget-public-restore-feed}}
+        nuget-additional-restore-feed-release-cache: ${{inputs.nuget-additional-restore-feed-release-cache}}
+        nuget-additional-restore-feed-prerelease-cache: ${{inputs.nuget-additional-restore-feed-prerelease-cache}}
+        nuget-additional-restore-feed-release: ${{inputs.nuget-additional-restore-feed-release}}
+        nuget-additional-restore-feed-prerelease: ${{inputs.nuget-additional-restore-feed-prerelease}}
 
     - name: "Enable dotnet tools"
       shell: bash
