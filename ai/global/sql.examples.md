@@ -20,11 +20,12 @@ PASSWORD=<password>
 DB=Treasury
 ```
 
-Ad-hoc `sqlcmd` invocation (only needed outside `<repo>/testdb`):
-
-```sh
-. "$HOME/.database" && . .database && sqlcmd -S "$SERVER" -U "$USER" -P "$PASSWORD" -d "$DB" ...
-```
+A direct `sqlcmd` invocation may be blocked in some agent environments (e.g. to prevent
+reading `.database` credential files via a raw command line). Use `<repo>/testdb` (or an
+equivalent repo-local query wrapper script, e.g. `querydb`, if the repo has one) for ad-hoc
+queries instead: it sources both `.database` files and invokes `sqlcmd` internally as its
+own subprocess. A repo with no such wrapper script is missing one; that is a gap to raise,
+not something to route around with a direct `sqlcmd` call.
 
 ## Performance Baseline
 
