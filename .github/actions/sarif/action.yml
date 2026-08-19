@@ -4,7 +4,7 @@ name: 'Upload sarif files'
 description: 'Builds and deploys the source'
 inputs:
   # GENERAL
-  REPO_VISIBILITY:
+  repo-visibility:
     description: 'Visibility of the repo'
     required: true
 
@@ -20,21 +20,25 @@ runs:
         echo "Hash: ${{ hashfiles('**/*.sarif') }}"
         echo "SARIF_HASH=${{ hashfiles('**/*.sarif') }}" >> $GITHUB_ENV
 
-    - if: inputs.REPO_VISIBILITY == 'public' && env.SARIF_HASH != ''
+    - if: inputs.repo-visibility == 'public' && env.SARIF_HASH != ''
       name: "Upload SARIF file for diagnostics"
       id: sarif
-      uses: github/codeql-action/upload-sarif@b7351df727350dca84cb9d725d57dcf5bc82ba26 # v3.37.1
+      uses: github/codeql-action/upload-sarif@f3712979fa5f215279b101dd0a2e3bdfb4353324 # v3.37.7
       continue-on-error: true
       with:
         sarif_file: ${{github.workspace}}/results
         token: ${{github.token}}
-        wait-for-processing: true
+        # Upload is fire-and-forget: nothing later in the job consumes processing results,
+        # and continue-on-error above already absorbs any processing failure.
+        wait-for-processing: false
 
-    - if: inputs.REPO_VISIBILITY == 'public' && env.SARIF_HASH != ''
+    - if: inputs.repo-visibility == 'public' && env.SARIF_HASH != ''
       name: "Sarif Upload Summary"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       continue-on-error: true
+      env:
+        SARIF_ID: ${{steps.sarif.outputs.sarif-id}}
       with:
         script: |
           core.info('Sarif Upload Completed');
-          core.notice('sarifId: ${{steps.sarif.outputs.sarif-id}}');
+          core.notice(`sarifId: ${process.env.SARIF_ID}`);
