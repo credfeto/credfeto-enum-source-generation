@@ -10,7 +10,7 @@ Run a SQL linter appropriate for the dialect before every commit. Refer to local
 
 ## Local Database Connection (MS SQL Server)
 
-Two `.database` files provide the local connection: see [sql.examples.md](sql.examples.md) for their contents and the ad-hoc `sqlcmd` invocation.
+Two `.database` files provide the local connection: see [sql.examples.md](sql.examples.md) for their contents and the recommended ad-hoc query route (`querydb` or an equivalent wrapper).
 
 - **`$HOME/.database`**: machine-specific credentials, never committed.
 - **`<repo>/.database`**: committed, repo-specific (database name).
