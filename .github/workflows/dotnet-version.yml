@@ -48,7 +48,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           clean: true
           fetch-depth: 0
@@ -59,25 +59,25 @@ jobs:
         if: runner.environment == 'self-hosted'
         uses: ./.github/actions/dotnet-install
         with:
-          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{vars.NUGET_BAGET_CACHE}}
-          NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{vars.RELEASE_BAGET_CACHE}}
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ""
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          nuget-public-restore-feed-cache: ${{vars.NUGET_BAGET_CACHE}}
+          nuget-public-restore-feed: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
+          nuget-additional-restore-feed-release-cache: ${{vars.RELEASE_BAGET_CACHE}}
+          nuget-additional-restore-feed-prerelease-cache: ""
+          nuget-additional-restore-feed-release: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+          nuget-additional-restore-feed-prerelease: ""
 
       - name: "Install dotnet"
         if: runner.environment != 'self-hosted'
         uses: ./.github/actions/dotnet-install
         with:
-          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          NUGET_PUBLIC_RESTORE_FEED_CACHE: ""
-          NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ""
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ""
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          nuget-public-restore-feed-cache: ""
+          nuget-public-restore-feed: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
+          nuget-additional-restore-feed-release-cache: ""
+          nuget-additional-restore-feed-prerelease-cache: ""
+          nuget-additional-restore-feed-release: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+          nuget-additional-restore-feed-prerelease: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
 
       - name: "Get latest available dotnet version"
         id: latest-dotnet-version
