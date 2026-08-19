@@ -13,9 +13,6 @@ jobs:
   cleanup-cache:
     runs-on: ubuntu-latest
 
-    permissions:
-      actions: write
-
     steps:
       - name: "Check Required Secrets"
         shell: bash
