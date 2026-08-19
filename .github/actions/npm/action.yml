@@ -4,32 +4,32 @@ name: 'Build using NPM'
 description: 'Builds using NPM'
 inputs:
   # NPM
-  NPM_CONTENT_PACKAGE_WALLET_PASSWORD:
+  npm-content-package-wallet-password:
     description: 'Password to unlock /Wallet.json'
     required: false
-  NPM_PACKAGE_STORE_SIGNING_WALLET:
+  npm-package-store-signing-wallet:
     description: 'Store signing wallet.json'
     required: false
-  NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD:
+  npm-package-store-signing-wallet-password:
     description: 'Password to unlock NPM_PACKAGE_STORE_SIGNING_WALLET'
     required: false
-  NPM_SIGNING:
+  npm-signing:
     description: 'Whether produce a signed package'
     required: false
-  NPM_REGISTRY:
+  npm-registry:
     description: 'The NPM Registry to use'
     required: false
-  NPM_CACHE_CERT:
+  npm-cache-cert:
     description: 'The NPM Registry cert'
     required: false
 
   # General
-  BUILD_VERSION:
+  build-version:
     description: 'Build version'
     required: true
 
   # DEPLOYMENT
-  PROJECT_TO_PUBLISH:
+  project-to-publish:
     description: 'Package (root) to deploy'
     required: false
 
@@ -50,7 +50,7 @@ runs:
       with:
         node-version-file: .nvmrc
         check-latest: false
-        registry-url: ${{inputs.NPM_REGISTRY}}
+        registry-url: ${{inputs.npm-registry}}
         package-manager-cache: false
 
     - if: steps.node_files.outputs.NVMRC_EXIST == 'false'
@@ -59,7 +59,7 @@ runs:
       with:
         node-version: '22'
         check-latest: true
-        registry-url: ${{inputs.NPM_REGISTRY}}
+        registry-url: ${{inputs.npm-registry}}
         package-manager-cache: false
 
     ####################################################################################################################
@@ -90,8 +90,8 @@ runs:
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: |
-        echo "NPM_REGISTRY: ${{inputs.NPM_REGISTRY}}"
-        echo "NPM_CACHE_CERT: ${{inputs.NPM_CACHE_CERT}}"
+        echo "NPM_REGISTRY: ${{inputs.npm-registry}}"
+        echo "NPM_CACHE_CERT: ${{inputs.npm-cache-cert}}"
 
     - name: "Npm: Config"
       shell: bash
@@ -102,13 +102,13 @@ runs:
         npm config set fetch-retry-maxtimeout 90000
 
     - name: "Npm: Local Cert"
-      if: inputs.NPM_CACHE_CERT != ''
+      if: inputs.npm-cache-cert != ''
       shell: bash
       run: |
         echo "$NPM_CACHE_CERT" > "${{github.workspace}}/npm.crt"
         npm config set cafile "${{github.workspace}}/npm.crt"
       env:
-        NPM_CACHE_CERT: ${{inputs.NPM_CACHE_CERT}}
+        NPM_CACHE_CERT: ${{inputs.npm-cache-cert}}
 
     - name: "Npm: Clear node modules"
       shell: bash
@@ -123,19 +123,21 @@ runs:
         echo "Error: no package-lock.json" && exit 1
 
     - name: "NPM: Force registry before restore"
-      if: inputs.NPM_REGISTRY != ''
+      if: inputs.npm-registry != ''
       working-directory: ${{steps.build_context.outputs.WORK_DIR}}
       shell: bash
+      env:
+        NPM_REGISTRY: ${{inputs.npm-registry}}
       run: |
-        sed -i "s|https://registry.npmjs.org/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
-        sed -i "s|http://npm.local:5554/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
-        sed -i "s|https://npm.local:5555/|${{inputs.NPM_REGISTRY}}|g" package-lock.json
+        sed -i "s|https://registry.npmjs.org/|${NPM_REGISTRY}|g" package-lock.json
+        sed -i "s|http://npm.local:5554/|${NPM_REGISTRY}|g" package-lock.json
+        sed -i "s|https://npm.local:5555/|${NPM_REGISTRY}|g" package-lock.json
 
 # Note that NPM will gladly tell you to add --use-system-ca to use the certs in the system store
 # but it doesn't actually work...  So instead we have to add the cert to the npm config above
 # --use-system-ca is a deprecated setting!
     - name: "NPM: Install dependencies"
-      if: inputs.NPM_REGISTRY != ''
+      if: inputs.npm-registry != ''
       working-directory: ${{steps.build_context.outputs.WORK_DIR}}
       shell: bash
       run: |
@@ -145,10 +147,10 @@ runs:
               --no-audit \
               --prefer-offline \
               --no-progress \
-              --registry="${{inputs.NPM_REGISTRY}}"
+              --registry="${{inputs.npm-registry}}"
 
     - name: "NPM: Install dependencies (public registry)"
-      if: inputs.NPM_REGISTRY == ''
+      if: inputs.npm-registry == ''
       working-directory: ${{steps.build_context.outputs.WORK_DIR}}
       shell: bash
       run: |
@@ -172,12 +174,12 @@ runs:
     - name: "NPM: Build Package"
       shell: bash
       run: |
-        echo "SIGNING: ${{inputs.NPM_SIGNING}}"
-        echo "PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}"
+        echo "SIGNING: ${{inputs.npm-signing}}"
+        echo "PROJECT_TO_PUBLISH: ${{inputs.project-to-publish}}"
 
     - if: |
-        inputs.NPM_SIGNING == 'true' &&
-        inputs.PROJECT_TO_PUBLISH != ''
+        inputs.npm-signing == 'true' &&
+        inputs.project-to-publish != ''
       name: "NPM: Build Package"
       shell: bash
       working-directory: ${{ github.workspace }}
@@ -185,9 +187,9 @@ runs:
         dotnet buildcontentpackage build \
               --source-path "$SOURCE_FOLDER" \
               --target-path "$OUTPUT_FOLDER" \
-              --version "${{inputs.BUILD_VERSION}}" \
+              --version "${{inputs.build-version}}" \
               --wallet "$WALLET_FILE" \
-              --wallet-password "${{ inputs.NPM_CONTENT_PACKAGE_WALLET_PASSWORD }}"
+              --wallet-password "${{ inputs.npm-content-package-wallet-password }}"
   #            --warnings-as-error
   #            --optimise \
       env:
@@ -197,34 +199,45 @@ runs:
         TMP: ${{runner.temp}}
 
     - if: |
-        inputs.NPM_SIGNING == 'true' &&
-        inputs.PROJECT_TO_PUBLISH != ''
+        inputs.npm-signing == 'true' &&
+        inputs.project-to-publish != ''
       name: "NPM: Check Package"
       shell: bash
       run: |
           ls -la "${{github.workspace}}"
           echo "-----------------------"
-          ls "${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{env.BUILD_VERSION}}.nupkg"
+          ls "${{github.workspace}}/dist/${{inputs.project-to-publish}}-${{env.BUILD_VERSION}}.nupkg"
 
     - if: |
-          inputs.NPM_SIGNING == 'true' &&
-          inputs.PROJECT_TO_PUBLISH != ''
+          inputs.npm-signing == 'true' &&
+          inputs.project-to-publish != ''
       name: "NPM: Create Store Signing Wallet"
       uses: ./.github/actions/save-secret-as-file
       id: store-signing-wallet
       with:
-        secret: ${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET}}
+        secret: ${{inputs.npm-package-store-signing-wallet}}
 
     - if: |
-        inputs.NPM_SIGNING == 'true' &&
-        inputs.PROJECT_TO_PUBLISH != ''
+        inputs.npm-signing == 'true' &&
+        inputs.project-to-publish != ''
       name: "NPM: Store Sign Package"
       uses: ./.github/actions/dotnet-tool-run
       with:
-        WORKING_DIRECTORY: "${{github.workspace}}"
-        TOOL_NAME: "signcontentpackage"
-        TOOL_ARGUMENTS: "sign \
-            --package \"${{github.workspace}}/dist/${{inputs.PROJECT_TO_PUBLISH}}-${{inputs.BUILD_VERSION}}.nupkg\" \
+        working-directory: "${{github.workspace}}"
+        tool-name: "signcontentpackage"
+        tool-arguments: "sign \
+            --package \"${{github.workspace}}/dist/${{inputs.project-to-publish}}-${{inputs.build-version}}.nupkg\" \
             --wallet \"${{steps.store-signing-wallet.outputs.file}}\" \
-            --wallet-password \"${{inputs.NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}\" \
+            --wallet-password \"${{inputs.npm-package-store-signing-wallet-password}}\" \
             --warnings-as-error"
+
+    - name: "NPM: Clean Up Store Signing Wallet"
+      if: |
+          always() &&
+          inputs.npm-signing == 'true' &&
+          inputs.project-to-publish != ''
+      shell: bash
+      run: |
+        rm -f "${FILE}"
+      env:
+        FILE: "${{steps.store-signing-wallet.outputs.file}}"
