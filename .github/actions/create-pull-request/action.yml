@@ -66,11 +66,11 @@ runs:
           const labels = process.env.LABELS
             ? process.env.LABELS.split(',').map(l => l.trim()).filter(Boolean)
             : [];
+          const ownerRepo = { owner: context.repo.owner, repo: context.repo.repo };
 
           async function createPr(asDraft) {
             const { data } = await github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              ...ownerRepo,
               title: title,
               body: body,
               head: sourceBranch,
@@ -84,49 +84,73 @@ runs:
           try {
             pr = await createPr(draft);
           } catch (err) {
+            if (err.status !== 422) {
+              throw err;
+            }
+
             const isPrAlreadyExists =
-              err.status === 422 &&
               Array.isArray(err.response?.data?.errors) &&
               err.response.data.errors.some(
                 e => e.resource === 'PullRequest' && typeof e.message === 'string' && e.message.startsWith('A pull request already exists')
               );
-            if (isPrAlreadyExists) {
-              core.info(`PR already exists for branch ${sourceBranch} - nothing to do`);
-              return;
-            }
 
-            const isDraftUnsupported =
+            if (isPrAlreadyExists) {
+              core.info(`PR already exists for branch ${sourceBranch} - looking up the existing pull request`);
+              const { data: existingPrs } = await github.rest.pulls.list({
+                ...ownerRepo,
+                head: `${context.repo.owner}:${sourceBranch}`,
+                base: destinationBranch,
+                state: 'open',
+                per_page: 1,
+              });
+              if (existingPrs.length === 0) {
+                throw new Error(
+                  `Pull request creation reported "already exists" for ${sourceBranch} -> ${destinationBranch}, but no matching open pull request was found`
+                );
+              }
+              // pulls.list omits fields such as changed_files that pulls.create returns;
+              // fetch the full representation so both paths converge on the same shape.
+              const { data: existingPr } = await github.rest.pulls.get({
+                ...ownerRepo,
+                pull_number: existingPrs[0].number,
+              });
+              pr = existingPr;
+            } else if (
               draft &&
-              err.status === 422 &&
               typeof err.response?.data?.message === 'string' &&
-              err.response.data.message.includes('Draft pull requests are not supported');
-            if (!isDraftUnsupported) {
+              err.response.data.message.includes('Draft pull requests are not supported')
+            ) {
+              core.warning('Draft pull requests are not supported in this repository - creating a regular pull request instead');
+              pr = await createPr(false);
+            } else {
               throw err;
             }
-
-            core.warning('Draft pull requests are not supported in this repository - creating a regular pull request instead');
-            pr = await createPr(false);
           }
 
+          const followUps = [];
           if (assignees.length > 0) {
-            await github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr.number,
-              assignees: assignees,
-            });
+            followUps.push(
+              github.rest.issues.addAssignees({
+                ...ownerRepo,
+                issue_number: pr.number,
+                assignees: assignees,
+              })
+            );
           }
 
           if (labels.length > 0) {
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: pr.number,
-              labels: labels,
-            });
+            followUps.push(
+              github.rest.issues.addLabels({
+                ...ownerRepo,
+                issue_number: pr.number,
+                labels: labels,
+              })
+            );
           }
 
-          core.info(`Created PR #${pr.number}: ${pr.html_url}`);
+          await Promise.all(followUps);
+
+          core.info(`Pull request #${pr.number}: ${pr.html_url}`);
           core.setOutput('pr_number', String(pr.number));
           core.setOutput('pr_url', pr.html_url);
           core.setOutput('has_changed_files', String(pr.changed_files > 0));
