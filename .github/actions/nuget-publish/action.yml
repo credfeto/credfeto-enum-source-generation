@@ -1,0 +1,87 @@
+--- # Build and deploy packages
+# Maintain in repo: funfair-server-template
+name: 'Pack and publish nuget packages'
+description: 'Packs nuget packages and publishes them to the configured feed'
+inputs:
+  build-version:
+    description: 'Build version'
+    required: true
+  production-build:
+    description: 'Whether to build a production build'
+    required: true
+  release-notes:
+    description: 'Release notes'
+    required: false
+  nuget-feed:
+    description: 'Nuget feed to push packages to'
+    required: false
+  nuget-feed-type:
+    description: >-
+      Which feed to publish packages to: 'NUGET' publishes to nuget-feed via Trusted Publishing
+      (nuget.org is deprecating static API keys, so no key is used), 'SLEET' publishes via Sleet,
+      empty/unset skips publishing
+    required: false
+  nuget-username:
+    description: 'nuget.org username (profile name) the Trusted Publishing policy is registered against'
+    required: false
+  sleet-config:
+    description: 'Sleet config file'
+    required: false
+  sleet-feed:
+    description: 'Sleet feed to push packages to'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "Check nuget-feed-type is valid"
+      shell: bash
+      env:
+        NUGET_FEED_TYPE: ${{inputs.nuget-feed-type}}
+      run: |
+        case "${NUGET_FEED_TYPE}" in
+          ''|'NUGET'|'SLEET') ;;
+          *)
+            echo "::error::nuget-feed-type must be 'NUGET', 'SLEET', or empty/unset - got '${NUGET_FEED_TYPE}'"
+            exit 1
+            ;;
+        esac
+
+    - name: "Dotnet: Pack tool"
+      working-directory: ${{github.workspace}}/src
+      shell: bash
+      run: |
+        dotnet pack \
+                  --warnaserror \
+                  --configuration Release \
+                  "-p:Version=${{inputs.build-version}}" \
+                  "-p:IsProduction=${{inputs.production-build}}" \
+                  "-p:IncludeSymbols=False" \
+                  --no-restore \
+                  -nodeReuse:False \
+                  "-p:NoWarn=MSB4241" \
+                  "-p:ContinuousIntegrationBuild=true"
+      env:
+        ReleaseNotes: ${{inputs.release-notes}}
+
+    - name: "Dotnet: Copy packed to dist"
+      shell: bash
+      run: |
+        shopt -s globstar
+        cp **/*.nupkg "${{github.workspace}}/dist"
+      working-directory: ${{github.workspace}}/src
+
+    - name: "Dotnet: Publish Packages to Nuget (Trusted Publishing)"
+      if: inputs.nuget-feed-type == 'NUGET'
+      uses: ./.github/actions/nuget-trusted-publish
+      with:
+        nuget-feed: ${{inputs.nuget-feed}}
+        nuget-username: ${{inputs.nuget-username}}
+
+    - name: "Dotnet: Publish Packages using sleet"
+      if: inputs.nuget-feed-type == 'SLEET'
+      uses: ./.github/actions/sleet
+      with:
+        sleet-config: ${{inputs.sleet-config}}
+        sleet-feed: ${{inputs.sleet-feed}}
