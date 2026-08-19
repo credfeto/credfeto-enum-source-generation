@@ -44,10 +44,6 @@ jobs:
       (startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/'))
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-      pull-requests: write
-
     steps:
       - name: "Auto Merge"
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -85,10 +81,6 @@ jobs:
       github.actor == 'dependabot[bot]' &&
       (startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/'))
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      pull-requests: write
 
     steps:
       - name: "Approve"
