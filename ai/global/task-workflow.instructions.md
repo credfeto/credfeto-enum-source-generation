@@ -32,6 +32,12 @@ When selecting the next issue to work on, prefer issues with higher-priority lab
 | `On-Hold` | Needs further thought or cannot be implemented yet; do not start work |
 | `Blocked` | Needs human input before work can continue; see the Orchestrator section in [agent-roles.instructions.md](agent-roles.instructions.md) |
 
+## Workflow Project Board (MANDATORY)
+
+Every issue raised, in any repository and via any flow (deliverable issues, ad-hoc intake tracking issues, AI-initiated issues, sub-issues), must be added to the "Workflow" GitHub project linked to that repository, immediately after creation.
+
+Each repository has its own linked project titled "Workflow", and many projects share that title across the owner, so never resolve the project by title alone. Discover the repository's linked project and add the issue using the commands in [github-cli.instructions.md](github-cli.instructions.md#adding-an-issue-to-the-workflow-project).
+
 ## GitHub Issue Creation (MANDATORY)
 
 When asked to create or update a GitHub issue (i.e. the issue itself is the requested deliverable):
@@ -67,6 +73,14 @@ Once a request is already tracked by an issue or PR (including one just created 
 - Post this before or immediately after acting on the prompt; do not let several prompts accumulate unrecorded.
 - This applies whether the prompt arrived as a live chat message or as a GitHub comment (GitHub comments are already covered by [Comment Replies](agent-roles.instructions.md#comment-replies-mandatory)).
 
+## Correcting a Prior Claim (MANDATORY)
+
+If a factual claim or finding you previously posted in an issue/PR body or comment turns out to be wrong (e.g. a root-cause statement, an evidence point, a "this is a deviation from process" assertion), post a new comment stating the correction and briefly why, quoting or referencing the original claim being corrected. Editing the body to also fix it is fine, but the comment is the mandatory part: a silent in-place body edit is not sufficient on its own, because GitHub only surfaces it as a small "edited" marker that a human reviewer can easily miss, unlike a comment which appears in the normal timeline.
+
+This is distinct from [PR Title, Body, and Label Sync](#pr-title-body-and-label-sync-mandatory) below, which requires routine in-place edits to keep a PR's title/body/labels synced with its linked issues; that is not a correction and needs no comment. This rule is about retracting or fixing something substantive that was previously asserted as true.
+
+(Background: `credfeto/credfeto-orchestrator#1262` — an agent session silently edited its own issue body ten minutes after posting it to fix a wrong claim; the fix was accurate and nothing was destroyed since GitHub retains full edit history, but the silent edit alone made it look, at a glance, like evidence had been suppressed.)
+
 ## PR Lifecycle
 
 - Only one active branch or open PR per repository at a time; do not create another until the current one is merged and closed.
@@ -93,6 +107,7 @@ github is configured to automatically create PRs from pushed branches. These PRs
 **Checking for existing work before branching (MANDATORY):**
 
 - Check branch names in all open PRs, not just PR authors. If any open PR's `headRefName` contains the issue number, that is your work from a prior session; resume it instead of creating a new branch.
+- This only catches work that already has a PR open. A branch pushed but never turned into a PR (session died first) needs the separate check in [git.instructions.md's Branching section](git.instructions.md#branching).
 
 ## PR Title, Body, and Label Sync (MANDATORY)
 
@@ -179,6 +194,10 @@ For complex files, commit+push+update after each round; do not wait until fully 
 
 ## Background Tasks and Monitor Tool (MANDATORY)
 
+This section covers polling a command that was **accepted** and is running; if a command was
+instead **denied** by a `PreToolUse` hook, it never started at all and there is nothing to poll
+for, see [claude-hooks.instructions.md](claude-hooks.instructions.md) for that case.
+
 When using the Monitor tool to watch a background Bash task, the poll condition in the `until` loop **must** be provably satisfiable; a condition that can never be met loops forever and blocks the entire session.
 
 ### Rules for poll conditions
@@ -227,7 +246,7 @@ When using the Monitor tool to watch a background Bash task, the poll condition 
 
 ## Never Truncate Test/Commit Commands (MANDATORY)
 
-This is a distinct concern from the poll-loop timeouts above: those govern how long you wait for something _else_ to finish; this governs the timeout on the command _actually doing the work_.
+This is a distinct concern from the poll-loop timeouts above: those govern how long you wait for something _else_ to finish; this governs the timeout on the command _actually doing the work_ (a call rejected outright for missing `run_in_background: true` never ran; see [claude-hooks.instructions.md](claude-hooks.instructions.md) for that case, not here).
 
 `git commit`/`pre-commit`, `dotnet build`, `dotnet test`, `npm test`, and `bun test` have no bounded, predictable duration: `pre-commit` can run a heavy hook chain (`dotnet buildcheck` across every project, `trivy`, `hadolint`), `dotnet build` runs through a large analyzer stack (Roslynator, SonarAnalyzer, Meziantou, Threading, Security Code Scan, and more) plus NuGet restore, and test runs scale with what changed. A commit has already been killed mid-run on a foreground timeout in a live session. There is no timeout value that is both practical and safe to pick for any of these five commands, so do not try to pick one.
 
@@ -266,13 +285,15 @@ Every sequence below starts with the [Pre-Work Baseline Check](git.instructions.
 
 | Work type | Agent sequence |
 | --- | --- |
-| New feature / bug fix / refactor | Pre-Work Baseline Check → Code Writer → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
-| `CHANGES_REQUESTED` on existing PR, or verbal/chat request for changes on an open PR | Pre-Work Baseline Check → Code Fixer (respond to every comment) → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
-| Coverage-only task | Pre-Work Baseline Check → Code Writer (tests only) → Code Tester → Code Reviewer → Changelog → Committer → PR Submitter → CI Monitor |
-| Documentation-only | Pre-Work Baseline Check → Code Writer (docs only) → PR Submitter |
+| New feature / bug fix / refactor | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
+| `CHANGES_REQUESTED` on existing PR, or verbal/chat request for changes on an open PR | Pre-Work Baseline Check → Code Fixer (respond to every comment) → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
+| Coverage-only task | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (tests only) → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
+| Documentation-only | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (docs only) → Changelog (correction) → Committer → PR Submitter |
 | Rebase requested | Pre-Work Baseline Check → Rebase Agent → PR Submitter |
 | CI failure (unknown cause) | Pre-Work Baseline Check → CI Debugger |
 | Dependabot / dependency update | Pre-Work Baseline Check → Dependency Updater |
+
+Rows starting with `Changelog (placeholder)` assume the work item takes a changelog entry at all. If it hits the skip condition in [changelog.instructions.md](changelog.instructions.md#when-to-skip) (template repo), the row runs unchanged — see [agent-roles.instructions.md](agent-roles.instructions.md#changelog) for what the Changelog agent commits instead.
 
 For detailed agent role definitions, see [agent-roles.instructions.md](agent-roles.instructions.md).
 
