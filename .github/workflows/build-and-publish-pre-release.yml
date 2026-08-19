@@ -16,6 +16,8 @@ concurrency:
 permissions:
   contents: write
   security-events: write
+  pull-requests: write
+  id-token: write
 
 jobs:
   # @@required: main
@@ -59,7 +61,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           clean: true
           fetch-depth: 0
@@ -78,53 +80,56 @@ jobs:
       - name: "Build and deploy"
         uses: ./.github/actions/build
         with:
-          PRODUCTION_BUILD: "false"
-          NPM_PRODUCTION_PACKAGER_VERSION: ${{vars.PRODUCTION_PACKAGER_VERSION}}
-          NPM_CONTENT_PACKAGE_WALLET_PASSWORD: ${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}
-          NPM_PACKAGE_STORE_SIGNING_WALLET: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
-          NPM_PACKAGE_STORE_SIGNING_WALLET_PASSWORD: ${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
-          NPM_REGISTRY: ${{env.NPM_REGISTRY}}
-          NPM_CACHE_CERT: ${{env.NPM_CACHE_CERT}}
-          NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{env.NUGET_BAGET_CACHE}}
-          NUGET_PUBLIC_RESTORE_FEED: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{env.RELEASE_BAGET_CACHE}}
-          NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{env.PRERELEASE_BAGET_CACHE}}
-          NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
-          NUGET_PACK: ${{vars.NUGET_PACK}}
-          NUGET_FEED: ${{secrets.NUGET_FEED}}
-          NUGET_SYMBOL_FEED: ${{secrets.NUGET_SYMBOL_FEED}}
-          NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
-          SLEET_CONFIG: ${{secrets.SLEET_CONFIG}}
-          SLEET_FEED: ${{vars.PRE_RELEASE_SLEET_FEED}}
-          PROJECT_TO_PUBLISH: ${{vars.PROJECT_TO_PUBLISH}}
-          DOCKER_APP_OWNER: ${{vars.DOCKER_APP_OWNER}}
-          DOCKER_APP_NAME: ${{vars.DOCKER_APP_NAME}}
-          BUILD_TAG: latest
-          CLOUD_FORMATION_DEPLOY: ${{vars.CLOUD_FORMATION_DEPLOY}}
-          CLOUD_FORMATION_STACK: ${{vars.CLOUD_FORMATION_STACK}}
-          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          AWS_ACCESS_KEY_ID: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY}}
-          AWS_REGION: ${{vars.AWS_REGION}}
-          DOCKER_CONTAINER_REGISTRY: ${{vars.DOCKER_CONTAINER_REGISTRY_PRE_RELEASE}}
-          AWS_LOAD_BALANCER_HOSTNAME: ${{vars.AWS_LOAD_BALANCER_HOSTNAME_DEV}}
-          AWS_LOAD_BALANCER_PRIORITY: ${{vars.AWS_LOAD_BALANCER_PRIORITY_DEV}}
-          API_HOST: ${{vars.AWS_LOAD_BALANCER_HOSTNAME_DEV}}
-          API_PREFIX: ${{vars.API_PREFIX}}
-          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-          DOCKER_ACCESS_TOKEN: ${{secrets.DOCKER_ACCESS_TOKEN}}
-          DOTNET_DOCKER_PLATFORM: ${{vars.DOTNET_DOCKER_PLATFORM}}
-          DOTNET_CONTAINER_PLATFORM: ${{vars.DOTNET_CONTAINER_PLATFORM}}
-          SQL_SERVER: "${{vars.SQL_SERVER}}"
-          SQL_DB: "${{vars.SQL_DB}}"
-          SQL_USER: "${{vars.SQL_USER}}"
-          SQL_PASSWORD: "${{secrets.SQL_PASSWORD}}"
-          CREATE_RELEASE: false
+          production-build: "false"
+          npm-production-packager-version: ${{vars.PRODUCTION_PACKAGER_VERSION}}
+          npm-content-package-wallet-password: ${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}
+          npm-package-store-signing-wallet: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
+          npm-package-store-signing-wallet-password: ${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
+          npm-registry: ${{env.NPM_REGISTRY}}
+          npm-cache-cert: ${{env.NPM_CACHE_CERT}}
+          nuget-public-restore-feed-cache: ${{env.NUGET_BAGET_CACHE}}
+          nuget-public-restore-feed: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
+          nuget-additional-restore-feed-release-cache: ${{env.RELEASE_BAGET_CACHE}}
+          nuget-additional-restore-feed-release: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+          nuget-additional-restore-feed-prerelease-cache: ${{env.PRERELEASE_BAGET_CACHE}}
+          nuget-additional-restore-feed-prerelease: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
+          nuget-pack: ${{vars.NUGET_PACK}}
+          nuget-feed: ${{secrets.NUGET_FEED || 'https://api.nuget.org/v3/index.json'}}
+          nuget-feed-type: ${{vars.NUGET_FEED_TYPE}}
+          nuget-username: ${{secrets.NUGET_USER_NAME}}
+          sleet-config: ${{secrets.SLEET_CONFIG}}
+          sleet-feed: ${{vars.PRE_RELEASE_SLEET_FEED}}
+          project-to-publish: ${{vars.PROJECT_TO_PUBLISH}}
+          docker-app-owner: ${{vars.DOCKER_APP_OWNER}}
+          docker-app-name: ${{vars.DOCKER_APP_NAME}}
+          build-tag: latest
+          cloud-formation-deploy: ${{vars.CLOUD_FORMATION_DEPLOY}}
+          cloud-formation-stack: ${{vars.CLOUD_FORMATION_STACK}}
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          aws-access-key-id: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY}}
+          aws-region: ${{vars.AWS_REGION}}
+          docker-container-registry: ${{vars.DOCKER_CONTAINER_REGISTRY_PRE_RELEASE}}
+          aws-load-balancer-hostname: ${{vars.AWS_LOAD_BALANCER_HOSTNAME_DEV}}
+          aws-load-balancer-priority: ${{vars.AWS_LOAD_BALANCER_PRIORITY_DEV}}
+          api-host: ${{vars.AWS_LOAD_BALANCER_HOSTNAME_DEV}}
+          api-prefix: ${{vars.API_PREFIX}}
+          docker-username: ${{secrets.DOCKER_USERNAME}}
+          docker-access-token: ${{secrets.DOCKER_ACCESS_TOKEN}}
+          dotnet-docker-platform: ${{vars.DOTNET_DOCKER_PLATFORM}}
+          dotnet-container-platform: ${{vars.DOTNET_CONTAINER_PLATFORM}}
+          sql-server: "${{vars.SQL_SERVER}}"
+          sql-db: "${{vars.SQL_DB}}"
+          sql-user: "${{vars.SQL_USER}}"
+          sql-password: "${{secrets.SQL_PASSWORD}}"
+          create-release: false
 
       - name: "Build Version"
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          BUILD_VERSION: ${{env.BUILD_VERSION}}
         with:
           script: |
-            core.info('Version: \u001b[38;5;6m${{env.BUILD_VERSION}}');
-            core.notice('Version: ${{env.BUILD_VERSION}}');
+            const buildVersion = process.env.BUILD_VERSION;
+            core.info(`Version: \u001b[38;5;6m${buildVersion}`);
+            core.notice(`Version: ${buildVersion}`);
