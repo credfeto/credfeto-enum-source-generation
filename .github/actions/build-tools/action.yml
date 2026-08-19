@@ -4,27 +4,27 @@ name: 'Install dotnet and build tools'
 description: 'Install dotnet and build tools'
 inputs:
   # GENERAL
-  GITHUB_TOKEN:
+  github-token:
     description: 'Github Token'
     required: true
 
   # NUGET
-  NUGET_PUBLIC_RESTORE_FEED_CACHE:
+  nuget-public-restore-feed-cache:
     description: 'Local cache of public nuget feed'
     required: false
-  NUGET_PUBLIC_RESTORE_FEED:
+  nuget-public-restore-feed:
     description: 'public nuget feed'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
+  nuget-additional-restore-feed-release-cache:
     description: 'Any additional nuget feed to download packages from'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE:
+  nuget-additional-restore-feed-prerelease-cache:
     description: 'Any additional nuget feed to download packages from'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE:
+  nuget-additional-restore-feed-release:
     description: 'Any additional nuget feed to download packages from'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE:
+  nuget-additional-restore-feed-prerelease:
     description: 'Any additional nuget feed to download packages from'
     required: false
 
@@ -34,40 +34,16 @@ runs:
     - name: "Install dotnet"
       uses: ./.github/actions/dotnet-install
       with:
-        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
-        NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}
-        NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}
-        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
-        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
-
-    - name: "Install Sleet package management tool"
-      uses: ./.github/actions/dotnet-tool
-      with:
-        TOOL_NAME: "sleet"
-        TOOL_VERSION: "latest"
+        github-token: ${{inputs.github-token}}
+        nuget-public-restore-feed-cache: ${{inputs.nuget-public-restore-feed-cache}}
+        nuget-public-restore-feed: ${{inputs.nuget-public-restore-feed}}
+        nuget-additional-restore-feed-release-cache: ${{inputs.nuget-additional-restore-feed-release-cache}}
+        nuget-additional-restore-feed-prerelease-cache: ${{inputs.nuget-additional-restore-feed-prerelease-cache}}
+        nuget-additional-restore-feed-release: ${{inputs.nuget-additional-restore-feed-release}}
+        nuget-additional-restore-feed-prerelease: ${{inputs.nuget-additional-restore-feed-prerelease}}
 
     - name: "Install Build Version Tool"
       uses: ./.github/actions/dotnet-tool
       with:
-        TOOL_NAME: "FunFair.BuildVersion"
-        TOOL_VERSION: "latest"
-
-    - name: "Install Changelog Tool"
-      uses: ./.github/actions/dotnet-tool
-      with:
-        TOOL_NAME: "Credfeto.Changelog.Cmd"
-        TOOL_VERSION: "latest"
-
-    - name: "Install Dotnet code analysis overrides tool"
-      uses: ./.github/actions/dotnet-tool
-      with:
-        TOOL_NAME: "Credfeto.DotNet.Code.Analysis.Overrides.Cmd"
-        TOOL_VERSION: "latest"
-
-    - name: "Install Dotnet Build Check tool"
-      uses: ./.github/actions/dotnet-tool
-      with:
-        TOOL_NAME: "FunFair.BuildCheck"
-        TOOL_VERSION: "latest"
+        tool-name: "FunFair.BuildVersion"
+        tool-version: "latest"
