@@ -3,14 +3,14 @@
 name: 'Run dotnet tool'
 description: 'Run dotnet tool'
 inputs:
-  WORKING_DIRECTORY:
+  working-directory:
     description: 'Working directory'
     required: true
     default: 'latest'
-  TOOL_NAME:
+  tool-name:
     description: 'Tool to run'
     required: true
-  TOOL_ARGUMENTS:
+  tool-arguments:
     description: 'Tool arguments'
     required: false
     default: 'latest'
@@ -20,5 +20,5 @@ runs:
   steps:
     - name: "Run dotnet tool (Latest)"
       shell: bash
-      working-directory: ${{ inputs.WORKING_DIRECTORY }}
-      run: dotnet tool run --allow-roll-forward ${{inputs.TOOL_NAME}} ${{inputs.TOOL_ARGUMENTS}}
+      working-directory: ${{ inputs.working-directory }}
+      run: dotnet tool run --allow-roll-forward ${{inputs.tool-name}} ${{inputs.tool-arguments}}
