@@ -41,3 +41,4 @@
 <!-- and it will remember the tick for you -->
 - [ ] I have added tests to cover my changes.
 - [ ] Unreleased section of CHANGELOG.md has been updated with details of this PR.
+- [ ] No user-controlled or step-output value is string-interpolated directly into a `run:`/`script:` body (workflow or composite action); pass it via step-level `env:` and reference `$VAR` (bash) or `process.env.VAR` (github-script) instead.
