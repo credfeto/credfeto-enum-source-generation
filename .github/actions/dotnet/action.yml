@@ -4,60 +4,63 @@ name: 'Build Dotnet'
 description: 'Builds and deploys the source'
 inputs:
   # General
-  PRODUCTION_BUILD:
+  production-build:
     description: 'Whether to build a production build'
     required: true
 
   # NUGET
-  NUGET_PACK:
+  nuget-pack:
     description: 'Whether to pack packages with feeds'
     required: false
-  NUGET_FEED:
+  nuget-feed:
     description: 'Nuget feed to push packages to'
     required: false
-  NUGET_SYMBOL_FEED:
-    description: 'Nuget feed to push packages symbols to'
+  nuget-feed-type:
+    description: >-
+      Which feed to publish packages to: 'NUGET' publishes to nuget-feed via Trusted Publishing
+      (nuget.org is deprecating static API keys, so no key is used), 'SLEET' publishes via Sleet,
+      empty/unset skips publishing
     required: false
-  NUGET_API_KEY:
-    description: 'API key to authenticate when pushing packages'
+  nuget-username:
+    description: 'nuget.org username (profile name) the Trusted Publishing policy is registered against'
     required: false
-  SLEET_CONFIG:
+  sleet-config:
     description: 'Sleet config file'
     required: false
-  SLEET_FEED:
+  sleet-feed:
     description: 'Sleet feed to push packages to'
     required: false
-  DOTNET_DOCKER_PLATFORM:
+  dotnet-docker-platform:
     description: 'Dotnet docker platform (e.g. linux-arm64)'
     required: false
 
   # General
-  BUILD_VERSION:
+  build-version:
     description: 'Build version'
     required: true
 
-  RELEASE:
+  release:
     description: 'Is this a release build'
     required: true
 
-  RELEASE_NOTES:
+  release-notes:
     description: 'Release notes'
     required: false
 
-  BUILD_SQL:
+  build-sql:
     description: 'Whether to build SQL DB'
     required: true
-  DB_FOLDER:
+  db-folder:
     description: 'Folder where SQL Files live'
     required: false
 
   # GENERAL
-  GITHUB_TOKEN:
+  github-token:
     description: 'Github Token'
     required: true
 
   # DEPLOYMENT
-  PROJECT_TO_PUBLISH:
+  project-to-publish:
     description: 'Package (root) to deploy'
     required: false
 
@@ -70,13 +73,13 @@ runs:
     ############################################################################################################
 
     - name: "Dotnet: Define Master build settings"
-      if: inputs.RELEASE == 'false'
+      if: inputs.release == 'false'
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: echo "DOTNET_RELEASE_DEFINES=-p:IsProduction=false" >> "$GITHUB_ENV"
 
     - name: "Dotnet: Define Release build settings"
-      if: inputs.RELEASE == 'true'
+      if: inputs.release == 'true'
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: echo "DOTNET_RELEASE_DEFINES=-p:IsProduction=True" >> "$GITHUB_ENV"
@@ -85,13 +88,13 @@ runs:
       if: (!endsWith(github.repository, 'funfair-dotnet-build-check')) && (!endsWith(github.repository, '-template'))
       uses: ./.github/actions/dotnet-build-check
       with:
-        RELEASE: ${{inputs.RELEASE}}
+        release: ${{inputs.release}}
 
     - name: "Dotnet: Override code analysis rules"
       if: "!endsWith(github.repository, '-template')"
       uses: ./.github/actions/dotnet-code-analysis-override
       with:
-        RELEASE: ${{inputs.RELEASE}}
+        release: ${{inputs.release}}
 
     - name: "Dotnet: Restore packages"
       working-directory: ${{github.workspace}}/src
@@ -115,7 +118,7 @@ runs:
               -p:SuppressNETCoreSdkPreviewMessage=true \
               --ignore-failed-sources
 
-    - name: "Dotnet: Build (Non-Release)"
+    - name: "Dotnet: Build"
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: |
@@ -125,14 +128,14 @@ runs:
                   --configuration Release \
                   "-p:ContinuousIntegrationBuild=true" \
                   "-p:EnableSarif=True" \
-                  "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
+                  "-p:IsProduction=${{inputs.production-build}}" \
                   "-p:NoWarn=MSB4241" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
-                  "-p:Version=${{inputs.BUILD_VERSION}}" \
+                  "-p:Version=${{inputs.build-version}}" \
                   -nodeReuse:False \
                   ${{env.DOTNET_RELEASE_DEFINES}}
       env:
-        ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+        ReleaseNotes: ${{inputs.release-notes}}
 
     ## RUN TESTS
     - name: "Dotnet: Test"
@@ -150,95 +153,50 @@ runs:
                   --ignore-exit-code 8 \
                   --report-github \
                   "-p:ContinuousIntegrationBuild=true" \
-                  "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
+                  "-p:IsProduction=${{inputs.production-build}}" \
                   "-p:NoWarn=MSB4241" \
                   "-p:Optimize=true" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
-                  "-p:Version=${{inputs.BUILD_VERSION}}"
+                  "-p:Version=${{inputs.build-version}}"
       env:
-        ReleaseNotes: ${{inputs.RELEASE_NOTES}}
+        ReleaseNotes: ${{inputs.release-notes}}
 
     # ############################################################################################################
     # # DATABASE BUILD
     # ############################################################################################################
     - name: "SQL: Build"
-      if: inputs.BUILD_SQL == 'true'
+      if: inputs.build-sql == 'true'
       uses: ./.github/actions/sql
       with:
-        DB_FOLDER: ${{inputs.DB_FOLDER}}
-        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+        db-folder: ${{inputs.db-folder}}
+        github-token: ${{inputs.github-token}}
 
     ############################################################################################################
     # Publish ready for deploy
     ############################################################################################################
 
     - name: "Dotnet: Publish Packages"
-      if: inputs.PROJECT_TO_PUBLISH != ''
+      if: inputs.project-to-publish != ''
       uses: ./.github/actions/dotnet-publish
       with:
-        PRODUCTION_BUILD: ${{inputs.PRODUCTION_BUILD}}
-        BUILD_VERSION: ${{inputs.BUILD_VERSION}}
-        RELEASE_NOTES: ${{inputs.RELEASE_NOTES}}
-        PLATFORM: ${{inputs.DOTNET_DOCKER_PLATFORM}}
-        PROJECT_TO_PUBLISH: ${{inputs.PROJECT_TO_PUBLISH}}
+        production-build: ${{inputs.production-build}}
+        build-version: ${{inputs.build-version}}
+        release-notes: ${{inputs.release-notes}}
+        platform: ${{inputs.dotnet-docker-platform}}
+        project-to-publish: ${{inputs.project-to-publish}}
 
     ############################################################################################################
     # DOTNET PUSH TO NUGET
     ############################################################################################################
-    - name: "Dotnet: Pack tool"
-      if: inputs.NUGET_PACK == 'true'
-      working-directory: ${{github.workspace}}/src
-      shell: bash
-      run: |
-        dotnet pack \
-                  --warnaserror \
-                  --configuration Release \
-                  "-p:Version=${{inputs.BUILD_VERSION}}" \
-                  "-p:IsProduction=${{inputs.PRODUCTION_BUILD}}" \
-                  "-p:IncludeSymbols=False" \
-                  --no-restore \
-                  -nodeReuse:False \
-                  "-p:NoWarn=MSB4241" \
-                  "-p:ContinuousIntegrationBuild=true"
-      env:
-        ReleaseNotes: ${{inputs.RELEASE_NOTES}}
-
-    - name: "Dotnet: Copy packed to dist"
-      if: inputs.NUGET_PACK == 'true'
-      shell: bash
-      run: |
-        shopt -s globstar
-        cp **/*.nupkg "${{github.workspace}}/dist"
-      working-directory: ${{github.workspace}}/src
-
-    - name: "Dotnet: Publish Packages to Nuget (With integrated symbol feed)"
-      if: |-
-        inputs.NUGET_API_KEY != '' &&
-        inputs.NUGET_API_KEY != 'SLEET' &&
-        inputs.NUGET_PACK == 'true' &&
-        (inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')
-      uses: ./.github/actions/nuget-push-integrated-symbol-feed
+    - name: "Dotnet: Pack and publish nuget packages"
+      if: inputs.nuget-pack == 'true'
+      uses: ./.github/actions/nuget-publish
       with:
-        NUGET_FEED: ${{inputs.NUGET_FEED}}
-        NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
-
-    - name: "Dotnet: Publish Packages to Nuget (With separate symbol feed)"
-      if: |-
-        inputs.NUGET_API_KEY != '' &&
-        inputs.NUGET_API_KEY != 'SLEET' &&
-        inputs.NUGET_PACK == 'true' &&
-        !(inputs.NUGET_SYMBOL_FEED == '' || inputs.NUGET_SYMBOL_FEED == ' ')
-      uses: ./.github/actions/nuget-push-separate-symbol-feed
-      with:
-        NUGET_FEED: ${{inputs.NUGET_FEED}}
-        NUGET_SYMBOL_FEED: ${{inputs.NUGET_SYMBOL_FEED}}
-        NUGET_API_KEY: ${{inputs.NUGET_API_KEY}}
-
-    - name: "Dotnet: Publish Packages using sleet"
-      if: |-
-        inputs.NUGET_API_KEY == 'SLEET' &&
-        inputs.NUGET_PACK == 'true'
-      uses: ./.github/actions/sleet
-      with:
-        SLEET_CONFIG: ${{ inputs.SLEET_CONFIG }}
-        SLEET_FEED: ${{inputs.SLEET_FEED}}
+        build-version: ${{inputs.build-version}}
+        production-build: ${{inputs.production-build}}
+        release-notes: ${{inputs.release-notes}}
+        nuget-feed: ${{inputs.nuget-feed}}
+        nuget-feed-type: ${{inputs.nuget-feed-type}}
+        nuget-username: ${{inputs.nuget-username}}
+        sleet-config: ${{inputs.sleet-config}}
+        sleet-feed: ${{inputs.sleet-feed}}
