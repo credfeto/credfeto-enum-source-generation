@@ -50,10 +50,11 @@ jobs:
         with:
           github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
           script: |
-            const { data: releaseBranches } = await github.rest.git.listMatchingRefs({
+            const releaseBranches = await github.paginate(github.rest.git.listMatchingRefs, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: 'heads/release/',
+              per_page: 100,
             });
             const existingReleases = new Set(
               releaseBranches.map(b => b.ref.replace('refs/heads/release/', ''))
@@ -77,14 +78,19 @@ jobs:
                   continue;
                 }
                 core.info(`- Missing Release ${version} at ${commit.sha} - creating branch`);
-                await github.rest.git.createRef({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  ref: `refs/heads/release/${version}`,
-                  sha: commit.sha,
-                });
+                try {
+                  await github.rest.git.createRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: `refs/heads/release/${version}`,
+                    sha: commit.sha,
+                  });
+                  core.info(`+++ Created branch release/${version}`);
+                } catch (e) {
+                  if (e.status !== 422) throw e;
+                  core.info(`* Branch release/${version} already exists - skipping`);
+                }
                 existingReleases.add(version);
-                core.info(`+++ Created branch release/${version}`);
               }
               if (foundExisting) break;
             }
