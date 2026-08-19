@@ -54,7 +54,7 @@ jobs:
         run: sudo apt install -y jq
 
       - name: "Checkout Source"
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           clean: true
           fetch-depth: 0
@@ -104,7 +104,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           clean: true
           fetch-depth: 0
@@ -158,17 +158,17 @@ jobs:
         if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
         shell: bash
         run: |
-          echo "Check to see if ${{env.DEFAULT_BRANCH}} is ahead or behind ${{matrix.branch}}..."
-          COUNTS=$(git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{matrix.branch}}")
-          echo "$COUNTS" | awk '{ print "${{env.BRANCH}} is behind ${{env.DEFAULT_BRANCH}} by "$1" commit(s)" }'
-          echo "$COUNTS" | awk '{ print "${{matrix.BRANCH}} is ahead of ${{env.DEFAULT_BRANCH}} by "$2" commit(s)" }'
+          echo "Check to see if $DEFAULT_BRANCH is ahead or behind $BRANCH..."
+          COUNTS=$(git rev-list --left-right --count "origin/$DEFAULT_BRANCH...origin/$BRANCH")
+          echo "$COUNTS" | awk -v branch="$BRANCH" -v defaultbranch="$DEFAULT_BRANCH" '{ print branch" is behind "defaultbranch" by "$1" commit(s)" }'
+          echo "$COUNTS" | awk -v branch="$BRANCH" -v defaultbranch="$DEFAULT_BRANCH" '{ print branch" is ahead of "defaultbranch" by "$2" commit(s)" }'
         env:
           DEFAULT_BRANCH: ${{steps.detection.outputs.defaultbranch}}
       - name: "Get last update time of branch"
         if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
         id: lastupdate
         shell: bash
-        run: echo "time=$(git log -1 --format=@%ct origin/${{env.BRANCH}})" >> "$GITHUB_OUTPUT"
+        run: echo "time=$(git log -1 --format=@%ct "origin/$BRANCH")" >> "$GITHUB_OUTPUT"
 
       - name: "Check Ahead and Behind Status"
         if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
@@ -176,12 +176,12 @@ jobs:
         shell: bash
         run: >
           { \
-            git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{env.BRANCH}}" \
+            git rev-list --left-right --count "origin/$DEFAULT_BRANCH...origin/$BRANCH" \
               | awk '{ print "behind="$1 }' ; \
-            git rev-list --left-right --count "origin/${{env.DEFAULT_BRANCH}}...origin/${{env.BRANCH}}" \
+            git rev-list --left-right --count "origin/$DEFAULT_BRANCH...origin/$BRANCH" \
               | awk '{ print "ahead="$2 }' ; \
-            echo "dayssinceupdate=$((($(date +%s)-$(date +%s --date ${{env.LAST_UPDATE}}))/(3600*24)))" ; \
-            echo "COMMIT_MSG=$(git log -1 --pretty=%B "${{env.ORIGIN_DEFAULT_BRANCH}}")" ; \
+            echo "dayssinceupdate=$((($(date +%s)-$(date +%s --date "$LAST_UPDATE"))/(3600*24)))" ; \
+            echo "COMMIT_MSG=$(git log -1 --pretty=%B "$ORIGIN_DEFAULT_BRANCH")" ; \
           } >> "$GITHUB_OUTPUT"
         env:
           DEFAULT_BRANCH: ${{steps.detection.outputs.defaultbranch}}
@@ -238,11 +238,15 @@ jobs:
           && steps.aheadbehind.outputs.ahead != 0
           && steps.aheadbehind.outputs.dayssinceupdate > 7
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PR_URL: ${{steps.open-pr.outputs.pr_url}}
+          PR_NUMBER: ${{steps.open-pr.outputs.pr_number}}
+          HAS_CHANGED_FILES: ${{steps.open-pr.outputs.has_changed_files}}
         with:
           script: |
-            core.info('URL: ${{steps.open-pr.outputs.pr_url}}');
-            core.info('PR: ${{steps.open-pr.outputs.pr_number}}');
-            core.info('CF: ${{steps.open-pr.outputs.has_changed_files}}');
+            core.info(`URL: ${process.env.PR_URL}`);
+            core.info(`PR: ${process.env.PR_NUMBER}`);
+            core.info(`CF: ${process.env.HAS_CHANGED_FILES}`);
 
       - name: "Check Required Secrets"
         if: steps.open-pr.outputs.pr_number != ''
@@ -301,8 +305,12 @@ jobs:
           steps.detection.outputs.defaultbranch != matrix.branch
           && steps.find-pull-request.outputs.number == ''
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          AHEAD: ${{steps.aheadbehind.outputs.ahead}}
+          BEHIND: ${{steps.aheadbehind.outputs.behind}}
+          DAYS_SINCE_UPDATE: ${{steps.aheadbehind.outputs.dayssinceupdate}}
         with:
           script: |
-            core.info('Ahead: ${{steps.aheadbehind.outputs.ahead}}');
-            core.info('Behind: ${{steps.aheadbehind.outputs.behind}}');
-            core.info('Last Commit: ${{steps.aheadbehind.outputs.dayssinceupdate}} days ago');
+            core.info(`Ahead: ${process.env.AHEAD}`);
+            core.info(`Behind: ${process.env.BEHIND}`);
+            core.info(`Last Commit: ${process.env.DAYS_SINCE_UPDATE} days ago`);
