@@ -3,10 +3,10 @@
 name: 'Publish to Sleet'
 description: 'Publishes Nuget packages with sleet'
 inputs:
-  SLEET_CONFIG:
+  sleet-config:
     description: 'Sleet config file'
     required: false
-  SLEET_FEED:
+  sleet-feed:
     description: 'Sleet feed to push packages to'
     required: false
 
@@ -14,19 +14,34 @@ runs:
   using: "composite"
   steps:
 
-    - name: "Sleet: Generate Sleet Config"
+    - name: "Install Sleet package management tool"
+      if: env.SLEET_TOOL_INSTALLED != 'true'
+      uses: ./.github/actions/dotnet-tool
+      with:
+        tool-name: "sleet"
+        tool-version: "latest"
+
+    - name: "Mark Sleet package management tool installed"
       shell: bash
-      working-directory: ${{ github.workspace }}
-      run: |
-        echo "$VALUE" > "${FILE}"
-      env:
-        FILE: "${{github.workspace}}/sleet.json"
-        VALUE: "${{ inputs.SLEET_CONFIG }}"
+      run: echo "SLEET_TOOL_INSTALLED=true" >> "$GITHUB_ENV"
+
+    - name: "Sleet: Generate Sleet Config"
+      id: sleet-config
+      uses: ./.github/actions/save-secret-as-file
+      with:
+        secret: ${{inputs.sleet-config}}
 
     - name: "Sleet: Publish Packages to Nuget (Using Sleet)"
-      if: always()
       uses: ./.github/actions/dotnet-tool-run
       with:
-        WORKING_DIRECTORY: "${{github.workspace}}"
-        TOOL_NAME: "sleet"
-        TOOL_ARGUMENTS: "push \"${{github.workspace}}/dist\" --config \"${{github.workspace}}/sleet.json\" --source \"${{inputs.SLEET_FEED}}\""
+        working-directory: "${{github.workspace}}"
+        tool-name: "sleet"
+        tool-arguments: "push \"${{github.workspace}}/dist\" --config \"${{steps.sleet-config.outputs.file}}\" --source \"${{inputs.sleet-feed}}\""
+
+    - name: "Sleet: Clean Up Sleet Config"
+      if: always()
+      shell: bash
+      run: |
+        rm -f "${FILE}"
+      env:
+        FILE: "${{steps.sleet-config.outputs.file}}"
