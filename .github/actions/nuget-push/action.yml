@@ -1,0 +1,28 @@
+--- # Build and deploy packages
+# Maintain in repo: funfair-server-template
+name: 'Publish to nuget'
+description: 'Publishes Nuget packages'
+inputs:
+  nuget-feed:
+    description: 'Nuget feed to push packages to'
+    required: true
+  nuget-api-key:
+    description: 'API key to authenticate when pushing packages'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "Check Required Secrets: nuget-api-key"
+      uses: ./.github/actions/check-required-secret
+      with:
+        secret-name: "nuget-api-key"
+        secret-value: ${{inputs.nuget-api-key}}
+
+    - name: "NuGet Push"
+      uses: ./.github/actions/dotnet-tool-run
+      with:
+        working-directory: "${{github.workspace}}"
+        tool-name: "pushpackages"
+        tool-arguments: "--folder dist --api-key \"${{inputs.nuget-api-key}}\" --source \"${{inputs.nuget-feed}}\""
