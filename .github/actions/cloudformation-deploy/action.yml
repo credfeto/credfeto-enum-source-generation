@@ -3,31 +3,31 @@
 name: 'Deploy to Cloudformation template'
 description: 'Deploy docker image using cloudformation template to aws'
 inputs:
-  CLOUD_FORMATION_STACK:
+  cloud-formation-stack:
     description: 'The Cloud Formation stack to deploy as'
     required: true
-  CLOUDFORMATION_SNS_ARN:
+  cloudformation-sns-arn:
     description: 'SSN Notification ARN'
     required: false
-  CLOUD_FORMATION_TEMPLATE_FILE:
+  cloud-formation-template-file:
     description: 'The Cloud Formation file to deploy'
     required: true
-  DOCKER_APP_NAME:
+  docker-app-name:
     description: 'docker app name'
     required: true
-  API_HOST:
+  api-host:
     description: 'Api Host'
     required: true
-  AWS_LOAD_BALANCER_HOSTNAME:
+  aws-load-balancer-hostname:
     description: "AWS Load Balancer match hostname"
     required: true
-  AWS_LOAD_BALANCER_PRIORITY:
+  aws-load-balancer-priority:
     description: "AWS Load Balancer match priority"
     required: true
-  DOCKER_CONTAINER_REGISTRY:
+  docker-container-registry:
     description: "AWS container registry to retrieve package from"
     required: true
-  BUILD_VERSION:
+  build-version:
     description: "Build Version"
     required: true
 
@@ -38,12 +38,18 @@ runs:
     - name: "Add offsets for direct connections"
       id: priorities
       shell: bash
+      env:
+        AWS_LOAD_BALANCER_PRIORITY: ${{inputs.aws-load-balancer-priority}}
       run: |
-        if [ "${{inputs.AWS_LOAD_BALANCER_PRIORITY}}" -gt 0 ]; then
+        if ! [[ "$AWS_LOAD_BALANCER_PRIORITY" =~ ^[0-9]+$ ]]; then
+          echo "::error::AWS_LOAD_BALANCER_PRIORITY must be a non-negative integer, got: $AWS_LOAD_BALANCER_PRIORITY"
+          exit 1
+        fi
+        if [ "$AWS_LOAD_BALANCER_PRIORITY" -gt 0 ]; then
           {
-            MAIN=$((${{inputs.AWS_LOAD_BALANCER_PRIORITY}}))
-            DIRECT1=$(($MAIN+1))
-            DIRECT2=$(($MAIN+2))
+            MAIN=$((AWS_LOAD_BALANCER_PRIORITY))
+            DIRECT1=$((MAIN+1))
+            DIRECT2=$((MAIN+2))
             echo "MAIN=$MAIN"
             echo "DIRECT1=$DIRECT1"
             echo "DIRECT2=$DIRECT2"
@@ -62,7 +68,7 @@ runs:
         FIRST=1
         {
           echo "["
-          jq '.Parameters' "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" | \
+          jq '.Parameters' "$CLOUD_FORMATION_TEMPLATE_FILE" | \
                     grep ': {' | \
                     grep -oEi '([a-z]|_|[1-9])+' | \
                     sort | \
@@ -86,62 +92,56 @@ runs:
             echo "]"
           } > "${{github.workspace}}/TemplateParameters.json"
       env:
-        ApplicationName: ${{inputs.CLOUD_FORMATION_STACK}}
-        ApplicationContainer: ${{inputs.DOCKER_APP_NAME}}
-        ApplicationVersion: ${{inputs.BUILD_VERSION}}
-        ApiPrefix: /${{inputs.DOCKER_APP_NAME}}
-        ApiHost: ${{inputs.API_HOST}}
-        LoadBalancerHostName: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}
+        CLOUD_FORMATION_TEMPLATE_FILE: ${{inputs.cloud-formation-template-file}}
+        ApplicationName: ${{inputs.cloud-formation-stack}}
+        ApplicationContainer: ${{inputs.docker-app-name}}
+        ApplicationVersion: ${{inputs.build-version}}
+        ApiPrefix: /${{inputs.docker-app-name}}
+        ApiHost: ${{inputs.api-host}}
+        LoadBalancerHostName: ${{inputs.aws-load-balancer-hostname}}
         LoadBalancerPriority: ${{steps.priorities.outputs.MAIN}}
         Direct1LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT1}}
         Direct2LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT2}}
-        AwsContainerRegistry: ${{inputs.DOCKER_CONTAINER_REGISTRY}}
+        AwsContainerRegistry: ${{inputs.docker-container-registry}}
 
     - name: "show Validated TemplateParameters"
       shell: bash
+      env:
+        CLOUDFORMATION_SNS_ARN: ${{inputs.cloudformation-sns-arn}}
       run: |
-        echo "SNS ARN: ${{inputs.CLOUDFORMATION_SNS_ARN}}"
+        echo "SNS ARN: $CLOUDFORMATION_SNS_ARN"
         echo "Validated parameters:"
         jq . "${{github.workspace}}/TemplateParameters.json"
 
-    - if: inputs.CLOUDFORMATION_SNS_ARN != ''
-      name: "AWS Cloudformation Deploy (With Notifications)"
+    - name: "AWS Cloudformation Deploy"
       shell: bash
+      env:
+        CLOUD_FORMATION_TEMPLATE_FILE: ${{inputs.cloud-formation-template-file}}
+        CLOUD_FORMATION_STACK: ${{inputs.cloud-formation-stack}}
+        CLOUDFORMATION_SNS_ARN: ${{inputs.cloudformation-sns-arn}}
+        BUILD_VERSION: ${{inputs.build-version}}
       run: |
+        NOTIFICATION_ARGS=()
+        [ -n "$CLOUDFORMATION_SNS_ARN" ] && NOTIFICATION_ARGS=(--notification-arns "$CLOUDFORMATION_SNS_ARN")
         /usr/local/aws-cli/v2/current/bin/aws \
                   cloudformation deploy \
                         --template-file \
-                              "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
+                              "$CLOUD_FORMATION_TEMPLATE_FILE" \
                         --stack-name \
-                              "${{inputs.CLOUD_FORMATION_STACK}}" \
+                              "$CLOUD_FORMATION_STACK" \
                         --parameter-overrides \
                               file://TemplateParameters.json \
-                        --notification-arns \
-                              "${{inputs.CLOUDFORMATION_SNS_ARN}}" \
+                        "${NOTIFICATION_ARGS[@]}" \
                         --tags \
-                              "App=${{inputs.CLOUD_FORMATION_STACK}}" \
-                              "Version=${{inputs.BUILD_VERSION}}"
-
-    - if: inputs.CLOUDFORMATION_SNS_ARN == ''
-      name: "AWS Cloudformation Deploy (No Notifications)"
-      shell: bash
-      run: |
-        /usr/local/aws-cli/v2/current/bin/aws \
-                  cloudformation deploy \
-                        --template-file \
-                              "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}" \
-                        --stack-name \
-                              "${{inputs.CLOUD_FORMATION_STACK}}" \
-                        --parameter-overrides \
-                              file://TemplateParameters.json \
-                        --tags \
-                              "App=${{inputs.CLOUD_FORMATION_STACK}}" \
-                              "Version=${{inputs.BUILD_VERSION}}"
+                              "App=$CLOUD_FORMATION_STACK" \
+                              "Version=$BUILD_VERSION"
 
     - name: "AWS Enable Stack termination protection"
       shell: bash
+      env:
+        CLOUD_FORMATION_STACK: ${{inputs.cloud-formation-stack}}
       run: |
         /usr/local/aws-cli/v2/current/bin/aws \
                   cloudformation update-termination-protection \
                           --enable-termination-protection \
-                          --stack-name "${{inputs.CLOUD_FORMATION_STACK}}"
+                          --stack-name "$CLOUD_FORMATION_STACK"
