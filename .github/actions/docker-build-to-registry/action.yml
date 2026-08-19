@@ -3,32 +3,32 @@
 name: 'Build Docker container and optionally deploy to ACR'
 description: 'Builds a docker image and optionally pushes it to AWS ECR'
 inputs:
-  DEPLOY:
+  deploy:
     description: 'Whether to deploy'
     required: true
-  GITHUB_TOKEN:
+  github-token:
     description: 'github token for accessing github'
     required: true
-  BUILD_VERSION:
+  build-version:
     description: 'Build version'
     required: true
-  BUILD_TAG:
+  build-tag:
     description: 'Build tag'
     required: true
-  APP_OWNER:
+  app-owner:
     description: 'docker app owner'
     required: true
-  APP_NAME:
+  app-name:
     description: 'docker app name'
     required: true
-  DOCKER_CONTAINER_REGISTRY:
+  docker-container-registry:
     description: 'AWS Elastic Container Registry'
     required: true
     default: '117769150821.dkr.ecr.eu-west-1.amazonaws.com'
-  CONTAINER_SOURCE:
+  container-source:
     description: 'Location of app container source'
     required: true
-  CONTAINER_PLATFORM:
+  container-platform:
     description: 'Container platform'
     required: true
 
@@ -44,9 +44,9 @@ runs:
     - name: "Build and export docker container"
       uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
       with:
-        context: ${{inputs.CONTAINER_SOURCE}}
+        context: ${{inputs.container-source}}
         load: true
-        tags: ${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:test
+        tags: ${{inputs.app-owner}}/${{inputs.app-name}}:test
 #        cache-from: type=gha
 #        cache-to: type=gha,mode=max
 
@@ -54,20 +54,20 @@ runs:
     - name: "Run docker image tests"
       uses: ./.github/actions/docker-image-test
       with:
-        APP_OWNER: ${{inputs.APP_OWNER}}
-        APP_NAME: ${{inputs.APP_NAME}}
-        GITHUB_TOKEN: ${{inputs.GITHUB_TOKEN}}
+        app-owner: ${{inputs.app-owner}}
+        app-name: ${{inputs.app-name}}
+        github-token: ${{inputs.github-token}}
 
     - name: "Docker: Build with tags"
-      if: inputs.DEPLOY == 'true'
+      if: inputs.deploy == 'true'
       uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
       with:
-        context: ${{inputs.CONTAINER_SOURCE}}
-        platforms: ${{inputs.CONTAINER_PLATFORM}}
-        push: ${{inputs.DEPLOY}}
+        context: ${{inputs.container-source}}
+        platforms: ${{inputs.container-platform}}
+        push: ${{inputs.deploy}}
         tags: |
-          ${{inputs.DOCKER_CONTAINER_REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:${{inputs.BUILD_TAG}}
-          ${{inputs.DOCKER_CONTAINER_REGISTRY}}/${{inputs.APP_OWNER}}/${{inputs.APP_NAME}}:${{inputs.BUILD_VERSION}}
+          ${{inputs.docker-container-registry}}/${{inputs.app-owner}}/${{inputs.app-name}}:${{inputs.build-tag}}
+          ${{inputs.docker-container-registry}}/${{inputs.app-owner}}/${{inputs.app-name}}:${{inputs.build-version}}
 #        cache-from: type=gha
 #        cache-to: type=gha,mode=max
         provenance: false
