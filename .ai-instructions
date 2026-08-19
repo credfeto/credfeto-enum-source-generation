@@ -20,6 +20,7 @@ Precedence is given to local instructions over global instructions.
 
 * Whenever an instruction to remember to do something is given, update the appropriate memory file and this index.
 * If you learn something doing work, update the memory file and this index so it is retained for the future.  These changes should be committed to the repo with a clear commit message.
+* Whenever a memory file is updated to record a new learning, also file a human-readable issue in `credfeto/credfeto-notes` describing it for people; see `ai/global/learnings.instructions.md` for the procedure. Memory files stay in AI-rule format; `credfeto-notes` issues stay in human prose — never mix the two styles.
 * Memory file updates must always be committed on a branch, never directly to main.
   * If the update is related to a code change, commit it on the same branch as that code change.
   * For purely administrative updates (e.g. reorganising or correcting existing instructions), create a dedicated branch.
