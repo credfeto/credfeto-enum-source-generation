@@ -3,19 +3,19 @@
 name: 'Deploy Database'
 description: 'Deploys the database dacpac package to a SQL Server instance using sqlpackage'
 inputs:
-  SQL_SERVER:
+  sql-server:
     description: 'SQL Server to connect to'
     required: true
-  SQL_DB:
+  sql-db:
     description: 'Database to deploy to'
     required: true
-  SQL_USER:
+  sql-user:
     description: 'User to connect to the database as'
     required: true
-  SQL_PASSWORD:
+  sql-password:
     description: 'Password for SQL_USER'
     required: true
-  DB_FOLDER:
+  db-folder:
     description: 'Folder where SQL Files live'
     required: true
 
@@ -24,7 +24,7 @@ runs:
   steps:
 
     - name: "Dotnet: Test SQL Password"
-      if: inputs.SQL_PASSWORD == ''
+      if: inputs.sql-password == ''
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: |
@@ -45,8 +45,8 @@ runs:
     - name: "Install SQLPackage tool"
       uses: ./.github/actions/dotnet-tool
       with:
-        TOOL_NAME: "microsoft.sqlpackage"
-        TOOL_VERSION: "latest"
+        tool-name: "microsoft.sqlpackage"
+        tool-version: "latest"
 
 # yamllint disable rule:line-length
     - name: "Dotnet: Deploy/Live Server"
@@ -73,9 +73,9 @@ runs:
       # yamllint enable rule:line-length
       env:
         DACPAC_FILE: "${{steps.find_dacpac.outputs.DACPAC}}"
-        SQL_SERVER: "${{inputs.SQL_SERVER}}"
-        SQL_DB: "${{inputs.SQL_DB}}"
-        SQL_USER: "${{inputs.SQL_USER}}"
-        SQL_PASSWORD: "${{inputs.SQL_PASSWORD}}"
+        SQL_SERVER: "${{inputs.sql-server}}"
+        SQL_DB: "${{inputs.sql-db}}"
+        SQL_USER: "${{inputs.sql-user}}"
+        SQL_PASSWORD: "${{inputs.sql-password}}"
         TIMEOUT: 720
 # yamllint enable rule:line-length
