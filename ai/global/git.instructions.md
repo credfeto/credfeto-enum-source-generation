@@ -20,6 +20,8 @@ Then, before starting any work on an issue or PR, run the hook against every tra
 <hooks-path>/pre-commit --all-files
 ```
 
+Always run this check in the background — it is more likely than not to take a while to run, not an exception case to spot and handle specially. Backgrounding it does not mean walking away from it: you MUST then poll for its own completion and WAIT for it to actually finish, in this same turn/session, before doing anything else, including ending your turn. This is not optional and does not depend on how the check is invoked: see the mandatory [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory) rules for the poll-loop shape and the 30-minute deadline. Do **not** end your turn on the assumption that you will be automatically resumed once the check finishes — confirmed live incident: an automation whose invocations are fresh, single-phase, and never resumed backgrounded this exact check, ended its turn believing "a Monitor notification will wake me up," and repeated that identical mistake across six separate invocations over five and a half hours, because each new invocation started from zero with no memory of the wait and the backgrounded check itself was killed the instant the previous turn ended. If your own session genuinely is interactive and resumable, confirm that explicitly before treating "come back to this later" as safe — the default assumption, absent that confirmation, must be that it is not.
+
 1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes on a **new, dedicated branch and issue** (a clean base-point, kept separate from the branch/issue for the requested work), and mark the original work item `Blocked` until the base-fix branch is merged. Do not start the requested work on top of an unmerged, auto-mutated baseline.
 2. If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
 3. If the check **still fails** after all fixing attempts:
@@ -27,6 +29,11 @@ Then, before starting any work on an issue or PR, run the hook against every tra
    - For a PR: comment on the PR, label it `Blocked`, and do not continue work.
 
 This ensures CI results are unambiguous: pre-existing failures are resolved before any new changes are introduced.
+
+When picking up a **new issue** (branching fresh from `main`, not resuming an existing branch): once the baseline hook passes cleanly, check whether `COVERAGE.md` exists at the repo root.
+
+- If it exists, nothing further is needed here: the AI Coverage phase reads it live from `origin/main` every time it runs (see [coverage-ratchet.instructions.md](coverage-ratchet.instructions.md)), so there is no per-branch capture step and nothing to refresh after a rebase.
+- If it does **not** exist, collect it now while still on `main` (run the [per-language extraction](coverage-ratchet.instructions.md#per-language-overall-coverage-extraction) procedure for each orchestrated language present), then create the work branch as normal and commit the resulting `COVERAGE.md` as its **first commit**, before starting the requested work. No separate branch or issue is needed for this, unlike the auto-fix case above: only one branch/PR is allowed open per repo at a time, so there is no concurrent-bootstrap race to isolate against. The AI Coverage phase overwrites the file again with the branch's live numbers when it runs later in this same PR (see its [bootstrap rule](coverage-ratchet.instructions.md#committed-coverage-file-mandatory)), so `COVERAGE.md` ends up with two commits over the branch's lifetime — expected, not a conflict.
 
 ## Pre-Commit Hook Verification (MANDATORY before blocking)
 
@@ -88,6 +95,10 @@ For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [g
 - In Claude Code the `cd` form also triggers an unnecessary permission prompt for the directory change itself.
 - This applies to all git subcommands: `git -C /path status`, `git -C /path add`, `git -C /path commit`, etc.
 
+## Destructive Commands (MANDATORY)
+
+Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, has silently discarded real work in practice; the check costs one command and is never skippable "because it should be clean".
+
 ## Avoid `git worktree`
 
 - Do not use `git worktree` to create additional working trees for a repo.
@@ -99,6 +110,22 @@ For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [g
 - Ensure `main` is up-to-date with `origin` before starting.
 - Continue in the same branch until the task changes.
 - Before continuing work on an existing branch, check if `origin/main` has advanced; if so, rebase first. This is done as part of the [Pre-Work Baseline Check](#pre-work-baseline-check-mandatory-before-starting-any-work) above, before the baseline hook runs; see [git-rebasing.instructions.md](git-rebasing.instructions.md) for the rebase procedure and version-conflict resolution.
+- **Before creating a new branch for an issue, check whether one already exists for it**: a previous session may have pushed work and then been interrupted before ever opening a PR. This is the branch-only counterpart to the PR check in [task-workflow.instructions.md's "Bot-Created PRs" section](task-workflow.instructions.md#bot-created-prs-mandatory-treat-as-your-own) ("Checking for existing work before branching"). The glob matches the `<type>/<issue-number>-<name>` convention below (see [Branch Naming](#branch-naming)):
+
+  ```bash
+  git ls-remote --heads origin "*/<issue-number>-*"
+  ```
+
+  - No match: branch fresh from `main` as normal.
+  - Match found: fetch it and compare against `main`:
+
+    ```bash
+    git fetch origin <branch>
+    git rev-list --count origin/main..origin/<branch>
+    ```
+
+    - `0` (not ahead of `main`): branch fresh from `main` as normal.
+    - `>0`: check it out and continue from there instead of branching again, rebasing first per the bullet above if `origin/main` has advanced.
 
 ## Pushing Branches
 
