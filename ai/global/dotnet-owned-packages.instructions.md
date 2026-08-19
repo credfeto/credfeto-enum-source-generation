@@ -12,7 +12,7 @@
 
 | NuGet Package | GitHub Repository | Notes |
 | --- | --- | --- |
-| `Credfeto.Changelog.Cmd` | [credfeto-changlog-manager](https://github.com/credfeto/credfeto-changlog-manager) | `dotnet changelog` CLI tool: repo name is misspelled on GitHub (`changlog`, not `changelog`) |
+| `Credfeto.Changelog.Cmd` | [credfeto-changelog-manager](https://github.com/credfeto/credfeto-changelog-manager) | `dotnet changelog` CLI tool |
 | `Credfeto.Database.Source.Generation` | [credfeto-database-source-generator](https://github.com/credfeto/credfeto-database-source-generator) | Source generator for database access |
 | `Credfeto.Enum.Source.Generator` | [credfeto-enum-source-generation](https://github.com/credfeto/credfeto-enum-source-generation) | Source generator for enum helpers |
 | `Credfeto.Exceptions.SourceGenerator` | [credfeto-exception-source-generator](https://github.com/credfeto/credfeto-exception-source-generator) | Source generator for exception constructors |
