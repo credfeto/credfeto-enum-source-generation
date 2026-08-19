@@ -1,0 +1,204 @@
+--- # Summarise SARIF findings as a markdown table in the job summary
+# Maintain in repo: funfair-server-template
+name: 'Summarise SARIF findings'
+description: 'Extracts SARIF results into a markdown table on the job summary and the associated PR as a comment; fails on error-level findings'
+inputs:
+  title:
+    description: 'Heading for the summary table'
+    required: true
+  glob:
+    description: 'Glob (relative to the results folder) matching the SARIF files to summarise'
+    required: true
+  github-token:
+    description: 'GitHub token used to find the pull request (on push) and post the comment'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Build SARIF findings table"
+      id: build-table
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        TITLE: ${{inputs.title}}
+        GLOB_PATTERN: ${{inputs.glob}}
+      with:
+        script: |
+          const fs = require('fs');
+          const os = require('os');
+          const path = require('path');
+
+          const title = process.env.TITLE;
+          const globPattern = process.env.GLOB_PATTERN;
+          const resultsDir = path.join(process.env.GITHUB_WORKSPACE, 'results');
+
+          const toRegExp = glob => new RegExp(`^${glob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.')}$`);
+          const pattern = toRegExp(globPattern);
+
+          // SARIF results from tools that see the runner's filesystem (e.g. Roslyn analyzers)
+          // report absolute file:// URIs; strip the workspace prefix so the table shows a
+          // repo-relative path instead of the runner's local build path.
+          const workspacePrefix = `file://${process.env.GITHUB_WORKSPACE}/`;
+          const toRepoRelativeUri = uri => uri.startsWith(workspacePrefix) ? decodeURIComponent(uri.slice(workspacePrefix.length)) : uri;
+
+          let entries;
+          try {
+            entries = fs.readdirSync(resultsDir);
+          } catch (e) {
+            core.setFailed(`❌ ${title}: could not read results directory '${resultsDir}': ${e.message}`);
+            return;
+          }
+
+          const files = entries.filter(f => pattern.test(f)).sort();
+          if (files.length === 0) {
+            core.setFailed(`❌ ${title}: no SARIF files matched '${globPattern}' in results/`);
+            return;
+          }
+
+          const rows = [];
+          let errorCount = 0;
+
+          for (const file of files) {
+            const source = file.replace(/\.sarif$/, '');
+            let sarif;
+            try {
+              sarif = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
+            } catch (e) {
+              core.setFailed(`❌ ${title}: failed to parse ${file}: ${e.message}`);
+              return;
+            }
+
+            for (const run of sarif.runs ?? []) {
+              for (const result of run.results ?? []) {
+                if (result.level === 'note') {
+                  continue;
+                }
+
+                const suppressed = (result.suppressions ?? []).length > 0;
+                const isError = result.level === 'error' && !suppressed;
+                const location = result.locations?.[0]?.physicalLocation;
+                const uri = location?.artifactLocation?.uri ? toRepoRelativeUri(location.artifactLocation.uri) : '-';
+                const line = location?.region?.startLine ?? '-';
+                const message = (result.message?.text ?? '-').replace(/\r?\n|\t/g, ' ').replace(/\|/g, '\\|');
+
+                rows.push(`| ${source} | ${result.ruleId ?? '-'} | ${result.level ?? '-'} | ${uri} | ${line} | ${suppressed ? 'yes' : 'no'} | ${message} |`);
+                if (isError) {
+                  errorCount++;
+                }
+              }
+            }
+          }
+
+          const table = [
+            `## ${title}`,
+            '',
+            '| Source | Rule | Level | File | Line | Suppressed | Message |',
+            '| --- | --- | --- | --- | --- | --- | --- |',
+            ...rows,
+            '', // trailing newline so content appended after this table doesn't glue onto the last row
+          ].join('\n');
+
+          const tmpDir = fs.mkdtempSync(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'sarif-summary-'));
+          const tableFile = path.join(tmpDir, 'table.md');
+          fs.writeFileSync(tableFile, table);
+
+          core.setOutput('table-file', tableFile);
+          core.setOutput('row-count', String(rows.length));
+          core.setOutput('error-count', String(errorCount));
+          core.info(`✅ ${title}: ${rows.length} finding(s), ${errorCount} error-level`);
+
+    - name: "Post job summary"
+      if: ${{ !cancelled() && steps.build-table.outputs.table-file != '' }}
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        TABLE_FILE: ${{steps.build-table.outputs.table-file}}
+      with:
+        script: |
+          const fs = require('fs');
+
+          // write() appends by default (fs.appendFile); write({overwrite: true}) would
+          // truncate anything another step already wrote to the job summary this job.
+          // The table file already ends in a newline, so no addEOL needed here.
+          await core.summary.addRaw(fs.readFileSync(process.env.TABLE_FILE, 'utf8')).write();
+
+    - name: "Find pull request for branch"
+      id: find-pr
+      if: ${{ !cancelled() && github.event_name == 'push' && steps.build-table.outputs.table-file != '' }}
+      # A lookup failure (transient API error, missing pull-requests permission in a
+      # not-yet-synced consuming repo) must degrade to "no comment", not fail the build.
+      continue-on-error: true
+      uses: ./.github/actions/find-pull-request
+      with:
+        branch: ${{github.ref_name}}
+        github-token: ${{inputs.github-token || github.token}}
+
+    - name: "Comment on pull request"
+      if: ${{ !cancelled() && steps.build-table.outputs.table-file != '' && (github.event_name == 'pull_request' || steps.find-pr.outputs.number != '') }}
+      # PRs from forks/Dependabot get a read-only GITHUB_TOKEN regardless of the permissions
+      # block above; commenting is a nice-to-have on top of the (already enforced) job summary
+      # and step failure, so it must never be what fails the job.
+      continue-on-error: true
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        TITLE: ${{inputs.title}}
+        TABLE_FILE: ${{steps.build-table.outputs.table-file}}
+        ROW_COUNT: ${{steps.build-table.outputs.row-count}}
+        PR_NUMBER: ${{github.event_name == 'pull_request' && github.event.pull_request.number || steps.find-pr.outputs.number}}
+      with:
+        github-token: ${{inputs.github-token || github.token}}
+        script: |
+          const fs = require('fs');
+
+          const MAX_BODY_LENGTH = 60000; // GitHub's comment body limit is 65536
+
+          const title = process.env.TITLE;
+          const rowCount = Number(process.env.ROW_COUNT);
+          const marker = `<!-- sarif-summary: ${title} -->`;
+          const prNumber = Number(process.env.PR_NUMBER);
+
+          const comments = await github.paginate(github.rest.issues.listComments, {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: prNumber,
+          });
+          const existing = comments.find(c => c.body && c.body.includes(marker));
+
+          if (rowCount === 0 && !existing) {
+            core.info(`✅ No findings for "${title}"; skipping PR comment`);
+            return;
+          }
+
+          const body = rowCount === 0
+            ? `${marker}\n## ${title}\n\n✅ No findings.`
+            : `${marker}\n${fs.readFileSync(process.env.TABLE_FILE, 'utf8')}`;
+          const commentBody = body.length > MAX_BODY_LENGTH
+            ? `${body.slice(0, MAX_BODY_LENGTH)}\n\n_… truncated, see the job summary for the full table._`
+            : body;
+
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existing.id,
+              body: commentBody,
+            });
+            core.info(`✅ Updated existing PR comment for "${title}"`);
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: commentBody,
+            });
+            core.info(`✅ Created PR comment for "${title}"`);
+          }
+
+    - name: "Report error-level findings"
+      if: ${{ !cancelled() && steps.build-table.outputs.table-file != '' && steps.build-table.outputs.error-count != '0' }}
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        TITLE: ${{inputs.title}}
+        ERROR_COUNT: ${{steps.build-table.outputs.error-count}}
+      with:
+        script: |
+          core.setFailed(`❌ ${process.env.TITLE}: found ${process.env.ERROR_COUNT} error-level finding(s); see job summary for details.`);
