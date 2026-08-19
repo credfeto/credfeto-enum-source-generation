@@ -4,7 +4,7 @@ name: 'Define Build Version'
 description: 'Defines the build version properties'
 inputs:
   # GENERAL
-  GITHUB_TOKEN:
+  github-token:
     description: 'Github Token'
     required: true
 
@@ -14,9 +14,9 @@ runs:
     - name: "Define Build Version"
       uses: ./.github/actions/dotnet-tool-run
       with:
-        WORKING_DIRECTORY: "${{github.workspace}}"
-        TOOL_NAME: "buildversion"
-        TOOL_ARGUMENTS: "--GithubToken \"${{inputs.GITHUB_TOKEN}}\" --TagPrefix \"github\""
+        working-directory: "${{github.workspace}}"
+        tool-name: "buildversion"
+        tool-arguments: "--GithubToken \"${{inputs.github-token}}\" --TagPrefix \"github\""
 
     - name: "Log build version"
       shell: bash
