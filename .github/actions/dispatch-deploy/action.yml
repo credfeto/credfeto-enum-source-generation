@@ -3,37 +3,37 @@
 name: 'Dispatch to deploy workflow'
 description: 'Dispatches deployment to a separate workflow'
 inputs:
-  CLOUD_FORMATION_STACK:
+  cloud-formation-stack:
     description: 'The Cloud Formation stack to deploy as'
     required: true
-  CLOUD_FORMATION_TEMPLATE_FILE:
+  cloud-formation-template-file:
     description: 'The Cloud Formation file to deploy'
     required: true
-  DOCKER_APP_OWNER:
+  docker-app-owner:
     description: 'docker app owner'
     required: true
-  DOCKER_APP_NAME:
+  docker-app-name:
     description: 'docker app name'
     required: true
-  API_HOST:
+  api-host:
     description: 'Api Host'
     required: false
-  API_PREFIX:
+  api-prefix:
     description: 'API Prefix'
     required: false
-  AWS_LOAD_BALANCER_HOSTNAME:
+  aws-load-balancer-hostname:
     description: "AWS Load Balancer match hostname"
     required: false
-  AWS_LOAD_BALANCER_PRIORITY:
+  aws-load-balancer-priority:
     description: "AWS Load Balancer match priority"
     required: true
-  DOCKER_CONTAINER_REGISTRY:
+  docker-container-registry:
     description: "AWS container registry to retrieve package from"
     required: true
-  BUILD_VERSION:
+  build-version:
     description: "Build Version"
     required: true
-  GITHUB_TOKEN:
+  github-token:
     description: 'github token for accessing github'
     required: true
 
@@ -41,52 +41,66 @@ runs:
   using: "composite"
   steps:
     - name: "Log parameters"
-      shell: bash
-      run: |
-        echo "CLOUD_FORMATION_STACK: ${{inputs.CLOUD_FORMATION_STACK}}"
-        echo "CLOUD_FORMATION_TEMPLATE_FILE: ${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}"
-        echo "DOCKER_APP_OWNER: ${{inputs.DOCKER_APP_OWNER}}"
-        echo "DOCKER_APP_NAME: ${{inputs.DOCKER_APP_NAME}}"
-        echo "BUILD_VERSION: ${{inputs.BUILD_VERSION}}"
-        echo "API_HOST: ${{inputs.API_HOST}}"
-        echo "API_PREFIX: ${{inputs.API_PREFIX}}"
-        echo "AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}"
-        echo "DOCKER_CONTAINER_REGISTRY: ${{inputs.DOCKER_CONTAINER_REGISTRY}}"
-        echo "AWS_LOAD_BALANCER_PRIORITY: ${{inputs.AWS_LOAD_BALANCER_PRIORITY}}"
+      uses: ./.github/actions/log-deploy-parameters
+      with:
+        cloud-formation-stack: ${{inputs.cloud-formation-stack}}
+        cloud-formation-template-file: ${{inputs.cloud-formation-template-file}}
+        docker-app-owner: ${{inputs.docker-app-owner}}
+        docker-app-name: ${{inputs.docker-app-name}}
+        build-version: ${{inputs.build-version}}
+        api-host: ${{inputs.api-host}}
+        api-prefix: ${{inputs.api-prefix}}
+        aws-load-balancer-hostname: ${{inputs.aws-load-balancer-hostname}}
+        docker-container-registry: ${{inputs.docker-container-registry}}
+        aws-load-balancer-priority: ${{inputs.aws-load-balancer-priority}}
 
     - name: "Create tag"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        DOCKER_APP_NAME: ${{inputs.docker-app-name}}
+        BUILD_VERSION: ${{inputs.build-version}}
       with:
-        github-token: ${{ inputs.GITHUB_TOKEN }}
+        github-token: ${{ inputs.github-token }}
         script: |
           github.rest.git.createRef({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            ref: 'refs/tags/${{inputs.DOCKER_APP_NAME}}/v${{inputs.BUILD_VERSION}}',
+            ref: `refs/tags/${process.env.DOCKER_APP_NAME}/v${process.env.BUILD_VERSION}`,
             sha: context.sha
           })
 
     - name: "Trigger Deployment Workflow"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        DOCKER_APP_NAME: ${{inputs.docker-app-name}}
+        BUILD_VERSION: ${{inputs.build-version}}
+        CLOUD_FORMATION_STACK: ${{inputs.cloud-formation-stack}}
+        CLOUD_FORMATION_TEMPLATE_FILE: ${{inputs.cloud-formation-template-file}}
+        DOCKER_APP_OWNER: ${{inputs.docker-app-owner}}
+        API_HOST: ${{inputs.api-host}}
+        API_PREFIX: ${{inputs.api-prefix}}
+        AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.aws-load-balancer-hostname}}
+        DOCKER_CONTAINER_REGISTRY: ${{inputs.docker-container-registry}}
+        AWS_LOAD_BALANCER_PRIORITY: ${{inputs.aws-load-balancer-priority}}
       with:
-        github-token: ${{ inputs.GITHUB_TOKEN }}
+        github-token: ${{ inputs.github-token }}
         script: |
           const id = await github.rest.actions.createWorkflowDispatch({
             owner: context.repo.owner,
             repo: context.repo.repo,
             workflow_id: 'deploy.yml',
-            ref: '${{inputs.DOCKER_APP_NAME}}/v${{inputs.BUILD_VERSION}}',
+            ref: `${process.env.DOCKER_APP_NAME}/v${process.env.BUILD_VERSION}`,
             inputs: {
-                CLOUD_FORMATION_STACK: "${{inputs.CLOUD_FORMATION_STACK}}",
-                CLOUD_FORMATION_TEMPLATE_FILE: "${{inputs.CLOUD_FORMATION_TEMPLATE_FILE}}",
-                DOCKER_APP_OWNER: "${{inputs.DOCKER_APP_OWNER}}",
-                DOCKER_APP_NAME: "${{inputs.DOCKER_APP_NAME}}",
-                BUILD_VERSION: "${{inputs.BUILD_VERSION}}",
-                API_HOST: "${{inputs.API_HOST}}",
-                API_PREFIX: "${{inputs.API_PREFIX}}",
-                AWS_LOAD_BALANCER_HOSTNAME: "${{inputs.AWS_LOAD_BALANCER_HOSTNAME}}",
-                DOCKER_CONTAINER_REGISTRY: "${{inputs.DOCKER_CONTAINER_REGISTRY}}",
-                AWS_LOAD_BALANCER_PRIORITY: "${{inputs.AWS_LOAD_BALANCER_PRIORITY}}",
+                CLOUD_FORMATION_STACK: process.env.CLOUD_FORMATION_STACK,
+                CLOUD_FORMATION_TEMPLATE_FILE: process.env.CLOUD_FORMATION_TEMPLATE_FILE,
+                DOCKER_APP_OWNER: process.env.DOCKER_APP_OWNER,
+                DOCKER_APP_NAME: process.env.DOCKER_APP_NAME,
+                BUILD_VERSION: process.env.BUILD_VERSION,
+                API_HOST: process.env.API_HOST,
+                API_PREFIX: process.env.API_PREFIX,
+                AWS_LOAD_BALANCER_HOSTNAME: process.env.AWS_LOAD_BALANCER_HOSTNAME,
+                DOCKER_CONTAINER_REGISTRY: process.env.DOCKER_CONTAINER_REGISTRY,
+                AWS_LOAD_BALANCER_PRIORITY: process.env.AWS_LOAD_BALANCER_PRIORITY,
               }
           });
 
