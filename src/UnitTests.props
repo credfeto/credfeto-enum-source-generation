@@ -48,6 +48,12 @@
             <_CoverageSettingsLines Include="        &lt;Attribute&gt;^System%5C.CodeDom%5C.Compiler%5C.GeneratedCodeAttribute$&lt;/Attribute&gt;" />
             <_CoverageSettingsLines Include="      &lt;/Exclude&gt;" />
             <_CoverageSettingsLines Include="    &lt;/Attributes&gt;" />
+            <!-- ZLinq.DropInGenerator drops in generated LINQ extensions without a [GeneratedCodeAttribute], so it can't be caught by the Attributes exclusion above; match its generated-file path instead. Roslyn writes generated sources under generated/<GeneratorAssembly>/<GeneratorType>/<HintName>, and both the assembly and type name are the fixed literal "ZLinq.DropInGenerator" regardless of which project consumes it, even though the hint name itself is project-dependent. -->
+            <_CoverageSettingsLines Include="    &lt;Sources&gt;" />
+            <_CoverageSettingsLines Include="      &lt;Exclude&gt;" />
+            <_CoverageSettingsLines Include="        &lt;Source&gt;.%2AZLinq%5C.DropInGenerator.%2A&lt;/Source&gt;" />
+            <_CoverageSettingsLines Include="      &lt;/Exclude&gt;" />
+            <_CoverageSettingsLines Include="    &lt;/Sources&gt;" />
             <_CoverageSettingsLines Include="  &lt;/CodeCoverage&gt;" />
             <_CoverageSettingsLines Include="&lt;/Configuration&gt;" />
         </ItemGroup>
