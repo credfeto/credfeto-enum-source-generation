@@ -4,22 +4,22 @@ name: 'Configure Nuget Feeds'
 description: 'Configure Nuget Feeds'
 inputs:
   # NUGET
-  NUGET_PUBLIC_RESTORE_FEED_CACHE:
+  nuget-public-restore-feed-cache:
     description: 'Local cache of public nuget feed'
     required: false
-  NUGET_PUBLIC_RESTORE_FEED:
+  nuget-public-restore-feed:
     description: 'public nuget feed'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE:
+  nuget-additional-restore-feed-release-cache:
     description: 'Any additional nuget feed to download packages from'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE:
+  nuget-additional-restore-feed-prerelease-cache:
     description: 'Any additional nuget feed to download packages from'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_RELEASE:
+  nuget-additional-restore-feed-release:
     description: 'Any additional nuget feed to download packages from'
     required: false
-  NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE:
+  nuget-additional-restore-feed-prerelease:
     description: 'Any additional nuget feed to download packages from'
     required: false
 
@@ -30,12 +30,12 @@ runs:
     - name: "Dotnet: Build NuGet Config"
       shell: bash
       env:
-        NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.NUGET_PUBLIC_RESTORE_FEED_CACHE}}
-        NUGET_PUBLIC_RESTORE_FEED: ${{inputs.NUGET_PUBLIC_RESTORE_FEED}}
-        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE}}
-        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE}}
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
+        NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.nuget-public-restore-feed-cache}}
+        NUGET_PUBLIC_RESTORE_FEED: ${{inputs.nuget-public-restore-feed}}
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.nuget-additional-restore-feed-release-cache}}
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.nuget-additional-restore-feed-release}}
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.nuget-additional-restore-feed-prerelease-cache}}
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.nuget-additional-restore-feed-prerelease}}
       run: |
         # Conf settings
         NUGET_CONF_DIR="$HOME/.nuget/NuGet"
