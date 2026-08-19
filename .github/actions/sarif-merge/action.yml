@@ -1,0 +1,84 @@
+--- # Merge multiple SARIF files into one
+# Maintain in repo: funfair-server-template
+name: 'Merge SARIF files'
+description: 'Combines SARIF files in the results folder into one, since code scanning upload rejects multiple files from the same tool'
+inputs:
+  glob:
+    description: 'Glob (relative to the results folder) matching the SARIF files to merge'
+    required: true
+  exclude:
+    description: 'Glob (relative to the results folder) of SARIF files to leave untouched'
+    required: false
+  output:
+    description: 'Filename (relative to the results folder) to write the merged SARIF document to'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Merge SARIF files"
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        GLOB_PATTERN: ${{inputs.glob}}
+        EXCLUDE_PATTERN: ${{inputs.exclude}}
+        OUTPUT_NAME: ${{inputs.output}}
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+
+          const globPattern = process.env.GLOB_PATTERN;
+          const excludePattern = process.env.EXCLUDE_PATTERN;
+          const outputName = process.env.OUTPUT_NAME;
+          const resultsDir = path.join(process.env.GITHUB_WORKSPACE, 'results');
+
+          const toRegExp = glob => new RegExp(`^${glob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.')}$`);
+          const pattern = toRegExp(globPattern);
+          const excluded = excludePattern ? toRegExp(excludePattern) : null;
+
+          let entries;
+          try {
+            entries = fs.readdirSync(resultsDir);
+          } catch (e) {
+            core.info(`ℹ️ results directory not found; nothing to merge`);
+            return;
+          }
+
+          const files = entries.filter(f => pattern.test(f) && f !== outputName && !(excluded && excluded.test(f))).sort();
+          if (files.length === 0) {
+            core.info(`ℹ️ no SARIF files matched '${globPattern}' in results/; nothing to merge`);
+            return;
+          }
+
+          let schema;
+          let version;
+          const runs = [];
+
+          for (const file of files) {
+            let sarif;
+            try {
+              sarif = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
+            } catch (e) {
+              core.setFailed(`❌ failed to parse ${file}: ${e.message}`);
+              return;
+            }
+            schema = schema ?? sarif['$schema'];
+            version = version ?? sarif.version;
+
+            // GitHub code scanning rejects a file containing multiple runs from the same
+            // tool with no distinguishing category (since 2025-07-22); tag each run with
+            // its source file as automationDetails.id so runs from the same tool don't collide.
+            const category = `${file.replace(/\.sarif$/, '')}/`;
+            for (const run of sarif.runs ?? []) {
+              run.automationDetails = { ...run.automationDetails, id: run.automationDetails?.id ?? category };
+              runs.push(run);
+            }
+          }
+
+          fs.writeFileSync(path.join(resultsDir, outputName), JSON.stringify({ $schema: schema, version: version ?? '2.1.0', runs }));
+
+          for (const file of files) {
+            fs.unlinkSync(path.join(resultsDir, file));
+          }
+
+          core.info(`✅ merged ${files.length} SARIF file(s) (${runs.length} run(s)) into ${outputName}`);
