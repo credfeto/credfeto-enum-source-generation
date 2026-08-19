@@ -42,7 +42,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: "Checkout source"
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           clean: true
           fetch-depth: 1
@@ -80,12 +80,10 @@ jobs:
 
       - name: "Check Required Secrets"
         if: steps.findPr.outputs.number == ''
-        shell: bash
-        run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
-            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
-            exit 1
-          fi
+        uses: ./.github/actions/check-required-secret
+        with:
+          secret-name: "SOURCE_PUSH_TOKEN"
+          secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
 
       - name: "Status"
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -111,12 +109,10 @@ jobs:
 
       - name: "Check Required Secrets"
         if: steps.findPr.outputs.number == ''
-        shell: bash
-        run: |
-          if [ -z "${{secrets.PR_CREATE_TOKEN}}" ]; then
-            echo "::error::PR_CREATE_TOKEN is required but not set"
-            exit 1
-          fi
+        uses: ./.github/actions/check-required-secret
+        with:
+          secret-name: "PR_CREATE_TOKEN"
+          secret-value: ${{secrets.PR_CREATE_TOKEN}}
 
       - name: "Create Pull Request"
         if: steps.findPr.outputs.number == ''
