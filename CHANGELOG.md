@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Replaced duplicated source-generator plumbing (CodeBuilder, LiteralString, RuleHelpers, SupportedDiagnosticsList, SymbolExtensions, TypeInfoExtensions) with the shared Credfeto.SourceGeneration.Helpers NuGet package
+- SDK - Updated DotNet SDK to 10.0.400
 ### Deprecated
 ### Removed
 - Dropped net9.0 support; all projects now target net10.0 exclusively.
