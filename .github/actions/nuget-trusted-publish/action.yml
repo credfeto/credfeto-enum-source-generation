@@ -1,0 +1,39 @@
+--- # Build and deploy packages
+# Maintain in repo: funfair-server-template
+name: 'Publish to nuget using trusted publishing'
+description: 'Exchanges a GitHub OIDC token for a short-lived nuget.org API key, then publishes NuGet packages'
+inputs:
+  nuget-feed:
+    description: 'Nuget feed to push packages to (must be the nuget.org v3 index)'
+    required: true
+  nuget-username:
+    description: 'nuget.org username (profile name) the trusted publishing policy is registered against'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "Check Required Secrets: nuget-feed"
+      uses: ./.github/actions/check-required-secret
+      with:
+        secret-name: "nuget-feed"
+        secret-value: ${{inputs.nuget-feed}}
+
+    - name: "Check Required Secrets: nuget-username"
+      uses: ./.github/actions/check-required-secret
+      with:
+        secret-name: "nuget-username"
+        secret-value: ${{inputs.nuget-username}}
+
+    - name: "NuGet login (OIDC to temporary API key)"
+      id: login
+      uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+      with:
+        user: ${{inputs.nuget-username}}
+
+    - name: "NuGet Push"
+      uses: ./.github/actions/nuget-push
+      with:
+        nuget-feed: ${{inputs.nuget-feed}}
+        nuget-api-key: ${{steps.login.outputs.NUGET_API_KEY}}
