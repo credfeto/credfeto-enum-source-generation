@@ -535,8 +535,6 @@ runs:
     - name: "Software Bill of materials"
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
       uses: ./.github/actions/sbom
-      with:
-        repo-visibility: ${{steps.visibility.outputs.is_public == 'true' && 'public' || 'private'}}
 
     ############################################################################################################
     # Upload Sarif files to GitHub
