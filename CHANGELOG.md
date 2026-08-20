@@ -13,15 +13,19 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Replaced duplicated source-generator plumbing (CodeBuilder, LiteralString, RuleHelpers, SupportedDiagnosticsList, SymbolExtensions, TypeInfoExtensions) with the shared Credfeto.SourceGeneration.Helpers NuGet package
-- SDK - Updated DotNet SDK to 10.0.400
 ### Deprecated
 ### Removed
-- Dropped net9.0 support; all projects now target net10.0 exclusively.
 ### Deployment Changes
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+## [1.2.152] - 2026-08-20
+### Changed
+- Replaced duplicated source-generator plumbing (CodeBuilder, LiteralString, RuleHelpers, SupportedDiagnosticsList, SymbolExtensions, TypeInfoExtensions) with the shared Credfeto.SourceGeneration.Helpers NuGet package
+- SDK - Updated DotNet SDK to 10.0.400
+### Removed
+- Dropped net9.0 support; all projects now target net10.0 exclusively.
+
 ## [1.2.151] - 2026-07-15
 ### Changed
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.29.0.143774
