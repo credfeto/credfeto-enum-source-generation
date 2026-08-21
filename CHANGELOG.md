@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 ### Fixed
+- Fixed a race condition where multiple concurrent compiles wrote to the same Roslyn analyzer SARIF output path, corrupting the JSON and failing the build
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.135.1491
 - Dependencies - Updated Meziantou.Analyzer to 3.0.167
