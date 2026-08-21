@@ -17,6 +17,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 3.0.167
 - Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 5.9.0
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 5.9.0
+- Dependencies - Updated Roslynator.Analyzers to 4.16.1
 ### Deprecated
 ### Removed
 ### Deployment Changes
