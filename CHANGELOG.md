@@ -25,6 +25,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.Test.Source.Generator to 6.3.9.2602
 - Dependencies - Updated NSubstitute to 6.2.0
 - Dependencies - Updated FunFair.CodeAnalysis to 7.2.13.2323
+- Dependencies - Updated FunFair.Test to 6.3.9.2602
 ### Deprecated
 ### Removed
 ### Deployment Changes
