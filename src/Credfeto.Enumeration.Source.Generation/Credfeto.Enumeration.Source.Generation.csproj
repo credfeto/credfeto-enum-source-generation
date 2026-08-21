@@ -65,25 +65,15 @@
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-xhfc-gr8f-ffwc" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference
-      Include="Credfeto.SourceGeneration.Helpers"
-      Version="0.0.3.206"
-      GeneratePathProperty="true"
-      PrivateAssets="all"
-    />
+    <PackageReference Include="Credfeto.SourceGeneration.Helpers" Version="0.0.3.206" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-    <None
-      Include="$(PkgCredfeto_SourceGeneration_Helpers)\lib\netstandard2.0\Credfeto.SourceGeneration.Helpers.dll"
-      Pack="true"
-      PackagePath="analyzers/dotnet/cs"
-      Visible="false"
-    />
+    <None Include="$(PkgCredfeto_SourceGeneration_Helpers)\lib\netstandard2.0\Credfeto.SourceGeneration.Helpers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AsyncFixer" Version="2.1.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="codecracker.CSharp" Version="1.1.0" PrivateAssets="All" ExcludeAssets="runtime" />
-    <PackageReference Include="Credfeto.Version.Information.Generator" Version="1.0.131.1336" PrivateAssets="All" ExcludeAssets="runtime" />
+    <PackageReference Include="Credfeto.Version.Information.Generator" Version="1.0.135.1491" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="CSharpIsNullAnalyzer" Version="0.1.593" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="FunFair.CodeAnalysis" Version="7.2.7.2152" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Meziantou.Analyzer" Version="3.0.122" PrivateAssets="All" ExcludeAssets="runtime" />
