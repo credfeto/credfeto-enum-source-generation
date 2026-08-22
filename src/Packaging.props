@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <Project>
+    <!-- Sarif -->
+    <PropertyGroup Condition="$(EnableSarif)=='True' And !$(MSBuildProjectName.EndsWith('.Tests'))">
+        <ErrorLog>$(SolutionDir)\..\results\$(MSBuildProjectName).$(TargetFramework).sarif,version=2.1</ErrorLog>
+    </PropertyGroup>
+
+    <!-- Code analysis analyzer - report timings -->
+    <PropertyGroup Condition="$(EnableSarif)=='True' And !$(MSBuildProjectName.EndsWith('.Tests'))">
+        <ReportAnalyzer>true</ReportAnalyzer>
+    </PropertyGroup>
+
     <PropertyGroup>
         <IsPacking>False</IsPacking>
         <IsPacking Condition="$(IsPackable) == 'true' OR $(IsPublishable) == 'true'">True</IsPacking>
