@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 ### Fixed
+- Fixed a race condition where multiple concurrent compiles wrote to the same Roslyn analyzer SARIF output path, corrupting the JSON and failing the build
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.135.1491
 - Dependencies - Updated Meziantou.Analyzer to 3.0.167
@@ -23,6 +24,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit.v3 to 4.0.0
 - Dependencies - Updated FunFair.Test.Source.Generator to 6.3.9.2602
 - Dependencies - Updated NSubstitute to 6.2.0
+- Dependencies - Updated FunFair.CodeAnalysis to 7.2.13.2323
 ### Deprecated
 ### Removed
 ### Deployment Changes
