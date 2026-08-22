@@ -3,7 +3,8 @@
 <Project>
     <!-- Sarif -->
     <PropertyGroup Condition="$(EnableSarif)=='True' And !$(MSBuildProjectName.EndsWith('.Tests'))">
-        <ErrorLog>$(SolutionDir)\..\results\$(MSBuildProjectName).$(TargetFramework).sarif,version=2.1</ErrorLog>
+        <_SarifLogFile>$([MSBuild]::NormalizePath('$(SolutionDir)', '..', 'results', '$(MSBuildProjectName).$(TargetFramework).sarif'))</_SarifLogFile>
+        <ErrorLog>$(_SarifLogFile),version=2.1</ErrorLog>
     </PropertyGroup>
 
     <!-- Code analysis analyzer - report timings -->
@@ -17,29 +18,38 @@
     </PropertyGroup>
 
     <!-- Package Icon -->
-    <PropertyGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)packageicon.png')">
+    <PropertyGroup>
+        <_PackageIconFile>$([System.IO.Path]::Combine('$(SolutionDir)', 'packageicon.png'))</_PackageIconFile>
+    </PropertyGroup>
+    <PropertyGroup Condition="$(IsPacking) == 'True' AND Exists('$(_PackageIconFile)')">
         <PackageIcon>packageicon.png</PackageIcon>
         <PackageIconUrl>https://avatars.githubusercontent.com/u/29401895</PackageIconUrl>
     </PropertyGroup>
-    <ItemGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)packageicon.png')">
-        <None Include="$(SolutionDir)packageicon.png" Pack="true" PackagePath="\" />
+    <ItemGroup Condition="$(IsPacking) == 'True' AND Exists('$(_PackageIconFile)')">
+        <None Include="$(_PackageIconFile)" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <!-- License -->
-    <PropertyGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)..\LICENSE')">
-        <PackageLicense>LICENSE</PackageLicense>
-        <PackageLicenseUrl>$(RepositoryUrl)/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PropertyGroup>
+        <_LicenseFile>$([MSBuild]::NormalizePath('$(SolutionDir)', '..', 'LICENSE'))</_LicenseFile>
     </PropertyGroup>
-    <ItemGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)..\LICENSE')">
-        <None Include="$(SolutionDir)..\LICENSE" Pack="true" PackagePath="\" />
+    <PropertyGroup Condition="$(IsPacking) == 'True' AND Exists('$(_LicenseFile)')">
+        <PackageLicense>LICENSE</PackageLicense>
+        <PackageLicenseUrl>$(RepositoryUrl)/blob/main/LICENSE.md</PackageLicenseUrl>
+    </PropertyGroup>
+    <ItemGroup Condition="$(IsPacking) == 'True' AND Exists('$(_LicenseFile)')">
+        <None Include="$(_LicenseFile)" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <!-- Readme -->
-    <PropertyGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)..\README.md')">
+    <PropertyGroup>
+        <_ReadmeFile>$([MSBuild]::NormalizePath('$(SolutionDir)', '..', 'README.md'))</_ReadmeFile>
+    </PropertyGroup>
+    <PropertyGroup Condition="$(IsPacking) == 'True' AND Exists('$(_ReadmeFile)')">
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
-    <ItemGroup Condition="$(IsPacking) == 'True' AND Exists('$(SolutionDir)..\README.md')">
-        <None Include="$(SolutionDir)..\README.md" Pack="true" PackagePath="\" />
+    <ItemGroup Condition="$(IsPacking) == 'True' AND Exists('$(_ReadmeFile)')">
+        <None Include="$(_ReadmeFile)" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <!-- Disable Nuget errors on publishing -->
