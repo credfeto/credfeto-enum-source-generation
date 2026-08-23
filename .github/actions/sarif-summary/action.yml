@@ -49,10 +49,14 @@ runs:
             return;
           }
 
+          // No files matching the glob is a valid outcome (e.g. a repo whose analyzable
+          // projects produced no SARIF output at all), not a pipeline failure. Unlike
+          // sarif-merge, which early-returns on this same zero-match state, this step falls
+          // through so the job summary and PR comment still get a "no findings" report, the
+          // same as they would for "files present, zero results" below.
           const files = entries.filter(f => pattern.test(f)).sort();
           if (files.length === 0) {
-            core.setFailed(`❌ ${title}: no SARIF files matched '${globPattern}' in results/`);
-            return;
+            core.info(`ℹ️ ${title}: no SARIF files matched '${globPattern}' in results/; treating as no findings`);
           }
 
           const rows = [];
@@ -89,14 +93,18 @@ runs:
             }
           }
 
-          const table = [
-            `## ${title}`,
-            '',
-            '| Source | Rule | Level | File | Line | Suppressed | Message |',
-            '| --- | --- | --- | --- | --- | --- | --- |',
-            ...rows,
-            '', // trailing newline so content appended after this table doesn't glue onto the last row
-          ].join('\n');
+          // A header-only table for zero rows reads as a broken report; match the "no
+          // findings" message the PR-comment step below already uses for the same state.
+          const table = rows.length === 0
+            ? [`## ${title}`, '', '✅ No findings.', ''].join('\n')
+            : [
+                `## ${title}`,
+                '',
+                '| Source | Rule | Level | File | Line | Suppressed | Message |',
+                '| --- | --- | --- | --- | --- | --- | --- |',
+                ...rows,
+                '', // trailing newline so content appended after this table doesn't glue onto the last row
+              ].join('\n');
 
           const tmpDir = fs.mkdtempSync(path.join(process.env.RUNNER_TEMP || os.tmpdir(), 'sarif-summary-'));
           const tableFile = path.join(tmpDir, 'table.md');
