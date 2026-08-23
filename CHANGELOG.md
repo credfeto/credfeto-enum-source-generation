@@ -16,7 +16,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 5.9.0
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 5.9.0
-- Dependencies - Updated SonarAnalyzer.CSharp to 10.32.0.713
 - Dependencies - Updated xunit.analyzers to 2.0.0
 - Dependencies - Updated xunit.v3 to 4.0.0
 - Dependencies - Updated FunFair.Test.Source.Generator to 6.3.9.2602
@@ -26,6 +25,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated CSharpIsNullAnalyzer to 0.2.19
 - Dependencies - Updated Meziantou.Analyzer to 3.0.177
 - Dependencies - Updated Roslynator.Analyzers to 5.0.0
+- Dependencies - Updated SonarAnalyzer.CSharp to 10.33.0.1635
 ### Deprecated
 ### Removed
 ### Deployment Changes
