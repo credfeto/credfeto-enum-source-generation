@@ -65,7 +65,7 @@
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-xhfc-gr8f-ffwc" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Credfeto.SourceGeneration.Helpers" Version="0.0.3.206" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Credfeto.SourceGeneration.Helpers" Version="0.0.3.206" GeneratePathProperty="true" IncludeAssets="compile;runtime" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(PkgCredfeto_SourceGeneration_Helpers)\lib\netstandard2.0\Credfeto.SourceGeneration.Helpers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />

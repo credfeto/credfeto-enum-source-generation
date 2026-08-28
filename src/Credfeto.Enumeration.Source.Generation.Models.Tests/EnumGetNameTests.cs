@@ -17,7 +17,7 @@ public sealed class EnumGetNameTests
     [InlineData(ExampleEnumValues.ZERO, nameof(ExampleEnumValues.ZERO))]
     [InlineData(ExampleEnumValues.ONE, nameof(ExampleEnumValues.ONE))]
     [InlineData(ExampleEnumValues.THREE, nameof(ExampleEnumValues.THREE))]
-    public void GetNameReturnsExpectedName(ExampleEnumValues value, string expected)
+    public static void GetNameReturnsExpectedName(ExampleEnumValues value, string expected)
     {
         string name = value.GetName();
 
@@ -116,7 +116,7 @@ public sealed class EnumGetNameTests
     [InlineData(HttpStatusCode.LoopDetected, nameof(HttpStatusCode.LoopDetected))]
     [InlineData(HttpStatusCode.NotExtended, nameof(HttpStatusCode.NotExtended))]
     [InlineData(HttpStatusCode.NetworkAuthenticationRequired, nameof(HttpStatusCode.NetworkAuthenticationRequired))]
-    public void GetNameForExternalEnumReturnsMemberName(HttpStatusCode value, string expected)
+    public static void GetNameForExternalEnumReturnsMemberName(HttpStatusCode value, string expected)
     {
         Assert.Equal(expected: expected, actual: value.GetName());
     }

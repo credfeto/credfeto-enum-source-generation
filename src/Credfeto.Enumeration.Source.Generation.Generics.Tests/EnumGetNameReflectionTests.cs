@@ -13,7 +13,7 @@ public sealed class EnumGetNameReflectionTests
     [Theory]
     [InlineData(TestEnumWithDescription.WITHOUT_DESCRIPTION, nameof(TestEnumWithDescription.WITHOUT_DESCRIPTION))]
     [InlineData(TestEnumWithDescription.WITH_DESCRIPTION, nameof(TestEnumWithDescription.WITH_DESCRIPTION))]
-    public void GetNameReflectionReturnsNameForDefinedValue(TestEnumWithDescription value, string expected)
+    public static void GetNameReflectionReturnsNameForDefinedValue(TestEnumWithDescription value, string expected)
     {
         Assert.Equal(expected: expected, actual: value.GetNameReflection());
     }

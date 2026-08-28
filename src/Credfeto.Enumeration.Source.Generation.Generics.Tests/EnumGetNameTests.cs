@@ -13,7 +13,7 @@ public sealed class EnumGetNameTests
     [Theory]
     [InlineData(TestEnumWithDescription.WITHOUT_DESCRIPTION, nameof(TestEnumWithDescription.WITHOUT_DESCRIPTION))]
     [InlineData(TestEnumWithDescription.WITH_DESCRIPTION, nameof(TestEnumWithDescription.WITH_DESCRIPTION))]
-    public void GetNameReturnsCachedName(TestEnumWithDescription value, string expected)
+    public static void GetNameReturnsCachedName(TestEnumWithDescription value, string expected)
     {
         string firstResult = value.GetName();
         string secondResult = value.GetName();

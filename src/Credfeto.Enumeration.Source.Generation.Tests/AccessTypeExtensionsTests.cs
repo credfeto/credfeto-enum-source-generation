@@ -13,7 +13,7 @@ public sealed class AccessTypeExtensionsTests : TestBase
     [InlineData(AccessType.PROTECTED, "protected")]
     [InlineData(AccessType.PROTECTED_INTERNAL, "protected internal")]
     [InlineData(AccessType.INTERNAL, "internal")]
-    public void ConvertAccessTypeReturnsExpectedString(AccessType accessType, string expected)
+    public static void ConvertAccessTypeReturnsExpectedString(AccessType accessType, string expected)
     {
         string result = accessType.ConvertAccessType();
         Assert.Equal(expected: expected, actual: result);

@@ -305,7 +305,7 @@ public sealed class EnumGeneratorTests : TestBase
     [Theory]
     [InlineData(false, true, true)]
     [InlineData(true, false, false)]
-    public void DetectGenerationOptions(
+    public static void DetectGenerationOptions(
         bool useMinimalCompilation,
         bool expectedHasDoesNotReturn,
         bool expectedSupportsUnreachable
@@ -322,7 +322,7 @@ public sealed class EnumGeneratorTests : TestBase
     [Theory]
     [InlineData("[DoesNotReturn]", null)]
     [InlineData("throw new UnreachableException", "#if NET7_0_OR_GREATER")]
-    public void GeneratorEmitsExpectedToken(string mustContain, string? mustNotContain)
+    public static void GeneratorEmitsExpectedToken(string mustContain, string? mustNotContain)
     {
         const string source = """
             namespace TestNs

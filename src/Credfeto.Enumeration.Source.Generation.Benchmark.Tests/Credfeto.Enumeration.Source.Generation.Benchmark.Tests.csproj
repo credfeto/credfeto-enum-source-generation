@@ -22,7 +22,6 @@
     <IsPublishable>false</IsPublishable>
     <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
     <LangVersion>latest</LangVersion>
-    <MSBuildWarningsAsMessages>MSB3243</MSBuildWarningsAsMessages>
     <NeutralLanguage>en-GB</NeutralLanguage>
     <NoWarn />
     <NuGetAudit>true</NuGetAudit>
@@ -45,6 +44,7 @@
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
     <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
     <WarningsAsErrors />
+    <_NetStandardCompatFacadeAssemblyNames>;System.Buffers;System.Memory;System.Numerics.Vectors;System.Runtime.CompilerServices.Unsafe;System.Text.Encoding.CodePages;System.Threading.Tasks.Extensions;</_NetStandardCompatFacadeAssemblyNames>
   </PropertyGroup>
   <ItemGroup>
     <!-- error NU1903: Warning As Error: Package 'System.Private.Uri' 4.3.0 has a known high severity vulnerability -->
@@ -55,17 +55,35 @@
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-xhfc-gr8f-ffwc" />
   </ItemGroup>
   <Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />
+  <!-- Credfeto.Enumeration.Source.Generation targets netstandard2.0 (required for Roslyn generator host compatibility).
+       This project references it as a normal ProjectReference (ReferenceOutputAssembly="true", the default), which
+       pulls its netstandard2.0 compile-time reference-assembly facades (part of the netstandard2.0 contract, not
+       normal transitive NuGet packages) into this net10.0 project's compile-reference closure. net10.0 already
+       provides all of these in-box at a higher version, so MSBuild logs an MSB3243 "no way to resolve conflict" for
+       each one, and one of them (System.Threading.Tasks.Extensions, whose netstandard2.0 ValueTask collides with
+       net10.0's own in System.Runtime) additionally fails compilation outright (CS0433) inside xunit's AOT-generated
+       code. ResolveAssemblyReferences (RAR) logs the MSB3243 conflict warning as a side effect of its own internal
+       resolution algorithm the moment it runs, so removing items afterwards (even BeforeTargets="CoreCompile", which
+       runs after RAR) does not stop the warning from being logged - only from reaching Csc. Strip all of them from
+       the candidate reference items before RAR itself runs, so it never sees the conflict at all; net10.0 doesn't
+       need any of them. -->
+  <Target Name="RemoveNetStandardCompatFacades" BeforeTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <Reference Remove="@(Reference)" Condition="$(_NetStandardCompatFacadeAssemblyNames.Contains(';%(Reference.FileName);'))" />
+      <_ResolvedProjectReferencePaths Remove="@(_ResolvedProjectReferencePaths)" Condition="$(_NetStandardCompatFacadeAssemblyNames.Contains(';%(_ResolvedProjectReferencePaths.FileName);'))" />
+    </ItemGroup>
+  </Target>
   <ItemGroup>
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation.Generics\Credfeto.Enumeration.Source.Generation.Generics.csproj" />
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation.Models\Credfeto.Enumeration.Source.Generation.Models.csproj" />
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation\Credfeto.Enumeration.Source.Generation.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Credfeto.SourceGeneration.Helpers" Version="0.0.3.206" />
-    <PackageReference Include="FunFair.Test.Common" Version="6.3.4.2441" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
-    <PackageReference Include="NSubstitute" Version="6.2.0" />
-    <PackageReference Include="xunit.v3.mtp-v2" Version="4.0.0" />
+    <PackageReference Include="Credfeto.SourceGeneration.Helpers" Version="0.0.3.206" IncludeAssets="compile;runtime" />
+    <PackageReference Include="FunFair.Test.Common" Version="6.4.0.2617" IncludeAssets="compile;runtime" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" IncludeAssets="compile;runtime;build;buildTransitive" />
+    <PackageReference Include="NSubstitute" Version="6.2.0" IncludeAssets="compile;runtime" />
+    <PackageReference Include="xunit.v3.aot.mtp-v2" Version="4.0.0" IncludeAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AsyncFixer" Version="2.1.0" PrivateAssets="All" ExcludeAssets="runtime" />
