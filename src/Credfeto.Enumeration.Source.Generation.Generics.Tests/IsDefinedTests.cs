@@ -13,7 +13,7 @@ public sealed class IsDefinedTests
     [Theory]
     [InlineData(TestEnumWithDescription.WITHOUT_DESCRIPTION)]
     [InlineData(TestEnumWithDescription.WITH_DESCRIPTION)]
-    public void IsDefinedReturnsTrueForDefinedValue(TestEnumWithDescription value)
+    public static void IsDefinedReturnsTrueForDefinedValue(TestEnumWithDescription value)
     {
         bool firstResult = value.IsDefined();
         bool secondResult = value.IsDefined();

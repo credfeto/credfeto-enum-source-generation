@@ -17,7 +17,7 @@ public sealed class EnumGetDescriptionTests
     [InlineData(ExampleEnumValues.ZERO, nameof(ExampleEnumValues.ZERO))]
     [InlineData(ExampleEnumValues.ONE, "One \"1\"")]
     [InlineData(ExampleEnumValues.THREE, "Two but one better!")]
-    public void GetDescriptionReturnsExpected(ExampleEnumValues value, string expected)
+    public static void GetDescriptionReturnsExpected(ExampleEnumValues value, string expected)
     {
         Assert.Equal(expected: expected, actual: value.GetDescription());
     }
@@ -57,7 +57,7 @@ public sealed class EnumGetDescriptionTests
     [Theory]
     [InlineData(HttpStatusCode.OK, nameof(HttpStatusCode.OK))]
     [InlineData(HttpStatusCode.Accepted, nameof(HttpStatusCode.Accepted))]
-    public void GetDescriptionForExternalEnumReturnsName(HttpStatusCode value, string expected)
+    public static void GetDescriptionForExternalEnumReturnsName(HttpStatusCode value, string expected)
     {
         Assert.Equal(expected: expected, actual: value.GetDescription());
     }

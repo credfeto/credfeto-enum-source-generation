@@ -58,9 +58,9 @@
     <ProjectReference Include="..\Credfeto.Enumeration.Source.Generation.Generics\Credfeto.Enumeration.Source.Generation.Generics.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FunFair.Test.Common" Version="6.4.0.2617" />
-    <PackageReference Include="NSubstitute" Version="6.2.0" />
-    <PackageReference Include="xunit.v3.mtp-v2" Version="4.0.0" />
+    <PackageReference Include="FunFair.Test.Common" Version="6.4.0.2617" IncludeAssets="compile;runtime" />
+    <PackageReference Include="NSubstitute" Version="6.2.0" IncludeAssets="compile;runtime" />
+    <PackageReference Include="xunit.v3.aot.mtp-v2" Version="4.0.0" IncludeAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AsyncFixer" Version="2.1.0" PrivateAssets="All" ExcludeAssets="runtime" />

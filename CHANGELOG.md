@@ -13,6 +13,8 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 - Fixed a race condition where multiple concurrent compiles wrote to the same Roslyn analyzer SARIF output path, corrupting the JSON and failing the build
+- Fixed test project build failures (CS0433 duplicate types, CA1822) caused by the FunFair.Test.Common 6.4.0.2617 upgrade pulling in AOT xunit packages
+- Fixed missing IncludeAssets on several PackageReference entries flagged by a newer FunFair.BuildCheck rule
 ### Changed
 - Dependencies - Updated Microsoft.CodeAnalysis.Analyzers to 5.9.0
 - Dependencies - Updated Microsoft.CodeAnalysis.CSharp to 5.9.0

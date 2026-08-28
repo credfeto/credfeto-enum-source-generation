@@ -15,7 +15,7 @@ public sealed class IsDefinedTests
     [InlineData(ExampleEnumValues.ZERO)]
     [InlineData(ExampleEnumValues.ONE)]
     [InlineData(ExampleEnumValues.THREE)]
-    public void IsDefinedForKnownValueReturnsTrue(ExampleEnumValues value)
+    public static void IsDefinedForKnownValueReturnsTrue(ExampleEnumValues value)
     {
         Assert.True(value.IsDefined(), $"{value} should be a defined enum member");
     }
@@ -48,7 +48,7 @@ public sealed class IsDefinedTests
     [InlineData(HttpStatusCode.OK)]
     [InlineData(HttpStatusCode.Accepted)]
     [InlineData(HttpStatusCode.NotFound)]
-    public void IsDefinedForKnownHttpStatusCodeReturnsTrue(HttpStatusCode value)
+    public static void IsDefinedForKnownHttpStatusCodeReturnsTrue(HttpStatusCode value)
     {
         Assert.True(value.IsDefined(), $"HttpStatusCode.{value} should be defined");
     }

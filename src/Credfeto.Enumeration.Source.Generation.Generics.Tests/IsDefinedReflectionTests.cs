@@ -13,7 +13,7 @@ public sealed class IsDefinedReflectionTests
     [Theory]
     [InlineData(TestEnumWithDescription.WITHOUT_DESCRIPTION)]
     [InlineData(TestEnumWithDescription.WITH_DESCRIPTION)]
-    public void IsDefinedReflectionReturnsTrueForDefinedValue(TestEnumWithDescription value)
+    public static void IsDefinedReflectionReturnsTrueForDefinedValue(TestEnumWithDescription value)
     {
         Assert.True(value.IsDefinedReflection(), $"{value} should be a defined enum member");
     }
