@@ -28,3 +28,13 @@ If hooks or formatters modify files **not in your intended change set**:
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
 - Include the user's original prompt verbatim in the commit body, prefixed with `Prompt:` followed by a space, not in the title.
+
+### Pattern Sweep Commits
+
+A commit produced by the [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) rule must, in addition to the rules above:
+
+- Use the Conventional Commits type of the fix commit it derives from (the oldest, when it derives from several; `refactor` for a Phase A sweep of `/simplify` changes), with a title that states it is a sweep, e.g. `fix: apply null-guard fix to remaining call sites`.
+- Carry a `Construct: <one line naming the construct searched for>` line; this exact prefix is what later rounds search commit bodies for.
+- Reference every fix commit SHA it derives from and, where one exists, the review comment or finding.
+- List every file touched, one line per file, each stating why that site matches the original finding.
+- A fix commit that carries sweep hunks in files it already touches carries the same `Construct:` line and per-file lines; a fix commit whose sweep found nothing carries `Construct:` and `Swept: none`.
