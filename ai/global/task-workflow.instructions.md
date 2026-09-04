@@ -83,7 +83,7 @@ This is distinct from [PR Title, Body, and Label Sync](#pr-title-body-and-label-
 
 ## PR Lifecycle
 
-- Only one active branch or open PR per repository at a time; do not create another until the current one is merged and closed.
+- Only one active branch or open PR **per user** per repository at a time; do not create another until the current one is merged and closed.
 - **Before blocking new work** because of an existing PR: always verify its current state with `gh pr view <number> --repo <owner/repo> --json state,mergedAt`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
 - When adding work to an open PR (review comments, missing coverage, CI fixes), convert to draft first: `gh pr ready <number> --undo`. Keep it in draft until Code Tester and Code Reviewer are both satisfied; only PR Submitter converts it back.
 
