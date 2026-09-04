@@ -2,10 +2,11 @@
 
 <Project>
     <!-- Sarif -->
-    <PropertyGroup Condition="$(EnableSarif)=='True' And !$(MSBuildProjectName.EndsWith('.Tests'))">
-        <_SarifLogFile>$([MSBuild]::NormalizePath('$(SolutionDir)', '..', 'results', '$(MSBuildProjectName).$(TargetFramework).sarif'))</_SarifLogFile>
-        <ErrorLog>$(_SarifLogFile),version=2.1</ErrorLog>
-    </PropertyGroup>
+    <Target Name="_SetSarifErrorLog" BeforeTargets="CoreCompile" Condition="$(EnableSarif)=='True' And !$(MSBuildProjectName.EndsWith('.Tests'))">
+        <PropertyGroup>
+            <ErrorLog>$([MSBuild]::NormalizePath('$(SolutionDir)', '..', 'results', '$(MSBuildProjectName).$(TargetFramework).sarif')),version=2.1</ErrorLog>
+        </PropertyGroup>
+    </Target>
 
     <!-- Code analysis analyzer - report timings -->
     <PropertyGroup Condition="$(EnableSarif)=='True' And !$(MSBuildProjectName.EndsWith('.Tests'))">
