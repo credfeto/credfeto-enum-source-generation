@@ -318,6 +318,27 @@ If `FunFair.Test.Common` or `FunFair.Test.Infrastructure` provides a helper for 
   var item = Assert.Single(collection);
   ```
 
+- `Assert.NotNull(result)` returns the collect element; capture it if it is going to be used later in the test body:
+
+  ```csharp
+  // WRONG (Object)
+  Assert.NotNull(result);
+  Assert.Equals("Hello World", result.Name);
+
+  // CORRECT
+  var itemResult = AssertReallyNotNull(result);
+  Assert.Equals("Hello World", itemResult.Name);
+
+
+  // WRONG (Value Type)
+  Assert.NotNull(result);
+  Assert.Equals("Hello World", result.Value!.Name);
+
+  // CORRECT
+  var itemResult = AssertReallyNotNull(result);
+  Assert.Equals("Hello World", itemResult.Name);
+    ```
+
 ## DI Setup Test Patterns
 
 Use `AddMockedService<T>()` in tests deriving from `DependencyInjectionTestsBase`; see [dotnet.examples.md](dotnet.examples.md) for `AddMockedService` and `IOptions` patterns.
