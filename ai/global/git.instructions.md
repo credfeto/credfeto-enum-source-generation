@@ -12,12 +12,12 @@ If the environment is too broken to work in without first fixing infrastructure 
 
 ## Pre-Work Baseline Check (MANDATORY before starting any work)
 
-If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date **before** running the baseline hook below; see [When to Rebase](git-rebasing.instructions.md#when-to-rebase) for the fetch/check/rebase procedure.
+If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date **before** running the check below; see [When to Rebase](git-rebasing.instructions.md#when-to-rebase) for the fetch/check/rebase procedure. If that procedure performed a rebase, it already ran `pre-commit-check` as its final step — that satisfies this baseline gate too; do not run it again here.
 
-Then, before starting any work on an issue or PR, run the hook against every tracked file to verify the repo is clean. Resolve `<hooks-path>` using the same `core.hooksPath` scope lookup as [Pre-Commit Hook Verification](#pre-commit-hook-verification-mandatory-before-blocking) below:
+Otherwise (no rebase was needed, or you're starting a fresh branch from `main`), run this now, before starting any work on an issue or PR, to verify the repo is clean:
 
 ```bash
-<hooks-path>/pre-commit --all-files
+pre-commit-check
 ```
 
 Always run this check in the background — it is more likely than not to take a while to run, not an exception case to spot and handle specially. Backgrounding it does not mean walking away from it: you MUST then poll for its own completion and WAIT for it to actually finish, in this same turn/session, before doing anything else, including ending your turn. This is not optional and does not depend on how the check is invoked: see the mandatory [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory) rules for the poll-loop shape and the 30-minute deadline. Do **not** end your turn on the assumption that you will be automatically resumed once the check finishes — confirmed live incident: an automation whose invocations are fresh, single-phase, and never resumed backgrounded this exact check, ended its turn believing "a Monitor notification will wake me up," and repeated that identical mistake across six separate invocations over five and a half hours, because each new invocation started from zero with no memory of the wait and the backgrounded check itself was killed the instant the previous turn ended. If your own session genuinely is interactive and resumable, confirm that explicitly before treating "come back to this later" as safe — the default assumption, absent that confirmation, must be that it is not.
@@ -30,29 +30,20 @@ Always run this check in the background — it is more likely than not to take a
 
 This ensures CI results are unambiguous: pre-existing failures are resolved before any new changes are introduced.
 
-When picking up a **new issue** (branching fresh from `main`, not resuming an existing branch): once the baseline hook passes cleanly, check whether `COVERAGE.md` exists at the repo root.
+When picking up a **new issue** (branching fresh from `main`, not resuming an existing branch): once the baseline hook passes cleanly, check whether `COVERAGE.md` exists at the repo root. **A missing `COVERAGE.md` means the coverage ratchet has never been applied to this repo, not that it can be skipped.** If you are making changes, or have already made changes, to a repo without one, you **MUST** create it and then keep it maintained — this is not optional and does not depend on whether the requested work touches code coverage at all.
 
 - If it exists, nothing further is needed here: the AI Coverage phase reads it live from `origin/main` every time it runs (see [coverage-ratchet.instructions.md](coverage-ratchet.instructions.md)), so there is no per-branch capture step and nothing to refresh after a rebase.
-- If it does **not** exist, collect it now while still on `main` (run the [per-language extraction](coverage-ratchet.instructions.md#per-language-overall-coverage-extraction) procedure for each orchestrated language present), then create the work branch as normal and commit the resulting `COVERAGE.md` as its **first commit**, before starting the requested work. No separate branch or issue is needed for this, unlike the auto-fix case above: only one branch/PR is allowed open per repo at a time, so there is no concurrent-bootstrap race to isolate against. The AI Coverage phase overwrites the file again with the branch's live numbers when it runs later in this same PR (see its [bootstrap rule](coverage-ratchet.instructions.md#committed-coverage-file-mandatory)), so `COVERAGE.md` ends up with two commits over the branch's lifetime — expected, not a conflict.
+- If it does **not** exist, collect it now while still on `main` (run the [per-language extraction](coverage-ratchet.instructions.md#per-language-overall-coverage-extraction) procedure for each orchestrated language present), then create the work branch as normal and commit the resulting `COVERAGE.md` as its **first commit**, before starting the requested work. No separate branch or issue is needed for this, unlike the auto-fix case above: only one branch/PR is allowed open per repo at a time, so there is no concurrent-bootstrap race to isolate against. The AI Coverage phase overwrites the file again with the branch's live numbers when it runs later in this same PR (see its [bootstrap rule](coverage-ratchet.instructions.md#committed-coverage-file-mandatory)), so `COVERAGE.md` ends up with two commits over the branch's lifetime — expected, not a conflict. Do not treat this as a nice-to-have or defer it to a later PR: bootstrapping `COVERAGE.md` is a precondition of the work being tracked by the ratchet at all, and skipping it leaves the repo permanently ungated.
 
 ## Pre-Commit Hook Verification (MANDATORY before blocking)
 
-Never block work based on inspecting config files and deducing that a tool might be missing. Always verify by actually running the hook:
-
-1. Find the installed hooks path by checking `core.hooksPath` at each git config scope in order: the **first** scope where it is set is treated as sufficient; do not check the remaining scopes:
-   1. `git config --system --get core.hooksPath`
-   2. `git config --global --get core.hooksPath`
-   3. `git config --local --get core.hooksPath` (run inside the repo)
-   If none of the three scopes returns a value, the hook is **not installed**.
-2. Stage your changes.
-3. Run the pre-commit hook directly: `<hooks-path>/pre-commit`, using the path found in step 1.
-4. Only block if the hook **actually fails** with a real error.
+Never block work based on inspecting config files and deducing that a tool might be missing. Always verify empirically: stage your changes and run `git commit` as normal — the pre-commit hook runs automatically and aborts the commit cleanly if it fails, leaving your staged changes intact. Only block if that actually fails with a real error.
 
 Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context.
 
 ## Build and Test Verification (MANDATORY before any commit or push)
 
-Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask.
+Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask. For pre-commit-specific failures (including ones requiring a fix to pre-commit itself or a component tool), see [Fixing Pre-Commit Failures](code-quality.instructions.md#fixing-pre-commit-failures-mandatory) — new/unexpected failures there are your responsibility to fix, not a reason to stop.
 
 ## Pre-Commit Branch Check
 
@@ -101,7 +92,7 @@ Before any command that can discard uncommitted work (`git reset --hard`, `git c
 
 ## Avoid `git worktree`
 
-- Do not use `git worktree` to create additional working trees for a repo.
+- Do not use `git worktree` or the native `EnterWorktree` tool to create additional working trees for a repo.
 - Switch branches in the existing working directory (`git -C <dir> checkout <branch>` / `git -C <dir> switch <branch>`) instead.
 
 ## Branching
