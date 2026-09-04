@@ -24,7 +24,6 @@ inputs:
   docker-container-registry:
     description: 'AWS Elastic Container Registry'
     required: true
-    default: '117769150821.dkr.ecr.eu-west-1.amazonaws.com'
   container-source:
     description: 'Location of app container source'
     required: true
@@ -35,6 +34,12 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Check Required Secrets: docker-container-registry"
+      uses: ./.github/actions/check-required-secret
+      with:
+        secret-name: "docker-container-registry"
+        secret-value: ${{inputs.docker-container-registry}}
+
     - name: "Docker Trust Enable"
       shell: bash
       run: |
@@ -42,13 +47,18 @@ runs:
         echo "DOCKER_CONTENT_TRUST=1" >> "$GITHUB_ENV"
 
     - name: "Build and export docker container"
+      id: build-test
       uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
       with:
         context: ${{inputs.container-source}}
         load: true
         tags: ${{inputs.app-owner}}/${{inputs.app-name}}:test
-#        cache-from: type=gha
-#        cache-to: type=gha,mode=max
+        cache-from: type=local,src=${{runner.temp}}/.buildx-cache
+        cache-to: type=local,dest=${{runner.temp}}/.buildx-cache-new,mode=max
+
+    - name: "Move docker build cache (test)"
+      if: steps.build-test.outcome == 'success'
+      uses: ./.github/actions/move-docker-build-cache
 
     ## Run docker image tests
     - name: "Run docker image tests"
@@ -59,6 +69,7 @@ runs:
         github-token: ${{inputs.github-token}}
 
     - name: "Docker: Build with tags"
+      id: build-with-tags
       if: inputs.deploy == 'true'
       uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
       with:
@@ -68,10 +79,15 @@ runs:
         tags: |
           ${{inputs.docker-container-registry}}/${{inputs.app-owner}}/${{inputs.app-name}}:${{inputs.build-tag}}
           ${{inputs.docker-container-registry}}/${{inputs.app-owner}}/${{inputs.app-name}}:${{inputs.build-version}}
-#        cache-from: type=gha
-#        cache-to: type=gha,mode=max
+        cache-from: type=local,src=${{runner.temp}}/.buildx-cache
+        cache-to: type=local,dest=${{runner.temp}}/.buildx-cache-new,mode=max
         provenance: false
 
+    - name: "Move docker build cache (deploy)"
+      if: steps.build-with-tags.outcome == 'success'
+      uses: ./.github/actions/move-docker-build-cache
+
     - name: "Docker Trust Restore"
+      if: always()
       shell: bash
       run: echo "DOCKER_CONTENT_TRUST=${{env.DOCKER_CONTENT_TRUST_ORIGINAL}}" >> "$GITHUB_ENV"
