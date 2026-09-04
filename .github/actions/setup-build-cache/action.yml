@@ -4,9 +4,6 @@ name: "Setup Build Cache"
 description: "Configures nuget/npm cache env vars"
 
 inputs:
-  github-token:
-    description: "GitHub token for runner details logging"
-    required: true
   use-nuget-cache:
     description: "Whether to use nuget cache (true/false, or empty to disable)"
     required: false
@@ -44,14 +41,6 @@ runs:
         echo "USE_NUGET_CACHE=${use_cache}" >> "$GITHUB_ENV"
         echo "use-nuget-cache=${use_cache}" >> "$GITHUB_OUTPUT"
 
-    - name: "Check Runner details"
-      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-      with:
-        github-token: ${{inputs.github-token}}
-        script: |
-          core.info('Name: ${{runner.name}}');
-          core.info('OS: ${{runner.os}}');
-
     - name: "Enable Local nuget/npm feeds if caching"
       if: steps.cache-status.outputs.use-nuget-cache == 'true'
       shell: bash
@@ -65,6 +54,7 @@ runs:
           echo "NUGET_BAGET_CACHE=${NUGET_BAGET_CACHE}"
           echo "PRERELEASE_BAGET_CACHE=${PRERELEASE_BAGET_CACHE}"
           echo "RELEASE_BAGET_CACHE=${RELEASE_BAGET_CACHE}"
-          [[ -n "${NPM_CACHE}" ]] \
-                      && echo "NPM_REGISTRY=${NPM_CACHE}"
+          if [[ -n "${NPM_CACHE}" ]]; then
+            echo "NPM_REGISTRY=${NPM_CACHE}"
+          fi
         }>> "$GITHUB_ENV"
