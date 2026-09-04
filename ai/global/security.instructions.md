@@ -10,6 +10,7 @@
 - If accidentally committed, treat it as compromised immediately: rotate and purge from history.
 - Use environment variables, secrets managers, or platform vaults for all runtime secrets.
 - Refer to local AI instructions for the project-specific secrets management approach.
+- Never read or print secret-bearing files (`.env`, `.database`, `.claude/`) and write repo searches to exclude them; see [Exclude Secret-Bearing Files From Repo Searches](tool-preferences.instructions.md#exclude-secret-bearing-files-from-repo-searches-mandatory).
 
 ## Input Validation
 
