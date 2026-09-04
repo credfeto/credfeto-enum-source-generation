@@ -1,0 +1,32 @@
+--- # Fail if any prohibited files are tracked in the repo
+# Maintain in repo: funfair-server-template
+name: "Check No Prohibited Files"
+description: "Fails if any prohibited files are tracked in the repo"
+
+runs:
+  using: composite
+  steps:
+    - name: "Check for prohibited files"
+      shell: bash
+      run: |
+        patterns=(
+          '**/.deleteme.now'
+        )
+
+        found=0
+        for pattern in "${patterns[@]}"; do
+          matches=$(git ls-files --cached -- "${pattern}")
+          if [ -n "${matches}" ]; then
+            found=1
+            while IFS= read -r file; do
+              echo "::error file=${file}::Prohibited file found: ${file} (matches ${pattern})"
+            done <<< "${matches}"
+          fi
+        done
+
+        if [ "${found}" -eq 1 ]; then
+          echo "❌ Found prohibited file(s)."
+          exit 1
+        fi
+
+        echo "✅ No prohibited files found."
