@@ -21,6 +21,14 @@ Some methods open real network connections, file handles, or database sessions, 
 - Write unit tests before every commit; every new behaviour must have corresponding tests.
 - See [git.instructions.md](git.instructions.md) for mandatory build and test verification before committing.
 
+### Fixing Pre-Commit Failures (MANDATORY)
+
+Pre-commit and its component tools (e.g. `dotnet buildcheck`, analyzers, linters) are improved incrementally precisely by encountering and fixing the problems they surface. If pre-commit reports an error that was not present before the current work started — whether caused by your own edits or a component tool catching something pre-existing — fixing it is part of the current work, not a reason to stop.
+
+- Do not stop or escalate merely because the failure is unexpected, was not present originally, or requires changes outside the files you set out to edit, including the pre-commit configuration or a component tool's own rules/config.
+- Only stop and ask if the issue is genuinely fatal: pre-commit cannot possibly be made to pass (e.g. a required external tool is missing from the environment and cannot be installed, or the cause is infrastructure outside the repo's control).
+- This does not relax [Build and Test Verification](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push): the fix must be a genuine fix, not a suppression, skip, or exclusion, unless separately authorised.
+
 ## Dead Code
 
 - Remove unreachable code rather than writing tests around it.
@@ -59,10 +67,26 @@ When a mock setup expression (NSubstitute, Moq, or equivalent) is used in more t
 
 ## Incidental File Cleanup
 
-- If a file you are already working on has issues unrelated to your current change (e.g. unused imports/usings, unreachable branches, inconsistent formatting, stale comments), clean them up so the file is the best it can be, while keeping to existing project standards, not inventing new ones.
+- If a file you are already working on has issues unrelated to your current change (e.g. unused imports/usings, unreachable branches, inconsistent formatting, stale comments, duplicated code, code-analysis warnings, or suppressions of code-analysis warnings), clean them up so the file is the best it can be, while keeping to existing project standards, not inventing new ones.
+- Duplication is not limited to the file itself: if the file duplicates code found elsewhere in the repo, eliminate the duplication (e.g. extract to a shared location) as part of this cleanup.
+- Resolve code-analysis warnings in the file, including pre-existing ones unrelated to your change. Prefer removing an existing suppression by refactoring the underlying code over leaving the suppression in place. Do not add a new suppression as a way to close this out — adding one is prohibited without explicit written permission (see [Warning Suppression and Errors](dotnet.instructions.md#warning-suppression-and-errors) for the .NET-specific mechanics; the same fix-the-root-cause-don't-suppress principle applies in every language).
 - Commit this cleanup separately from the feature/fix change.
 - If there are multiple distinct fix types in the file (e.g. unused imports and stale comments), fix and commit them one type at a time: each fix type is its own commit, per file.
 - Tests must pass after every cleanup commit.
+
+## Pattern Sweep (MANDATORY)
+
+After fixing a bug, or accepting a finding from `/simplify`, `/code-review`, `/security-review`, or a human PR review comment, search the entire repository for other occurrences of the same construct before moving on. A fix applied to one site while the same construct survives elsewhere is an incomplete fix.
+
+- Search for the construct, not the symptom: the same API misuse, boundary condition, missing guard, duplicated helper, or insecure call. Use whatever search fits the construct (identifier, call shape, regular expression).
+- Before fixing a round's findings, group them by construct; each group gets one fix commit and one sweep. One sweep, and one sweep commit, per construct, not per finding or per occurrence: when several findings report the same construct at different sites, one sweep covers them all. Skip the sweep if a commit already in this PR carries a `Construct:` line for the same construct and no later commit reintroduced it; a site a later review round deliberately reverted is not reintroduced.
+- Sweep in the working tree before handing off for build/test verification, so one run covers both the fix and the sweep; then commit fix first, sweep second, in the same PR. Anything a fix-touched file depends on is part of the fix, not the sweep, and the committing role builds once between the two commits so the fix commit stands on its own. Exception: Phase A of the [PR review loop](agent-roles.instructions.md#pr-workflow-ai-review-loop) sweeps once after `/simplify` converges rather than after each round.
+- The sweep record handed to a committing role is: a `Construct:` line naming the construct searched for, the finding or comment reference, and one line per file the sweep touched with why that site matches, each marked sweep-only or fix-touched (or `Swept: none` when nothing was found). The producing role appends it to its hand-off report, and every intermediate role (Code Tester, Code Reviewer, Changelog) carries it in its own report unchanged. Staging is by whole file: sweep-only files form the sweep commit; sweep hunks and covering tests in files the fix touches go into the fix commit and are listed in its body with the same rationale. When the origin commits are already pushed (a Phase A sweep), every hunk goes into the sweep commit.
+- A sweep commit changes only the matching sites and the tests that cover them. Files touched only by the sweep are exempt from [Incidental File Cleanup](#incidental-file-cleanup) (a file the fix also touches follows it as normal); raise a GitHub issue for anything else noticed there, as for pre-existing [deprecation warnings](#deprecation-warnings-during-tests).
+- A sweep that would touch more than 25 files is not applied silently: post the site list on the PR, add `Blocked`, and wait for a human decision on whether it belongs in this PR or a follow-up issue. This gate applies in every phase, including Phase A, and is the one reason Phase A may add `Blocked`.
+- Commit body: see [Pattern Sweep Commits](git-commits.instructions.md#pattern-sweep-commits). Review-comment reply: see [Comment Replies](agent-roles.instructions.md#comment-replies-mandatory). When every hit is in a file the fix touches, there is no sweep commit: the fix commit body carries the `Construct:` line and per-file rationale, and the reply cites the fix SHA.
+- If the sweep finds nothing, the fix commit body carries the `Construct:` line and `Swept: none`; no sweep commit or extra comment is needed. A Phase A no-hit sweep has no fix commit of its own, so it is recorded in Phase A's status comment on the PR instead.
+- A sweep hit that the build-time static analyser stack already enforces differently is left as-is, on the same principle as [Conflict Resolution](agent-roles.instructions.md#conflict-resolution-simplifycode-review-vs-static-analyzer).
 
 ## Compile-Time Configuration
 
