@@ -12,6 +12,16 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 ### Fixed
+### Changed
+### Deprecated
+### Removed
+### Deployment Changes
+
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+## [1.2.153] - 2026-09-05
+### Fixed
 - Fixed a race condition where multiple concurrent compiles wrote to the same Roslyn analyzer SARIF output path, corrupting the JSON and failing the build
 - Fixed test project build failures (CS0433 duplicate types, CA1822) caused by the FunFair.Test.Common 6.4.0.2617 upgrade pulling in AOT xunit packages
 - Fixed missing IncludeAssets on several PackageReference entries flagged by a newer FunFair.BuildCheck rule
@@ -29,13 +39,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.33.0.1635
 - Dependencies - Updated FunFair.Test.Source.Generator to 6.4.0.2617
 - Dependencies - Updated FunFair.Test to 6.4.0.2617
-### Deprecated
-### Removed
-### Deployment Changes
-
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
 
 ## [1.2.152] - 2026-08-20
 ### Changed
