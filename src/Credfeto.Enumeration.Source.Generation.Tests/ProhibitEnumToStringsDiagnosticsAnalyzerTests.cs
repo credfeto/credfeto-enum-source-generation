@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FunFair.Test.Common;
@@ -15,9 +15,9 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : TestBase
     {
         CSharpCompilation compilation = CompilationHelpers.CreateCompilation(source);
 
-        CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers(
-            [new ProhibitEnumToStringsDiagnosticsAnalyzer()]
-        );
+        CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers([
+            new ProhibitEnumToStringsDiagnosticsAnalyzer(),
+        ]);
 
         return await compilationWithAnalyzers.GetAllDiagnosticsAsync(System.Threading.CancellationToken.None);
     }
@@ -173,9 +173,9 @@ public sealed class ProhibitEnumToStringsDiagnosticsAnalyzerTests : TestBase
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true)
         );
 
-        CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers(
-            [new ProhibitEnumToStringsDiagnosticsAnalyzer()]
-        );
+        CompilationWithAnalyzers compilationWithAnalyzers = compilation.WithAnalyzers([
+            new ProhibitEnumToStringsDiagnosticsAnalyzer(),
+        ]);
         IReadOnlyCollection<Diagnostic> diagnostics = await compilationWithAnalyzers.GetAllDiagnosticsAsync(
             System.Threading.CancellationToken.None
         );
