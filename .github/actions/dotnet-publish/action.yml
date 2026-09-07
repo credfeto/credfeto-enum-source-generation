@@ -66,8 +66,7 @@ runs:
                   "-p:TreatWarningsAsErrors=True" \
                   "-p:Version=${{inputs.build-version}}" \
                   "-p:ContinuousIntegrationBuild=true" \
-                  --output ${{github.workspace}}/server-dist/${{inputs.platform}} \
-                  ${{env.DOTNET_RELEASE_DEFINES}}
+                  --output "${{github.workspace}}/server-dist/${{inputs.platform}}"
       env:
         ReleaseNotes: ${{inputs.release-notes}}
 
