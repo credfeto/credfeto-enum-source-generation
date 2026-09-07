@@ -72,18 +72,6 @@ runs:
     # DOTNET BUILD
     ############################################################################################################
 
-    - name: "Dotnet: Define Master build settings"
-      if: inputs.release == 'false'
-      working-directory: ${{github.workspace}}/src
-      shell: bash
-      run: echo "DOTNET_RELEASE_DEFINES=-p:IsProduction=false" >> "$GITHUB_ENV"
-
-    - name: "Dotnet: Define Release build settings"
-      if: inputs.release == 'true'
-      working-directory: ${{github.workspace}}/src
-      shell: bash
-      run: echo "DOTNET_RELEASE_DEFINES=-p:IsProduction=True" >> "$GITHUB_ENV"
-
     - name: "Dotnet: Run build check"
       if: (!endsWith(github.repository, 'funfair-dotnet-build-check')) && (!endsWith(github.repository, '-template'))
       uses: ./.github/actions/dotnet-build-check
@@ -132,8 +120,7 @@ runs:
                   "-p:NoWarn=MSB4241" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
                   "-p:Version=${{inputs.build-version}}" \
-                  -nodeReuse:False \
-                  ${{env.DOTNET_RELEASE_DEFINES}}
+                  -nodeReuse:False
       env:
         ReleaseNotes: ${{inputs.release-notes}}
 
