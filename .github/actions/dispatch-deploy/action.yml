@@ -62,12 +62,18 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         script: |
-          github.rest.git.createRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: `refs/tags/${process.env.DOCKER_APP_NAME}/v${process.env.BUILD_VERSION}`,
-            sha: context.sha
-          })
+          const tag = `${process.env.DOCKER_APP_NAME}/v${process.env.BUILD_VERSION}`;
+          try {
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${tag}`,
+              sha: context.sha
+            });
+          } catch (e) {
+            if (e.status !== 422) throw e;
+            core.info(`* Tag ${tag} already exists - skipping`);
+          }
 
     - name: "Trigger Deployment Workflow"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
