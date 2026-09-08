@@ -290,6 +290,17 @@ runs:
       with:
         github-token: ${{inputs.github-token}}
 
+    - name: "Find Pull Request for branch"
+      id: find_pull_request
+      if: steps.check_files.outputs.DOTNET_EXIST == 'true'
+      # A lookup failure (transient API error, missing pull-requests permission in a
+      # not-yet-synced consuming repo) must degrade to a non-pre-release build, not fail the build.
+      continue-on-error: true
+      uses: ./.github/actions/find-pull-request
+      with:
+        branch: ${{github.head_ref || github.ref_name}}
+        github-token: ${{inputs.github-token}}
+
     - name: "Deploy check - Default"
       shell: bash
       run: |
@@ -352,6 +363,7 @@ runs:
         production-build: ${{inputs.production-build}}
         build-version: ${{env.BUILD_VERSION}}
         release: ${{env.RELEASE}}
+        pre-release-build: ${{steps.find_pull_request.outputs.pre-release-build || 'false'}}
         build-sql: ${{steps.check_files.outputs.SQL_EXIST}}
         db-folder: ${{github.workspace}}/db
         nuget-pack: ${{inputs.nuget-pack}}
@@ -388,6 +400,8 @@ runs:
       with:
         title: "Roslyn analyzer findings"
         glob: "DotNet.sarif"
+        pr-number: ${{steps.find_pull_request.outputs.number}}
+        pr-lookup-done: ${{steps.find_pull_request.outcome != 'skipped'}}
         github-token: ${{inputs.github-token}}
 
     ############################################################################################################
