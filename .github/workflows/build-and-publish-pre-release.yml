@@ -7,6 +7,10 @@ on:
     branches-ignore:
       - 'release/*'
       - 'hotfix/*'
+  pull_request:
+    types: [ready_for_review]
+    branches:
+      - main
 
 # Don't cancel anything in progress
 concurrency:
@@ -64,6 +68,7 @@ jobs:
       - name: "Checkout Source"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref}}
           clean: true
           fetch-depth: 0
           fetch-tags: true
