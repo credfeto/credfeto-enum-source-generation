@@ -4,8 +4,8 @@ name: 'Dotnet Build Check'
 description: 'Dotnet Build Check'
 inputs:
   # GENERAL
-  release:
-    description: 'Is this a release build'
+  pre-release-build:
+    description: 'Whether pre-release NuGet packages are allowed'
     required: true
 
 runs:
@@ -28,9 +28,17 @@ runs:
         echo "Found: $SOLUTION"
         echo "SOLUTION=$SOLUTION" >> "$GITHUB_OUTPUT"
 
+    - name: "Dotnet: No solution found"
+      if: steps.find_solution.outputs.SOLUTION == ''
+      shell: bash
+      run: echo "::warning::No .sln or .slnx file found under src - skipping build check"
+
     - name: "Dotnet: Run build check"
+      if: steps.find_solution.outputs.SOLUTION != ''
       uses: ./.github/actions/dotnet-tool-run
       with:
         working-directory: "${{github.workspace}}/src"
         tool-name: "buildcheck"
-        tool-arguments: "-Solution \"${{steps.find_solution.outputs.SOLUTION}}\" -WarningAsErrors true -PreReleaseBuild false"
+        tool-arguments: >-
+          -Solution "${{steps.find_solution.outputs.SOLUTION}}" -WarningAsErrors true
+          -PreReleaseBuild ${{inputs.pre-release-build}}
