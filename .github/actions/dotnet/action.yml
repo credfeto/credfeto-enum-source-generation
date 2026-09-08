@@ -43,6 +43,10 @@ inputs:
     description: 'Is this a release build'
     required: true
 
+  pre-release-build:
+    description: 'Whether pre-release NuGet packages are allowed'
+    required: true
+
   release-notes:
     description: 'Release notes'
     required: false
@@ -76,7 +80,7 @@ runs:
       if: (!endsWith(github.repository, 'funfair-dotnet-build-check')) && (!endsWith(github.repository, '-template'))
       uses: ./.github/actions/dotnet-build-check
       with:
-        release: ${{inputs.release}}
+        pre-release-build: ${{inputs.pre-release-build}}
 
     - name: "Dotnet: Override code analysis rules"
       if: "!endsWith(github.repository, '-template')"
