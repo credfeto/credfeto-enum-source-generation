@@ -20,6 +20,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated xunit.analyzers to 2.1.0
 - Dependencies - Updated xunit.v3 to 4.0.1
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.138.1557
+- Dependencies - Updated FunFair.Test.Source.Generator to 6.4.6.2749
 ### Deprecated
 ### Removed
 ### Deployment Changes
