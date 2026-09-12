@@ -17,6 +17,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 3.0.253
 - Dependencies - Updated Nullable.Extended.Analyzer to 1.16.6891
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.34.0.3385
+- Dependencies - Updated FunFair.Test to 6.4.6.2749
 ### Deprecated
 ### Removed
 ### Deployment Changes

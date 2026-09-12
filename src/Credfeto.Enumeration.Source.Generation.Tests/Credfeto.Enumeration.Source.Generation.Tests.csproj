@@ -79,7 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Credfeto.SourceGeneration.Helpers" Version="0.0.3.206" IncludeAssets="compile;runtime" />
-    <PackageReference Include="FunFair.Test.Common" Version="6.4.0.2617" IncludeAssets="compile;runtime" />
+    <PackageReference Include="FunFair.Test.Common" Version="6.4.6.2749" IncludeAssets="compile;runtime" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" IncludeAssets="compile;runtime;build;buildTransitive" />
     <PackageReference Include="NSubstitute" Version="6.2.0" IncludeAssets="compile;runtime" />
     <PackageReference Include="xunit.v3.aot.mtp-v2" Version="4.0.0" IncludeAssets="all" />
