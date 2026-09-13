@@ -12,6 +12,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Security
 ### Added
 ### Fixed
+- Added AOT test dispatchers to ClassEnumGenerationTests and EnumGenerationTests required by the updated FunFair.Test.Source.Generator analyzer
 ### Changed
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.137.1543
 - Dependencies - Updated Meziantou.Analyzer to 3.0.253
@@ -26,6 +27,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+
 ## [1.2.154] - 2026-09-09
 ### Changed
 - SDK - Updated DotNet SDK to 10.0.401
