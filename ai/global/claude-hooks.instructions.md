@@ -35,6 +35,17 @@ one by one. The most common case is a command that must satisfy both a git-invoc
 and a must-be-backgrounded hook at once: `git -C <dir> commit -m "..."` invoked with
 `run_in_background: true` set on that same tool call.
 
+Different denials on similar-looking commands usually come from **different** hooks with
+**different** fixes; do not average them into one general theory (e.g. "backgrounding is broken").
+Read the exact hook name and message each time. Confirmed in practice
+(`credfeto/credfeto-notification-bot#280`): a plain `dotnet test` without `run_in_background: true`
+was blocked by `enforce-background-for-long-running-commands` ("must run with `run_in_background:
+true`"), while a later attempt that added both `run_in_background: true` *and* a `timeout N` shell
+wrapper around the same command was blocked by `reject-obfuscated-commands` instead (`timeout` is
+categorically blocklisted, see below) — a wrapper-command rejection, unrelated to backgrounding.
+The agent reported these as one contradiction ("no flag combination satisfies both"); they were two
+independent, correctly-working checks.
+
 ## Prefer the Tool's Own Backgrounding Parameter (MANDATORY)
 
 Use the tool's own `run_in_background: true` parameter, never shell-level backgrounding (`&`,
@@ -51,7 +62,7 @@ this file was written:
 | --- | --- | --- |
 | `reject-obfuscated-commands` | Any Bash command not built from plain, obviously-spelled command words (indirect execution, sub-shells, wrapper-flag smuggling) | Text/regex scanning for banned patterns is an arms race that never converges against a determined bypass attempt; this hook parses with a real shell parser and applies policy to the resulting AST instead. Reads `command-allowlist`, `command-blocklist`, and `env-var-blocklist` as its data tables. |
 | `command-allowlist` (data file, not a hook) | N/A | Known-good command names for `reject-obfuscated-commands`; a command not on this list (and not on `command-blocklist`, which wins) is rejected outright. |
-| `command-blocklist` (data file, not a hook) | N/A | Known-bad command names for `reject-obfuscated-commands` (e.g. `eval`, `source`, `bash`) that are rejected even though they are plain bare words, because each one hides or re-enters execution in a way this check cannot see through. |
+| `command-blocklist` (data file, not a hook) | N/A | Known-bad command names for `reject-obfuscated-commands` (e.g. `eval`, `source`, `bash`, and wrapper commands including `timeout` and `xargs`) that are rejected even though they are plain bare words, because each one hides or re-enters execution in a way this check cannot see through, or (for the wrapper commands) can smuggle another command past name-based checks. This is why a shell `timeout` wrapper around `dotnet test`/`dotnet build`/`git commit` is always rejected, `run_in_background: true` or not — see [Never Truncate Test/Commit Commands](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory). |
 | `env-var-blocklist` (data file, not a hook) | N/A | Environment variables (`PATH`, `IFS`, `LD_PRELOAD`, `GIT_*`, and similar) that `reject-obfuscated-commands` refuses to let a command assign, because they change how *other* commands are located, parsed, or attributed. |
 | `enforce-git-dash-c` | Any git subcommand not written as `git -C <dir> <command>` | See [Running Git Commands in a Specific Directory](git.instructions.md#running-git-commands-in-a-specific-directory). |
 | `enforce-git-identity` | Git subcommands that create or rewrite commits (or precede one, like `fetch`) unless git identity and GPG signing are correctly configured | Prevents an unsigned or misattributed commit from being created at all, rather than relying on review to catch it afterwards. |
