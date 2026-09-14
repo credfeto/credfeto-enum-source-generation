@@ -28,6 +28,7 @@ Pre-commit and its component tools (e.g. `dotnet buildcheck`, analyzers, linters
 - Do not stop or escalate merely because the failure is unexpected, was not present originally, or requires changes outside the files you set out to edit, including the pre-commit configuration or a component tool's own rules/config.
 - Only stop and ask if the issue is genuinely fatal: pre-commit cannot possibly be made to pass (e.g. a required external tool is missing from the environment and cannot be installed, or the cause is infrastructure outside the repo's control).
 - This does not relax [Build and Test Verification](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push): the fix must be a genuine fix, not a suppression, skip, or exclusion, unless separately authorised.
+- If a component tool's fix is a package change (adding, changing, or removing a package reference), follow [Conflict Resolution: Pre-Commit/Component-Tool-Mandated Package Changes](packages.instructions.md#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory) instead of automatically treating it as a new package request requiring approval-and-wait; that section still falls back to approval-and-wait if its own security review finds a genuine blocker.
 
 ## Dead Code
 
