@@ -102,6 +102,14 @@ This is distinct from [PR Title, Body, and Label Sync](#pr-title-body-and-label-
 
 (Background: `credfeto/credfeto-orchestrator#1262` — an agent session silently edited its own issue body ten minutes after posting it to fix a wrong claim; the fix was accurate and nothing was destroyed since GitHub retains full edit history, but the silent edit alone made it look, at a glance, like evidence had been suppressed.)
 
+## Pre-Closure Decision Check (MANDATORY)
+
+Before closing any issue or PR, check whether its Implementation Plan (Approach/Files-to-change text or an Open Question) or a later comment on it flagged a specific decision as required or pending (e.g. "needs policy sign-off", "pending a decision on X", an unresolved `Qn.`). If so, do not close until that specific item has a visible resolution of its own — a comment recording the decision, a link to the resolving issue/PR, or an explicit retraction — not just implicitly overtaken by whichever branch of the plan got implemented.
+
+This is stricter than an unresolved `Qn.` alone: an Open Question already blocks via the Blocked-label approval gate ([Issue Workflow: Plan First](agent-roles.instructions.md#issue-workflow-plan-first-new-issues-only)), and removal of that label is not itself sufficient evidence this check is satisfied — the check here is that the resolution was actually posted, not merely that the item is otherwise ready to close. Applies equally to issues and PRs, including the closing points in [PR Workflow: AI Review Loop Phase E](agent-roles.instructions.md#phase-e-mark-ready) and [Large Multi-Handler / Multi-App Tasks P5](#large-multi-handler--multi-app-tasks).
+
+(Background: `funfair-server-template#857`'s plan flagged `anchore/*` as needing "conversion or policy sign-off"; the commit that closed it went straight to conversion with no recorded sign-off anywhere — see `credfeto/cs-template#1079`.)
+
 ## PR Lifecycle
 
 - Only one active branch or open PR **per user** per repository at a time; do not create another until the current one is merged and closed.
