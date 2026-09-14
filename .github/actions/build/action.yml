@@ -161,6 +161,11 @@ runs:
       uses: ./.github/actions/check-repo-visibility
       id: visibility
 
+    - name: "Determine Repo Visibility Label"
+      id: repo-visibility
+      shell: bash
+      run: echo "value=${{steps.visibility.outputs.is_public == 'true' && 'public' || 'private'}}" >> "$GITHUB_OUTPUT"
+
     - name: "Parameter Summary"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
@@ -461,7 +466,6 @@ runs:
       uses: ./.github/actions/docker-build-to-registry
       with:
         deploy: ${{env.DEPLOY}}
-        github-token: ${{inputs.github-token}}
         build-version: ${{env.BUILD_VERSION}}
         build-tag: ${{inputs.build-tag}}
         app-owner: ${{inputs.docker-app-owner}}
@@ -549,6 +553,8 @@ runs:
     - name: "Software Bill of materials"
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
       uses: ./.github/actions/sbom
+      with:
+        repo-visibility: ${{steps.repo-visibility.outputs.value}}
 
     ############################################################################################################
     # Upload Sarif files to GitHub
@@ -556,4 +562,4 @@ runs:
     - name: "Upload SARIF file for diagnostics"
       uses: ./.github/actions/sarif
       with:
-        repo-visibility: ${{steps.visibility.outputs.is_public == 'true' && 'public' || 'private'}}
+        repo-visibility: ${{steps.repo-visibility.outputs.value}}
