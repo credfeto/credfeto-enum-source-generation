@@ -10,19 +10,19 @@
 
 ### Required Sections (in this order)
 
-1. **Title and one-line description**: state what the project does, not just what it is named.
-2. **Badges**: see [Badge Guidelines](#badge-guidelines) below.
-3. **Overview**: 2–3 sentences explaining the purpose and key features.
-4. **Quick Start / Simple Example**: the minimal copy-paste snippet that gets something working; no preamble.
-5. **Installation**: e.g. `dotnet add package <Name>` or the NuGet Package Manager command.
-6. **Usage / Examples**: one or two brief, self-contained examples; link to `docs/` for more complex ones.
-7. **Documentation**: link to the `docs/` folder and any generated API documentation (e.g. DocFX, Doxygen, GitHub Pages).
-8. **Changelog**: link to `CHANGELOG.md`.
-9. **Contributing**: link to `CONTRIBUTING.md`.
-10. **Security**: link to `SECURITY.md`.
-11. **Licence**: link to `LICENSE`.
-12. **Contributors**: all-contributors section; see the [Contributors section](#contributors) below for when to include it.
-13. **Reference links**: all image and URL references used by badges and links, collected at the very bottom of the file, sorted alphabetically by label.
+- **P1.** **Title and one-line description**: state what the project does, not just what it is named.
+- **P2.** **Badges**: see [Badge Guidelines](#badge-guidelines) below.
+- **P3.** **Overview**: 2–3 sentences explaining the purpose and key features.
+- **P4.** **Quick Start / Simple Example**: the minimal copy-paste snippet that gets something working; no preamble.
+- **P5.** **Installation**: e.g. `dotnet add package <Name>` or the NuGet Package Manager command.
+- **P6.** **Usage / Examples**: one or two brief, self-contained examples; link to `docs/` for more complex ones.
+- **P7.** **Documentation**: link to the `docs/` folder and any generated API documentation (e.g. DocFX, Doxygen, GitHub Pages).
+- **P8.** **Changelog**: link to `CHANGELOG.md`.
+- **P9.** **Contributing**: link to `CONTRIBUTING.md`.
+- **P10.** **Security**: link to `SECURITY.md`.
+- **P11.** **Licence**: link to `LICENSE`.
+- **P12.** **Contributors**: all-contributors section; see the [Contributors section](#contributors) below for when to include it.
+- **P13.** **Reference links**: all image and URL references used by badges and links, collected at the very bottom of the file, sorted alphabetically by label.
 
 Omit any section that does not apply (e.g. no Installation section for a library with no NuGet package), but never invent placeholder sections.
 
