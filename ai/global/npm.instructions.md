@@ -4,7 +4,7 @@
 
 [Back to Global Instructions Index](index.md)
 
-- Adding any new npm package requires explicit human approval after a full security review; see [packages.instructions.md](packages.instructions.md#third-party-packages-require-human-approval-mandatory).
+- Adding any new npm package requires explicit human approval after a full security review; see [packages.instructions.md](packages.instructions.md#third-party-packages-require-human-approval-mandatory). Exception: a package a pre-commit component tool's own output (e.g. `npm audit`) demands as the specific fix for its failure; see [Conflict Resolution](packages.instructions.md#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory).
 
 ## Fixed Package Versions
 
