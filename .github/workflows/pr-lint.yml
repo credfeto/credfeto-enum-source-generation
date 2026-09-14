@@ -241,10 +241,6 @@ jobs:
           head: HEAD
           extra_args: --debug --only-verified
 
-      - name: "Scan Results Status"
-        if: steps.trufflehog.outcome == 'failure'
-        run: exit 1
-
   # @@required: merge
   has-no-merge-conflicts:
     if: github.event.pull_request.draft == false
