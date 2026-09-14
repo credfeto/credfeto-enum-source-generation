@@ -56,9 +56,11 @@ Do not replace these; specialised tooling required:
 - **Docker toolchain**: `docker/build-push-action`, `docker/login-action`, `docker/setup-buildx-action`, `docker/setup-qemu-action`
 - **AWS credential management**: `aws-actions/configure-aws-credentials`
 - **Git operations** (rebase, auto-commit): `stefanzweifel/git-auto-commit-action`, `bbeesley/gha-auto-dependabot-rebase`
-- **Security scanning**: `trufflesecurity/trufflehog`, `aquasecurity/trivy-action`
+- **Security scanning**: `trufflesecurity/trufflehog`, `aquasecurity/trivy-action`, `anchore/sbom-action`
 - **Multi-language linting**: `super-linter/super-linter`
 - **Complex config-driven label sync**: `crazy-max/ghaction-github-labeler`
+
+`anchore/sbom-action` is allowlisted as the specialised tooling for Syft-based SBOM generation: verified publisher (Anchore, Inc.), actively maintained, and the canonical purpose-built SBOM tool. A hand-rolled `curl`-based Syft binary install, used as a substitute in its absence rather than genuinely required specialised tooling, already caused a transient CI failure with no retry logic ([credfeto/cs-template#1079](https://github.com/credfeto/cs-template/issues/1079)). `anchore/scan-action` (Grype-based vulnerability scanning) is deliberately **not** allowlisted: it duplicates `aquasecurity/trivy-action`'s already-allowlisted vulnerability-scanning role, with no demonstrated need for a second scanner or Grype's separate vulnerability feed; revisit if a concrete need emerges.
 
 ## Version Pinning
 
