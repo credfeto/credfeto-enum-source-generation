@@ -74,7 +74,7 @@ After all code changes are pushed and all required CI checks pass, **before** en
 #### Phase A: Simplify (up to `MAX_SIMPLIFY_ITERATIONS` rounds)
 
 - **P1.** Update Workflow board to **AI Simplify** (if board data is present in your CLAUDE.md).
-- **P2.** Run: `/simplify` against the diff. It applies reuse, simplification, efficiency, and altitude cleanups directly rather than just reporting them.
+- **P2.** Run: `/simplify` against the diff. It applies reuse, simplification, efficiency, and altitude cleanups directly rather than just reporting them. Also apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the modified files.
 - **P3.** If `/simplify` changed any files: run Changelog (correction) against the resulting diff; commit the code changes and, if the entry changed, `CHANGELOG.md` as a separate commit; push; then return to P2 to re-run against the resulting diff.
 - **P4.** Once `/simplify` makes no further changes: run the [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) for each construct in the net Phase A diff (the commits since P1), not per round, because rounds may revert each other and each sweep would widen the next round's diff. A change with no repeatable construct (a local rename or restructuring) has nothing to sweep. If the sweep changed files: commit, changelog-correct and push as in P3, then proceed to Phase B instead of returning to P2 (Phase B re-covers the swept code).
 - **P5.** `/simplify` has its own iteration budget, separate from Phase B/C/D's own budgets below, because it is expected to run more rounds and give up without blocking:
@@ -86,7 +86,7 @@ After all code changes are pushed and all required CI checks pass, **before** en
 #### Phase B: Code review (up to `MAX_CODE_REVIEW_ITERATIONS` rounds)
 
 - **P1.** Update Workflow board to **AI Review** (if board data is present in your CLAUDE.md).
-- **P2.** Run: `/code-review --comment`. This intentionally re-covers the reuse/simplification/efficiency categories Phase A's `/simplify` already applied: `/simplify` fixes silently, and this step verifies nothing was missed and separately checks correctness, which `/simplify` does not (security and compliance are not covered by either command; they remain Phase C's job). Expect P2 to usually find nothing in the reuse/simplification/efficiency categories Phase A already handled.
+- **P2.** Run: `/code-review --comment`. This intentionally re-covers the reuse/simplification/efficiency categories Phase A's `/simplify` already applied: `/simplify` fixes silently, and this step verifies nothing was missed and separately checks correctness, which `/simplify` does not (security and compliance are not covered by either command; they remain Phase C's job). Expect P2 to usually find nothing in the reuse/simplification/efficiency categories Phase A already handled. Also apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the modified files.
 - **P3.** If NO findings were posted: proceed to Phase C.
 - **P4.** <a id="phase-b-convergence"></a>Otherwise, judge convergence yourself from the PR's history of prior code-review comments: are this round's findings substantively new/distinct, or substantially a repeat of findings already reported (and left unresolved, or fixed and now recurring) in an earlier round? `MIN_REVIEW_CONVERGENCE_ROUNDS` must be set below `MAX_CODE_REVIEW_ITERATIONS`; otherwise the round-cap bullet below always fires first and the non-blocking exit can never trigger.
   - If `MAX_CODE_REVIEW_ITERATIONS` rounds have already run (judged from the PR's history of code-review comments) and findings remain, whether or not this round's findings are themselves new: post a PR comment listing the unresolved findings, add `Blocked` label, and **STOP**:
@@ -105,7 +105,7 @@ If a change proposed by `/simplify` (Phase A) or a finding raised by `/code-revi
 #### Phase C: Security review (up to `MAX_SECURITY_REVIEW_ITERATIONS` rounds)
 
 - **P1.** Update Workflow board to **AI Security Review** (if board data present).
-- **P2.** Run: `/security-review`
+- **P2.** Run: `/security-review`. Also apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the modified files.
 - **P3.** If NO findings are reported: proceed to Phase D.
 - **P4.** <a id="phase-c-convergence"></a>This mirrors Phase B's [P4](#phase-b-convergence) exactly (substituting security-review for code-review); keep both in sync when editing either. Judge convergence yourself from the PR's history of prior security-review comments: are this round's findings substantively new/distinct, or substantially a repeat of findings already reported (and left unresolved, or fixed and now recurring) in an earlier round? `MIN_REVIEW_CONVERGENCE_ROUNDS` must be set below `MAX_SECURITY_REVIEW_ITERATIONS`; otherwise the round-cap bullet below always fires first and the non-blocking exit can never trigger.
   - If `MAX_SECURITY_REVIEW_ITERATIONS` rounds have already run (judged from the PR's history of security-review comments) and findings remain, whether or not this round's findings are themselves new: post a PR comment listing the unresolved findings, add `Blocked` label, **STOP**.
@@ -332,12 +332,14 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Implement the GitHub issue: read all relevant instruction files, write production code and tests.
 - If implementation requires knowledge outside the instruction files (unfamiliar API, complex library usage, etc.), invoke Coding Researcher first; do not guess or fabricate. If Coding Researcher returns **Not possible**, stop, do not partially implement, and escalate to Orchestrator with the explanation and any suggested alternative.
 - After fixing a bug, run the [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) and append its sweep record to the hand-off report.
+- Apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the files written or changed.
 - Do not commit, push, or update the changelog; hand off to Code Tester when done.
 
 ## Code Tester
 
 - Run build and all tests after Code Writer or Code Fixer finishes.
 - Check coverage against `git diff origin/main...HEAD`.
+- Apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the changed files.
 - On build failure, test failure, or uncovered code: report file paths/line ranges to the calling agent; stop, do not proceed.
 - Loop with Code Writer until build passes, all tests pass, and all new/changed code is covered.
 - Carry any sweep record in the incoming hand-off through to the outgoing report unchanged.
@@ -346,6 +348,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 ## Code Reviewer
 
 - Run `git diff origin/main...HEAD`.
+- Apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the changed files.
 - Launch all the sub-agents **in parallel**: Reuse, Quality, Efficiency, Correctness, Security, Compliance.
 - Each sub-agent reports `{"clean": true}` or `{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}`.
 - Fix each construct (real findings grouped by construct) as its own change set, with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) handed over as for Code Writer; skip false positives. Re-run Code Tester after fixes. The outgoing report carries every sweep record, incoming and own, unchanged.
@@ -466,7 +469,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
   - All `*.sql` files as a single separate group, regardless of location.
   - All `.ai-instructions` and `ai/**` instruction files as a single separate group.
   - Remaining files (shell scripts, GitHub workflows, config) as a repo-level group.
-- Process groups sequentially. For each group, launch the Code Reviewer sub-agents (Reuse, Quality, Efficiency, Correctness, Security, Compliance) **in parallel**.
+- Process groups sequentially. For each group, apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the group's files, then launch the Code Reviewer sub-agents (Reuse, Quality, Efficiency, Correctness, Security, Compliance) **in parallel**.
   - The "newly changed files" scope does not apply; sub-agents review the full file set for the group.
 - Do NOT fix findings. For each group that has findings, raise one GitHub issue:
   - Title: `Audit: <group-name> - <brief summary>`
@@ -480,7 +483,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Fetch **both** comment surfaces before deciding there is nothing to address: top-level PR comments and review summaries (`gh pr view <n> --repo <owner/repo> --json comments,reviews,reviewDecision`) **and** inline/diff-level review comments (`gh api repos/<owner>/<repo>/pulls/<n>/comments`). A reviewer can submit a `CHANGES_REQUESTED` review with an empty top-level summary and put their actual feedback only in an inline diff comment; the review decision alone is enough to treat the PR as having unaddressed work, and the inline-comment endpoint is the only place its content is visible.
 - If a fix requires knowledge outside the instruction files, invoke Coding Researcher first; do not guess or fabricate. If Coding Researcher returns **Not possible**, stop and escalate to Orchestrator with the explanation; do not partially apply the fix.
 - Convert to draft before starting (`gh pr ready <number> --undo`).
-- One fix change set per construct (comments grouped by construct), with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) handed over as for Code Writer. Hand off to Code Tester after each fix and its sweep.
+- One fix change set per construct (comments grouped by construct), with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) handed over as for Code Writer. Apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the fixed files. Hand off to Code Tester after each fix and its sweep.
 - Respond to **every** review comment without exception, per [Comment Replies](#comment-replies-mandatory). A reply that cites a SHA is posted once Committer has pushed, so the sweep record's file placement is final.
 
 ## Rebase Agent
@@ -494,7 +497,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 ## CI Debugger
 
 - Read full logs (`gh run view --log-failed`), identify root cause.
-- Fix if code-related, with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) committed after the fix per [Pattern Sweep Commits](git-commits.instructions.md#pattern-sweep-commits), since no Committer follows this role; escalate to Orchestrator with a clear description if environmental or infrastructure; use the Environment/Infrastructure Block Marker convention above so the block can auto-clear once the fix ships.
+- Fix if code-related, with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) committed after the fix per [Pattern Sweep Commits](git-commits.instructions.md#pattern-sweep-commits), since no Committer follows this role; apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the fixed files; escalate to Orchestrator with a clear description if environmental or infrastructure; use the Environment/Infrastructure Block Marker convention above so the block can auto-clear once the fix ships.
 - If a code-related fix requires knowledge outside the instruction files, invoke Coding Researcher first; do not guess or fabricate. If Coding Researcher returns **Not possible**, escalate to Orchestrator with the explanation.
 
 ## Changelog
