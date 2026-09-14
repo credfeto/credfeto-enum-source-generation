@@ -23,10 +23,10 @@ Before requesting approval, carry out a full security review of the candidate pa
 
 Then present the human with, and wait for their explicit sign-off before touching any manifest, lockfile, or import:
 
-1. Package name, proposed version, and links to its source repository and registry listing.
-2. The findings of the security review above.
-3. Why it's needed — what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
-4. Alternatives considered and why they were rejected.
+- **P1.** Package name, proposed version, and links to its source repository and registry listing.
+- **P2.** The findings of the security review above.
+- **P3.** Why it's needed — what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
+- **P4.** Alternatives considered and why they were rejected.
 
 If working from a GitHub issue or PR, follow the [Blocked Label](agent-roles.instructions.md#blocked-label) workflow: post the review as a comment, add `Blocked`, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `go ahead` / `looks good` / `lgtm`).
 
