@@ -3,7 +3,7 @@
 <Project>
     <!-- Hide any test results -->
     <ItemGroup>
-        <None Remove="TestResults\**\*" />
+        <None Remove="TestResults/**/*" />
         <None Remove="coverage.settings.xml" />
     </ItemGroup>
 
