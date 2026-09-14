@@ -92,23 +92,18 @@ runs:
       working-directory: ${{github.workspace}}/src
       shell: bash
       run: |
-        dotnet restore \
+        r=5
+        delay=30
+        until dotnet restore \
               --warnaserror \
               -nodeReuse:False \
               -p:NoWarn=MSB4241 \
-              -p:SuppressNETCoreSdkPreviewMessage=true || \
-        dotnet restore \
-              --warnaserror \
-              -nodeReuse:False \
-              -p:NoWarn=MSB4241 \
-              -p:SuppressNETCoreSdkPreviewMessage=true \
-              --ignore-failed-sources || \
-        dotnet restore \
-              --warnaserror \
-              -nodeReuse:False \
-              -p:NoWarn=MSB4241 \
-              -p:SuppressNETCoreSdkPreviewMessage=true \
-              --ignore-failed-sources
+              -p:SuppressNETCoreSdkPreviewMessage=true
+        do
+          ((--r)) || exit 1
+          echo "⚠️ Restore failed, retrying in ${delay}s ($r attempt(s) left)"
+          sleep "${delay}"
+        done
 
     - name: "Dotnet: Build"
       working-directory: ${{github.workspace}}/src
