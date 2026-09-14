@@ -17,16 +17,16 @@
 
 Before starting any work on an issue or PR in a .NET repository:
 
-1. Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
-2. Run: `dotnet buildcheck -solution <solutionfilename>`
-3. If it fails:
-   - Fix all reported issues. If a fix is a package change (adding, changing, or removing a package reference), follow [Conflict Resolution: Pre-Commit/Component-Tool-Mandated Package Changes](packages.instructions.md#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory) instead of automatically treating it as a new package request requiring approval-and-wait; that section still falls back to approval-and-wait if its own security review finds a genuine blocker.
-   - Verify with `dotnet build` and `dotnet test`.
-   - Commit the fixes with a conventional commit message and push.
-   - Only proceed with the original work once buildcheck passes cleanly.
-4. If buildcheck still fails after all fixing attempts:
-   - For an issue: add a comment and label it `Blocked`; do not start work.
-   - For a PR: comment on the PR and label it `Blocked`; do not continue work.
+- **P1.** Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
+- **P2.** Run: `dotnet buildcheck -solution <solutionfilename>`
+- **P3.** If it fails:
+  - Fix all reported issues. If a fix is a package change (adding, changing, or removing a package reference), follow [Conflict Resolution: Pre-Commit/Component-Tool-Mandated Package Changes](packages.instructions.md#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory) instead of automatically treating it as a new package request requiring approval-and-wait; that section still falls back to approval-and-wait if its own security review finds a genuine blocker.
+  - Verify with `dotnet build` and `dotnet test`.
+  - Commit the fixes with a conventional commit message and push.
+  - Only proceed with the original work once buildcheck passes cleanly.
+- **P4.** If buildcheck still fails after all fixing attempts:
+  - For an issue: add a comment and label it `Blocked`; do not start work.
+  - For a PR: comment on the PR and label it `Blocked`; do not continue work.
 
 ## Build and Test Before Commit (MANDATORY)
 
@@ -418,18 +418,18 @@ public sealed record GlobalJsonInfo(string? SdkVersion, string? RollForward, boo
 
 Use `Credfeto.Exceptions.SourceGenerator` to define exception types; it generates all required constructors automatically.
 
-1. Add the package to the project (analyzer only, not a runtime dependency):
+- **P1.** Add the package to the project (analyzer only, not a runtime dependency):
 
-   ```xml
-   <PackageReference Include="Credfeto.Exceptions.SourceGenerator" Version="0.0.1.30" PrivateAssets="All" ExcludeAssets="runtime" />
-   ```
+  ```xml
+  <PackageReference Include="Credfeto.Exceptions.SourceGenerator" Version="0.0.1.30" PrivateAssets="All" ExcludeAssets="runtime" />
+  ```
 
-2. Declare the exception as a `sealed partial class` with a `[Description]` attribute for the default message:
+- **P2.** Declare the exception as a `sealed partial class` with a `[Description]` attribute for the default message:
 
-   ```csharp
-   [Description("Default message")]
-   public sealed partial class MyException : Exception;
-   ```
+  ```csharp
+  [Description("Default message")]
+  public sealed partial class MyException : Exception;
+  ```
 
 - Always use the **latest stable release** of `Credfeto.Exceptions.SourceGenerator`.
 - Never hand-write exception constructors when this generator is available.
@@ -501,16 +501,16 @@ Suppress per-project using the advisory URL, never globally in shared `.props` f
 
 When working on a .NET project that produces a publishable executable (`OutputType=Exe` or `OutputType=WinExe`), follow these steps in order:
 
-1. **Enable trimming first**: add `<PublishTrimmed>true</PublishTrimmed>` to the project file and verify the project builds without trim warnings or errors.
-   - Fix all `IL2xxx` trim-analysis warnings before committing.
-   - Replace reflection-based patterns with source-generated equivalents, for example, replace `JsonSerializer` usage with a `JsonSerializerContext` annotated with `[JsonSerializable]`.
-   - Apply `[DynamicallyAccessedMembers]` only where reflection is genuinely unavoidable and cannot be replaced with a source generator.
-   - Do not suppress trim warnings; treat them as blocking, consistent with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
+- **P1.** **Enable trimming first**: add `<PublishTrimmed>true</PublishTrimmed>` to the project file and verify the project builds without trim warnings or errors.
+  - Fix all `IL2xxx` trim-analysis warnings before committing.
+  - Replace reflection-based patterns with source-generated equivalents, for example, replace `JsonSerializer` usage with a `JsonSerializerContext` annotated with `[JsonSerializable]`.
+  - Apply `[DynamicallyAccessedMembers]` only where reflection is genuinely unavoidable and cannot be replaced with a source generator.
+  - Do not suppress trim warnings; treat them as blocking, consistent with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
 
-2. **Enable AOT only after trimming is clean**: once `<PublishTrimmed>true</PublishTrimmed>` builds without warnings, replace it with `<PublishAot>true</PublishAot>` (AOT implies trimming; both properties do not need to be set simultaneously).
-   - Fix all `IL3xxx` AOT-compatibility warnings.
-   - Remove any runtime code generation: `Emit`, `DynamicMethod`, `Expression.Compile`, `CSharpCodeProvider`, etc.
-   - Verify that every third-party package used by the executable has AOT-compatible code paths. Check for `IsAotCompatible=true` in the package metadata or a corresponding `[RequiresUnreferencedCode]` annotation indicating the incompatibility.
-   - Do not suppress AOT warnings; treat them as blocking.
+- **P2.** **Enable AOT only after trimming is clean**: once `<PublishTrimmed>true</PublishTrimmed>` builds without warnings, replace it with `<PublishAot>true</PublishAot>` (AOT implies trimming; both properties do not need to be set simultaneously).
+  - Fix all `IL3xxx` AOT-compatibility warnings.
+  - Remove any runtime code generation: `Emit`, `DynamicMethod`, `Expression.Compile`, `CSharpCodeProvider`, etc.
+  - Verify that every third-party package used by the executable has AOT-compatible code paths. Check for `IsAotCompatible=true` in the package metadata or a corresponding `[RequiresUnreferencedCode]` annotation indicating the incompatibility.
+  - Do not suppress AOT warnings; treat them as blocking.
 
-3. **If either step is blocked by an incompatible third-party dependency**: raise a GitHub issue in the current repository describing the incompatibility (package name, version, and the specific warning or error), then stop. Do not work around the incompatibility by suppressing warnings or downgrading the property.
+- **P3.** **If either step is blocked by an incompatible third-party dependency**: raise a GitHub issue in the current repository describing the incompatibility (package name, version, and the specific warning or error), then stop. Do not work around the incompatibility by suppressing warnings or downgrading the property.
