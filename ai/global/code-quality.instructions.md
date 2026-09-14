@@ -30,6 +30,14 @@ Pre-commit and its component tools (e.g. `dotnet buildcheck`, analyzers, linters
 - This does not relax [Build and Test Verification](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push): the fix must be a genuine fix, not a suppression, skip, or exclusion, unless separately authorised.
 - If a component tool's fix is a package change (adding, changing, or removing a package reference), follow [Conflict Resolution: Pre-Commit/Component-Tool-Mandated Package Changes](packages.instructions.md#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory) instead of automatically treating it as a new package request requiring approval-and-wait; that section still falls back to approval-and-wait if its own security review finds a genuine blocker.
 
+## IDE MCP Code Analysis (MANDATORY)
+
+Whenever writing, fixing, or reviewing code, best-effort use any MCP IDE integration that is configured **and connected** for the modified files' language (e.g. Rider for .NET, WebStorm for TypeScript/JavaScript) to confirm those files are clean of compiler and analyzer errors and warnings. This is additive to the language's own build/analyzer checks (e.g. [dotnet buildcheck](dotnet.instructions.md)); it never replaces them.
+
+- Best-effort, not blocking: if no MCP is configured for the language, or a configured one fails to connect, skip this check for that step and continue with the language's normal build/analyzer tooling.
+- If working on a PR, comment on it naming the tool and why it was unavailable (not configured, or configured but failed to connect), so a human can see the gap. Never add `Blocked` for this alone.
+- Applies to every code-touching role: Code Writer, Code Fixer, Code Tester, Code Reviewer, CI Debugger, Repo Auditor, and Phases A-C (Simplify, Code Review, Security Review) of the [PR Workflow AI Review Loop](agent-roles.instructions.md#pr-workflow-ai-review-loop).
+
 ## Dead Code
 
 - Remove unreachable code rather than writing tests around it.
