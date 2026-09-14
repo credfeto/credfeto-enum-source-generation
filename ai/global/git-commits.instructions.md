@@ -19,10 +19,10 @@ Load this file when about to commit or acting as the Committer agent. See [git.i
 
 If hooks or formatters modify files **not in your intended change set**:
 
-1. Do not stage the unrequested changes.
-2. Abort the commit.
-3. Report the affected files and which hook/formatter changed them.
-4. Wait for explicit instructions.
+- **P1.** Do not stage the unrequested changes.
+- **P2.** Abort the commit.
+- **P3.** Report the affected files and which hook/formatter changed them.
+- **P4.** Wait for explicit instructions.
 
 ## Commit Message Format
 
