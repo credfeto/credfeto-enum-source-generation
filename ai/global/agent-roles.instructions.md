@@ -53,6 +53,8 @@ When picking up an **Issue** that has no existing PR:
   <list, using a Q-prefixed numbered sequence (Q1., Q2., Q3., ...), or "None, ready to proceed pending approval">
   ```
 
+  **Open questions vs. embedded conditional decisions:** any conditional or deferred decision point in the Approach or Files-to-change text — a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open) — must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate. (Background: `funfair-server-template#857`'s plan left "conversion or policy sign-off needed" for `anchore/*` as Approach prose rather than a `Qn.`; nothing gated on it, and the sign-off was never visibly resolved before the issue closed — see [Pre-Closure Decision Check](task-workflow.instructions.md#pre-closure-decision-check-mandatory).)
+
 - **P4.** Mark the issue as Blocked and update the Workflow board to **Planning** (if board data is present), then **STOP**:
 
   ```bash
