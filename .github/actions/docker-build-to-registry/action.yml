@@ -6,9 +6,6 @@ inputs:
   deploy:
     description: 'Whether to deploy'
     required: true
-  github-token:
-    description: 'github token for accessing github'
-    required: true
   build-version:
     description: 'Build version'
     required: true
@@ -66,7 +63,6 @@ runs:
       with:
         app-owner: ${{inputs.app-owner}}
         app-name: ${{inputs.app-name}}
-        github-token: ${{inputs.github-token}}
 
     - name: "Docker: Build with tags"
       id: build-with-tags
