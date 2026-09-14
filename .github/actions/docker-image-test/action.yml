@@ -9,78 +9,17 @@ inputs:
   app-name:
     description: 'docker app name'
     required: true
-  github-token:
-    description: 'github token for accessing github'
-    required: true
 
 runs:
   using: "composite"
   steps:
-    - name: "Wouldn't it be nice if all these things worked"
-      shell: bash
-      run: echo "Urrgh"
-
-#    - name: "Create SBOM"
-#      uses: anchore/sbom-action@v0.24.0
-#      with:
-#        github-token: ${{inputs.github-token}}
-#        format: spdx-json
-#        output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
-#        config: "${{ github.workspace }}.github/linters/syft.yml"
-#
-#    - name: "Scan SBOM"
-#      uses: anchore/scan-action@v7.4.0
-#      with:
-#        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
-#        fail-build: false
-#        output-format: table
-#        severity-cutoff: medium
-#        only-fixed: true
-#        add-cpes-if-none: false
-#        by-cve: false
-#
-#    - name: "Run Grype vulnerability scanner"
-#      if: always()
-#      uses: anchore/scan-action@v7.4.0
-#      with:
-#        image: "${{inputs.app-owner}}/${{inputs.app-name}}:test"
-#        fail-build: true
-#        output-format: table
-#        severity-cutoff: medium
-#        only-fixed: true
-#        add-cpes-if-none: false
-#        by-cve: false
-
-#    - name: "Run Dockle vulnerability scanner"
-#      if: always()
-#      uses: erzz/dockle-action@v1.4.1
-#      with:
-#        image: "${{inputs.app-owner}}/${{inputs.app-name}}:test"
-#        report-format: json
-#        report-name: dockle-report
-#        failure-threshold: warn
-#        exit-code: 1
-#        dockle-version: latest
-#        accept-extensions: pem
-#        token: ${{inputs.github-token}}
-
-#    - name: "Upload dockle Report"
-#      uses: actions/upload-artifact@v7.0.1
-#      if: always()
-#      with:
-#        name: Dockle Report
-#        path: dockle-report.json
-
-# NOT SURE WHY THIS DOESN'T WORK
-# -- Tries to write to /github!
-#
-#    - name: "Run Trivy vulnerability scanner"
-#      if: always()
-#      uses: aquasecurity/trivy-action@v0.36.0
-#      with:
-#        image-ref: "${{inputs.app-owner}}/${{inputs.app-name}}:test"
-#        format: 'table'
-#        exit-code: '1'
-#        ignore-unfixed: true
-#        vuln-type: 'os,library'
-#        severity: 'CRITICAL,HIGH'
+    - name: "Run Trivy vulnerability scanner"
+      uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+      with:
+        image-ref: "${{inputs.app-owner}}/${{inputs.app-name}}:test"
+        format: "table"
+        exit-code: "1"
+        ignore-unfixed: true
+        vuln-type: "os,library"
+        severity: "HIGH,CRITICAL"
+        cache-dir: "${{github.workspace}}/.trivy-cache"
