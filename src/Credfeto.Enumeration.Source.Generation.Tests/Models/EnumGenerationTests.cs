@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Credfeto.Enumeration.Source.Generation.Models;
@@ -202,5 +203,16 @@ public sealed class EnumGenerationTests : EquatableValueTestBase<EnumGeneration>
         );
 
         Assert.Equal(expected: first, actual: second);
+    }
+
+    public static TheoryData<string, Action<EnumGenerationTests>> BaseCaseData() =>
+        BuildDispatcherCases<EnumGenerationTests>().ToTheoryData();
+
+    [Theory]
+    [MemberData(nameof(BaseCaseData))]
+    public void CommonTests(string name, Action<EnumGenerationTests> action)
+    {
+        Assert.NotEmpty(name);
+        action(this);
     }
 }
