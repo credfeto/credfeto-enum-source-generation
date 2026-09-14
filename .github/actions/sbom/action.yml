@@ -2,56 +2,59 @@
 # Maintain in repo: funfair-server-template
 name: 'Run Software Bill of Materials'
 description: 'Software Bill of materials'
+inputs:
+  repo-visibility:
+    description: 'Visibility of the repo (public or private)'
+    required: true
+
 runs:
   using: "composite"
   steps:
+    - name: "Install Syft"
+      shell: bash
+      env:
+        # Not a `uses:` pin, so dependabot's github-actions ecosystem watch cannot see it - bump manually.
+        SYFT_VERSION: "1.51.1"
+      run: |
+        set -euo pipefail
+        archive="syft_${SYFT_VERSION}_linux_amd64.tar.gz"
+        base_url="https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}"
+        workdir="$(mktemp -d)"
+        curl -sSfL -o "${workdir}/${archive}" "${base_url}/${archive}"
+        curl -sSfL -o "${workdir}/checksums.txt" "${base_url}/syft_${SYFT_VERSION}_checksums.txt"
+        (cd "${workdir}" && grep " ${archive}\$" checksums.txt | sha256sum -c -)
+        mkdir -p "${{runner.temp}}/syft-bin"
+        tar -xzf "${workdir}/${archive}" -C "${{runner.temp}}/syft-bin" syft
+        rm -rf "${workdir}"
+
     - name: "Create SBOM"
       shell: bash
-      run: echo "Create SBOM..."
+      run: |
+        "${{runner.temp}}/syft-bin/syft" "dir:${{github.workspace}}" \
+          -c "${{github.workspace}}/.github/linters/syft.yml" \
+          -o "spdx-json=${{github.event.repository.name}}-sbom.spdx.json"
 
-#    - name: "Create SBOM"
-#      uses: anchore/sbom-action@v0.24.0
-#      with:
-#        github-token: ${{inputs.GITHUB_TOKEN}}
-#        format: spdx-json
-#        output-file: "${{ github.event.repository.name }}-sbom.spdx.json"
-#        config: "${{ github.workspace }}.github/linters/syft.yml"
-#
-#    - name: "Log SBOM filename"
-#      shell: bash
-#      run: |
-#        echo "Output ${{ github.event.repository.name }}-sbom.spdx.json"
-#        ls "${{ github.event.repository.name }}-sbom.spdx.json"
-#
-#    - name: "Scan SBOM (public Repo)"
-#      if: inputs.repo-visibility == 'public'
-#      uses: anchore/scan-action@v7.4.0
-#      id: sbom
-#      with:
-#        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
-#        fail-build: false
-#        output-format: sarif
-#        only-fixed: true
-#        add-cpes-if-none: false
-#        by-cve: false
-#
-#    - name: "Copy SBOM to sarif (public Repo)"
-#      if: |-
-#        inputs.repo-visibility == 'public' &&
-#        steps.sbom.outputs.sarif != ''
-#      shell: bash
-#      run: |
-#        echo "SBOM: ${{ steps.sbom.outputs.sarif }}"
-#        cp "${{ steps.sbom.outputs.sarif }}" "${{ github.workspace }}/results/${{ github.event.repository.name }}-sbom.sarif"
-#        cat "${{ steps.sbom.outputs.sarif }}"
-#
-#    - name: "Scan SBOM (private repo)"
-#      uses: anchore/scan-action@v7.4.0
-#      if: inputs.repo-visibility == 'private'
-#      with:
-#        sbom: "${{ github.event.repository.name }}-sbom.spdx.json"
-#        fail-build: false
-#        output-format: table
-#        only-fixed: true
-#        add-cpes-if-none: false
-#        by-cve: false
+    - name: "Determine SBOM scan output"
+      id: scan-config
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        REPO_VISIBILITY: ${{inputs.repo-visibility}}
+        WORKSPACE: ${{github.workspace}}
+        REPO_NAME: ${{github.event.repository.name}}
+      with:
+        script: |
+          const isPublic = process.env.REPO_VISIBILITY === 'public';
+
+          core.setOutput('format', isPublic ? 'sarif' : 'table');
+          core.setOutput('output', isPublic ? `${process.env.WORKSPACE}/results/${process.env.REPO_NAME}-sbom.sarif` : '');
+
+    - name: "Scan SBOM"
+      uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+      with:
+        scan-type: "sbom"
+        scan-ref: "${{github.event.repository.name}}-sbom.spdx.json"
+        format: ${{steps.scan-config.outputs.format}}
+        output: ${{steps.scan-config.outputs.output}}
+        ignore-unfixed: true
+        severity: "HIGH,CRITICAL"
+        cache-dir: "${{github.workspace}}/.trivy-cache"
