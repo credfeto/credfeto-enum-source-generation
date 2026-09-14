@@ -20,7 +20,7 @@ Before starting any work on an issue or PR in a .NET repository:
 1. Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
 2. Run: `dotnet buildcheck -solution <solutionfilename>`
 3. If it fails:
-   - Fix all reported issues.
+   - Fix all reported issues. If a fix is a package change (adding, changing, or removing a package reference), follow [Conflict Resolution: Pre-Commit/Component-Tool-Mandated Package Changes](packages.instructions.md#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory) instead of automatically treating it as a new package request requiring approval-and-wait; that section still falls back to approval-and-wait if its own security review finds a genuine blocker.
    - Verify with `dotnet build` and `dotnet test`.
    - Commit the fixes with a conventional commit message and push.
    - Only proceed with the original work once buildcheck passes cleanly.
