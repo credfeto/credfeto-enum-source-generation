@@ -22,11 +22,11 @@ pre-commit-check
 
 Always run this check in the background — it is more likely than not to take a while to run, not an exception case to spot and handle specially. Backgrounding it does not mean walking away from it: you MUST then poll for its own completion and WAIT for it to actually finish, in this same turn/session, before doing anything else, including ending your turn. This is not optional and does not depend on how the check is invoked: see the mandatory [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory) rules for the poll-loop shape and the 30-minute deadline. Do **not** end your turn on the assumption that you will be automatically resumed once the check finishes — confirmed live incident: an automation whose invocations are fresh, single-phase, and never resumed backgrounded this exact check, ended its turn believing "a Monitor notification will wake me up," and repeated that identical mistake across six separate invocations over five and a half hours, because each new invocation started from zero with no memory of the wait and the backgrounded check itself was killed the instant the previous turn ended. If your own session genuinely is interactive and resumable, confirm that explicitly before treating "come back to this later" as safe — the default assumption, absent that confirmation, must be that it is not.
 
-1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes on a **new, dedicated branch and issue** (a clean base-point, kept separate from the branch/issue for the requested work), and mark the original work item `Blocked` until the base-fix branch is merged. Do not start the requested work on top of an unmerged, auto-mutated baseline.
-2. If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
-3. If the check **still fails** after all fixing attempts:
-   - For an issue: comment on the issue, label it `Blocked`, and do not start work.
-   - For a PR: comment on the PR, label it `Blocked`, and do not continue work.
+- **P1.** <a id="baseline-autofix-new-branch"></a>If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes on a **new, dedicated branch and issue** (a clean base-point, kept separate from the branch/issue for the requested work), and mark the original work item `Blocked` until the base-fix branch is merged. Do not start the requested work on top of an unmerged, auto-mutated baseline.
+- **P2.** <a id="baseline-manual-fix-then-proceed"></a>If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
+- **P3.** <a id="baseline-still-fails-escalate"></a>If the check **still fails** after all fixing attempts:
+  - For an issue: comment on the issue, label it `Blocked`, and do not start work.
+  - For a PR: comment on the PR, label it `Blocked`, and do not continue work.
 
 This ensures CI results are unambiguous: pre-existing failures are resolved before any new changes are introduced.
 
@@ -67,8 +67,8 @@ For the HEREDOC rule for any `gh` `--body` argument that contains or may contain
 
 When raising a GitHub issue autonomously (not directly requested by a human):
 
-1. Search for existing issues (both **open** and **closed**) covering the same topic before creating; do not create duplicates.
-2. Add the `Blocked` label immediately after creating the issue so it is held for human review before being acted upon.
+- **P1.** Search for existing issues (both **open** and **closed**) covering the same topic before creating; do not create duplicates.
+- **P2.** Add the `Blocked` label immediately after creating the issue so it is held for human review before being acted upon.
 
 **Exceptions: do not add `Blocked`:**
 
@@ -174,8 +174,8 @@ After any push, if the remote reports vulnerabilities:
 
 When working outside `credfeto/cs-template` and a gap in the global template rules is found:
 
-1. Do not apply the change locally.
-2. Create an issue in `credfeto/cs-template`; see [git.examples.md](git.examples.md) for the command template.
-3. The issue must include: source repository, current behaviour/gap, proposed rule text, reason for template propagation.
-4. Note the issue URL in any relevant commit or PR description.
-5. Continue work without waiting for the template issue to be resolved.
+- **P1.** Do not apply the change locally.
+- **P2.** Create an issue in `credfeto/cs-template`; see [git.examples.md](git.examples.md) for the command template.
+- **P3.** The issue must include: source repository, current behaviour/gap, proposed rule text, reason for template propagation.
+- **P4.** Note the issue URL in any relevant commit or PR description.
+- **P5.** Continue work without waiting for the template issue to be resolved.
