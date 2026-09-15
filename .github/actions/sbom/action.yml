@@ -10,29 +10,18 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Install Syft"
-      shell: bash
-      env:
-        # Not a `uses:` pin, so dependabot's github-actions ecosystem watch cannot see it - bump manually.
-        SYFT_VERSION: "1.51.1"
-      run: |
-        set -euo pipefail
-        archive="syft_${SYFT_VERSION}_linux_amd64.tar.gz"
-        base_url="https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}"
-        workdir="$(mktemp -d)"
-        curl -sSfL -o "${workdir}/${archive}" "${base_url}/${archive}"
-        curl -sSfL -o "${workdir}/checksums.txt" "${base_url}/syft_${SYFT_VERSION}_checksums.txt"
-        (cd "${workdir}" && grep " ${archive}\$" checksums.txt | sha256sum -c -)
-        mkdir -p "${{runner.temp}}/syft-bin"
-        tar -xzf "${workdir}/${archive}" -C "${{runner.temp}}/syft-bin" syft
-        rm -rf "${workdir}"
-
     - name: "Create SBOM"
-      shell: bash
-      run: |
-        "${{runner.temp}}/syft-bin/syft" "dir:${{github.workspace}}" \
-          -c "${{github.workspace}}/.github/linters/syft.yml" \
-          -o "spdx-json=${{github.event.repository.name}}-sbom.spdx.json"
+      uses: anchore/sbom-action@006b7ce8314066bdf1765b4500370d40fa6917a3 # v0.24.2
+      with:
+        path: "${{github.workspace}}"
+        config: "${{github.workspace}}/.github/linters/syft.yml"
+        format: "spdx-json"
+        output-file: "${{github.event.repository.name}}-sbom.spdx.json"
+        artifact-name: "${{github.event.repository.name}}-sbom"
+        # Not a `uses:` pin, so dependabot's github-actions ecosystem watch cannot see it - bump manually.
+        syft-version: "1.51.1"
+        upload-artifact: true
+        upload-release-assets: false
 
     - name: "Determine SBOM scan output"
       id: scan-config
