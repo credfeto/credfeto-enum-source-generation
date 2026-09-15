@@ -117,6 +117,7 @@ runs:
                   "-p:EnableSarif=True" \
                   "-p:IsProduction=${{inputs.production-build}}" \
                   "-p:NoWarn=MSB4241" \
+                  "-p:Optimize=true" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
                   "-p:Version=${{inputs.build-version}}" \
                   -nodeReuse:False
@@ -139,6 +140,7 @@ runs:
                   --ignore-exit-code 8 \
                   --report-github \
                   "-p:ContinuousIntegrationBuild=true" \
+                  "-p:EnableSarif=True" \
                   "-p:IsProduction=${{inputs.production-build}}" \
                   "-p:NoWarn=MSB4241" \
                   "-p:Optimize=true" \
