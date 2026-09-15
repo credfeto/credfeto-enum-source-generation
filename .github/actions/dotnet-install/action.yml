@@ -109,7 +109,7 @@ runs:
         cache: false
         global-json-file: "${{ github.workspace }}/src/global.json"
         dotnet-version: |
-          9.0.*
+          10.0.*
 
     - if: steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'false'
       name: "Install dotnet (Tools)"
@@ -119,7 +119,6 @@ runs:
       with:
         cache: false
         dotnet-version: |
-          9.0.*
           10.0.*
 
     - name: "Configure nuget feeds"
