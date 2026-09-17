@@ -214,7 +214,7 @@ gh api graphql \
   --jq '.data.user.id'
 ```
 
-For the ProjectV2 Workflow-board update pattern (resolve node ID → add item to project → set status field), see [agent-roles.instructions.md](agent-roles.instructions.md#workflow-board); that sequence is workflow-specific and lives there, not duplicated here.
+For the ProjectV2 Workflow-board update pattern (add item to project by URL → set status field → verify), see [agent-roles.instructions.md](agent-roles.instructions.md#workflow-board); that sequence is workflow-specific and lives there, not duplicated here.
 
 ### Inline PR Review Comments via `gh api`
 
