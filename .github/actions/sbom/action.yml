@@ -19,7 +19,7 @@ runs:
         output-file: "${{github.event.repository.name}}-sbom.spdx.json"
         artifact-name: "${{github.event.repository.name}}-sbom"
         # Not a `uses:` pin, so dependabot's github-actions ecosystem watch cannot see it - bump manually.
-        syft-version: "1.51.1"
+        syft-version: "v1.51.1"
         upload-artifact: true
         upload-release-assets: false
 
