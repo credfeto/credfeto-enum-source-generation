@@ -142,6 +142,7 @@ Each generated `CLAUDE.md` may contain Workflow board data in this format, as a 
 ```text
 Workflow board (see agent-roles.instructions.md for update commands):
   WF_PROJECT_ID=PVT_xxx
+  WF_PROJECT_NUMBER=<number>
   WF_STATUS_FIELD_ID=PVTSSF_xxx
   WF_NOT_STARTED=<option-id>
   WF_PLANNING=<option-id>
@@ -162,11 +163,11 @@ If this section is **absent** from your CLAUDE.md, look up the repo's Workflow b
 Every repo with a board names its GitHub Projects (v2) board **"Workflow"**, linked directly to that repo.
 
 ```bash
-# Step 1: find the "Workflow" project linked to this repo (gives WF_PROJECT_ID)
-WF_PROJECT_ID=$(gh api graphql \
-  -f query='query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){projectsV2(first:20){nodes{id title}}}}' \
+# Step 1: find the "Workflow" project linked to this repo (gives WF_PROJECT_ID and WF_PROJECT_NUMBER)
+IFS=$'\t' read -r WF_PROJECT_ID WF_PROJECT_NUMBER <<<"$(gh api graphql \
+  -f query='query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){projectsV2(first:20){nodes{id number title}}}}' \
   -f owner=<owner> -f repo=<repo> \
-  --jq '.data.repository.projectsV2.nodes[] | select(.title=="Workflow") | .id')
+  --jq '.data.repository.projectsV2.nodes[] | select(.title=="Workflow") | [.id,(.number|tostring)] | @tsv')"
 
 # Step 2: resolve the Workflow Status field and its option IDs (gives WF_STATUS_FIELD_ID and each WF_* option id)
 gh api graphql \
@@ -180,39 +181,33 @@ Match each returned option's `name` to its `WF_*` variable: `Not Started`→`WF_
 
 **Only if Step 1 finds no project titled "Workflow" linked to the repo** — there genuinely is no board — skip all board updates silently.
 
-To update the board status, run these two commands in sequence. Replace `<STATUS_OPTION_ID>` with the appropriate `WF_*` value from the CLAUDE.md, and `<ISSUE_OR_PR_NUMBER>` with the issue or PR number:
+**Use the structured `gh project` subcommands below, never raw `gh api graphql` mutations.** A `gh api graphql` call whose query string contains the literal word `mutation` is deterministically denied by the agent sandbox's permission system, even though the equivalent `query`-shaped call succeeds (confirmed live: `credfeto/cs-template#1046`). The `gh project item-add`/`item-edit` subcommands below are pre-approved as ordinary `gh` invocations and cover the add-item/set-status steps without ever constructing a raw mutation string.
+
+To update the board status, replace `<STATUS_OPTION_ID>` with the appropriate `WF_*` value, `<owner>` with the repo owner, and `<ISSUE_OR_PR_URL>` with the issue or PR's full URL:
 
 ```bash
-# Step 1: resolve the item node ID (use 'issues' for issues, 'pulls' for PRs)
-ITEM_NODE_ID=$(gh api repos/<owner/repo>/issues/<number> --jq '.node_id')
+# Step 1: add the item to the project and capture its project item ID
+# (idempotent - if the item is already in the project, this just returns the existing ID)
+ITEM_ID=$(gh project item-add "${WF_PROJECT_NUMBER}" --owner <owner> --url "<ISSUE_OR_PR_URL>" \
+  --format json --jq '.id')
 
-# Step 2: add item to project and capture the project item ID
-PROJECT_ITEM_ID=$(gh api graphql \
-  -f query='mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{projectId:$p,contentId:$c}){item{id}}}' \
-  -f p="${WF_PROJECT_ID}" -f c="${ITEM_NODE_ID}" \
-  --jq '.data.addProjectV2ItemById.item.id')
+# Step 2: set the Status field
+gh project item-edit --project-id "${WF_PROJECT_ID}" --id "${ITEM_ID}" \
+  --field-id "${WF_STATUS_FIELD_ID}" --single-select-option-id "<STATUS_OPTION_ID>"
 
-# Step 3: set the Status field
-gh api graphql \
-  -f query='mutation($p:ID!,$i:ID!,$f:ID!,$v:String!){updateProjectV2ItemFieldValue(input:{projectId:$p,itemId:$i,fieldId:$f,value:{singleSelectOptionId:$v}}){projectV2Item{id}}}' \
-  -f p="${WF_PROJECT_ID}" -f i="${PROJECT_ITEM_ID}" \
-  -f f="${WF_STATUS_FIELD_ID}" -f v="<STATUS_OPTION_ID>" > /dev/null
-
-# Step 4: verify the write actually persisted; retry up to 3 times with backoff if not
+# Step 3: verify the write actually persisted (querying only the target field, not the whole item); retry up to 3 times with backoff if not.
 for attempt in 1 2 3; do
   ACTUAL=$(gh api graphql \
-    -f query='query($i:ID!){node(id:$i){... on ProjectV2Item{fieldValues(first:50){nodes{... on ProjectV2ItemFieldSingleSelectValue{optionId field{... on ProjectV2SingleSelectField{id}}}}}}}}' \
-    -f i="${PROJECT_ITEM_ID}" \
-    --jq ".data.node.fieldValues.nodes[] | select(.field.id==\"${WF_STATUS_FIELD_ID}\") | .optionId")
+    -f query='query($i:ID!){node(id:$i){... on ProjectV2Item{fieldValueByName(name:"Workflow Status"){... on ProjectV2ItemFieldSingleSelectValue{optionId}}}}}' \
+    -f i="${ITEM_ID}" \
+    --jq '.data.node.fieldValueByName.optionId')
   [ "$ACTUAL" = "<STATUS_OPTION_ID>" ] && break
   sleep "$attempt"
 done
 [ "$ACTUAL" = "<STATUS_OPTION_ID>" ] || echo "::warning::Workflow board write did not persist after 3 attempts"
 ```
 
-`addProjectV2ItemById` is idempotent: calling it again for an item already in the project just returns the existing item ID.
-
-**Step 4 is MANDATORY, not optional.** `updateProjectV2ItemFieldValue` can return success (no GraphQL error) on an item that was just added by `addProjectV2ItemById` in Step 2, without the field write actually persisting: a known eventual-consistency race in the Projects v2 API on freshly-added items. Reporting success (a log line, a `core.notice`, a status comment) without this read-back verification is a real bug that shipped and went unnoticed because nothing threw (see `funfair-tech/funfair-server-template` issue #918, fixed in PR #920, for the incident this rule is drawn from). Never skip the verification step to save a round-trip.
+**Step 3 is MANDATORY, not optional.** `gh project item-edit` can return success on an item that was just added by `gh project item-add` in Step 1, without the field write actually persisting: a known eventual-consistency race in the underlying Projects v2 API on freshly-added items. Reporting success (a log line, a `core.notice`, a status comment) without this read-back verification is a real bug that shipped and went unnoticed because nothing threw (see `funfair-tech/funfair-server-template` issue #918, fixed in PR #920, for the incident this rule is drawn from). Never skip the verification step to save a round-trip.
 
 ### On-Hold Label
 
