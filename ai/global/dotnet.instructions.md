@@ -7,6 +7,7 @@
 ## NuGet Configuration (MANDATORY)
 
 - Never modify `nuget.config`; it is managed by the repo owner, not by AI.
+- Before searching for or adding a package, check which sources are actually configured: `dotnet nuget list source`. Use those sources for lookups rather than assuming nuget.org, since they may include a private feed, proxy, or mirror.
 
 ## Running .NET Tools (MANDATORY)
 
