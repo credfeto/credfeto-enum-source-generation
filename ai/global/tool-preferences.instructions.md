@@ -30,3 +30,18 @@ them, whether via Bash or a built-in tool:
 
 The pre-execution deny hooks are the backstop for this rule, not the first line of defence: a denied
 search means the command was written wrongly, not that the hook is over-strict.
+
+## Prefer `gh` or a Local Clone Over Fetching GitHub URLs (MANDATORY)
+
+When looking up content that lives on GitHub - a file, PR, issue, diff, commit, release, or repo
+metadata - do not fetch a `github.com`, `raw.githubusercontent.com`, or other `*.githubusercontent.com`
+URL (e.g. via `WebFetch`). Instead:
+
+- If the repo is already cloned locally, read the file directly (e.g. the `Read`/`Glob`/`Grep` tools)
+  rather than going over the network at all.
+- Otherwise, use the appropriate `gh` subcommand (`gh api`, `gh pr view`, `gh issue view`,
+  `gh repo view`, etc.); see [github-cli.instructions.md](github-cli.instructions.md) for exact syntax
+  and `GH_HOST` proxy handling.
+
+This keeps lookups authenticated, respects the configured `GH_HOST` proxy, and avoids relying on
+public URL access the account may not actually have.
