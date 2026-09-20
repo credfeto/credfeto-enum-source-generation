@@ -8,6 +8,7 @@
 - Avoid deprecated or obsolete packages and language features; if unavoidable, add a comment explaining why and when it can be removed.
 - Prefer the standard library; where insufficient, use well-known actively-maintained third-party libraries.
 - If you find hand-rolled code duplicating standard-library or trusted-third-party functionality, raise a GitHub issue; do not modify it inline.
+- When looking up available packages, versions, or metadata, use the package sources actually configured on the system rather than assuming the public default registry (there may be a private feed, proxy, or mirror in use). See [npm.instructions.md](npm.instructions.md#registry-lookup) and [dotnet.instructions.md](dotnet.instructions.md#nuget-configuration-mandatory) for the ecosystem-specific lookup commands.
 
 ## Third-Party Packages Require Human Approval (MANDATORY)
 
