@@ -6,6 +6,10 @@
 
 - Adding any new npm package requires explicit human approval after a full security review; see [packages.instructions.md](packages.instructions.md#third-party-packages-require-human-approval-mandatory). Exception: a package a pre-commit component tool's own output (e.g. `npm audit`) demands as the specific fix for its failure; see [Conflict Resolution](packages.instructions.md#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory).
 
+## Registry Lookup
+
+- Before searching for or installing a package, check which registry is actually configured: `npm config get registry`. Use that registry for lookups rather than assuming the public npm registry, since it may point at a private feed, proxy, or mirror.
+
 ## Fixed Package Versions
 
 - Always use **exact (pinned) version numbers** in `package.json`, no `^` or `~` prefixes.
