@@ -16,7 +16,7 @@ Read all of these before starting any task, regardless of language or context.
 | --- | --- |
 | [git.instructions.md](git.instructions.md) | Prerequisites, build/test verification, git identity/GPG, branching, commits, GitHub issues, template rule escalation |
 | [claude-hooks.instructions.md](claude-hooks.instructions.md) | Claude Code `PreToolUse` hook denials: a denial means the command never ran, read its stated reason literally and retry immediately, tell a hook denial apart from a permission-system denial, reference index of the installed hook set |
-| [tool-preferences.instructions.md](tool-preferences.instructions.md) | Which tool to reach for when more than one could do the job: `Glob` over `find` for simple file listing; repo searches exclude `.env`, `.database` and `.claude/` |
+| [tool-preferences.instructions.md](tool-preferences.instructions.md) | Which tool to reach for when more than one could do the job: `Glob` over `find` for simple file listing; repo searches exclude `.env`, `.database` and `.claude/`; `gh` or a local clone over fetching `github.com`/`githubusercontent.com` URLs |
 | [git-rebasing.instructions.md](git-rebasing.instructions.md) | When to rebase (fetch/check/rebase), version-conflict resolution when merging or rebasing |
 | [task-workflow.instructions.md](task-workflow.instructions.md) | Agent routing table, model selection, failure handling, issue/PR assignment, Workflow project board, commit cadence, resuming work, command timeouts, ad-hoc prompt intake, prompt traceability, numbering and cross-reference conventions |
 | [code-quality.instructions.md](code-quality.instructions.md) | Code coverage, tests, async, immutability, parameterised tests, refactoring, incidental cleanup, pattern sweep, pre-commit failure handling |
@@ -24,7 +24,7 @@ Read all of these before starting any task, regardless of language or context.
 | [security.instructions.md](security.instructions.md) | No secrets in code, input validation, output sanitisation |
 | [error-handling.instructions.md](error-handling.instructions.md) | Explicit error handling, propagation, safe surfacing |
 | [logging.instructions.md](logging.instructions.md) | Structured logging, log levels, no PII/secrets |
-| [packages.instructions.md](packages.instructions.md) | Secure versions, managed vs native, deprecated packages, human approval required for non-credfeto/funfair-tech packages (tool-mandated fixes excepted) |
+| [packages.instructions.md](packages.instructions.md) | Secure versions, managed vs native, deprecated packages, human approval required for non-credfeto/funfair-tech packages (tool-mandated fixes excepted), using the system's configured package sources for lookups |
 
 ## Load When Applicable
 
