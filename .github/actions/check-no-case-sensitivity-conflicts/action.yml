@@ -34,7 +34,6 @@ runs:
           for (const paths of grouped.values()) {
             const unique = Array.from(new Set(paths));
             if (unique.length > 1) {
-              unique.sort((left, right) => left.localeCompare(right, undefined, { sensitivity: 'base' }) || left.localeCompare(right));
               conflicts.push(...unique);
             }
           }
