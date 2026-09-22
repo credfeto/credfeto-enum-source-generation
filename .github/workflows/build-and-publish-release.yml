@@ -124,11 +124,8 @@ jobs:
           create-release: true
 
       - name: "Build Version"
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        shell: bash
         env:
           BUILD_VERSION: ${{env.BUILD_VERSION}}
-        with:
-          script: |
-            const buildVersion = process.env.BUILD_VERSION;
-            core.info(`Version: \u001b[38;5;6m${buildVersion}`);
-            core.notice(`Version: ${buildVersion}`);
+        run: |
+          echo "::notice::Version: $BUILD_VERSION"
