@@ -47,44 +47,24 @@ runs:
         NAMES=()
         URLS=()
 
-        # Nuget.org cache
-        if [ -n "$NUGET_PUBLIC_RESTORE_FEED_CACHE" ]; then
-          echo "Adding Cached nuget.org feed"
-          NAMES+=("Cache: nuget.org")
-          URLS+=("$NUGET_PUBLIC_RESTORE_FEED_CACHE")
-        elif [ -n "$NUGET_PUBLIC_RESTORE_FEED" ]; then
-          echo "Adding nuget.org feed"
-          NAMES+=("nuget.org")
-          URLS+=("$NUGET_PUBLIC_RESTORE_FEED")
-        else
-          echo "No nuget.org feed"
-        fi
+        add_nuget_feed() {
+          local cache_value="$1" feed_value="$2" feed_label="$3"
+          if [ -n "$cache_value" ]; then
+            echo "Adding Cached ${feed_label} feed"
+            NAMES+=("Cache: ${feed_label}")
+            URLS+=("$cache_value")
+          elif [ -n "$feed_value" ]; then
+            echo "Adding ${feed_label} feed"
+            NAMES+=("$feed_label")
+            URLS+=("$feed_value")
+          else
+            echo "No ${feed_label} feed"
+          fi
+        }
 
-        # Release Packages Feed
-        if [ -n "$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE" ]; then
-          echo "Adding Cached Release feed"
-          NAMES+=("Cache: Additional: Release")
-          URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE")
-        elif [ -n "$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE" ]; then
-          echo "Adding Release feed"
-          NAMES+=("Additional: Release")
-          URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE")
-        else
-          echo "No Release feed"
-        fi
-
-        # Pre-Release Packages Feed
-        if [ -n "$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE" ]; then
-          echo "Adding Cached Pre-Release feed"
-          NAMES+=("Cache: Additional: Pre-Release")
-          URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE")
-        elif [ -n "$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE" ]; then
-          echo "Adding Pre-Release feed"
-          NAMES+=("Additional: Pre-Release")
-          URLS+=("$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE")
-        else
-          echo "No Pre-Release feed"
-        fi
+        add_nuget_feed "$NUGET_PUBLIC_RESTORE_FEED_CACHE" "$NUGET_PUBLIC_RESTORE_FEED" "nuget.org"
+        add_nuget_feed "$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE" "$NUGET_ADDITIONAL_RESTORE_FEED_RELEASE" "Additional: Release"
+        add_nuget_feed "$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE" "$NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE" "Additional: Pre-Release"
 
         {
           echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
