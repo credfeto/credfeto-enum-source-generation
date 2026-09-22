@@ -22,5 +22,5 @@ runs:
       shell: bash
       run: |
         echo "****************************************************************"
-        echo "* Current Build: ${{env.BUILD_VERSION}}"
+        printf '* Current Build: \033[38;5;6m%s\033[0m\n' "$BUILD_VERSION"
         echo "****************************************************************"
