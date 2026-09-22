@@ -1,0 +1,77 @@
+--- # Runs super-linter with the settings appropriate to the calling context
+# Maintain in repo: funfair-server-template
+name: "Run Super-Linter"
+description: "Runs super-linter/super-linter with the validation matrix and GITHUB_SHA handling appropriate to the caller"
+inputs:
+  mode:
+    description: "Which validation matrix to apply: 'pr' (full PR lint pass) or 'sql' (SQLFluff-only, minimal scope, see #869)"
+    required: true
+  github-token:
+    description: "GitHub token"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Validate Mode"
+      if: inputs.mode != 'pr' && inputs.mode != 'sql'
+      shell: bash
+      env:
+        MODE: ${{inputs.mode}}
+      run: |
+        echo "::error::Unsupported mode '$MODE' (expected 'pr' or 'sql')"
+        exit 1
+
+    # GITHUB_SHA handling is mode-specific, not a caller input: each mode has a fixed, known
+    # checkout pattern, so encoding it here (rather than trusting every caller to pass the right
+    # expression) is what actually prevents the two call sites drifting apart again (#995).
+    #   - sql: reached via build/action.yml's dotnet build path, called from
+    #     build-and-publish-pre-release.yml, which checks out an explicit ref that can differ
+    #     from the default GITHUB_SHA on pull_request runs (the ref is the PR head commit, not
+    #     the ephemeral merge commit GITHUB_SHA points at), so it must be overridden to match.
+    #   - pr: pr-lint.yml's checkout never overrides `ref:`, so its default checkout already
+    #     agrees with the default GITHUB_SHA; overriding it here would break that agreement.
+
+    - name: "Run Linter (PR)"
+      if: inputs.mode == 'pr'
+      uses: super-linter/super-linter@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
+      env:
+        GITHUB_TOKEN: ${{inputs.github-token}}
+        CLOUDFORMATION_CONFIG_FILE: .cfnlintrc.yaml
+        DEFAULT_BRANCH: main
+        ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
+        GITHUB_ACTIONS_CONFIG_FILE: actionlint.yaml
+        MULTI_STATUS: true
+        SAVE_SUPER_LINTER_SUMMARY: true
+        SQLFLUFF_CONFIG_FILE: .sqlfluff
+        VALIDATE_ALL_CODEBASE: false
+        VALIDATE_ANSIBLE: true
+        VALIDATE_BASH: true
+        VALIDATE_CLOUDFORMATION: true
+        VALIDATE_CSS: true
+        VALIDATE_DOCKERFILE: true
+        VALIDATE_DOCKERFILE_HADOLINT: true
+        VALIDATE_ENV: true
+        VALIDATE_GITHUB_ACTIONS: true
+        VALIDATE_JSON: true
+        VALIDATE_MD: true
+        VALIDATE_POWERSHELL: true
+        VALIDATE_PYTHON: true
+        VALIDATE_PYTHON_PYLINT: true
+        VALIDATE_SQLFLUFF: true
+        VALIDATE_TYPESCRIPT_ES: true
+        VALIDATE_XML: true
+        VALIDATE_YAML: true
+
+    - name: "Run Linter (SQL)"
+      if: inputs.mode == 'sql'
+      uses: super-linter/super-linter@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
+      env:
+        GITHUB_TOKEN: ${{inputs.github-token}}
+        GITHUB_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false
+        ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false
+        MULTI_STATUS: false
+        SAVE_SUPER_LINTER_SUMMARY: false
+        SQLFLUFF_CONFIG_FILE: .sqlfluff
+        VALIDATE_SQLFLUFF: true
