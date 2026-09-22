@@ -22,3 +22,5 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: dotnet tool run --allow-roll-forward ${{inputs.tool-name}} ${{inputs.tool-arguments}}
+      env:
+        TMP: ${{runner.temp}}
