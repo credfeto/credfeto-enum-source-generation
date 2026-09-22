@@ -70,12 +70,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: "Check Required Secrets"
-        shell: bash
-        run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
-            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
-            exit 1
-          fi
+        uses: ./.github/actions/check-required-secret
+        with:
+          secret-name: "SOURCE_PUSH_TOKEN"
+          secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
 
       - name: "Check Composite Action Versions"
         uses: ./.github/actions/check-composite-action-versions
