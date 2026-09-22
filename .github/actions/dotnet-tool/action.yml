@@ -14,23 +14,17 @@ inputs:
 runs:
   using: "composite"
   steps:
-# yamllint disable rule:line-length
-    - name: "Install dotnet tool (Latest)"
-      if: inputs.tool-version == 'latest'
-      shell: bash
-      working-directory: ${{ github.workspace }}
-      env:
-        TOOL_NAME: ${{inputs.tool-name}}
-      run: (r=5;while ! dotnet tool install --local "$TOOL_NAME" --create-manifest-if-needed --ignore-failed-sources --verbosity diag ; do ((--r))||exit 1;sleep 30;done)
-# yamllint enable rule:line-length
-
-# yamllint disable rule:line-length
-    - name: "Install dotnet tool (Specific Version)"
-      if: inputs.tool-version != 'latest'
+    - name: "Install dotnet tool"
       shell: bash
       working-directory: ${{ github.workspace }}
       env:
         TOOL_NAME: ${{inputs.tool-name}}
         TOOL_VERSION: ${{inputs.tool-version}}
-      run: (r=5;while ! dotnet tool install --local "$TOOL_NAME" --version "$TOOL_VERSION" --create-manifest-if-needed --ignore-failed-sources --verbosity diag ; do ((--r))||exit 1;sleep 30;done)
-# yamllint enable rule:line-length
+      run: |
+        VERSION_ARGS=()
+        [ "$TOOL_VERSION" != 'latest' ] && VERSION_ARGS=(--version "$TOOL_VERSION")
+        r=5
+        while ! dotnet tool install --local "$TOOL_NAME" "${VERSION_ARGS[@]}" --create-manifest-if-needed --ignore-failed-sources --verbosity diag; do
+          ((--r)) || exit 1
+          sleep 30
+        done
