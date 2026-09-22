@@ -181,22 +181,18 @@ runs:
         inputs.npm-signing == 'true' &&
         inputs.project-to-publish != ''
       name: "NPM: Build Package"
-      shell: bash
-      working-directory: ${{ github.workspace }}
-      run: |
-        dotnet buildcontentpackage build \
-              --source-path "$SOURCE_FOLDER" \
-              --target-path "$OUTPUT_FOLDER" \
-              --version "${{inputs.build-version}}" \
-              --wallet "$WALLET_FILE" \
-              --wallet-password "${{ inputs.npm-content-package-wallet-password }}"
+      uses: ./.github/actions/dotnet-tool-run
+      with:
+        working-directory: "${{github.workspace}}"
+        tool-name: "buildcontentpackage"
+        tool-arguments: "build \
+            --source-path \"${{github.workspace}}/src/dist\" \
+            --target-path \"${{github.workspace}}/dist\" \
+            --version \"${{inputs.build-version}}\" \
+            --wallet \"${{github.workspace}}/Wallet.json\" \
+            --wallet-password \"${{ inputs.npm-content-package-wallet-password }}\""
   #            --warnings-as-error
   #            --optimise \
-      env:
-        SOURCE_FOLDER: "${{github.workspace}}/src/dist"
-        OUTPUT_FOLDER: "${{github.workspace}}/dist"
-        WALLET_FILE: ${{github.workspace}}/Wallet.json
-        TMP: ${{runner.temp}}
 
     - if: |
         inputs.npm-signing == 'true' &&
