@@ -506,34 +506,10 @@ jobs:
           secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
 
       - name: "Run Linter"
-        uses: super-linter/super-linter@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
-        env:
-          CLOUDFORMATION_CONFIG_FILE: .cfnlintrc.yaml
-          DEFAULT_BRANCH: main
-          ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
-          GITHUB_ACTIONS_CONFIG_FILE: actionlint.yaml
-          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          MULTI_STATUS: true
-          SAVE_SUPER_LINTER_SUMMARY: true
-          SQLFLUFF_CONFIG_FILE: .sqlfluff
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_ANSIBLE: true
-          VALIDATE_BASH: true
-          VALIDATE_CLOUDFORMATION: true
-          VALIDATE_CSS: true
-          VALIDATE_DOCKERFILE: true
-          VALIDATE_DOCKERFILE_HADOLINT: true
-          VALIDATE_ENV: true
-          VALIDATE_GITHUB_ACTIONS: true
-          VALIDATE_JSON: true
-          VALIDATE_MD: true
-          VALIDATE_POWERSHELL: true
-          VALIDATE_PYTHON: true
-          VALIDATE_PYTHON_PYLINT: true
-          VALIDATE_SQLFLUFF: true
-          VALIDATE_TYPESCRIPT_ES: true
-          VALIDATE_XML: true
-          VALIDATE_YAML: true
+        uses: ./.github/actions/super-linter
+        with:
+          mode: "pr"
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
 
   # @@required: main
   poutine:
