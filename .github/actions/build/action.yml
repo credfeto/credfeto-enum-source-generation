@@ -217,18 +217,10 @@ runs:
 # yamllint enable rule:line-length
 
     - name: "Check Files Results"
-      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-      with:
-        script: |
-          core.info('CSPROJ_EXIST: ${{steps.check_files.outputs.CSPROJ_EXIST}}');
-          core.info('SLN_EXIST: ${{steps.check_files.outputs.SLN_EXIST}}');
-          core.info('SQL_EXIST: ${{steps.check_files.outputs.SQL_EXIST}}');
-          core.info('NPM_EXIST_SRC: ${{steps.check_files.outputs.NPM_EXIST_SRC}}');
-          core.info('NPM_EXIST_ROOT: ${{steps.check_files.outputs.NPM_EXIST_ROOT}}');
-          core.info('NPM_SIGNING_EXIST: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}');
-          core.info('DOCKERFILE_EXIST: ${{steps.check_files.outputs.DOCKERFILE_EXIST}}');
-          core.info('HEALTHCHECK_EXIST: ${{steps.check_files.outputs.HEALTHCHECK_EXIST}}');
-          core.info('CLOUDFORMATION_EXIST: ${{steps.check_files.outputs.CLOUDFORMATION_EXIST}}');
+      shell: bash
+      env:
+        CHECK_FILES_OUTPUTS: ${{ toJSON(steps.check_files.outputs) }}
+      run: echo "$CHECK_FILES_OUTPUTS"
 
     - name: "Prepare build Results folder"
       working-directory: ${{github.workspace}}
@@ -273,12 +265,11 @@ runs:
       id: build_tools
       shell: bash
       env:
-        CSPROJ_EXIST: ${{steps.check_files.outputs.CSPROJ_EXIST}}
-        SLN_EXIST: ${{steps.check_files.outputs.SLN_EXIST}}
+        DOTNET_EXIST: ${{steps.check_files.outputs.DOTNET_EXIST}}
         NPM_EXIST_SRC: ${{steps.check_files.outputs.NPM_EXIST_SRC}}
         NPM_EXIST_ROOT: ${{steps.check_files.outputs.NPM_EXIST_ROOT}}
       run: |
-        [[ ("$CSPROJ_EXIST" == 'true' && "$SLN_EXIST" == 'true') || "$NPM_EXIST_SRC" == 'true' || "$NPM_EXIST_ROOT" == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
+        [[ "$DOTNET_EXIST" == 'true' || "$NPM_EXIST_SRC" == 'true' || "$NPM_EXIST_ROOT" == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
 # yamllint enable rule:line-length
 
     - name: "Install Multi-push tool"
@@ -318,7 +309,7 @@ runs:
         { echo "DEPLOY=true"; echo "RELEASE=false"; } >> "$GITHUB_ENV"
 
     - name: Deploy check - Is release branch
-      if: contains(env.BUILD_VERSION, '-') == false
+      if: "!contains(env.BUILD_VERSION, '-')"
       shell: bash
       run: |
         { echo "DEPLOY=true"; echo "RELEASE=true"; } >> "$GITHUB_ENV"
