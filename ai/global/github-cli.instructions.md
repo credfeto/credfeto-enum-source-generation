@@ -75,12 +75,14 @@ Every issue raised must be added to the "Workflow" project linked to the reposit
 
 ```bash
 # Find the repo's linked Workflow project number
-gh api graphql -f query='query{repository(owner:"<owner>",name:"<repo>"){projectsV2(first:10){nodes{number title}}}}' \
-  --jq '.data.repository.projectsV2.nodes[] | select(.title=="Workflow") | .number'
+gh repo view <owner>/<repo> --json projectsV2 \
+  --jq '.projectsV2.Nodes[] | select(.title=="Workflow") | .number'
 
 # Add the issue to it
 gh project item-add <project-number> --owner <owner> --url <issue-url>
 ```
+
+Prefer a native `gh <noun> <verb>` subcommand over `gh api graphql` wherever one exists: see [agent-roles.instructions.md](agent-roles.instructions.md#looking-up-the-board-when-claudemd-has-no-workflow-board-section) for the reasoning and the full Workflow-board lookup/verify sequence, none of which needs `gh api graphql` any more.
 
 ### Available JSON Fields: `gh issue view`/`gh issue list`
 
@@ -191,7 +193,7 @@ gh run rerun <run-id> --repo <owner>/<repo>
 
 ## REST and GraphQL API (`gh api`)
 
-Use `gh api` for anything not covered by a dedicated subcommand (project boards, review-comment threads, collaborator management, releases lookups).
+**Prefer a native `gh <noun> <verb>` subcommand over `gh api`/`gh api graphql` whenever one covers the operation.** Raw GraphQL query strings are more likely to be misread as obfuscated/spam-shaped input by the agent sandbox's bash content filter than an equivalent flat `gh` invocation, and `gh api graphql` mutations are separately denied outright by the sandbox (see [agent-roles.instructions.md](agent-roles.instructions.md#looking-up-the-board-when-claudemd-has-no-workflow-board-section)). Only reach for `gh api`/`gh api graphql` when no dedicated subcommand exists for the operation at all (e.g. review-comment threads, collaborator management, releases lookups); project-board lookups and field read-backs are all covered by native `gh project`/`gh repo view` subcommands, see the section linked above.
 
 ```bash
 # REST: simple GET
