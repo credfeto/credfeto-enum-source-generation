@@ -80,7 +80,7 @@ Applies whenever a human asks you to _do_ something in the context of a repo (a 
   - Labels: `AI-Work` and `Blocked` (minimum), always, regardless of who initiated the underlying task; add other relevant labels (e.g. priority) as appropriate.
 - **P2.** Use Plan Mode to work out scope, affected files, and approach, and post it as an `## Implementation Plan` issue comment per the format in [agent-roles.instructions.md](agent-roles.instructions.md#issue-workflow-plan-first-new-issues-only).
 - **P3.** As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end.
-- **P4.** Do not proceed until an explicit human approval comment exists (`approved` / `go ahead` / `looks good` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first (see [Blocked Label](agent-roles.instructions.md#blocked-label)).
+- **P4.** Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first (see [Blocked Label](agent-roles.instructions.md#blocked-label)). In an interactive session, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session), which applies to these tracking issues too.
 - **P5.** Once approved and `Blocked` is removed:
   - If the request needs a code change, proceed via the routing table below and open a PR referencing the issue when ready.
   - If the request is read-only/informational (no code change), post the answer as an issue comment and close the issue.
@@ -163,12 +163,12 @@ On every agent run, for every PR being interacted with:
 
   The `Blocked` and `On-Hold` labels are explicitly excluded; workflow-control labels must never be synced from an issue to its PR.
 
-- **P4.** Never remove any label from a PR or issue; GitHub workflows add labels automatically and they must not be removed.
+- **P4.** Never remove any label from a PR or issue; GitHub workflows add labels automatically and they must not be removed. Sole exception: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5.
 
 ## Label Management (MANDATORY)
 
 - Always use `--add-label` when adding labels; **never** `--label`, which replaces all existing labels and destroys automatically-applied classification labels. See [github-cli.instructions.md](github-cli.instructions.md#labels) for command syntax.
-- Never remove labels from issues or PRs. GitHub workflows add classification labels automatically; removing them breaks automation.
+- Never remove labels from issues or PRs. GitHub workflows add classification labels automatically; removing them breaks automation. Sole exception: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5.
 
 ## Missing CLI Tools (MANDATORY)
 
