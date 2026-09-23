@@ -164,15 +164,13 @@ Every repo with a board names its GitHub Projects (v2) board **"Workflow"**, lin
 
 ```bash
 # Step 1: find the "Workflow" project linked to this repo (gives WF_PROJECT_ID and WF_PROJECT_NUMBER)
-IFS=$'\t' read -r WF_PROJECT_ID WF_PROJECT_NUMBER <<<"$(gh api graphql \
-  -f query='query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){projectsV2(first:20){nodes{id number title}}}}' \
-  -f owner=<owner> -f repo=<repo> \
-  --jq '.data.repository.projectsV2.nodes[] | select(.title=="Workflow") | [.id,(.number|tostring)] | @tsv')"
+IFS=$'\t' read -r WF_PROJECT_ID WF_PROJECT_NUMBER <<<"$(gh repo view <owner>/<repo> \
+  --json projectsV2 \
+  --jq '.projectsV2.Nodes[] | select(.title=="Workflow") | [.id,(.number|tostring)] | @tsv')"
 
 # Step 2: resolve the Workflow Status field and its option IDs (gives WF_STATUS_FIELD_ID and each WF_* option id)
-gh api graphql \
-  -f query='query($project:ID!){node(id:$project){... on ProjectV2{field(name:"Workflow Status"){... on ProjectV2SingleSelectField{id options{id name}}}}}}' \
-  -f project="${WF_PROJECT_ID}"
+gh project field-list "${WF_PROJECT_NUMBER}" --owner <owner> --format json \
+  --jq '.fields[] | select(.name=="Workflow Status")'
 ```
 
 **Field name is `"Workflow Status"`, never the bare `"Status"`.** Every "Workflow" project also carries GitHub's own built-in `Status` field (default options: Todo/In Progress/Done) alongside the custom `Workflow Status` field the orchestrator creates (see `_wf_create_project` in `credfeto-orchestrator`'s `lib/workflow-board`) — the two coexist on the same project. Querying `field(name:"Status")` silently resolves to the wrong, built-in field: it returns real option IDs (so nothing errors), but none of them map to any `WF_*` value, which was previously misread as "this board has no Approved option" / "no board configured" instead of "wrong field name" (confirmed live: `credfeto/credfeto-orchestrator#1400`, where this caused an issue to sit with no board card and no way to mark it Approved). Always query by the exact string `"Workflow Status"`.
@@ -183,7 +181,9 @@ Match each returned option's `name` to its `WF_*` variable: `Not Started`→`WF_
 
 **Use the structured `gh project` subcommands below, never raw `gh api graphql` mutations.** A `gh api graphql` call whose query string contains the literal word `mutation` is deterministically denied by the agent sandbox's permission system, even though the equivalent `query`-shaped call succeeds (confirmed live: `credfeto/cs-template#1046`). The `gh project item-add`/`item-edit` subcommands below are pre-approved as ordinary `gh` invocations and cover the add-item/set-status steps without ever constructing a raw mutation string.
 
-To update the board status, replace `<STATUS_OPTION_ID>` with the appropriate `WF_*` value, `<owner>` with the repo owner, and `<ISSUE_OR_PR_URL>` with the issue or PR's full URL:
+**Prefer a native `gh <noun> <verb>` subcommand over `gh api graphql` everywhere, not just for mutations.** Raw GraphQL query strings are also more likely to be misread as obfuscated/spam-shaped input by the agent sandbox's bash content filter than an equivalent flat `gh` invocation. All three lookup/verify steps in this section (find the project, resolve the field, read back the write) use native `gh` subcommands for exactly this reason: `gh repo view --json projectsV2`, `gh project field-list`, and `gh project item-list` (confirmed live: its default JSON output already includes each custom field's current value under the field's own name, e.g. `.items[]["workflow Status"]`, no `--field`/`--field-id` flag needed). None of the Workflow-board flow needs `gh api graphql` any more. Only fall back to `gh api graphql`/`gh api` when no native subcommand covers the operation at all (see [github-cli.instructions.md](github-cli.instructions.md#rest-and-graphql-api-gh-api) for examples).
+
+To update the board status, replace `<STATUS_OPTION_ID>` with the appropriate `WF_*` value, `<STATUS_OPTION_NAME>` with that same option's display name (e.g. `Approved`), `<owner>` with the repo owner, and `<ISSUE_OR_PR_URL>` with the issue or PR's full URL:
 
 ```bash
 # Step 1: add the item to the project and capture its project item ID
@@ -195,16 +195,16 @@ ITEM_ID=$(gh project item-add "${WF_PROJECT_NUMBER}" --owner <owner> --url "<ISS
 gh project item-edit --project-id "${WF_PROJECT_ID}" --id "${ITEM_ID}" \
   --field-id "${WF_STATUS_FIELD_ID}" --single-select-option-id "<STATUS_OPTION_ID>"
 
-# Step 3: verify the write actually persisted (querying only the target field, not the whole item); retry up to 3 times with backoff if not.
+# Step 3: verify the write actually persisted (querying only the target field's value by name,
+# via the item's own id, not the whole board); retry up to 3 times with backoff if not.
+# -L is set well above the board's known item count so the newly-added item is never paged out.
 for attempt in 1 2 3; do
-  ACTUAL=$(gh api graphql \
-    -f query='query($i:ID!){node(id:$i){... on ProjectV2Item{fieldValueByName(name:"Workflow Status"){... on ProjectV2ItemFieldSingleSelectValue{optionId}}}}}' \
-    -f i="${ITEM_ID}" \
-    --jq '.data.node.fieldValueByName.optionId')
-  [ "$ACTUAL" = "<STATUS_OPTION_ID>" ] && break
+  ACTUAL=$(gh project item-list "${WF_PROJECT_NUMBER}" --owner <owner> --format json -L 1000 \
+    --jq ".items[] | select(.id==\"${ITEM_ID}\") | .[\"workflow Status\"]")
+  [ "$ACTUAL" = "<STATUS_OPTION_NAME>" ] && break
   sleep "$attempt"
 done
-[ "$ACTUAL" = "<STATUS_OPTION_ID>" ] || echo "::warning::Workflow board write did not persist after 3 attempts"
+[ "$ACTUAL" = "<STATUS_OPTION_NAME>" ] || echo "::warning::Workflow board write did not persist after 3 attempts"
 ```
 
 **Step 3 is MANDATORY, not optional.** `gh project item-edit` can return success on an item that was just added by `gh project item-add` in Step 1, without the field write actually persisting: a known eventual-consistency race in the underlying Projects v2 API on freshly-added items. Reporting success (a log line, a `core.notice`, a status comment) without this read-back verification is a real bug that shipped and went unnoticed because nothing threw (see `funfair-tech/funfair-server-template` issue #918, fixed in PR #920, for the incident this rule is drawn from). Never skip the verification step to save a round-trip.
