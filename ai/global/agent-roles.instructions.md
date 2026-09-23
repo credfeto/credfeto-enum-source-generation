@@ -22,13 +22,13 @@ When picking up an **Issue** that has no existing PR:
 
   ```bash
   gh issue view <number> --repo <owner/repo> --json comments \
-    --jq '[.comments[].body] | any(test("## Implementation Plan"; "i"))'
+    --jq '[.comments[].body] | any(test("^## Implementation Plan"; "i"))'
   ```
 
   - `false` → Plan mode (P3–P4 below).
   - `true` → Plan exists. How approval is signalled depends on whether a Workflow board is configured (the orchestrator passes this context in your CLAUDE.md):
-    - **Board configured**: check whether a human has set the board status to **Approved**. If yes → skip to implementation. If not yet → revise or re-post the plan, mark Blocked, STOP (P3).
-    - **No board**: check for a human approval comment posted **after** the plan comment (keywords: `approved` / `go ahead` / `looks good` / `lgtm`, case-insensitive, whole word). If found → skip to implementation. If not → revise or re-post, mark Blocked, STOP (P3).
+    - **Board configured**: check whether a human (an `OWNER`, `MEMBER` or `COLLABORATOR`; the board only lets people with project write access move a card) has set the board status to **Approved**. If yes → skip to implementation. If not yet → re-post any revised plan as a new comment, mark Blocked, STOP (P3); in an interactive session, then wait as in [Waiting for Approval in an Interactive Session](#waiting-for-approval-in-an-interactive-session).
+    - **No board**: check for a human approval comment from an `OWNER`, `MEMBER` or `COLLABORATOR` (by `authorAssociation`) posted **after** the plan comment (keywords: `approved` / `lgtm`, case-insensitive, whole word). If found → skip to implementation. If not → re-post any revised plan as a new comment, mark Blocked, STOP (P3); in an interactive session, then wait as in [Waiting for Approval in an Interactive Session](#waiting-for-approval-in-an-interactive-session).
 
   Either way, before skipping to implementation, check for an existing branch first (see [git.instructions.md#branching](git.instructions.md#branching)).
 
@@ -61,13 +61,69 @@ When picking up an **Issue** that has no existing PR:
   gh issue edit <number> --repo <owner/repo> --add-label Blocked
   ```
 
-  **Approval requires an explicit human action; the orchestrator never removes `Blocked` automatically:**
-  - **Board configured**: human sets board status to **Approved** and removes `Blocked`.
-  - **No board**: human posts an approval comment (`approved` / `go ahead` / `looks good` / `lgtm`) and removes `Blocked`.
+  **Approval requires an explicit human action; the orchestrator never removes `Blocked` automatically (sole exception: live-chat approval in an interactive session, [P5](#waiting-for-approval-in-an-interactive-session)):**
+  - **Board configured**: a human (`OWNER`, `MEMBER` or `COLLABORATOR`) sets board status to **Approved** and removes `Blocked`.
+  - **No board**: a human (`OWNER`, `MEMBER` or `COLLABORATOR`) posts an approval comment (`approved` / `lgtm`) and removes `Blocked`.
 
-**Check GitHub's live state, not just chat.** A human's approval action may land directly on the issue/PR (a comment, a label change, moving the board card) without also being repeated in chat — they already have to open the item to read the posted plan, so relaying it a second time in chat is not something to wait on. Before treating an item as approved, still blocked, or unchanged, re-check its live state (`gh issue view`/`gh pr view` for labels and comments, plus the board's `Workflow Status` field) rather than relying on stale memory or assuming silence in chat means nothing has happened on GitHub. This cuts both ways: a literal chat-only approval (a human typing an equivalent of the keywords above directly into the chat session, rather than posting them as a GitHub comment) is still valid on its own, but must be mirrored as a GitHub comment per the live-chat rule in [Blocked Label](#blocked-label) so the record survives even if the chat session is lost — do not treat chat-only approval as a substitute for checking GitHub, and do not treat an unexplained GitHub-side state change as approval without confirming a human actually made it (an automated board rule or a stray process flipping a field is not a human decision).
+  Revise a plan by posting a new `## Implementation Plan` comment, never by editing one in place, so approval is always judged against the latest plan comment.
+
+  In an interactive session, keep watching the issue rather than ending the turn: see [Waiting for Approval in an Interactive Session](#waiting-for-approval-in-an-interactive-session).
+
+**Check GitHub's live state, not just chat.** A human's approval action may land directly on the issue/PR (a comment, a label change, moving the board card) without also being repeated in chat — they already have to open the item to read the posted plan, so relaying it a second time in chat is not something to wait on. Before treating an item as approved, still blocked, or unchanged, re-check its live state (`gh issue view`/`gh pr view` for labels and comments, plus the board's `Workflow Status` field) rather than relying on stale memory or assuming silence in chat means nothing has happened on GitHub. This cuts both ways: a literal chat-only approval (a human typing one of the keywords above directly into the chat session, rather than posting them as a GitHub comment) is still valid on its own, but must be mirrored as a GitHub comment per the live-chat rule in [Blocked Label](#blocked-label) so the record survives even if the chat session is lost — do not treat chat-only approval as a substitute for checking GitHub, and do not treat an unexplained GitHub-side state change as approval without confirming a human actually made it (an automated board rule or a stray process flipping a field is not a human decision).
 
 **Scope of the Approved gate — once a PR exists, this section no longer applies.** The gate above governs only picking up an Issue that has **no existing PR**. A Pull Request is never opened for an Issue until that gate has already been passed by a human — the PR's own existence *is* the authorisation. A PR-phase session must never re-derive or re-check approval from the PR's own Workflow board card: that card is purely a phase marker for the PR Workflow below, not a second approval gate. If a PR's own card still reads "Not Started", "Planning", or "Approved" (e.g. the session that opened the draft PR died before advancing its card, or a freshly-seeded board has not caught up yet), treat that as "Development" and continue with the PR Workflow below — never block pending approval, and never treat it as evidence the linked Issue was never approved (confirmed incident: `credfeto/recommendations-defi-dashboard#412`, where a PR-phase session misread its own lagging "Not Started" card this way and blocked instead of finishing the deferred implementation — [credfeto/credfeto-orchestrator#1276](https://github.com/credfeto/credfeto-orchestrator/issues/1276)). The two cards are kept in step automatically (issue → PR, forward-only) by the orchestrator itself; this is not something a session needs to reconcile by hand.
+
+#### Waiting for Approval in an Interactive Session
+
+Interactive sessions only; an unattended run stops at Plan First P4 and must not poll. A session counts as interactive only once a human has typed a message in it; an injected prompt or task notification does not count. If unsure, assume it is unattended, as in [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work).
+
+- **P1.** After Plan First P4 has posted the plan and added `Blocked` (or, on resume, after Plan First P2 finds a plan that is not yet approved), "STOP" there means stop working on the issue, not stop watching it. Run the P2 read once now and take its `plan` as the baseline (P3), then start a dynamic-pacing loop instead of ending the turn:
+
+  ```text
+  /loop check whether issue <number> in <owner/repo> has been approved (plan baseline <plan>); if not, wait
+  ```
+
+- **P2.** Each tick, read all of the following, then decide (do not stop early, so a half-finished approval can be flagged):
+  1. The labels, the latest plan comment's `createdAt`, and the comments a trusted commenter (`authorAssociation` of `OWNER`, `MEMBER` or `COLLABORATOR`) posted after it:
+
+     ```bash
+     gh issue view <number> --repo <owner/repo> --json labels,comments \
+       --jq '([.comments[] | select(.body | test("^## Implementation Plan"; "i"))] | last | .createdAt) as $plan
+             | {blocked: ([.labels[].name] | index("Blocked") != null),
+                plan: $plan,
+                afterPlan: [.comments[]
+                  | select($plan != null and .createdAt > $plan
+                    and (.authorAssociation | IN("OWNER", "MEMBER", "COLLABORATOR")))
+                  | .body]}'
+     ```
+
+     Read `afterPlan` and judge it as Plan First P2 does: a comment approves only if it uses one of the Plan First P4 keywords as an unconditional approval, not a question, a negation or a qualified approval ("approved, but ..."). The agent's own mirror comments (P5) are harmless: they are only posted once the wait is over.
+  2. **Board configured only**: the card's `Workflow Status`, as in [Looking Up the Board](#looking-up-the-board-when-claudemd-has-no-workflow-board-section). No output means the card is not listed yet (`gh project item-list` can lag), so treat it as not approved:
+
+     ```bash
+     gh project item-list "${WF_PROJECT_NUMBER}" --owner <owner> --format json -L 1000 \
+       --jq '.items[] | select(.content.number==<number> and .content.repository=="<owner>/<repo>") | .["workflow Status"]'
+     ```
+
+  Decide as follows, using the same rules as Plan First P2 and P4:
+  - **Approved**: `blocked` is `false` and `plan` is not null, and either the card is `Approved` (board configured) or a comment in `afterPlan` approves (no board), and `plan` still equals the baseline (P3).
+  - **Half-finished**: the approval signal is present but `blocked` is still `true` (the human has not finished clearing it). Keep waiting and tell the human in chat when you first see it.
+  - **Otherwise**: not yet, and wait silently. If `plan` is null, no plan comment was found: tell the human and stop the loop.
+
+- **P3.** The plan baseline is the `plan` value from the P1 read (the latest plan comment's `createdAt`, whether just posted or found on resume); carry it in the `/loop` prompt (P1) so it is explicit on every tick. The plan comment is found by its heading alone, so a plan posted under any account is seen. If a later tick returns a different `plan`, the plan changed and earlier approvals no longer count. On the board, a card only stays `Approved` for a plan that has not been re-posted, because every re-post resets the card to **Planning** (Plan First P4). If you revised the plan, restart from Plan First P4 with the new plan (`Blocked` re-added, board back to **Planning**, new baseline in the prompt); if someone else posted it, tell the human in chat and wait for their direction instead of treating it as the plan.
+
+- **P4.** Pace the loop with `ScheduleWakeup`, as the `/loop` skill's dynamic mode does (it defines the parameters, including `noop` and `stop`), passing the `/loop` prompt from P1 back each tick. If `ScheduleWakeup` is unavailable, do not poll: tell the human the issue is waiting and that saying `approved` in chat (P5) will continue the work.
+  - Wait `delaySeconds: 1200` (20 minutes) with `noop: true` while nothing has changed. There is no wait cap: the loop ends when the session does, and the 30-minute deadline in [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory) governs commands, not a wait for a human.
+  - On approval, whether found on a tick or given in chat (P5), stop the loop with `ScheduleWakeup` and `stop: true`, check for an existing branch as in Plan First P2, and continue to implementation.
+
+- **P5.** **Live-chat approval ends the wait immediately.** If the human's chat message opens with the literal word `approved` or `lgtm` (case-insensitive) and is otherwise an unconditional approval, do not wait for the next tick. This is the one place the agent acts on a chat message alone. A question ("is this approved yet?"), a negation ("not approved"), a qualified approval or a passing mention does not count; if in doubt, ask:
+  1. Re-run the P2 read and confirm the message refers to this issue, `plan` still equals the baseline, `Blocked` is only the plan-approval block and the plan has no unresolved Open questions; if any check fails, ask instead of acting. `Blocked` counts as only the plan-approval block when no comment posted after the latest plan comment asks a question, reports a failed baseline or a timeout, or carries an environment-block marker (`<!-- orchestrator:env-block`): read the comments after the plan and judge them, as in P2.
+  2. Post the mirror comment on the issue as in [Blocked Label](#blocked-label) P4.
+  3. Remove the label: `gh issue edit <number> --repo <owner/repo> --remove-label Blocked`.
+  4. If board data is present, set `Workflow Status` to **Approved** using the [Workflow Board](#workflow-board) update procedure, including its read-back verification.
+  5. Stop the loop and continue as in P4.
+
+  This is the one documented exception to the rules that only a human clears `Blocked` ([Plan First](#issue-workflow-plan-first-new-issues-only) P4, [Blocked Label](#blocked-label) P2 and P4) and to the never-remove-labels rules in [task-workflow.instructions.md](task-workflow.instructions.md#label-management-mandatory): the human's chat instruction is the explicit action and the agent carries out the label and board changes on their behalf. It covers only the plan-approval `Blocked` of an issue in an interactive session; any other `Blocked` (a question, a failed baseline, an environment block) still waits for the human to clear it.
 
 ### PR Workflow: AI Review Loop
 
@@ -222,7 +278,7 @@ When asking a question in a PR or issue comment and waiting for an answer before
   - PR: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`
 - **P2.** Do **not** continue working on the item until the label is removed.
 - **P3.** Use **only** the `Blocked` label for this purpose; do **not** use labels like `do not merge`, `needs review`, or any other substitute. The orchestrator only recognises `Blocked` when deciding whether to skip an item.
-- **P4.** **Live-chat approval is not sufficient on its own.** If a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work (and before asking for `Blocked` to be removed). The record must survive even if the chat session is lost.
+- **P4.** **Live-chat approval is not sufficient on its own.** If a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work (and before asking for `Blocked` to be removed). The record must survive even if the chat session is lost. Exception (waives only the human-clears-`Blocked` requirement, never the mirror comment): plan-approval `Blocked` in an interactive session; see [Waiting for Approval in an Interactive Session](#waiting-for-approval-in-an-interactive-session) P5.
 
 ### Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 
