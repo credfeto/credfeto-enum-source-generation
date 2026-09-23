@@ -14,7 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 ### Changed
 - Dependencies - Updated Microsoft.Sbom.Targets to 4.1.13
-- Dependencies - Updated Meziantou.Analyzer to 3.0.284
+- Dependencies - Updated Meziantou.Analyzer to 3.0.288
 ### Deprecated
 ### Removed
 ### Deployment Changes
