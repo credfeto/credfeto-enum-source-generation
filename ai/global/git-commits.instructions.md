@@ -27,7 +27,6 @@ If hooks or formatters modify files **not in your intended change set**:
 ## Commit Message Format
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format.
-- Include the user's original prompt verbatim in the commit body, prefixed with `Prompt:` followed by a space, not in the title.
 
 ### Pattern Sweep Commits
 
