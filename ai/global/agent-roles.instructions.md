@@ -55,7 +55,7 @@ When picking up an **Issue** that has no existing PR:
 
   **Open questions vs. embedded conditional decisions:** any conditional or deferred decision point in the Approach or Files-to-change text — a decision the plan does not itself resolve (e.g. "needs policy sign-off", "pending a decision on X", an either/or left open) — must be lifted out into its own `Qn.` entry under Open questions, not left as prose in Approach/Files-to-change. Prose framing hides it from the Blocked/approval gate below, which only inspects Open questions; a `Qn.` entry is what actually forces it through that gate. (Background: `funfair-server-template#857`'s plan left "conversion or policy sign-off needed" for `anchore/*` as Approach prose rather than a `Qn.`; nothing gated on it, and the sign-off was never visibly resolved before the issue closed — see [Pre-Closure Decision Check](task-workflow.instructions.md#pre-closure-decision-check-mandatory).)
 
-- **P4.** Mark the issue as Blocked and update the Workflow board to **Planning** (if board data is present), then **STOP**:
+- **P4.** Mark the issue as Blocked and update the Workflow board to **Planning** (if the repo has a Workflow board), then **STOP**:
 
   ```bash
   gh issue edit <number> --repo <owner/repo> --add-label Blocked
@@ -69,7 +69,7 @@ When picking up an **Issue** that has no existing PR:
 
   In an interactive session, keep watching the issue rather than ending the turn: see [Waiting for Approval in an Interactive Session](#waiting-for-approval-in-an-interactive-session).
 
-**Check GitHub's live state, not just chat.** A human's approval action may land directly on the issue/PR (a comment, a label change, moving the board card) without also being repeated in chat — they already have to open the item to read the posted plan, so relaying it a second time in chat is not something to wait on. Before treating an item as approved, still blocked, or unchanged, re-check its live state (`gh issue view`/`gh pr view` for labels and comments, plus the board's `Workflow Status` field) rather than relying on stale memory or assuming silence in chat means nothing has happened on GitHub. This cuts both ways: a literal chat-only approval (a human typing one of the keywords above directly into the chat session, rather than posting them as a GitHub comment) is still valid on its own, but must be mirrored as a GitHub comment per the live-chat rule in [Blocked Label](#blocked-label) so the record survives even if the chat session is lost — do not treat chat-only approval as a substitute for checking GitHub, and do not treat an unexplained GitHub-side state change as approval without confirming a human actually made it (an automated board rule or a stray process flipping a field is not a human decision).
+**Check GitHub's live state, not just chat.** A human's approval action may land directly on the issue/PR (a comment, a label change, moving the board card) without also being repeated in chat — they already have to open the item to read the posted plan, so relaying it a second time in chat is not something to wait on. Before treating an item as approved, still blocked, or unchanged, re-check its live state (`gh issue view`/`gh pr view` for labels and comments, plus the board's `Workflow Status` field via `cfwf workflow-status --check`) rather than relying on stale memory or assuming silence in chat means nothing has happened on GitHub. This cuts both ways: a literal chat-only approval (a human typing one of the keywords above directly into the chat session, rather than posting them as a GitHub comment) is still valid on its own, but must be mirrored as a GitHub comment per the live-chat rule in [Blocked Label](#blocked-label) so the record survives even if the chat session is lost — do not treat chat-only approval as a substitute for checking GitHub, and do not treat an unexplained GitHub-side state change as approval without confirming a human actually made it (an automated board rule or a stray process flipping a field is not a human decision).
 
 **Scope of the Approved gate — once a PR exists, this section no longer applies.** The gate above governs only picking up an Issue that has **no existing PR**. A Pull Request is never opened for an Issue until that gate has already been passed by a human — the PR's own existence *is* the authorisation. A PR-phase session must never re-derive or re-check approval from the PR's own Workflow board card: that card is purely a phase marker for the PR Workflow below, not a second approval gate. If a PR's own card still reads "Not Started", "Planning", or "Approved" (e.g. the session that opened the draft PR died before advancing its card, or a freshly-seeded board has not caught up yet), treat that as "Development" and continue with the PR Workflow below — never block pending approval, and never treat it as evidence the linked Issue was never approved (confirmed incident: `credfeto/recommendations-defi-dashboard#412`, where a PR-phase session misread its own lagging "Not Started" card this way and blocked instead of finishing the deferred implementation — [credfeto/credfeto-orchestrator#1276](https://github.com/credfeto/credfeto-orchestrator/issues/1276)). The two cards are kept in step automatically (issue → PR, forward-only) by the orchestrator itself; this is not something a session needs to reconcile by hand.
 
@@ -98,11 +98,10 @@ Interactive sessions only; an unattended run stops at Plan First P4 and must not
      ```
 
      Read `afterPlan` and judge it as Plan First P2 does: a comment approves only if it uses one of the Plan First P4 keywords as an unconditional approval, not a question, a negation or a qualified approval ("approved, but ..."). The agent's own mirror comments (P5) are harmless: they are only posted once the wait is over.
-  2. **Board configured only**: the card's `Workflow Status`, as in [Looking Up the Board](#looking-up-the-board-when-claudemd-has-no-workflow-board-section). No output means the card is not listed yet (`gh project item-list` can lag), so treat it as not approved:
+  2. **Board configured only**: the card's `Workflow Status`, read with `cfwf` as in [Updating and Reading the Board with `cfwf`](#updating-and-reading-the-board-with-cfwf). A non-zero exit means treat it as not approved:
 
      ```bash
-     gh project item-list "${WF_PROJECT_NUMBER}" --owner <owner> --format json -L 1000 \
-       --jq '.items[] | select(.content.number==<number> and .content.repository=="<owner>/<repo>") | .["workflow Status"]'
+     cfwf workflow-status --check --repo <owner/repo> --issue <number>
      ```
 
   Decide as follows, using the same rules as Plan First P2 and P4:
@@ -120,7 +119,7 @@ Interactive sessions only; an unattended run stops at Plan First P4 and must not
   1. Re-run the P2 read and confirm the message refers to this issue, `plan` still equals the baseline, `Blocked` is only the plan-approval block and the plan has no unresolved Open questions; if any check fails, ask instead of acting. `Blocked` counts as only the plan-approval block when no comment posted after the latest plan comment asks a question, reports a failed baseline or a timeout, or carries an environment-block marker (`<!-- orchestrator:env-block`): read the comments after the plan and judge them, as in P2.
   2. Post the mirror comment on the issue as in [Blocked Label](#blocked-label) P4.
   3. Remove the label: `gh issue edit <number> --repo <owner/repo> --remove-label Blocked`.
-  4. If board data is present, set `Workflow Status` to **Approved** using the [Workflow Board](#workflow-board) update procedure, including its read-back verification.
+  4. If the repo has a Workflow board, set `Workflow Status` to **Approved** with `cfwf workflow-status --set --repo <owner/repo> --issue <number> --status Approved` (see [Workflow Board](#workflow-board)).
   5. Stop the loop and continue as in P4.
 
   This is the one documented exception to the rules that only a human clears `Blocked` ([Plan First](#issue-workflow-plan-first-new-issues-only) P4, [Blocked Label](#blocked-label) P2 and P4) and to the never-remove-labels rules in [task-workflow.instructions.md](task-workflow.instructions.md#label-management-mandatory): the human's chat instruction is the explicit action and the agent carries out the label and board changes on their behalf. It covers only the plan-approval `Blocked` of an issue in an interactive session; any other `Blocked` (a question, a failed baseline, an environment block) still waits for the human to clear it.
@@ -131,7 +130,7 @@ After all code changes are pushed and all required CI checks pass, **before** en
 
 #### Phase A: Simplify (up to `MAX_SIMPLIFY_ITERATIONS` rounds)
 
-- **P1.** Update Workflow board to **AI Simplify** (if board data is present in your CLAUDE.md).
+- **P1.** Update Workflow board to **AI Simplify** (if the repo has a Workflow board).
 - **P2.** Run: `/simplify` against the diff. It applies reuse, simplification, efficiency, and altitude cleanups directly rather than just reporting them. Also apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the modified files.
 - **P3.** If `/simplify` changed any files: run Changelog (correction) against the resulting diff; commit the code changes and, if the entry changed, `CHANGELOG.md` as a separate commit; push; then return to P2 to re-run against the resulting diff.
 - **P4.** Once `/simplify` makes no further changes: run the [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) for each construct in the net Phase A diff (the commits since P1), not per round, because rounds may revert each other and each sweep would widen the next round's diff. A change with no repeatable construct (a local rename or restructuring) has nothing to sweep. If the sweep changed files: commit, changelog-correct and push as in P3, then proceed to Phase B instead of returning to P2 (Phase B re-covers the swept code).
@@ -143,7 +142,7 @@ After all code changes are pushed and all required CI checks pass, **before** en
 
 #### Phase B: Code review (up to `MAX_CODE_REVIEW_ITERATIONS` rounds)
 
-- **P1.** Update Workflow board to **AI Review** (if board data is present in your CLAUDE.md).
+- **P1.** Update Workflow board to **AI Review** (if the repo has a Workflow board).
 - **P2.** Run: `/code-review --comment`. This intentionally re-covers the reuse/simplification/efficiency categories Phase A's `/simplify` already applied: `/simplify` fixes silently, and this step verifies nothing was missed and separately checks correctness, which `/simplify` does not (security and compliance are not covered by either command; they remain Phase C's job). Expect P2 to usually find nothing in the reuse/simplification/efficiency categories Phase A already handled. Also apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the modified files.
 - **P3.** If NO findings were posted: proceed to Phase C.
 - **P4.** <a id="phase-b-convergence"></a>Otherwise, judge convergence yourself from the PR's history of prior code-review comments: are this round's findings substantively new/distinct, or substantially a repeat of findings already reported (and left unresolved, or fixed and now recurring) in an earlier round? `MIN_REVIEW_CONVERGENCE_ROUNDS` must be set below `MAX_CODE_REVIEW_ITERATIONS`; otherwise the round-cap bullet below always fires first and the non-blocking exit can never trigger.
@@ -153,7 +152,7 @@ After all code changes are pushed and all required CI checks pass, **before** en
     gh pr edit <number> --repo <owner/repo> --add-label Blocked
     ```
 
-  - Otherwise, if substantially repeating a prior round (not finding anything new; not converging) AND at least `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have now run: post a PR comment summarising the unresolved findings and stating that code review is not converging, advance the board to **AI Security Review** (if board data present), post a one-line status comment, then proceed to Phase C. Do NOT add `Blocked`: this means no new correctness issues are surfacing, not that a known one is safe to ignore; the posted comment is what carries the unresolved findings forward to Human Review.
+  - Otherwise, if substantially repeating a prior round (not finding anything new; not converging) AND at least `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have now run: post a PR comment summarising the unresolved findings and stating that code review is not converging, advance the board to **AI Security Review** (if the repo has a Workflow board), post a one-line status comment, then proceed to Phase C. Do NOT add `Blocked`: this means no new correctness issues are surfacing, not that a known one is safe to ignore; the posted comment is what carries the unresolved findings forward to Human Review.
   - Otherwise (either substantially new, or a repeat but fewer than `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have run so far, so one failed fix attempt is not yet enough evidence to give up, and the round cap has not been reached): fix each construct (findings grouped by construct) in its own commit, with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) (a finding that only re-reports the swept construct in files a sweep touched is not substantively new for the convergence judgment above; a new bug in those files is); after each fix and its sweep, run Changelog (correction) and commit `CHANGELOG.md` separately if the entry changed; push; return to P2.
 
 #### Conflict Resolution: Simplify/Code Review vs. Static Analyzer
@@ -162,17 +161,17 @@ If a change proposed by `/simplify` (Phase A) or a finding raised by `/code-revi
 
 #### Phase C: Security review (up to `MAX_SECURITY_REVIEW_ITERATIONS` rounds)
 
-- **P1.** Update Workflow board to **AI Security Review** (if board data present).
+- **P1.** Update Workflow board to **AI Security Review** (if the repo has a Workflow board).
 - **P2.** Run: `/security-review`. Also apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the modified files.
 - **P3.** If NO findings are reported: proceed to Phase D.
 - **P4.** <a id="phase-c-convergence"></a>This mirrors Phase B's [P4](#phase-b-convergence) exactly (substituting security-review for code-review); keep both in sync when editing either. Judge convergence yourself from the PR's history of prior security-review comments: are this round's findings substantively new/distinct, or substantially a repeat of findings already reported (and left unresolved, or fixed and now recurring) in an earlier round? `MIN_REVIEW_CONVERGENCE_ROUNDS` must be set below `MAX_SECURITY_REVIEW_ITERATIONS`; otherwise the round-cap bullet below always fires first and the non-blocking exit can never trigger.
   - If `MAX_SECURITY_REVIEW_ITERATIONS` rounds have already run (judged from the PR's history of security-review comments) and findings remain, whether or not this round's findings are themselves new: post a PR comment listing the unresolved findings, add `Blocked` label, **STOP**.
-  - Otherwise, if substantially repeating a prior round (not finding anything new; not converging) AND at least `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have now run: post a PR comment summarising the unresolved findings and stating that security review is not converging, advance the board to **AI Coverage** (if board data present), post a one-line status comment, then proceed to Phase D. Do NOT add `Blocked`: the same principle as Phase B's exit applies here (see Phase B's [P4](#phase-b-convergence) above).
+  - Otherwise, if substantially repeating a prior round (not finding anything new; not converging) AND at least `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have now run: post a PR comment summarising the unresolved findings and stating that security review is not converging, advance the board to **AI Coverage** (if the repo has a Workflow board), post a one-line status comment, then proceed to Phase D. Do NOT add `Blocked`: the same principle as Phase B's exit applies here (see Phase B's [P4](#phase-b-convergence) above).
   - Otherwise (either substantially new, or a repeat but fewer than `MIN_REVIEW_CONVERGENCE_ROUNDS` rounds have run so far, so one failed fix attempt is not yet enough evidence to give up, and the round cap has not been reached): post findings as a PR comment if not already inline, fix each construct (findings grouped by construct) in its own commit, with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) (a finding that only re-reports the swept construct in files a sweep touched is not substantively new for the convergence judgment above; a new bug in those files is); after each fix and its sweep, run Changelog (correction) and commit `CHANGELOG.md` separately if the entry changed; push; return to P2.
 
 #### Phase D: AI Coverage (up to `MAX_COVERAGE_ITERATIONS` rounds)
 
-- **P1.** Update Workflow board to **AI Coverage** (if board data present).
+- **P1.** Update Workflow board to **AI Coverage** (if the repo has a Workflow board).
 - **P2.** Run the [AI Coverage Phase Decision Procedure](coverage-ratchet.instructions.md#ai-coverage-phase-decision-procedure-mandatory) from [coverage-ratchet.instructions.md](coverage-ratchet.instructions.md): compare the branch's live per-language coverage against the Overall figures in `COVERAGE.md` on `origin/main` (non-code-only branches — dependency bumps, workflow/SQL/shell/Docker/docs-only changes — and a missing `COVERAGE.md` both skip the comparison and pass automatically — see that file's [Non-Code-Only Branches](coverage-ratchet.instructions.md#non-code-only-branches-skip-dont-measure) and bootstrap rules).
 - **P3.** <a id="phase-d-on-failure"></a>On failure (any language's branch coverage below its baseline): the procedure judges the round cap and the round-over-round trend itself and acts accordingly (full branching, including the round-cap `Blocked` exit and the judged-unlikely-to-close `Blocked` exit, is at the decision procedure's [P6](coverage-ratchet.instructions.md#coverage-decision-on-failure)), unlike Phase B/C's findings-based judgment, because coverage has a natural numeric signal to trend on. **STOP** after the procedure's status/`Blocked` comment either way; a status-comment outcome means the next cycle picks the resulting Development work back up, a `Blocked` outcome needs a human.
 - **P4.** On success: the procedure moves the board to **Human Review** and posts a status comment; proceed to Phase E.
@@ -182,7 +181,7 @@ If a change proposed by `/simplify` (Phase A) or a finding raised by `/code-revi
 Only once all four phases have completed without a `Blocked` outcome (each phase passed outright, or exited via its own non-blocking convergence path noted in a PR comment, or there were no reviewable changes):
 
 - **P1.** Safety net (belt-and-suspenders on top of the Code Reviewer Compliance check above): confirm `.deleteme.now` is not present in `git diff origin/main...HEAD --name-only` (see [Changelog](#changelog)); if it is still present, remove it in its own commit, re-run Code Tester, then continue.
-- **P2.** Update Workflow board to **Human Review** (if board data present), unless Phase D already moved it there on success.
+- **P2.** Update Workflow board to **Human Review** (if the repo has a Workflow board), unless Phase D already moved it there on success.
 - **P3.** Enable auto-merge:
 
    ```bash
@@ -193,7 +192,7 @@ Only once all four phases have completed without a `Blocked` outcome (each phase
 
 ### Workflow Board
 
-Each generated `CLAUDE.md` may contain Workflow board data in this format, as a cache of the lookup below so most sessions can skip the API round-trip:
+Each generated `CLAUDE.md` may contain Workflow board data in this format:
 
 ```text
 Workflow board (see agent-roles.instructions.md for update commands):
@@ -212,58 +211,22 @@ Workflow board (see agent-roles.instructions.md for update commands):
   WF_COMPLETE=<option-id>
 ```
 
-If this section is **absent** from your CLAUDE.md, look up the repo's Workflow board instead of skipping updates:
+Its presence tells you the repo has a Workflow board (the "Board configured" branches above), but nothing that uses `cfwf` needs the ids. If it is absent, still try `cfwf`: only if `cfwf` finds no "Workflow" project linked to the repo is there no board, in which case skip board updates silently for the rest of the session.
 
-#### Looking Up the Board (when CLAUDE.md has no Workflow Board section)
+#### Updating and Reading the Board with `cfwf`
 
-Every repo with a board names its GitHub Projects (v2) board **"Workflow"**, linked directly to that repo.
-
-```bash
-# Step 1: find the "Workflow" project linked to this repo (gives WF_PROJECT_ID and WF_PROJECT_NUMBER)
-IFS=$'\t' read -r WF_PROJECT_ID WF_PROJECT_NUMBER <<<"$(gh repo view <owner>/<repo> \
-  --json projectsV2 \
-  --jq '.projectsV2.Nodes[] | select(.title=="Workflow") | [.id,(.number|tostring)] | @tsv')"
-
-# Step 2: resolve the Workflow Status field and its option IDs (gives WF_STATUS_FIELD_ID and each WF_* option id)
-gh project field-list "${WF_PROJECT_NUMBER}" --owner <owner> --format json \
-  --jq '.fields[] | select(.name=="Workflow Status")'
-```
-
-**Field name is `"Workflow Status"`, never the bare `"Status"`.** Every "Workflow" project also carries GitHub's own built-in `Status` field (default options: Todo/In Progress/Done) alongside the custom `Workflow Status` field the orchestrator creates (see `_wf_create_project` in `credfeto-orchestrator`'s `lib/workflow-board`) — the two coexist on the same project. Querying `field(name:"Status")` silently resolves to the wrong, built-in field: it returns real option IDs (so nothing errors), but none of them map to any `WF_*` value, which was previously misread as "this board has no Approved option" / "no board configured" instead of "wrong field name" (confirmed live: `credfeto/credfeto-orchestrator#1400`, where this caused an issue to sit with no board card and no way to mark it Approved). Always query by the exact string `"Workflow Status"`.
-
-Match each returned option's `name` to its `WF_*` variable: `Not Started`→`WF_NOT_STARTED`, `Planning`→`WF_PLANNING`, `Approved`→`WF_APPROVED`, `Development`→`WF_DEVELOPMENT`, `AI Simplify`→`WF_AI_SIMPLIFY`, `AI Review`→`WF_AI_REVIEW`, `AI Security Review`→`WF_AI_SECURITY_REVIEW`, `AI Coverage`→`WF_AI_COVERAGE`, `Human Review`→`WF_HUMAN_REVIEW`, `Complete`→`WF_COMPLETE`. The field's own `id` is `WF_STATUS_FIELD_ID`. Use these looked-up values for the rest of the session exactly as if they had come from CLAUDE.md.
-
-**Only if Step 1 finds no project titled "Workflow" linked to the repo** — there genuinely is no board — skip all board updates silently.
-
-**Use the structured `gh project` subcommands below, never raw `gh api graphql` mutations.** A `gh api graphql` call whose query string contains the literal word `mutation` is deterministically denied by the agent sandbox's permission system, even though the equivalent `query`-shaped call succeeds (confirmed live: `credfeto/cs-template#1046`). The `gh project item-add`/`item-edit` subcommands below are pre-approved as ordinary `gh` invocations and cover the add-item/set-status steps without ever constructing a raw mutation string.
-
-**Prefer a native `gh <noun> <verb>` subcommand over `gh api graphql` everywhere, not just for mutations.** Raw GraphQL query strings are also more likely to be misread as obfuscated/spam-shaped input by the agent sandbox's bash content filter than an equivalent flat `gh` invocation. All three lookup/verify steps in this section (find the project, resolve the field, read back the write) use native `gh` subcommands for exactly this reason: `gh repo view --json projectsV2`, `gh project field-list`, and `gh project item-list` (confirmed live: its default JSON output already includes each custom field's current value under the field's own name, e.g. `.items[]["workflow Status"]`, no `--field`/`--field-id` flag needed). None of the Workflow-board flow needs `gh api graphql` any more. Only fall back to `gh api graphql`/`gh api` when no native subcommand covers the operation at all (see [github-cli.instructions.md](github-cli.instructions.md#rest-and-graphql-api-gh-api) for examples).
-
-To update the board status, replace `<STATUS_OPTION_ID>` with the appropriate `WF_*` value, `<STATUS_OPTION_NAME>` with that same option's display name (e.g. `Approved`), `<owner>` with the repo owner, and `<ISSUE_OR_PR_URL>` with the issue or PR's full URL:
+**Always use `cfwf` for the Workflow board; never hand-compose `gh project`, `gh repo view --json projectsV2` or `gh api graphql` commands for it.** Every command names the item as `--repo <owner/repo>` plus `--pr <n>` or `--issue <n>`.
 
 ```bash
-# Step 1: add the item to the project and capture its project item ID
-# (idempotent - if the item is already in the project, this just returns the existing ID)
-ITEM_ID=$(gh project item-add "${WF_PROJECT_NUMBER}" --owner <owner> --url "<ISSUE_OR_PR_URL>" \
-  --format json --jq '.id')
+# Move an issue or PR to a status (the option's display name, matched without regard to case)
+cfwf workflow-status --set --repo <owner/repo> (--pr <n> | --issue <n>) --status "AI Review"
 
-# Step 2: set the Status field
-gh project item-edit --project-id "${WF_PROJECT_ID}" --id "${ITEM_ID}" \
-  --field-id "${WF_STATUS_FIELD_ID}" --single-select-option-id "<STATUS_OPTION_ID>"
-
-# Step 3: verify the write actually persisted (querying only the target field's value by name,
-# via the item's own id, not the whole board); retry up to 3 times with backoff if not.
-# -L is set well above the board's known item count so the newly-added item is never paged out.
-for attempt in 1 2 3; do
-  ACTUAL=$(gh project item-list "${WF_PROJECT_NUMBER}" --owner <owner> --format json -L 1000 \
-    --jq ".items[] | select(.id==\"${ITEM_ID}\") | .[\"workflow Status\"]")
-  [ "$ACTUAL" = "<STATUS_OPTION_NAME>" ] && break
-  sleep "$attempt"
-done
-[ "$ACTUAL" = "<STATUS_OPTION_NAME>" ] || echo "::warning::Workflow board write did not persist after 3 attempts"
+# Read the current status
+cfwf workflow-status --check --repo <owner/repo> (--pr <n> | --issue <n>)
 ```
 
-**Step 3 is MANDATORY, not optional.** `gh project item-edit` can return success on an item that was just added by `gh project item-add` in Step 1, without the field write actually persisting: a known eventual-consistency race in the underlying Projects v2 API on freshly-added items. Reporting success (a log line, a `core.notice`, a status comment) without this read-back verification is a real bug that shipped and went unnoticed because nothing threw (see `funfair-tech/funfair-server-template` issue #918, fixed in PR #920, for the incident this rule is drawn from). Never skip the verification step to save a round-trip.
+- `--set` adds the item to the board if it is not already there and sets the `Workflow Status`, then prints `Set <url> to <status>`. Exit 0 means GitHub accepted the write; a non-zero exit means the write failed. It deliberately does not read the value back, because GitHub lags behind writes: see [GitHub State Lags Behind Writes](github-cli.instructions.md#github-state-lags-behind-writes-mandatory).
+- `--check` prints the current `Workflow Status` and exits non-zero if the item is not on the board. The output starts with the status name (`Approved`, `AI Review`) and may be followed by a parenthetical such as `(In Progress)`: match the name exactly and ignore anything after it.
 
 ### On-Hold Label
 
