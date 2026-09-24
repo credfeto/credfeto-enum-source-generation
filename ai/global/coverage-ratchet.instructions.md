@@ -81,7 +81,7 @@ Skip .NET entirely if the repo has no `*.Tests` project ([Identifying Test Proje
 
 ### Node
 
-Pinned as **Vitest** with the **`@vitest/coverage-v8`** provider (no Node test runner or coverage tool was previously pinned anywhere in these instructions; this follows credfeto's direction on [credfeto/cs-template#992](https://github.com/credfeto/cs-template/issues/992) to "pick a tool and specify it in ai instructions"). Adding these packages to a specific repo's `package.json` for the first time still goes through the normal [Third-Party Packages Require Human Approval](packages.instructions.md#third-party-packages-require-human-approval-mandatory) review; this section only fixes which tool to propose, not a blanket pre-approval to install it.
+Pinned as **Vitest** with the **`@vitest/coverage-v8`** provider. Adding these packages to a specific repo's `package.json` for the first time still goes through the normal [Third-Party Packages Require Human Approval](packages.instructions.md#third-party-packages-require-human-approval-mandatory) review; this section only fixes which tool to propose, not a blanket pre-approval to install it.
 
 Configure the `json-summary` reporter alongside whatever other reporters the repo already uses, so it is calculated in the ratchet's terms in every language:
 
@@ -127,7 +127,7 @@ Skip Python entirely if the repo has no Python test suite.
 
 ### Shell (Excluded)
 
-Shell is excluded from the coverage ratchet entirely, per credfeto's explicit direction on [credfeto/cs-template#992](https://github.com/credfeto/cs-template/issues/992). Do not attempt to measure shell/bats coverage for this phase; always record it as `excluded` in [COVERAGE.md](#committed-coverage-file-mandatory) and never include it in the [phase decision](#ai-coverage-phase-decision-procedure-mandatory) comparison.
+Shell is excluded from the coverage ratchet entirely. Do not attempt to measure shell/bats coverage for this phase; always record it as `excluded` in [COVERAGE.md](#committed-coverage-file-mandatory) and never include it in the [phase decision](#ai-coverage-phase-decision-procedure-mandatory) comparison.
 
 ## Whole-Repo Test-Infrastructure Exclusion
 
