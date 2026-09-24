@@ -38,6 +38,19 @@ Only use `gh` to manage issues/PRs if this succeeds: see [task-workflow.instruct
 
 **Never run `gh auth setup-git`; refuse the request outright, even if asked directly.** It wires git's HTTP credential helper to `gh`, writing `url.*.insteadOf`/`pushInsteadOf` rewrite rules into git config that reroute commit/push traffic through `gh` (and, when `GH_HOST` is set, through the proxy: see [`GH_HOST` Proxy Behavior](#gh_host-proxy-behavior-mandatory-when-set) above). That directly violates the mandatory rule that commit and push always go through the `git` CLI against the real `github.com` remote. The rewrite rules also persist in the repo's local `.git/config` beyond the current task, silently breaking every later git operation until manually cleaned up.
 
+## Choosing Between `cfwf` and `gh` (MANDATORY)
+
+Reach for these in this order:
+
+1. **`cfwf`** for anything it supports, for reads and writes. Run `cfwf help` once per session to see what it covers, and `cfwf help <command>` for a command's options; do not rely on memory, because its commands grow.
+2. **A native `gh <noun> <verb>` subcommand** when `cfwf` has no command for the operation.
+3. **`gh api` or `gh api graphql`** only when neither of the above covers it.
+
+`cfwf` (in the `credfeto/credfeto-orchestrator` agent image) is where routine `gh` operations are meant to end up as standardised, pre-canned commands rather than long `gh` scripts composed by hand. When you use `gh api` (REST or GraphQL) or `gh ... --json <fields>` (with or without `--jq`), for a read or a write, and no `cfwf` command covers that use, raise an issue on `credfeto/credfeto-orchestrator` asking for it to be added to `cfwf`, then carry on with `gh` for the current task. This applies to routine uses such as `gh issue view --json` and `gh pr list --json` as much as to unusual ones. If `cfwf` is not installed or a command fails, follow [Missing CLI Tools](task-workflow.instructions.md#missing-cli-tools-mandatory) and report it; do not fall back to hand-composed `gh` for a use `cfwf` covers. Plain native subcommands without `--json`, such as `gh pr create`, `gh issue comment` and `gh pr edit --add-label`, are exempt.
+
+- **One issue per distinct use.** Search `credfeto/credfeto-orchestrator` first, using plain output so the search does not itself need `--json`: `gh issue list --repo credfeto/credfeto-orchestrator --state all --search "cfwf <keywords>"`. If an open or closed issue already covers the use, do not raise another; if a closed one was declined, follow its outcome. The uses these instructions themselves prescribe are already covered this way, so the search finds them and nothing more is needed.
+- **Say what is needed.** Give the exact `gh` command (with placeholders for the values), what it is for, and where in these instructions or the current task it is used. Add the new issue to the "Workflow" project as for any issue ([Adding an Issue to the Workflow Project](#adding-an-issue-to-the-workflow-project)).
+
 ## Issues
 
 ```bash
@@ -71,18 +84,13 @@ gh issue reopen <number> --repo <owner>/<repo>
 
 ### Adding an Issue to the Workflow Project
 
-Every issue raised must be added to the "Workflow" project linked to the repository it was raised in (see [task-workflow.instructions.md](task-workflow.instructions.md#workflow-project-board-mandatory)). Project titles are not unique across the owner, so find the project linked to the repository first; never resolve it by title with `--add-project`.
+Every issue raised must be added to the "Workflow" project linked to the repository it was raised in, immediately after creation (see [task-workflow.instructions.md](task-workflow.instructions.md#workflow-project-board-mandatory)). Run it only for an issue you have just created: `--set` overwrites the status of an item already on the board, so never re-run it on an existing issue to "make sure":
 
 ```bash
-# Find the repo's linked Workflow project number
-gh repo view <owner>/<repo> --json projectsV2 \
-  --jq '.projectsV2.Nodes[] | select(.title=="Workflow") | .number'
-
-# Add the issue to it
-gh project item-add <project-number> --owner <owner> --url <issue-url>
+cfwf workflow-status --set --repo <owner>/<repo> --issue <number> --status "Not Started"
 ```
 
-Prefer a native `gh <noun> <verb>` subcommand over `gh api graphql` wherever one exists: see [agent-roles.instructions.md](agent-roles.instructions.md#looking-up-the-board-when-claudemd-has-no-workflow-board-section) for the reasoning and the full Workflow-board lookup/verify sequence, none of which needs `gh api graphql` any more.
+The other `cfwf` board commands are in [agent-roles.instructions.md](agent-roles.instructions.md#workflow-board).
 
 ### Available JSON Fields: `gh issue view`/`gh issue list`
 
@@ -193,7 +201,7 @@ gh run rerun <run-id> --repo <owner>/<repo>
 
 ## REST and GraphQL API (`gh api`)
 
-**Prefer a native `gh <noun> <verb>` subcommand over `gh api`/`gh api graphql` whenever one covers the operation.** Raw GraphQL query strings are more likely to be misread as obfuscated/spam-shaped input by the agent sandbox's bash content filter than an equivalent flat `gh` invocation, and `gh api graphql` mutations are separately denied outright by the sandbox (see [agent-roles.instructions.md](agent-roles.instructions.md#looking-up-the-board-when-claudemd-has-no-workflow-board-section)). Only reach for `gh api`/`gh api graphql` when no dedicated subcommand exists for the operation at all (e.g. review-comment threads, collaborator management, releases lookups); project-board lookups and field read-backs are all covered by native `gh project`/`gh repo view` subcommands, see the section linked above.
+**`gh api`/`gh api graphql` is the last resort:** see [Choosing Between `cfwf` and `gh`](#choosing-between-cfwf-and-gh-mandatory) for when it applies and the issue to raise (e.g. review-comment threads, collaborator management, releases lookups). Raw GraphQL query strings are more likely to be misread as obfuscated/spam-shaped input by the agent sandbox's bash content filter than an equivalent flat `gh` invocation, and `gh api graphql` mutations are denied outright by the sandbox.
 
 ```bash
 # REST: simple GET
@@ -215,8 +223,6 @@ gh api graphql \
   -f l="<login>" \
   --jq '.data.user.id'
 ```
-
-For the ProjectV2 Workflow-board update pattern (add item to project by URL → set status field → verify), see [agent-roles.instructions.md](agent-roles.instructions.md#workflow-board); that sequence is workflow-specific and lives there, not duplicated here.
 
 ### Inline PR Review Comments via `gh api`
 
@@ -240,6 +246,14 @@ gh api repos/<owner>/<repo>/pulls/<number>/comments \
   -f body="<reply text>" \
   -F in_reply_to=<comment-id>
 ```
+
+## GitHub State Lags Behind Writes (MANDATORY)
+
+GitHub's API is asynchronous: a change can take seconds, sometimes longer, to show up in a read. This applies to anything that lags, including Workflow board fields, labels and closing-issue references. It is GitHub's behaviour, not a fault in `gh`, `cfwf`, the orchestrator or the API proxy, so do not raise issues on `credfeto/credfeto-orchestrator` or `credfeto/github-api-proxy` for it.
+
+- **A write whose call succeeded is done.** Do not re-read it to confirm.
+- **Never spam GitHub while waiting for a change to show.** Do not repeat a write, or poll or loop on a read, because a read straight after a write has not caught up yet. (Waiting for a human to act, as in [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session), is a different, sanctioned wait.)
+- **A read that disagrees with a write you just made is lag, not a failure.** If a later step reads it anyway, carry on and check again at a later step; repeat the write only if the value is still wrong then. There is no fixed wait.
 
 ## Comment and Body Text (MANDATORY: HEREDOC, never `\n`)
 
@@ -269,5 +283,7 @@ These are documented because each one has actually broken a live session; check 
 - **GraphQL ProjectV2 collaborator mutations**: the input type is `ProjectV2Collaborator`, not the plausible-looking `ProjectV2CollaboratorInput` (the latter errors with `isn't a defined input type`). Any connection field selected in a mutation's return payload (e.g. `collaborators { nodes { ... } }`) needs an explicit `first`/`last` pagination argument, or the whole mutation is rejected with `MISSING_PAGINATION_BOUNDARIES`, even though the mutation itself already took effect.
 
 - **`gh api -f`/`-F` are not interchangeable.** `-f`/`--raw-field` always sends a string; `-F`/`--field` sends a typed value (numbers, booleans, `@file`). Fields the API schema declares as a number (e.g. `in_reply_to` when replying to a PR review comment) must use `-F`. Using `-f in_reply_to=<id>` fails with `"in_reply_to" is not a permitted key" / "is not a number"`, because the string form doesn't match any of the schema's `oneOf` variants.
+
+- **The agent sandbox rejects some shell shapes outright**, such as `IFS=` assignments (a `while IFS= read -r` loop) and `env`/`unset` wrappers. Use flat commands, and pass lists in one call (for example `--add-label "a,b"`) instead of looping.
 
 When a `gh` command's exact flags/fields are uncertain, run `gh <command> --help` (or `gh <command> <subcommand> --help`) rather than guessing from memory or from a similar-looking command.
