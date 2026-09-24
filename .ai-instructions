@@ -25,6 +25,8 @@ Precedence is given to local instructions over global instructions.
   * If the update is related to a code change, commit it on the same branch as that code change.
   * For purely administrative updates (e.g. reorganising or correcting existing instructions), create a dedicated branch.
 * Whenever adding a new rule, read every existing instruction file and the index and check for consistency; update anything that conflicts with, duplicates, or is made stale by the new rule. Take that as an opportunity to re-organise how rules are categorised: split files that have grown too broad, merge files that cover the same topic, and rename files whose category label no longer fits. Apply this in whichever of `ai/global` or `ai/local` is relevant to the current work.
+* Write each instruction as the current rule and the reason it holds. Do not narrate history in it: what an earlier version of a tool or rule did, or the incident that prompted the change. Put that in the commit message or the `credfeto-notes` learnings issue instead.
+* Never reference an issue or pull request, past or present, in this repo or any other, from an instruction (`#123`, `owner/repo#123` or a URL to one). The only exception is when the instruction itself tells the agent to add content to that issue or pull request.
 * Whenever these files change, re-evaluate memory against it.
 * If there is a massive difference between memory and these files, stop and ask for clarification.
 * If a memory file's description diverges from the source code, update it to reflect the changes.
