@@ -44,13 +44,13 @@ A step referring to a **sibling step within its own list** (e.g. "return to P2",
 | `Low` | Addressed after `Medium` work |
 | _(untagged)_ | No priority set, tracked but timing does not matter |
 
-When selecting the next issue to work on, prefer issues with higher-priority labels. Skip any issue labelled `On-Hold` or `Blocked`.
+When selecting the next issue to work on, prefer issues with higher-priority labels. Skip any issue labelled `On Hold` or `Blocked`.
 
 ### Status Labels
 
 | Label | Meaning |
 | --- | --- |
-| `On-Hold` | Needs further thought or cannot be implemented yet; do not start work |
+| `On Hold` | Needs further thought or cannot be implemented yet; do not start work |
 | `Blocked` | Needs human input before work can continue; see the Orchestrator section in [agent-roles.instructions.md](agent-roles.instructions.md) |
 
 ## Workflow Project Board (MANDATORY)
@@ -147,7 +147,7 @@ On every agent run, for every PR being interacted with:
   gh pr edit <pr> --repo <owner/repo> --add-label "<label-1>,<label-2>"
   ```
 
-  `cfwf closing-issue-labels` prints the labels to sync, one per line, already leaving out `Blocked` and `On-Hold` (workflow-control labels are never synced from an issue to its PR). Pass them to one `gh pr edit --add-label` as a comma-separated list. A non-zero exit is a failure to report, not "no labels"; if it exits 0 and prints nothing, there is nothing to add. If the `gh pr edit` call fails because a label does not exist in the PR's repo, repeat it without that label.
+  `cfwf closing-issue-labels` prints the labels to sync, one per line, already leaving out `Blocked` and `On Hold` (workflow-control labels are never synced from an issue to its PR). Pass them to one `gh pr edit --add-label` as a comma-separated list. A non-zero exit is a failure to report, not "no labels"; if it exits 0 and prints nothing, there is nothing to add. If the `gh pr edit` call fails because a label does not exist in the PR's repo, repeat it without that label.
 
 - **P4.** Never remove any label from a PR or issue; GitHub workflows add labels automatically and they must not be removed. Sole exception: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5.
 
