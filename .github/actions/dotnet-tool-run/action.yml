@@ -21,6 +21,12 @@ runs:
     - name: "Run dotnet tool (Latest)"
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: dotnet tool run --allow-roll-forward ${{inputs.tool-name}} ${{inputs.tool-arguments}}
+      run: |
+        EXIT_CODE=0
+        timeout 10m dotnet tool run --allow-roll-forward ${{inputs.tool-name}} ${{inputs.tool-arguments}} || EXIT_CODE=$?
+        if [ "$EXIT_CODE" -eq 124 ]; then
+          echo "::error::❌ ${{inputs.tool-name}} timed out after 10 minutes"
+        fi
+        exit "$EXIT_CODE"
       env:
         TMP: ${{runner.temp}}
