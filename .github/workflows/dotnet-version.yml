@@ -138,14 +138,18 @@ jobs:
             echo "::error::Failed to determine latest active .NET SDK version from releases-index.json"
             exit 1
           fi
-          echo "Latest available SDK: $LATEST (current: $DOTNET_VERSION)"
-          echo "LATEST_RELEASE_VERSION=$LATEST" >> "$GITHUB_OUTPUT"
+          CURRENT_VER=$(jq -r '.sdk.version' src/global.json)
+          echo "Latest available SDK: $LATEST (current: $CURRENT_VER)"
+          {
+            echo "LATEST_RELEASE_VERSION=$LATEST"
+            echo "CURRENT_VERSION=$CURRENT_VER"
+          } >> "$GITHUB_OUTPUT"
 
       - name: "Check if Latest is newer than the current defined"
         id: upgrade_check
         shell: bash
         run: |
-          CURRENT_VER="${{env.DOTNET_VERSION}}"
+          CURRENT_VER="${{steps.latest-dotnet-version.outputs.CURRENT_VERSION}}"
           LATEST_RELEASE_VER="${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
           echo "Current: $CURRENT_VER, Latest: $LATEST_RELEASE_VER"
           HIGHEST=$(printf '%s\n' "$CURRENT_VER" "$LATEST_RELEASE_VER" | sort -V | tail -1)
