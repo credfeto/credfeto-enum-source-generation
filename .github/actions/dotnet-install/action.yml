@@ -7,6 +7,12 @@ inputs:
     description: 'Github Token'
     required: true
 
+  # DOTNET
+  dotnet-sdk-channels:
+    description: 'Newline-separated list of dotnet SDK channels to install (e.g. "9" and "10"), in addition to any version pinned by src/global.json'
+    required: false
+    default: '10'
+
   # NUGET
   nuget-public-restore-feed-cache:
     description: 'Local cache of public nuget feed'
@@ -31,10 +37,103 @@ runs:
   using: "composite"
   steps:
 
+    - name: "Resolve dotnet SDK versions"
+      id: resolve_dotnet_sdk_versions
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        DOTNET_SDK_CHANNELS: ${{inputs.dotnet-sdk-channels}}
+      with:
+        script: |
+          const { existsSync, readFileSync } = require('fs');
+          const path = require('path');
+
+          const globalJsonPath = path.join(process.env.GITHUB_WORKSPACE, 'src', 'global.json');
+          let globalVersion = null;
+          let globalChannel = null;
+          if (existsSync(globalJsonPath)) {
+            const globalJson = JSON.parse(readFileSync(globalJsonPath, 'utf8'));
+            if (!globalJson.sdk || !globalJson.sdk.version) {
+              core.setFailed('❌ src/global.json exists but has no sdk.version field');
+              return;
+            }
+            globalVersion = globalJson.sdk.version;
+            const [major, minor] = globalVersion.split('.');
+            globalChannel = `${major}.${minor}`;
+            core.info(`✅ src/global.json pins SDK ${globalVersion} (channel ${globalChannel})`);
+          } else {
+            core.warning('⚠️ src/global.json not found - no pinned SDK version');
+          }
+
+          const requestedChannels = process.env.DOTNET_SDK_CHANNELS
+            .split('\n')
+            .map(channel => channel.trim())
+            .filter(Boolean);
+
+          const channelMatches = (channelVersion, requested) =>
+            requested.includes('.') ? channelVersion === requested : channelVersion.split('.')[0] === requested;
+
+          const resolved = new Set();
+          if (globalVersion) {
+            resolved.add(globalVersion);
+          }
+
+          const releasesIndexUrl = 'https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/releases-index.json';
+          const unresolvedChannels = [];
+          for (const requested of requestedChannels) {
+            if (globalChannel && channelMatches(globalChannel, requested)) {
+              core.info(`ℹ️ Channel ${requested} already covered by global.json (${globalVersion})`);
+            } else {
+              unresolvedChannels.push(requested);
+            }
+          }
+
+          if (unresolvedChannels.length > 0) {
+            let index = null;
+            for (let attempt = 1; attempt <= 5 && index === null; attempt++) {
+              try {
+                const response = await fetch(releasesIndexUrl, { signal: AbortSignal.timeout(120000) });
+                if (response.ok) {
+                  index = await response.json();
+                } else {
+                  core.warning(`⚠️ releases-index.json attempt ${attempt} returned ${response.status}`);
+                }
+              } catch (error) {
+                core.warning(`⚠️ releases-index.json attempt ${attempt} failed: ${error.message}`);
+              }
+              if (index === null && attempt < 5) {
+                await new Promise(resolve => setTimeout(resolve, attempt * 5000));
+              }
+            }
+            if (index === null) {
+              core.setFailed('❌ Failed to fetch releases-index.json after 5 attempts');
+              return;
+            }
+
+            for (const requested of unresolvedChannels) {
+              const match = index['releases-index'].find(entry => channelMatches(entry['channel-version'], requested));
+              if (!match) {
+                core.setFailed(`❌ No release channel found matching '${requested}'`);
+                return;
+              }
+              core.info(`✅ Channel ${requested} resolved to latest SDK ${match['latest-sdk']}`);
+              resolved.add(match['latest-sdk']);
+            }
+          }
+
+          if (resolved.size === 0) {
+            core.setFailed('❌ No dotnet SDK versions resolved - check src/global.json and dotnet-sdk-channels input');
+            return;
+          }
+
+          const versions = [...resolved].sort();
+          core.setOutput('sdk-versions', versions.join('\n'));
+          core.setOutput('sdk-versions-key', versions.join('-'));
+          core.notice(`Dotnet SDK versions to install: ${versions.join(', ')}`);
+
     - name: "Set dotnet environment"
       shell: bash
       run: |
-        DOTNET_DIR="${{github.workspace}}/.dotnet/${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
+        DOTNET_DIR="${{github.workspace}}/.dotnet/${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions-key}}"
         NUGET_PKGS="${{github.workspace}}/.nuget/packages"
         {
           echo "DOTNET_ROOT=$DOTNET_DIR"
@@ -50,9 +149,10 @@ runs:
           echo "DOTNET_TieredPGO=1"
           echo "MSBUILDTERMINALLOGGER=auto"
         } >> "$GITHUB_ENV"
+        echo "$DOTNET_DIR" >> "$GITHUB_PATH"
 
     # Workaround for https://github.com/dotnet/sdk/issues/11432
-    - name: "Explicitly kill any existing dotnet"
+    - name: "Reset users dotnet state"
       shell: bash
       working-directory: ${{ github.workspace }}
       run: |
@@ -75,51 +175,41 @@ runs:
         echo "Check ~/.nuget/packages"
         ls -la "$HOME/.nuget/packages"
 
-    - name: "Determine dotnet version"
-      id: check_dotnet
-      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-      with:
-        script: |
-          const { existsSync, readFileSync } = require('fs');
-          const path = require('path');
-          const globalJsonPath = path.join(process.env.GITHUB_WORKSPACE, 'src', 'global.json');
-          if (existsSync(globalJsonPath)) {
-            const globalJson = JSON.parse(readFileSync(globalJsonPath, 'utf8'));
-            const version = globalJson.sdk.version;
-            core.exportVariable('DOTNET_VERSION', version);
-            core.setOutput('GLOBAL_JSON_EXIST', 'true');
-            core.info(`✅ Detected dotnet SDK version: ${version}`);
-            core.notice(`Dotnet SDK version: ${version}`);
-          } else {
-            core.exportVariable('DOTNET_VERSION', '10.0.*');
-            core.setOutput('GLOBAL_JSON_EXIST', 'false');
-            core.warning('⚠️ src/global.json not found - using fallback version: 10.0.*');
-          }
-
-    - name: "Explicitly kill any existing dotnet"
+    - name: "Check for existing dotnet install"
+      id: check_dotnet_install
       shell: bash
-      run: rm -fr "${{github.workspace}}/.dotnet"
+      working-directory: ${{ github.workspace }}
+      run: |
+        INSTALL_NEEDED="false"
+        DOTNET_BIN="${{env.DOTNET_ROOT}}/dotnet"
+        if [ ! -x "$DOTNET_BIN" ]; then
+          INSTALL_NEEDED="true"
+        else
+          INSTALLED_SDKS="$("$DOTNET_BIN" --list-sdks 2>/dev/null | awk '{print $1}')" || INSTALLED_SDKS=""
+          while IFS= read -r VERSION; do
+            [ -z "$VERSION" ] && continue
+            if ! grep -qxF "$VERSION" <<< "$INSTALLED_SDKS"; then
+              INSTALL_NEEDED="true"
+            fi
+          done <<< "${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions}}"
+        fi
+        if [ "$INSTALL_NEEDED" = "true" ]; then
+          echo "⚠️ Existing dotnet install at ${{env.DOTNET_ROOT}} missing or unverified - wiping for a clean install"
+          rm -fr "${{env.DOTNET_ROOT}}"
+        else
+          echo "✅ All resolved SDK versions already installed and verified at ${{env.DOTNET_ROOT}}"
+        fi
+        echo "install-needed=$INSTALL_NEEDED" >> "$GITHUB_OUTPUT"
 
-    - if: steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'true'
-      name: "Install dotnet (For Build)"
+    - name: "Install dotnet"
+      if: steps.check_dotnet_install.outputs.install-needed == 'true'
       uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
       env:
         GITHUB_TOKEN: ${{inputs.github-token}}
       with:
         cache: false
-        global-json-file: "${{ github.workspace }}/src/global.json"
         dotnet-version: |
-          10.0.*
-
-    - if: steps.check_dotnet.outputs.GLOBAL_JSON_EXIST == 'false'
-      name: "Install dotnet (Tools)"
-      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
-      env:
-        GITHUB_TOKEN: ${{inputs.github-token}}
-      with:
-        cache: false
-        dotnet-version: |
-          10.0.*
+          ${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions}}
 
     - name: "Configure nuget feeds"
       uses: ./.github/actions/nuget
