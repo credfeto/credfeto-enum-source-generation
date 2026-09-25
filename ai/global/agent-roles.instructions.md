@@ -8,7 +8,7 @@ Load when acting as a named agent. Routing table and model selection: [task-work
 
 - Prioritise `CHANGES_REQUESTED` PRs over new issues.
 - When selecting the next issue to work on, order by priority label (highest first): `Security` → `Urgent` → `High` → `Medium` → `Low` → untagged; see [task-workflow.instructions.md](task-workflow.instructions.md) for label definitions.
-- Skip issues labelled `On-Hold` or `Blocked`; if all remaining issues carry these labels, report this to the user and wait.
+- Skip issues labelled `On Hold` or `Blocked`; if all remaining issues carry these labels, report this to the user and wait.
 - Determine work type and route via the routing table. Never implement directly.
 - If a delegated role escalates a task as infeasible (Coding Researcher **Not possible** result), do not re-route it unchanged. Record the finding on the issue/PR and surface it to the user for a decision: re-scope, accept the suggested alternative, or drop.
 
@@ -228,9 +228,9 @@ cfwf workflow-status --check --repo <owner/repo> (--pr <n> | --issue <n>)
 - `--set` adds the item to the board if it is not already there and sets the `Workflow Status`, then prints `Set <url> to <status>`. Exit 0 means GitHub accepted the write; a non-zero exit means the write failed. It deliberately does not read the value back, because GitHub lags behind writes: see [GitHub State Lags Behind Writes](github-cli.instructions.md#github-state-lags-behind-writes-mandatory).
 - `--check` prints the current `Workflow Status` and exits non-zero if the item is not on the board. The output starts with the status name (`Approved`, `AI Review`) and may be followed by a parenthetical such as `(In Progress)`: match the name exactly and ignore anything after it.
 
-### On-Hold Label
+### On Hold Label
 
-An issue labelled `On-Hold` is not ready to be worked on: it needs further thought or cannot be implemented at this time. Do not pick up or assign yourself to an `On-Hold` issue. If the label is removed, re-evaluate priority and proceed normally.
+An issue labelled `On Hold` is not ready to be worked on: it needs further thought or cannot be implemented at this time. Do not pick up or assign yourself to an `On Hold` issue. If the label is removed, re-evaluate priority and proceed normally.
 
 ### Blocked Label
 
