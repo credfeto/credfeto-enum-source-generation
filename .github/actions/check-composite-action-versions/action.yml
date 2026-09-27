@@ -228,7 +228,7 @@ runs:
             '',
             ...planSteps,
             '',
-            'This item has been pre-approved (Workflow Status set directly to `Approved`) under the',
+            'This item has been pre-approved (its status on the Workflow board set directly to `Approved`) under the',
             'narrow policy for composite-action pin-bump issues raised by this workflow - see',
             '`.github/actions/check-composite-action-versions/action.yml`.',
           ].join('\n');
@@ -247,6 +247,15 @@ runs:
           // why that gate normally must never be set by automation. Best-effort: the "Workflow"
           // project is optional (see same doc), so any failure here just leaves the issue at
           // "Not Started" for a human/the orchestrator's normal fallback to pick up.
+          const OVERWRITE_SETTLE_DELAY_MS = 5 * 60 * 1000;
+          // The board's status field is either the built-in "Status" (once the board is converted)
+          // or the older custom "Workflow Status". Only a single-select field that actually offers
+          // an "Approved" option qualifies, so an unconverted board's built-in "Status"
+          // (Todo/In Progress/Done) is passed over; when both qualify mid-conversion, "Status" wins.
+          const selectStatusField = fields => {
+            const approvable = fields.filter(f => f?.options?.some(o => o.name === 'Approved'));
+            return approvable.find(f => f.name === 'Status') ?? approvable.find(f => f.name === 'Workflow Status');
+          };
           try {
             const projectQuery = `
               query($owner: String!, $repo: String!) {
@@ -277,11 +286,15 @@ runs:
             if (!project) {
               core.warning('⚠️ No "Workflow" project linked to this repo - skipping pre-approval');
             } else {
-              const statusField = (project.fields?.nodes ?? []).find(f => f?.name === 'Workflow Status');
-              const approvedOption = statusField?.options?.find(o => o.name === 'Approved');
-              if (!statusField || !approvedOption) {
-                core.warning('⚠️ "Workflow Status" field or "Approved" option not found - skipping pre-approval');
+              const statusField = selectStatusField(project.fields?.nodes ?? []);
+              if (!statusField) {
+                core.warning(
+                  '⚠️ No "Status" or "Workflow Status" single-select field with an "Approved" option found ' +
+                  '- skipping pre-approval'
+                );
               } else {
+                const approvedOption = statusField.options.find(o => o.name === 'Approved');
+                core.info(`ℹ️ Using the "${statusField.name}" field for pre-approval`);
                 const addResult = await github.graphql(
                   `mutation($p: ID!, $c: ID!) {
                     addProjectV2ItemById(input: { projectId: $p, contentId: $c }) { item { id } }
@@ -290,41 +303,106 @@ runs:
                 );
                 const itemId = addResult.addProjectV2ItemById.item.id;
                 const readBackQuery = `
-                  query($i: ID!) {
+                  query($i: ID!, $n: String!) {
                     node(id: $i) {
                       ... on ProjectV2Item {
-                        fieldValueByName(name: "Workflow Status") {
+                        fieldValueByName(name: $n) {
                           ... on ProjectV2ItemFieldSingleSelectValue { optionId }
                         }
                       }
                     }
                   }`;
-
-                // The item was just added to the project, so the field write below can be
-                // accepted (no GraphQL error) without actually persisting yet - a known
-                // eventual-consistency race in the Projects v2 API on freshly-added items.
-                // Verify with a read-back and retry rather than trusting the mutation response.
-                let verified = false;
-                for (let attempt = 1; attempt <= 3 && !verified; attempt++) {
-                  await github.graphql(
-                    `mutation($p: ID!, $i: ID!, $f: ID!, $v: String!) {
-                      updateProjectV2ItemFieldValue(
-                        input: { projectId: $p, itemId: $i, fieldId: $f, value: { singleSelectOptionId: $v } }
-                      ) { projectV2Item { id } }
-                    }`,
-                    { p: project.id, i: itemId, f: statusField.id, v: approvedOption.id }
-                  );
-                  await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-                  const readBack = await github.graphql(readBackQuery, { i: itemId });
-                  verified = readBack.node?.fieldValueByName?.optionId === approvedOption.id;
-                  if (!verified) {
-                    core.info(`⚠️ Pre-approval write not yet visible on attempt ${attempt} - retrying`);
+                const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+                const applyApprovedStatus = () => github.graphql(
+                  `mutation($p: ID!, $i: ID!, $f: ID!, $v: String!) {
+                    updateProjectV2ItemFieldValue(
+                      input: { projectId: $p, itemId: $i, fieldId: $f, value: { singleSelectOptionId: $v } }
+                    ) { projectV2Item { id } }
+                  }`,
+                  { p: project.id, i: itemId, f: statusField.id, v: approvedOption.id }
+                );
+                const isApprovedNow = async () =>
+                  (await github.graphql(readBackQuery, { i: itemId, n: statusField.name })).node?.fieldValueByName?.optionId === approvedOption.id;
+                // Every write to this field is followed by a read-back rather than trusting the
+                // mutation response, because a freshly-added item's field write can be accepted
+                // (no GraphQL error) without actually persisting yet - a known eventual-consistency
+                // race in the Projects v2 API. This retry+verify covers only that short
+                // write-propagation delay - it does not and cannot detect the project's own
+                // built-in "Item added to project" automation later overwriting this same field;
+                // see the settle-and-recheck step below for that.
+                const applyAndVerifyApproved = async (maxAttempts, onRetry) => {
+                  let ok = false;
+                  for (let attempt = 1; attempt <= maxAttempts && !ok; attempt++) {
+                    await applyApprovedStatus();
+                    await sleep(attempt * 1000);
+                    ok = await isApprovedNow();
+                    if (!ok && onRetry) {
+                      onRetry(attempt);
+                    }
                   }
-                }
+                  return ok;
+                };
+
+                const verified = await applyAndVerifyApproved(3, attempt =>
+                  core.info(`⚠️ Pre-approval write not yet visible on attempt ${attempt} - retrying`)
+                );
 
                 if (verified) {
                   core.info('✅ Pre-approved on the Workflow board');
                   core.notice(`Pre-approved issue #${issue.number} on the Workflow board`);
+
+                  // The "Workflow" project has an enabled built-in "Item added to project"
+                  // automation that sets a default Status on any newly-added item. It fires
+                  // asynchronously off the same "item added" event as the write above, with
+                  // unbounded latency, so it can silently overwrite Approved with its own
+                  // default afterwards - see
+                  // https://github.com/funfair-tech/funfair-server-template/issues/1004. The
+                  // retry loop above cannot catch this: it only outraces Projects v2
+                  // write-propagation delay, on the order of seconds, not this automation, which
+                  // can fire minutes later. Settle for much longer than that, then re-check and
+                  // re-apply once if needed - not an unbounded loop, since the automation only
+                  // fires once per item.
+                  // Scoped to its own try/catch, separate from the outer one around the whole
+                  // pre-approval block: that block's core.notice above has already reported
+                  // pre-approval as successful, so a failure here must be reported as its own,
+                  // more specific warning rather than falling through to the generic
+                  // "Failed to pre-approve" message the outer catch would otherwise log.
+                  try {
+                    await sleep(OVERWRITE_SETTLE_DELAY_MS);
+                    if (!(await isApprovedNow())) {
+                      // A non-Approved read here isn't necessarily the automation's overwrite -
+                      // the issue may have been legitimately closed in the meantime. Check state
+                      // before re-applying, so a closed issue isn't force-reopened-in-spirit by
+                      // having Approved reapplied to it.
+                      const { data: currentIssue } = await github.rest.issues.get({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issue.number,
+                      });
+                      if (currentIssue.state !== 'open') {
+                        core.info(`ℹ️ Issue #${issue.number} is no longer open - skipping re-apply`);
+                      } else {
+                        core.warning(
+                          `⚠️ ${statusField.name} for issue #${issue.number} was reset after pre-approval ` +
+                          `(likely by the project's built-in "Item added to project" automation) - re-applying Approved`
+                        );
+                        if (await applyAndVerifyApproved(3)) {
+                          core.info(`✅ Re-applied Approved status for issue #${issue.number} after overwrite`);
+                        } else {
+                          core.warning(
+                            `⚠️ Attempted to re-apply Approved status for issue #${issue.number} but it ` +
+                            `still does not read back as Approved after 3 attempts - issue left for ` +
+                            `manual/orchestrator review`
+                          );
+                        }
+                      }
+                    }
+                  } catch (e) {
+                    core.warning(
+                      `⚠️ Pre-approval succeeded but the settle-and-recheck step failed for issue ` +
+                      `#${issue.number}: ${e.message} - issue left for manual/orchestrator review`
+                    );
+                  }
                 } else {
                   core.warning(
                     `⚠️ Pre-approval mutation returned no error but did not persist after 3 attempts ` +
