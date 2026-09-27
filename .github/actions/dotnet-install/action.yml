@@ -211,6 +211,150 @@ runs:
         dotnet-version: |
           ${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions}}
 
+    - name: "Prune old dotnet installs"
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        CURRENT_SDK_VERSIONS: ${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions}}
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+
+          const OLDER_VERSIONS_TO_KEEP = 1;
+          const oldFormat = /^[0-9a-f]{40}-\d+-\d+-\d+$/;
+
+          const parse = (version) => {
+            const match = /^(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/.exec(version);
+            if (!match) {
+              return null;
+            }
+            return { version, major: Number(match[1]), parts: [Number(match[1]), Number(match[2]), Number(match[3])], pre: match[4] || '' };
+          };
+
+          const comparePre = (a, b) => {
+            const left = a.split('.');
+            const right = b.split('.');
+            for (let i = 0; i < Math.max(left.length, right.length); i++) {
+              if (left[i] === undefined) {
+                return -1;
+              }
+              if (right[i] === undefined) {
+                return 1;
+              }
+              const bothNumeric = /^\d+$/.test(left[i]) && /^\d+$/.test(right[i]);
+              if (bothNumeric && Number(left[i]) !== Number(right[i])) {
+                return Number(left[i]) - Number(right[i]);
+              }
+              if (!bothNumeric && left[i] !== right[i]) {
+                return left[i] < right[i] ? -1 : 1;
+              }
+            }
+            return 0;
+          };
+
+          const compare = (a, b) => {
+            for (let i = 0; i < 3; i++) {
+              if (a.parts[i] !== b.parts[i]) {
+                return a.parts[i] - b.parts[i];
+              }
+            }
+            if (a.pre === b.pre) {
+              return 0;
+            }
+            if (a.pre === '') {
+              return 1;
+            }
+            if (b.pre === '') {
+              return -1;
+            }
+            return comparePre(a.pre, b.pre);
+          };
+
+          try {
+            const dotnetRoot = path.join(process.env.GITHUB_WORKSPACE, '.dotnet');
+            const currentName = path.basename(process.env.DOTNET_ROOT);
+            const currentVersions = process.env.CURRENT_SDK_VERSIONS.split('\n').map(v => v.trim()).filter(Boolean);
+
+            const directories = fs.readdirSync(dotnetRoot, { withFileTypes: true })
+              .filter(entry => entry.isDirectory())
+              .map(entry => {
+                const sdkPath = path.join(dotnetRoot, entry.name, 'sdk');
+                const versions = fs.existsSync(sdkPath) ? fs.readdirSync(sdkPath) : [];
+                return { name: entry.name, versions };
+              });
+
+            const deletions = directories.filter(d => oldFormat.test(d.name)).map(d => d.name);
+            const candidates = directories.filter(d => !oldFormat.test(d.name));
+
+            const all = new Map();
+            for (const directory of candidates) {
+              for (const version of directory.versions) {
+                const parsed = parse(version);
+                if (parsed) {
+                  all.set(version, parsed);
+                }
+              }
+            }
+            const current = currentVersions.map(parse).filter(Boolean);
+            if (current.length === 0) {
+              core.warning('⚠️ No parsable current SDK versions - skipping prune');
+              return;
+            }
+            for (const parsed of current) {
+              all.set(parsed.version, parsed);
+            }
+
+            const keep = new Set(currentVersions);
+            const installedMajors = [...new Set(current.map(v => v.major))];
+            const lowestInstalled = Math.min(...installedMajors);
+
+            const byMajor = new Map();
+            for (const parsed of all.values()) {
+              if (!byMajor.has(parsed.major)) {
+                byMajor.set(parsed.major, []);
+              }
+              byMajor.get(parsed.major).push(parsed);
+            }
+            for (const list of byMajor.values()) {
+              list.sort((a, b) => compare(b, a));
+            }
+
+            const belowLowest = [...byMajor.keys()].filter(m => m < lowestInstalled).sort((a, b) => b - a)[0];
+
+            for (const [major, list] of byMajor) {
+              if (installedMajors.includes(major)) {
+                const anchor = current.filter(v => v.major === major).sort((a, b) => compare(b, a))[0];
+                const anchorIndex = list.findIndex(v => v.version === anchor.version);
+                list.slice(0, anchorIndex + 1 + OLDER_VERSIONS_TO_KEEP).forEach(v => keep.add(v.version));
+              } else if (major > lowestInstalled) {
+                list.forEach(v => keep.add(v.version));
+              } else if (major === belowLowest) {
+                keep.add(list[0].version);
+              }
+            }
+
+            for (const directory of candidates) {
+              if (directory.name !== currentName && directory.versions.length > 0 && !directory.versions.some(v => keep.has(v))) {
+                deletions.push(directory.name);
+              }
+            }
+
+            core.info(`ℹ️ Keeping SDK versions: ${[...keep].sort().join(', ')}`);
+            for (const name of deletions) {
+              const target = path.join(dotnetRoot, name);
+              if (path.dirname(target) !== dotnetRoot) {
+                continue;
+              }
+              fs.rmSync(target, { recursive: true, force: true });
+              core.info(`✅ Removed old dotnet install ${name}`);
+            }
+            if (deletions.length === 0) {
+              core.info('ℹ️ No old dotnet installs to remove');
+            }
+          } catch (error) {
+            core.warning(`⚠️ Pruning old dotnet installs failed: ${error.message}`);
+          }
+
     - name: "Configure nuget feeds"
       uses: ./.github/actions/nuget
       with:
