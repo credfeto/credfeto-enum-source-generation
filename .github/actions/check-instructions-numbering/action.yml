@@ -1,0 +1,22 @@
+--- # Fail if an AI instruction file uses a literal ordered-list marker
+# Maintain in repo: cs-template
+name: "Check Instructions Numbering"
+description: "Fails if ai/global/*.instructions.md or .ai-instructions starts a list item with a plain numbered marker"
+
+runs:
+  using: composite
+  steps:
+    - name: "Check for numbered list markers"
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        if ! git ls-files -z -- 'ai/global/*.instructions.md' '.ai-instructions' \
+          | xargs -0 -r awk -f "${ACTION_PATH}/check-numbering.awk"; then
+          echo "❌ Found numbered list markers; write steps as '- **P1.** text' bullets instead."
+          exit 1
+        fi
+
+        echo "✅ No numbered list markers found."
+      env:
+        ACTION_PATH: ${{github.action_path}}
