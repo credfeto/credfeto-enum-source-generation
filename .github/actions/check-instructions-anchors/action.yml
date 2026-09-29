@@ -1,0 +1,18 @@
+--- # Fail if an AI instruction file has an orphaned anchor or a dangling fragment link
+# Maintain in repo: cs-template
+name: "Check Instructions Anchors"
+description: "Fails if an anchor under ai/ has no incoming link, or a #fragment link under ai/ or in .ai-instructions has no matching heading or anchor"
+
+runs:
+  using: composite
+  steps:
+    - name: "Check anchors and fragment links"
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        # Passed explicitly: inside a nested uses: step GITHUB_ACTION_PATH is not guaranteed to be
+        # this composite action's directory.
+        ACTION_PATH: ${{github.action_path}}
+      with:
+        script: |
+          const checkAnchors = require(`${process.env.ACTION_PATH}/check-anchors.js`);
+          await checkAnchors({ core });
