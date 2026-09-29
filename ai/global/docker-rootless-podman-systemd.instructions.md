@@ -56,7 +56,7 @@
 ## `KillMode=none` on the Container-Runner Unit (MANDATORY)
 
 - Rootless podman is daemonless: `conmon`/container processes are not systemd-managed children the way `dockerd`-owned containers are. The default `KillMode=control-group` sends a cgroup-wide kill to running containers on the stop half of any `systemctl restart`.
-- Fix: set `KillMode=none` on the container-runner unit. Confirmed on a real host that this avoids killing containers on `systemctl restart` — container IDs/uptimes survived a manual restart untouched, since `podman compose up -d` is idempotent and only recreates what actually changed.
+- Fix: set `KillMode=none` on the container-runner unit. `KillMode=none` leaves running containers untouched on `systemctl restart`, because `podman compose up -d` is idempotent and only recreates what changed.
 
 ## `ProtectHome=yes` Breaks `XDG_RUNTIME_DIR` (MANDATORY)
 
@@ -116,7 +116,7 @@
 
 ## `podman-compose` Has No Standalone `rm` Subcommand
 
-Unlike `docker compose`, `podman-compose` (confirmed on v1.6.0) does not support `rm` as a standalone subcommand:
+Unlike `docker compose`, `podman-compose` (as of v1.6.0) does not support `rm` as a standalone subcommand:
 
 ```text
 podman-compose: error: argument command: invalid choice: 'rm'
