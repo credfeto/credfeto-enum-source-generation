@@ -19,7 +19,7 @@ Read all of these before starting any task, regardless of language or context.
 | [tool-preferences.instructions.md](tool-preferences.instructions.md) | Which tool to reach for when more than one could do the job: `Glob` over `find` for simple file listing; repo searches exclude `.env`, `.database` and `.claude/`; `gh` or a local clone over fetching `github.com`/`githubusercontent.com` URLs |
 | [git-rebasing.instructions.md](git-rebasing.instructions.md) | When to rebase (fetch/check/rebase), version-conflict resolution when merging or rebasing |
 | [task-workflow.instructions.md](task-workflow.instructions.md) | Agent routing table, model selection, failure handling, issue/PR assignment, Workflow project board, commit cadence, resuming work, command timeouts, ad-hoc prompt intake, prompt traceability, numbering and cross-reference conventions |
-| [code-quality.instructions.md](code-quality.instructions.md) | Code coverage, tests, async, immutability, parameterised tests, refactoring, incidental cleanup, pattern sweep, pre-commit failure handling |
+| [code-quality.instructions.md](code-quality.instructions.md) | Code coverage, tests, async, immutability, parameterised tests, refactoring, incidental cleanup, pattern sweep, pre-existing bugs found during work, pre-commit failure handling |
 | [documentation.instructions.md](documentation.instructions.md) | README, CHANGELOG conventions |
 | [security.instructions.md](security.instructions.md) | No secrets in code, input validation, output sanitisation |
 | [error-handling.instructions.md](error-handling.instructions.md) | Explicit error handling, propagation, safe surfacing |
