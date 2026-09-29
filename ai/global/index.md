@@ -14,14 +14,14 @@ Read all of these before starting any task, regardless of language or context.
 
 | File | Covers |
 | --- | --- |
-| [git.instructions.md](git.instructions.md) | Prerequisites, build/test verification, git identity/GPG, branching, commits, GitHub issues, template rule escalation |
+| [git.instructions.md](git.instructions.md) | Prerequisites, build/test verification, git identity/GPG, destructive commands, deleting scratch PR review branches, branching, commits, GitHub issues, template rule escalation |
 | [claude-hooks.instructions.md](claude-hooks.instructions.md) | Claude Code `PreToolUse` hook denials: a denial means the command never ran, read its stated reason literally and retry immediately, tell a hook denial apart from a permission-system denial, reference index of the installed hook set |
 | [tool-preferences.instructions.md](tool-preferences.instructions.md) | Which tool to reach for when more than one could do the job: `Glob` over `find` for simple file listing; repo searches exclude `.env`, `.database` and `.claude/`; `gh` or a local clone over fetching `github.com`/`githubusercontent.com` URLs |
 | [git-rebasing.instructions.md](git-rebasing.instructions.md) | When to rebase (fetch/check/rebase), version-conflict resolution when merging or rebasing |
-| [task-workflow.instructions.md](task-workflow.instructions.md) | Agent routing table, model selection, failure handling, issue/PR assignment, Workflow project board, commit cadence, resuming work, command timeouts, ad-hoc prompt intake, prompt traceability, numbering and cross-reference conventions |
-| [code-quality.instructions.md](code-quality.instructions.md) | Code coverage, tests, async, immutability, parameterised tests, refactoring, incidental cleanup, pattern sweep, pre-existing bugs found during work, pre-commit failure handling |
+| [task-workflow.instructions.md](task-workflow.instructions.md) | Agent routing table, model selection, failure handling, issue/PR assignment, Workflow project board, commit cadence, resuming work, command timeouts, ad-hoc prompt intake, prompt traceability, numbering and cross-reference conventions (enforced in CI) |
+| [code-quality.instructions.md](code-quality.instructions.md) | Code coverage, tests, async, immutability, parameterised tests, never bypassing constructors (stop and ask for a real instance), refactoring, incidental cleanup, suppressed and unsuppressed analyzer findings from `sarif-summary` PR comments, pattern sweep, pre-existing bugs found during work, pre-commit failure handling |
 | [documentation.instructions.md](documentation.instructions.md) | README, CHANGELOG conventions |
-| [security.instructions.md](security.instructions.md) | No secrets in code, input validation, output sanitisation |
+| [security.instructions.md](security.instructions.md) | No secrets in code, agent-found security bugs filed as public issues, input validation, output sanitisation |
 | [error-handling.instructions.md](error-handling.instructions.md) | Explicit error handling, propagation, safe surfacing |
 | [logging.instructions.md](logging.instructions.md) | Structured logging, log levels, no PII/secrets |
 | [packages.instructions.md](packages.instructions.md) | Secure versions, managed vs native, deprecated packages, human approval required for non-credfeto/funfair-tech packages (tool-mandated fixes excepted), using the system's configured package sources for lookups |
@@ -32,9 +32,10 @@ Load these only when the work involves the relevant technology or context.
 
 | File | Load When | Covers |
 | --- | --- | --- |
-| [dotnet.instructions.md](dotnet.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present | Build/test, solution structure, test patterns, ValueTask, CancellationToken, nullable reference types, NuGet audit |
+| [dotnet.instructions.md](dotnet.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present | Build/test, solution structure, test patterns, no `GetUninitializedObject`, source-generated logging (CA1873 `IsEnabled` guards, FFS0020 logger parameter, `[Conditional("DEBUG")]` pitfalls, elapsed-time timers), ValueTask, CancellationToken, nullable reference types, warning suppression, NuGet audit |
 | [docker.instructions.md](docker.instructions.md) | Any `Dockerfile`, `Containerfile`, `.dockerignore`, `docker-compose*.yml`, `docker-compose*.yaml`, `compose.yml`, or `compose.yaml` is present, or container work is needed | Docker/Podman runner detection, Dockerfile authoring, compose conventions, image security basics |
 | [docker-rootless-podman-systemd.instructions.md](docker-rootless-podman-systemd.instructions.md) | Configuring or debugging rootless podman run by an unprivileged **system** systemd service with no login session | D-Bus session bus, UID resolution, cgroup manager, `KillMode`, systemd sandboxing directives, timer migration, bind-mounted secret permissions, firewalld interaction, image pruning |
+| [analyzer-conflicts.instructions.md](analyzer-conflicts.instructions.md) | Fixing one .NET diagnostic raises another (a diagnostic-vs-diagnostic conflict) | Pre-approved resolution table for conflicting diagnostic pairs (seeded with `IDE0028` vs `MA0002`), stop-and-ask for unlisted pairs, adding entries |
 | [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present, or a `Credfeto.*`/`FunFair.*` package is encountered | Registry of org-owned NuGet packages with source repos: never decompile these |
 | [sql.instructions.md](sql.instructions.md) | Any `.sql` file or SQL project is present | SQL linting, local DB connection, performance optimisation |
 | [shell-scripts.instructions.md](shell-scripts.instructions.md) | Any `.sh` file is present or shell script work is needed | Shebang, linting, output helper conventions (`die`/`success`/`info`) |
@@ -46,7 +47,7 @@ Load these only when the work involves the relevant technology or context.
 | [api.instructions.md](api.instructions.md) | An HTTP API is being created or modified | `.http` test file requirements |
 | [performance.instructions.md](performance.instructions.md) | Performance-critical code is being written or optimised | Design principles, benchmarks, optimisation workflow |
 | [coverage-ratchet.instructions.md](coverage-ratchet.instructions.md) | Acting as Orchestrator running the AI Coverage board phase | Whole-repo per-language coverage ratchet gated on the committed `COVERAGE.md` (per-component + overall figures, read live from `origin/main`, no PR comment), bootstrap/dependency-only-branch skip rules, per-language extraction commands, phase decision procedure |
-| [github-cli.instructions.md](github-cli.instructions.md) | Running any `gh` command | Full `gh` command reference (issues, PRs, labels, search, api/graphql, proxy behaviour, HEREDOC bodies), choosing between `cfwf` and `gh` (and raising a `credfeto-orchestrator` issue for any `gh api`/`--json` use `cfwf` does not cover), GitHub state lagging behind writes (do not spam while waiting), common mistakes learned from real failures |
+| [github-cli.instructions.md](github-cli.instructions.md) | Running any `gh` command | Full `gh` command reference (issues, PRs, labels, search, api/graphql, proxy behaviour, HEREDOC bodies), choosing between `cfwf` and `gh` (and raising a `credfeto-orchestrator` issue for any `gh api`/`--json` use `cfwf` does not cover), GitHub state lagging behind writes (do not spam while waiting), common mistakes |
 | [agent-roles.instructions.md](agent-roles.instructions.md) | You are acting as a named agent (Orchestrator, Code Writer, Code Tester, etc.) | Detailed per-agent responsibilities and behaviour, including the Workflow board (`cfwf`) |
 | [changelog.instructions.md](changelog.instructions.md) | You need to add or update a changelog entry, or you are the Changelog agent | Format, tooling (`dotnet changelog`), when to add entries, add/remove commands |
 | [git-commits.instructions.md](git-commits.instructions.md) | You are about to commit, or you are the Committer agent | Commit size rules, empty commit check, push cadence, Conventional Commits format, pattern sweep commit body (per-file rationale) |
@@ -63,6 +64,6 @@ These contain code examples only. Load them when actively writing or modifying t
 | [shell.firewall.examples.md](shell.firewall.examples.md) | Writing firewall scripts: provides `allow_ipv4`, `allow_ipv6`, `open_port_for_private_networks` implementations |
 | [github-workflows.examples.md](github-workflows.examples.md) | Creating or scaffolding a local composite action: provides action template, explicit inputs, env-var validation step |
 | [sql.examples.md](sql.examples.md) | Writing SQL or database connection scripts: provides `.database` file format, `sqlcmd` invocation, and `SET STATISTICS` baseline template |
-| [dotnet.examples.md](dotnet.examples.md) | Writing .NET DI setup tests: provides `AddMockedService` and `IOptions` patterns |
+| [dotnet.examples.md](dotnet.examples.md) | Writing .NET DI setup tests, or source-generated logging that needs an `IsEnabled` guard: provides `AddMockedService` and `IOptions` patterns, and the public-wrapper plus private `[LoggerMessage]` guard pattern |
 | [git.examples.md](git.examples.md) | Filing a template rule escalation issue: provides the `gh issue create` command |
 | [learnings.examples.md](learnings.examples.md) | Filing a `credfeto-notes` learning-capture issue: provides the `gh issue create` command |
