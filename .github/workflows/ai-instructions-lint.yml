@@ -1,0 +1,44 @@
+--- # AI instructions: enforce numbering and cross-reference anchor conventions
+# Maintain in repo: cs-template
+name: "PR: AI Instructions Lint"
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review, unlocked]
+    branches:
+      - main
+    paths:
+      - "ai/**"
+      - "**.md"
+      - ".ai-instructions"
+      - ".github/workflows/ai-instructions-lint.yml"
+      - ".github/actions/check-instructions-anchors/**"
+      - ".github/actions/check-instructions-numbering/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  ai-instructions-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 1
+
+      - name: "Check instruction numbering"
+        uses: ./.github/actions/check-instructions-numbering
+
+      - name: "Check instruction anchors"
+        if: success() || failure()
+        uses: ./.github/actions/check-instructions-anchors
