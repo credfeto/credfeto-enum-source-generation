@@ -71,14 +71,13 @@ is modelled as a read of everything under it. Without the exclusions required by
 it cannot be proven that a `.env`/`.database`/`.claude` path will not be read, so the call
 escalates, and under `dontAsk` an escalation comes back as a denial rather than a prompt.
 
-Confirmed in practice: a `find` over a work tree containing a `.claude` directory, run without the
-mandated exclusions, was denied this way, message-for-message; the identical command scoped to a
-subtree with no secret-bearing file ran clean. This is also a live, more general risk: an agent
-working an unrelated issue in another repository hit both denial shapes on the same underlying
-command (`pre-commit-check`), a genuine hook denial in the foreground (named hook, stated fix) and a
-permission denial in the background (naming neither), read the two as one broken session rather
-than two different denial shapes, and escalated to a human on the first occurrence. This differs
-from averaging two hook denials into one theory: here, one denial was a hook and the other wasn't.
+A `find` over a work tree containing a `.claude` directory, run without the mandated exclusions,
+is denied this way, while the same command scoped to a subtree with no secret-bearing file runs.
+
+One command can get a hook denial when run in the foreground (named hook, stated fix) and a
+permission denial when run in the background (naming neither). These are two different denial
+shapes, not one broken session. This differs from averaging two hook denials into one theory:
+one denial is a hook and the other is not.
 Identify which part of the command is being modelled as a broad read, narrow or exclude it, and
 retry before escalating to a human.
 
@@ -105,7 +104,7 @@ are listed directly after it rather than at their own position, since they have 
 | `block-no-verify` | `--no-verify`/`-n` on any git command that would skip commit hooks, and the equivalent on `mcp__github__.*` tool calls | Enforces "never bypass hooks or formatters": a failing pre-commit hook must be fixed and retried, not skipped. Installed globally on `PATH` rather than shipped under `claude-hooks/`, which is why its `claude-settings.json` entries (registered for both the `Bash` matcher and the `mcp__github__.*` matcher) omit the `$HOME/.claude/hooks/` prefix every other hook uses. |
 | `enforce-git-identity` | Git subcommands that create or rewrite commits (or precede one, like `fetch`) unless git identity and GPG signing are correctly configured | Prevents an unsigned or misattributed commit from being created at all, rather than relying on review to catch it afterwards. |
 | `enforce-git-dash-c` | Any git subcommand not written as `git -C <dir> <command>` | See [Running Git Commands in a Specific Directory](git.instructions.md#running-git-commands-in-a-specific-directory). |
-| `block-git-worktree` | `git worktree add`, and the equivalent native `EnterWorktree` tool call | Worktrees split repo state across multiple linked checkouts sharing one object store; this template's tooling assumes a single checkout per repo directory, and an errant `worktree add` has previously left the primary checkout bare with no work tree of its own. See [Avoid `git worktree`](git.instructions.md#avoid-git-worktree). |
+| `block-git-worktree` | `git worktree add`, and the equivalent native `EnterWorktree` tool call | Worktrees split repo state across multiple linked checkouts sharing one object store; this template's tooling assumes a single checkout per repo directory, and an errant `worktree add` can leave the primary checkout bare with no work tree of its own. See [Avoid `git worktree`](git.instructions.md#avoid-git-worktree). |
 | `block-dotnet-tool-install` | `dotnet tool install` (local or global) and `dotnet new tool-manifest` | This container's .NET global tools are pinned and baked into the image at build time; installing an unpinned tool at runtime would bypass the dependency-selection review the pinned set went through. |
 | `enforce-ssh-host-and-key` | Any `ssh` call other than exactly `ssh user@host command...` with no flags, and one when no usable key is loaded in the forwarded ssh-agent | `ssh` has a blanket allow entry; the danger is in the destination, not the verb, which a permission-rule prefix pattern cannot scope. Restricts the host to a private-network suffix and requires the agent to hold a working key first, since this container never mounts raw private key files. |
 | `enforce-background-for-long-running-commands` | `git commit`, `pre-commit` (direct invocation), `pre-commit-check` (this template's wrapper around it), `dotnet build`, `dotnet test`, `npm test`, and `bun test` unless the call sets `run_in_background: true` | See [Never Truncate Test/Commit Commands](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory) for why none of these have a safe foreground timeout. |
