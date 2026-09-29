@@ -158,6 +158,11 @@ The per-assembly reports remain the authoritative measure of test quality for ea
 - Logging methods must be in a dedicated `internal static` class:
   - Placed in a `LoggingExtensions` sub-namespace relative to the class it serves.
   - Named `<ClassName>LoggingExtensions` (e.g. `FooLoggingExtensions` for `Foo`).
+- Guard a log call with `if (logger.IsEnabled(<level>))` when any of its arguments is a method call (`.ToString()`, `Stopwatch.GetElapsedTime(...)`, `timer.Successful().TotalMilliseconds`), because C# evaluates the arguments before the generated method's own `IsEnabled` check runs, so the work is done even when the level is disabled (CA1873). Arguments that are plain property or field reads (`algorithm.AlgorithmName`, `network.Name`) need no guard, and CA1873 does not fire on them.
+- Put that guard in the logging extensions class, not in the calling code: a `public` method takes the cheap value (a `SimpleExecutionTimer`, or the typed value such as an `AccountAddress` rather than a pre-built `string`), checks `IsEnabled`, and only then computes the expensive part and calls a `private` `[LoggerMessage]` method of the same name that takes the computed value. Callers then log unconditionally and business logic carries no guards. See [Source-Generated Logging with Guards](dotnet.examples.md#source-generated-logging-with-guards).
+- Keep `this ILogger<T> logger` as the first parameter of that private method, even though it is private, because FFS0020 (which otherwise requires such parameters to be last, as it does for `CancellationToken`) exempts an extension-style logger parameter. Call it with dot syntax (`logger.LogX(...)`), not as `LogX(logger, ...)`, because CA1873 only recognises the `IsEnabled` guard around a dot-syntax call.
+- `[Conditional("DEBUG")]` removes the call itself from every non-DEBUG build, including Release and CI. Pair it with `LogLevel.Debug` only for development-only diagnostics whose arguments are values the method uses anyway, because a local that exists only to feed the call (a timer or `Stopwatch` started earlier) is left unused in Release and fails the build under `TreatWarningsAsErrors`. For diagnostics that must survive into Release, such as those for diagnosing a hang in CI or production, use `LogLevel.Information` without `[Conditional]`. General level choice is in [Log Levels](logging.instructions.md#log-levels).
+- Where the project already references `FunFair.Common`, time elapsed-time logging with `FunFair.Common.Metrics.ExecutionTimer.Start()` and `SimpleExecutionTimer.Successful()` rather than raw `Stopwatch.GetTimestamp()`/`GetElapsedTime()`, because those metrics types are the shared convention in those repos.
 
 ## Asynchronous Code
 
@@ -305,6 +310,10 @@ If `FunFair.Test.Common` or `FunFair.Test.Infrastructure` provides a helper for 
 - Custom `ILogger<T>` mocks → `this.GetTypedLogger<T>()`
 - Custom `TimeProvider` fakes → `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`
 - Custom `IHttpClientFactory` setups → `MockCreateClientWithResponse`
+
+## Constructor-Bypassing Instantiation (MANDATORY)
+
+Never use `RuntimeHelpers.GetUninitializedObject` or `FormatterServices.GetUninitializedObject` to get an instance of a type you cannot construct or mock. Follow [Obtaining Instances of Types You Cannot Construct or Mock](code-quality.instructions.md#obtaining-instances-of-types-you-cannot-construct-or-mock-mandatory) instead: look for a [real way to build it](code-quality.instructions.md#unconstructable-type-existing-path), [check the org test libraries](code-quality.instructions.md#unconstructable-type-library-helpers), and otherwise [ask the human](code-quality.instructions.md#unconstructable-type-ask) and [wait for the answer](code-quality.instructions.md#unconstructable-type-wait).
 
 ## xunit Assertion Patterns
 
@@ -481,11 +490,13 @@ When all target frameworks listed in a project file are .NET 9 or later, framewo
 ## Warning Suppression and Errors
 
 - Every project must build with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
-- Never use `#pragma warning disable <ID>`, `<NoWarn>`, `<WarningsNotAsErrors>`, or `[SuppressMessage]` without **explicit written permission from the repo owner**. Exception: per-advisory NuGet audit suppressions (see below).
+- Never use `#pragma warning disable <ID>`, `<NoWarn>`, `<WarningsNotAsErrors>`, or `[SuppressMessage]` without **explicit written permission from the repo owner**. Exceptions: per-advisory NuGet audit suppressions and pre-approved conflicting-diagnostic resolutions (both below).
 - If a warning fires, fix the root cause. If the fix is non-obvious, raise a GitHub issue rather than suppressing the warning.
 - Test projects are **not** exempt from this rule; suppressing warnings in test code is equally prohibited without explicit permission.
 
 **Exception: project-specific local instruction files:** A project's `ai/local/` instruction file may explicitly document approved suppressions for that repository. Approval must be granted via a PR comment from the repo owner; the local instruction file alone is not sufficient to grant permission. When a repo owner approves a suppression via a PR comment, the local instruction file must be updated in that same PR to document: the specific warning ID, the affected class of code, and the reasoning for the exception. Once documented in the local instruction file following an explicit PR comment approval, that entry satisfies the "explicit written permission from the repo owner" requirement for future suppressions of that warning ID in that class of code. Local instructions take precedence over this global rule per the `.ai-instructions` precedence hierarchy.
+
+**Exception: conflicting diagnostics:** When fixing one diagnostic raises another, follow [Analyzer Conflict Instructions](analyzer-conflicts.instructions.md#conflicting-diagnostics-mandatory). Its resolution table is a global, pre-approved route recorded once for every repo that uses these global instructions, where the local-file exception above is a per-repo route approved by a PR comment. What a table entry permits, and what to do for a pair not in the table, is set out there.
 
 ## NuGet Vulnerability Suppression
 
