@@ -11,6 +11,7 @@ Load when acting as a named agent. Routing table and model selection: [task-work
 - Skip issues labelled `On Hold` or `Blocked`; if all remaining issues carry these labels, report this to the user and wait.
 - Determine work type and route via the routing table. Never implement directly.
 - If a delegated role escalates a task as infeasible (Coding Researcher **Not possible** result), do not re-route it unchanged. Record the finding on the issue/PR and surface it to the user for a decision: re-scope, accept the suggested alternative, or drop.
+- When a delegated role reports a pre-existing bug outside the current change's scope (in Code Reviewer's `preExistingBugs`, listed in a Code Writer or Code Fixer hand-off report, or in a CI Debugger report, including one that CI Monitor passes on), handle it as in [Pre-Existing Bugs Found During Work](code-quality.instructions.md#pre-existing-bugs-found-during-work-mandatory). If the human chooses to fix it, route the fix as in that section's [P3](code-quality.instructions.md#pre-existing-bug-fix-route) rather than fixing it yourself, because the Orchestrator never implements directly.
 
 ### Issue Workflow: Plan First (new issues only)
 
@@ -75,7 +76,7 @@ When picking up an **Issue** that has no existing PR:
 
 #### Waiting for Approval in an Interactive Session
 
-Interactive sessions only; an unattended run stops at Plan First P4 and must not poll. A session counts as interactive only once a human has typed a message in it; an injected prompt or task notification does not count. If unsure, assume it is unattended, as in [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work).
+Interactive sessions only; an unattended run stops at Plan First P4 and must not poll. A session counts as interactive only once a human has typed a message in it; an injected prompt or task notification does not count. If unsure, assume it is unattended, as in [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work). Only the Orchestrator decides the run mode. It states the mode (interactive or unattended) in every hand-off to a role whose rules depend on it, such as CI Monitor or a role applying [CI Checks](#ci-checks-mandatory), and that role uses the stated mode rather than judging it itself, because a sub-agent only ever sees an injected prompt and would always conclude it is unattended. A hand-off that states no mode means unattended.
 
 - **P1.** After Plan First P4 has posted the plan and added `Blocked` (or, on resume, after Plan First P2 finds a plan that is not yet approved), "STOP" there means stop working on the issue, not stop watching it. Run the P2 read once now and take its `plan` as the baseline (P3), then start a dynamic-pacing loop instead of ending the turn:
 
@@ -314,20 +315,32 @@ Reply to every PR or issue comment that prompted an action. "Every PR or issue c
 
 ### CI Checks (MANDATORY)
 
-The `oneshot` pre-agentic gate (from `credfeto/credfeto-orchestrator`) normally blocks agent invocation while CI checks are pending, so the agent is rarely invoked with pending checks. The rules below act as a safety net for edge cases.
+The `oneshot` pre-agentic gate (from `credfeto/credfeto-orchestrator`) normally blocks agent invocation while CI checks are pending, so in an unattended run the rules below are a safety net for edge cases. An interactive session has no such gate. A role running as a sub-agent uses the run mode stated in its hand-off (see [Waiting for Approval in an Interactive Session](#waiting-for-approval-in-an-interactive-session)).
 
-When working on a PR, check CI state **once**:
+When working on a PR, check CI state **once**, required checks only, because the PR is mergeable without the optional ones and the plain output does not say which checks are required:
 
 ```bash
-gh pr checks <number> --repo <owner/repo>
+gh pr checks <number> --repo <owner/repo> --required
 ```
 
-Then act immediately; do **not** loop, sleep, or use `--watch`:
+Judge the result by the exit code of this plain form together with its state column, not `--json`, because with `--json` gh exits 0 even when a check has failed or is pending. It exits 0 when every reported required check passed, was skipped or was cancelled, 8 when one is pending, and 1 when one failed or when it prints `no required checks reported on the '<branch>' branch` or `no checks reported on the '<branch>' branch`. It also exits 1 on a gh or API error (authentication, network, proxy, rate limit, or a PR that does not exist), which it hits before it prints any check rows. gh only reports checks that have already registered on the PR's head commit, so a required workflow that has not been queued yet is missing from the list rather than shown as pending.
 
-- All required checks passed → proceed with the next step.
-- Any check pending or in_progress → stop silently; do not post a status comment. CI checks are bound by GitHub's own timeouts and will eventually pass, fail, or time out without agent intervention.
-- Any check failed → investigate, fix, push, post a status comment, and stop. Do not wait for the new run to complete.
-- CI consistently failing and cannot be fixed → mark the PR blocked: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`
+- A row whose state column (the second tab-separated field) reads `fail` means that required check failed, whatever the exit code, because gh prints `fail` there for a cancelled check as well as a failed one but does not count a cancelled check towards exit code 1. GitHub treats a cancelled required check as unsatisfied, so the PR cannot merge until it is re-run. This holds for the output an agent's shell receives, which is not a terminal; on a terminal gh shows `-` for both skipped and cancelled checks, so the two cannot be told apart there.
+- Either `no ... checks reported` message counts as pending, never as pass or failure, because it usually means the run for the head commit has not registered yet.
+- Exit code 1 with no check rows in the output and no `no ... checks reported` message is a gh or API error, not a failed check, because gh failed before it could read any check.
+- If the repo has no required checks configured at all, drop `--required` and judge all checks instead, because otherwise gh reports `no required checks reported` for ever. It has none when neither the base branch's protection (`gh api repos/<owner>/<repo>/branches/<base> --jq '.protection.required_status_checks.contexts'`) nor its rulesets (a `required_status_checks` rule in `gh api repos/<owner>/<repo>/rules/branches/<base>`) list any. Look this up once per PR, not on every check.
+
+Then act immediately; do **not** busy-loop, sleep, or use `--watch`, in any mode, because a blocking wait holds the session for the whole CI run:
+
+- All required checks passed → accept it only if it is still true on the next check after it was first seen, because a fast required workflow can pass before a slower one has even been queued. In an unattended run, the `oneshot` gate's check before invoking the agent is the first sighting, so this check confirms it; proceed with the next step. In an interactive session this check is the first sighting, so hand the PR to [CI Monitor](#ci-monitor), stating in the hand-off that all required checks passed, so that its first tick confirms it.
+- Any required check failed, including a cancelled one → route it as the CI failure row of the [routing table](task-workflow.instructions.md#routing-rules) (CI Debugger finds the cause and pushes a fix, or re-runs a cancelled check that needs no code change, as [CI Debugger](#ci-debugger) describes) rather than fixing it yourself, because the Orchestrator never implements directly, and post a status comment, even while other checks are still pending, because waiting for the slowest check would delay the fix by the whole CI run. Do not wait for the new run to complete. Then:
+  - Unattended run → stop; `oneshot` re-invokes the agent once the new run finishes.
+  - [Interactive session](#waiting-for-approval-in-an-interactive-session) → if CI Debugger pushed a fix or re-ran a check, hand the PR to [CI Monitor](#ci-monitor) instead of stopping, stating in the hand-off that the session is interactive, because nothing else would watch the new run or return control to the Orchestrator. If CI Debugger escalated, handle the escalation yourself instead (for example by following [Environment/Infrastructure Block Marker](#environmentinfrastructure-block-marker-mandatory-prs-only) for an environment diagnosis), because CI Monitor would see the unchanged failure and hand it straight back to CI Debugger.
+- Any required check pending or in_progress, or none reported yet, and none failed:
+  - Unattended run → stop silently; do not post a status comment. CI checks are bound by GitHub's own timeouts and will eventually pass, fail, or time out without agent intervention, and `oneshot` re-invokes the agent once they do.
+  - [Interactive session](#waiting-for-approval-in-an-interactive-session) → hand the PR to [CI Monitor](#ci-monitor) instead of stopping, stating in the hand-off that the session is interactive.
+- gh or API error → report the error rather than routing a CI failure, because no check has failed and CI Debugger would look for a failure that does not exist.
+- <a id="ci-consistently-failing"></a>CI consistently failing and cannot be fixed → mark the PR blocked: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`. In an interactive session, [CI Monitor](#ci-monitor) reporting a required check still failing after 3 CI Debugger rounds also counts, because further rounds would only repeat the cycle.
 
 ## Coding Researcher
 
@@ -350,6 +363,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - After fixing a bug, run the [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) and append its sweep record to the hand-off report.
 - Apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the files written or changed.
 - Do not commit, push, or update the changelog; hand off to Code Tester when done.
+- List each pre-existing bug found outside the current change's scope in the hand-off report for Orchestrator rather than fixing it, because the report is free text with no dedicated field and an unlisted bug is lost; see [Pre-Existing Bugs Found During Work](code-quality.instructions.md#pre-existing-bugs-found-during-work-mandatory).
 
 ## Code Tester
 
@@ -358,7 +372,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the changed files.
 - On build failure, test failure, or uncovered code: report file paths/line ranges to the calling agent; stop, do not proceed.
 - Loop with Code Writer until build passes, all tests pass, and all new/changed code is covered.
-- Carry any sweep record in the incoming hand-off through to the outgoing report unchanged.
+- Carry any sweep record and any pre-existing bug list in the incoming hand-off through to the outgoing report unchanged, because the next role only sees what this report passes on and the Orchestrator collects each pre-existing bug list from the reports it receives.
 - Do not modify code or tests; report and verify only.
 
 ## Code Reviewer
@@ -367,10 +381,11 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the changed files.
 - Launch all the sub-agents **in parallel**: Reuse, Quality, Efficiency, Correctness, Security, Compliance.
 - Each sub-agent reports `{"clean": true}` or `{"clean": false, "findings": [{"file": "...", "line": ..., "issue": "...", "suggestion": "..."}]}`.
-- Fix each construct (real findings grouped by construct) as its own change set, with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) handed over as for Code Writer; skip false positives. Re-run Code Tester after fixes. The outgoing report carries every sweep record, incoming and own, unchanged.
+- Fix each construct (real findings grouped by construct) as its own change set, with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) handed over as for Code Writer; skip false positives. Re-run Code Tester after fixes. The outgoing report carries every sweep record and every pre-existing bug, incoming and own, unchanged.
 - If fixing a finding requires knowledge outside the instruction files, invoke Coding Researcher first; do not guess or fabricate. If Coding Researcher returns **Not possible**, leave the finding unresolved and escalate to Orchestrator with the explanation.
-- Report `{"clean": true, "sweeps": [...]}` or `{"clean": false, "fixes": [...], "sweeps": [...]}`, where `sweeps` carries every sweep record. Cap at 5 iterations.
+- Report `{"clean": true, "sweeps": [...], "preExistingBugs": [...]}` or `{"clean": false, "fixes": [...], "sweeps": [...], "preExistingBugs": [...]}`, where `sweeps` carries every sweep record and `preExistingBugs` lists each pre-existing bug reported but not fixed (file, line, description), incoming (from a Code Writer or Code Fixer hand-off) and own, because without its own field such a bug is either dropped or misread as a fix. Cap at 5 iterations.
 - After 5 iterations, report any unresolved findings to the Orchestrator; Orchestrator adds each as a PR comment for human consideration.
+- Report a pre-existing bug found outside the current change's scope to Orchestrator in `preExistingBugs` rather than fixing it; see [Pre-Existing Bugs Found During Work](code-quality.instructions.md#pre-existing-bugs-found-during-work-mandatory).
 
 ### Code Reviewer: **Reuse**
 
@@ -501,6 +516,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Convert to draft before starting (`gh pr ready <number> --undo`).
 - One fix change set per construct (comments grouped by construct), with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) handed over as for Code Writer. Apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the fixed files. Hand off to Code Tester after each fix and its sweep.
 - Respond to **every** review comment without exception, per [Comment Replies](#comment-replies-mandatory). A reply that cites a SHA is posted once Committer has pushed, so the sweep record's file placement is final.
+- List each pre-existing bug found outside the current change's scope in the hand-off report for Orchestrator rather than fixing it, because the report is free text with no dedicated field and an unlisted bug is lost; see [Pre-Existing Bugs Found During Work](code-quality.instructions.md#pre-existing-bugs-found-during-work-mandatory).
 
 ## Rebase Agent
 
@@ -514,7 +530,9 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 
 - Read full logs (`gh run view --log-failed`), identify root cause.
 - Fix if code-related, with a [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) committed after the fix per [Pattern Sweep Commits](git-commits.instructions.md#pattern-sweep-commits), since no Committer follows this role; apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the fixed files; escalate to Orchestrator with a clear description if environmental or infrastructure; use the Environment/Infrastructure Block Marker convention above so the block can auto-clear once the fix ships.
+- A cancelled required check counts as failed, as in [CI Checks](#ci-checks-mandatory). If nothing in the code caused the cancellation (a manual cancel or a runner shutdown), re-run it with `gh run rerun <run-id> --repo <owner/repo>` rather than pushing, because GitHub keeps the cancelled result on the head commit until the check runs again and the PR cannot merge until then; report the re-run to the calling role as you would a pushed fix.
 - If a code-related fix requires knowledge outside the instruction files, invoke Coding Researcher first; do not guess or fabricate. If Coding Researcher returns **Not possible**, escalate to Orchestrator with the explanation.
+- Fix a pre-existing bug that causes the CI failure as part of the current work, including one the change merely exposes, because leaving it would keep the PR's required checks failing with nothing permitted to clear them. Report any other pre-existing bug found outside the current change's scope to the calling role (Orchestrator, or CI Monitor, which passes it on to Orchestrator) rather than fixing it; see [Pre-Existing Bugs Found During Work](code-quality.instructions.md#pre-existing-bugs-found-during-work-mandatory).
 
 ## Changelog
 
@@ -523,7 +541,7 @@ Runs in two modes; both use `dotnet changelog` (see [changelog.instructions.md](
 - **Placeholder**: runs first, before Code Writer touches any code, so the branch/PR can exist from the start of work on the item. Add a stub entry (best-guess `Type`, message `TBD - to be finalized after review`). Hand off straight to Committer for a changelog-only commit, then PR Submitter to open the draft PR.
 - **Correction**: replaces the placeholder (or a prior correction) once there is a real diff to describe. Runs after Code Tester and Code Reviewer are satisfied in the initial development loop, never before. Also re-runs after any AI Review Loop phase (Simplify, Code Review, Security Review — see [PR Workflow: AI Review Loop](#pr-workflow-ai-review-loop)) that actually changed files, so the entry keeps matching the diff those phases produced. Read `git diff origin/main...HEAD`, remove the previous entry and add the corrected one (`dotnet changelog` has no in-place edit).
 - **Skip case**: if the work item qualifies for a skip under [changelog.instructions.md](changelog.instructions.md#when-to-skip) (template repo), commit a `.deleteme.now` placeholder file at the repo root instead of a `CHANGELOG.md` entry (a short delete-before-merge comment as its content). Hand off straight to Committer for a placeholder-only commit, then PR Submitter to open the draft PR. Code Writer removes `.deleteme.now` as part of its first real change set, for Committer to commit as usual. Correction is a no-op for these items, same as before.
-- Both modes carry any sweep record in the incoming hand-off through to the outgoing report unchanged.
+- Both modes carry any sweep record and any pre-existing bug list in the incoming hand-off through to the outgoing report unchanged, because the next role only sees what this report passes on and the Orchestrator collects each pre-existing bug list from the reports it receives.
 
 ## Committer
 
@@ -541,10 +559,24 @@ Runs in two modes; both use `dotnet changelog` (see [changelog.instructions.md](
 - Update body if PR already exists. Add yourself as assignee.
 - Do **not** mark ready or enable auto-merge here; that is the Orchestrator's job after the AI review loop (see [PR Workflow: AI Review Loop](#pr-workflow-ai-review-loop)). Leave the PR as draft.
 
-## CI Monitor *(not currently enabled)*
+## CI Monitor
 
-- Watch checks after PR is ready: `gh pr checks <number> --watch`.
-- All pass → done. Any fail → hand off to CI Debugger. Repeat until all pass or CI Debugger escalates.
+Dormant in unattended runs, where the `oneshot` gate covers pending checks (see [CI Checks](#ci-checks-mandatory)). Active in an [interactive session](#waiting-for-approval-in-an-interactive-session), where nothing else would pick the PR back up once CI finishes. The Orchestrator states the run mode in its hand-off and CI Monitor uses that mode rather than judging it itself, because as a sub-agent it only sees an injected prompt and would always conclude it is unattended; a hand-off that states no mode means unattended. CI Monitor does not handle bot-authored dependency-update PRs (Dependabot or another bot), because [Dependency Updater](#dependency-updater) owns their CI and merge decision.
+
+- **P1.** Before starting, look up once the required checks configured for the base branch, as in [CI Checks](#ci-checks-mandatory), keeping their names (`contexts`, and each rule's `parameters.required_status_checks[].context`), and if it has none, drop `--required` from every check below. Set a time limit long enough for one of the repo's normal CI runs, and restart it whenever CI Debugger pushes a fix or re-runs a check, because the limit covers one CI run and would otherwise cut short the rerun that CI Debugger started. Then watch the PR's checks in the background with a scheduling/loop mechanism the tool provides, so the session stays free while CI runs (see [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory)). Pace it with long idle intervals, never tight polling. The 30-minute deadline in that section governs commands, not this wait; the time limit bounds this wait instead, because a check that never reports would otherwise keep the watch running until the session ends.
+- **P2.** Each tick, check the required checks' state once with `gh pr checks <number> --repo <owner/repo> --required`; never use `--watch`. Only required checks decide the outcome, matching [CI Checks](#ci-checks-mandatory), because the PR is mergeable without the optional ones. Read the result by exit code and state column as that section describes, so a cancelled required check counts as failed, and treat either `no ... checks reported` message as pending, never as pass or failure, because the run for the head commit may not have registered yet. Treat a configured required check from P1 that has no row as pending too, never as passed, because gh exits 0 once every *reported* required check passes while GitHub keeps blocking the merge until every configured one reports, and a path-filtered or skipped required workflow may never report at all. Only CI Monitor applies this rule, not the single check in [CI Checks](#ci-checks-mandatory), because an unattended run has no human to report a never-reporting check to and `oneshot` re-invokes the agent anyway. Treat exit code 1 with no check rows and no `no ... checks reported` message as a gh or API error, as that section describes, never as a failed check.
+- **P3.** Act on the result:
+  - gh or API error → retry on the next tick, because a transient network, proxy or rate-limit error usually clears by then. If the next tick errors too, tell the human the error and stop the watch, because a repeated error (authentication, or a PR that does not exist) will not clear by itself.
+  - Any required check fails, including a cancelled one → if CI Debugger has already pushed fixes or re-run checks 3 times in this watch for that same required check, stop handing off: report the check to the Orchestrator, which treats it as [CI consistently failing](#ci-consistently-failing) and marks the PR `Blocked`, and stop, because each round restarts the time limit, so nothing else would end the cycle. Otherwise invoke CI Debugger at once, even while other checks are still pending, because waiting for the slowest check would delay the fix by the whole CI run. Wait for CI Debugger to finish before the next tick, so the same failure is never handed off twice. Then act on what it returned:
+    - It pushed a fix or re-ran a check → keep watching the new run, and restart the time limit as P1 describes.
+    - It escalated → pass the escalation on to the Orchestrator and stop.
+    - It did neither → tell the human which required checks failed and stop, because every later tick would show the same failure with nothing left to act on it.
+    - In every case, pass any pre-existing bug report from CI Debugger on to the Orchestrator, because CI Monitor does not handle it and it would otherwise be lost.
+  - All required checks pass for the first time since CI Debugger's last push or re-run, or since the watch started if the hand-off did not state that all required checks passed → wait for the next tick, because a fast required workflow can pass before a slower one has even been queued. When the hand-off states that the Orchestrator saw all required checks pass, that check was the first sighting (see [CI Checks](#ci-checks-mandatory)), so an all-pass on the first tick confirms it as below.
+  - All required checks still pass on the tick after that first sighting → run `gh pr checks <number> --repo <owner/repo>` once without `--required` and mention any failed optional check to the human; an optional failure never blocks completion or triggers CI Debugger. Then stop the watch and return control to the Orchestrator, which runs the [AI Review Loop](#pr-workflow-ai-review-loop) if the PR has any commit the loop has not yet reviewed, i.e. any commit after the loop last completed (its [Phase E](#phase-e-mark-ready) marked the PR ready), or every commit if it has never completed, and otherwise does nothing more. A pure rebase with no content change counts as reviewed. This is because unreviewed change must not merge, and Phase E is what marks the PR ready again.
+  - Otherwise (required checks pending or in_progress, a configured one not yet reported, or none reported yet, and none failed) → wait for the next tick. A later all-pass then counts as a new first sighting.
+- **P4.** If the time limit for the current run is reached, tell the human which required checks are still pending, naming any configured required check that never reported (usually a path-filtered or skipped workflow) so the human knows which workflow to look at, and stop the watch.
+- **P5.** If the tool provides no scheduling mechanism, check once as in P2 and act as in P3, except that when required checks are pending and none has failed, or all pass on this single check without a hand-off stating that all required checks passed and so cannot be confirmed, you tell the human CI is still running and stop, when the check hits a gh or API error, you tell the human the error and stop, because there is no next tick to retry on, and when CI Debugger pushed a fix or re-ran a check, you tell the human which fix was pushed or which re-run was started and that CI is running again, and stop, leaving the human or the next session to check again, because you cannot wait for the new run.
 
 ## Dependency Updater
 
