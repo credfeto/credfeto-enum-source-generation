@@ -300,7 +300,7 @@ Mechanical agents must not interpret or fix failures. When a check fails: captur
 
 Standard loop pattern: Code Writer/Fixer loops ≤5 with Code Tester; Code Reviewer loops ≤5 re-running both each round. Code Writer, Code Fixer, Code Reviewer, and CI Debugger may invoke Coding Researcher on demand at any point when the knowledge to implement or fix is lacking; this does not count toward the standard loop limits, but each calling role may invoke Coding Researcher at most 3 times per work item. Before invoking, the calling role checks the work item's issue/PR for an existing `### Coding Researcher` comment answering the same question and reuses it if found; reused findings do not count toward the cap. After Coding Researcher returns, the calling role records the question and outcome as a `### Coding Researcher` comment on the issue/PR so it can be reused. On reaching the cap, or if Coding Researcher returns **Not possible**, the calling role stops and escalates to Orchestrator rather than continuing the loop or guessing.
 
-Every sequence below starts with the [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work); it is an implicit first step of every sequence, not merely a standalone rule, and must actually run before the first agent in the row is invoked.
+Every sequence below starts with the [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work); it is an implicit first step of every sequence, not merely a standalone rule, and must actually run before the first agent in the row is invoked. The "Rebase requested" row is the one exception: a branch is brought up to date before the baseline runs, so its Post-Rebase Check (`pre-commit-check`) is the baseline and is not run a second time, per [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work).
 
 | Work type | Agent sequence |
 | --- | --- |
@@ -308,7 +308,7 @@ Every sequence below starts with the [Pre-Work Baseline Check](git.instructions.
 | `CHANGES_REQUESTED` on existing PR, verbal/chat request for changes on an open PR, or a pre-existing bug the human has chosen to bring into an open PR's scope | Pre-Work Baseline Check → Code Fixer (respond to every comment) → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
 | Coverage-only task | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (tests only) → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
 | Documentation-only | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (docs only) → Changelog (correction) → Committer → PR Submitter → CI Monitor |
-| Rebase requested | Pre-Work Baseline Check → Rebase Agent → PR Submitter → CI Monitor |
+| Rebase requested | Rebase Agent → Post-Rebase Check (`pre-commit-check`, with each reported issue fixed through the [review-fix route](#review-fix-route) until it is clean, per [After Every Rebase](git-rebasing.instructions.md#after-every-rebase-mandatory)) → Committer → PR Submitter → CI Monitor |
 | CI failure (unknown cause) | Pre-Work Baseline Check → CI Debugger → CI Monitor |
 | Dependabot / dependency update | Pre-Work Baseline Check → Dependency Updater |
 
