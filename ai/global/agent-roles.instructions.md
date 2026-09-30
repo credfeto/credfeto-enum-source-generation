@@ -565,6 +565,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Any other conflict: report verbatim to Orchestrator; do not resolve.
 - If the branch has an open PR, turn auto-merge off and convert the PR to draft exactly as [Code Fixer](#code-fixer) does before force-pushing, because a rebase changes the head, so the rebased commit is unreviewed and GitHub could otherwise merge it as soon as its checks pass, before the AI Review Loop reviews it.
 - Force-push with `--force-with-lease` only after all conflicts are resolved.
+- Does not run `pre-commit-check` or fix what it reports: that is the Post-Rebase Check in [After Every Rebase](git-rebasing.instructions.md#after-every-rebase-mandatory), which the Orchestrator runs once this role returns, because this role is mechanical and must not interpret or fix failures.
 
 ## CI Debugger
 
