@@ -7,16 +7,74 @@ runs:
   using: composite
   steps:
     - name: "Check for numbered list markers"
-      shell: bash
-      run: |
-        set -euo pipefail
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      with:
+        script: |
+          // Reports list items that start with a literal ordered-list marker (1. text) outside
+          // fenced code blocks, because CommonMark detaches nested content from such items.
+          const { execFileSync } = require('node:child_process');
+          const { readFileSync } = require('node:fs');
 
-        if ! git ls-files -z -- 'ai/global/*.instructions.md' '.ai-instructions' \
-          | xargs -0 -r awk -f "${ACTION_PATH}/check-numbering.awk"; then
-          echo "❌ Found numbered list markers; write steps as '- **P1.** text' bullets instead."
-          exit 1
-        fi
+          const FENCE_OPEN = /^[ \t\r\n\v\f]*(`{3,}|~{3,})/;
+          const FENCE_CLOSE = /^[ \t\r\n\v\f]*(`{3,}|~{3,})[ \t\r\n\v\f]*$/;
+          const NUMBERED_MARKER = /^[ \t\r\n\v\f]*[0-9]+\.[ \t\r\n\v\f]/;
 
-        echo "✅ No numbered list markers found."
-      env:
-        ACTION_PATH: ${{github.action_path}}
+          function closesFence(fence, text) {
+              const match = text.match(FENCE_CLOSE);
+
+              if (match === null) {
+                  return false;
+              }
+
+              const marker = match[1];
+
+              return marker[0] === fence[0] && marker.length >= fence.length;
+          }
+
+          function numberedMarkerLines(content) {
+              const lines = [];
+              let fence = '';
+
+              content.split('\n').forEach((text, index) => {
+                  if (fence !== '') {
+                      if (closesFence(fence, text)) {
+                          fence = '';
+                      }
+
+                      return;
+                  }
+
+                  const opening = text.match(FENCE_OPEN);
+
+                  if (opening !== null) {
+                      fence = opening[1];
+                      return;
+                  }
+
+                  if (NUMBERED_MARKER.test(text)) {
+                      lines.push(index + 1);
+                  }
+              });
+
+              return lines;
+          }
+
+          const files = execFileSync('git', ['ls-files', '-z', '--', 'ai/global/*.instructions.md', '.ai-instructions'], { encoding: 'utf8' })
+              .split('\0')
+              .filter(Boolean);
+
+          let failed = false;
+
+          for (const file of files) {
+              for (const line of numberedMarkerLines(readFileSync(file, 'utf8'))) {
+                  core.error("Numbered list marker; use a '- **P1.**' style bullet label instead", { file, startLine: line });
+                  failed = true;
+              }
+          }
+
+          if (failed) {
+              core.setFailed("❌ Found numbered list markers; write steps as '- **P1.** text' bullets instead.");
+              return;
+          }
+
+          core.info('✅ No numbered list markers found.');
