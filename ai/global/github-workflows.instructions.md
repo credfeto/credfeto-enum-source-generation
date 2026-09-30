@@ -27,6 +27,8 @@ Use `actions/github-script` to replace actions that:
 
 Wrap the `actions/github-script` step in a **local composite action** at `.github/actions/<name>/action.yml`, never inline the script in workflow files.
 
+Always write the script inline in the action's `script:` (or `run:`) block. Never put it in a separate file (`.js`, `.awk`, `.sh` or similar) beside `action.yml` or load it by path, because only `action.yml` is carried to other repos, so a separate script file is missing there and the action fails.
+
 The local action must:
 
 - Mirror inputs and outputs of the replaced action so callers only change the `uses:` line
