@@ -10,7 +10,7 @@ The AI Coverage phase is a whole-repo ratchet: each orchestrated language's over
 
 The **gate** compares **per language**, never blended into one combined figure (a .NET percentage and a Python percentage are not commensurable). A language with no code or tests present in the repo is skipped. Shell is out of scope (see [Shell](#shell-excluded)). Per-component/project numbers are also recorded, for visibility only — see [Committed Coverage File](#committed-coverage-file-mandatory); a single project dipping while its language's overall average holds or improves does **not** fail the gate.
 
-There is no separate baseline-capture step and no PR comment: the baseline is `COVERAGE.md` as it exists on `origin/main` at the moment the AI Coverage phase runs, read fresh every time. Every AI Coverage phase invocation is a fresh, memoryless session; nothing needs to be captured when branching and nothing needs refreshing after a rebase, because the phase always reads `origin/main` live (see [When to Rebase](git-rebasing.instructions.md#when-to-rebase) — no coverage-specific step is needed there beyond the ordinary rebase).
+There is no separate baseline-capture step and no PR comment: the baseline is `COVERAGE.md` as it exists on `origin/main` at the moment the AI Coverage phase runs, read fresh every time. Every AI Coverage phase invocation is a fresh, memoryless session; nothing needs to be captured when branching and nothing needs refreshing after a rebase, because the phase always reads `origin/main` live (see [After Every Rebase](git-rebasing.instructions.md#after-every-rebase-mandatory) — no coverage-specific step is needed there beyond the ordinary rebase).
 
 ## Committed Coverage File (MANDATORY)
 
@@ -69,7 +69,7 @@ git -C <repodir> checkout --ours -- COVERAGE.md
 git -C <repodir> add COVERAGE.md
 ```
 
-(Git's rebase convention reverses the usual meaning: during a rebase, `--ours` is the branch being rebased *onto* — `origin/main` — and `--theirs` is your own commit being replayed, the opposite of a merge.) Continue the rebase as normal. Once it completes **and** the existing post-rebase build-and-test step ([When to Rebase](git-rebasing.instructions.md#when-to-rebase)) passes, re-run the [per-language extraction](#per-language-overall-coverage-extraction) against the rebased working tree and commit the fresh `COVERAGE.md` as part of that same rebase work — do not leave `main`'s stale copy in place, and do not measure before the build/tests are confirmed green.
+(Git's rebase convention reverses the usual meaning: during a rebase, `--ours` is the branch being rebased *onto* — `origin/main` — and `--theirs` is your own commit being replayed, the opposite of a merge.) Continue the rebase as normal. Once it completes **and** the existing post-rebase build-and-test step ([After Every Rebase](git-rebasing.instructions.md#after-every-rebase-mandatory)) passes, re-run the [per-language extraction](#per-language-overall-coverage-extraction) against the rebased working tree and commit the fresh `COVERAGE.md` as part of that same rebase work — do not leave `main`'s stale copy in place, and do not measure before the build/tests are confirmed green.
 
 ## Per-Language Overall Coverage Extraction
 
