@@ -11,7 +11,7 @@ runs:
   using: "composite"
   steps:
     - name: "Create SBOM"
-      uses: anchore/sbom-action@006b7ce8314066bdf1765b4500370d40fa6917a3 # v0.24.2
+      uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
       with:
         path: "${{github.workspace}}"
         config: "${{github.workspace}}/.github/linters/syft.yml"
