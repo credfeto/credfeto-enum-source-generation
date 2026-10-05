@@ -378,7 +378,7 @@ Use `AddMockedService<T>()` in tests deriving from `DependencyInjectionTestsBase
 
 - Prefer `StringComparer.<type>.Equals(x, y)` over `string.Equals(x, y, StringComparison.<type>)`, enforced by FFS0050.
 - This applies to all `StringComparison` variants (`Ordinal`, `OrdinalIgnoreCase`, etc.).
-- Do not use `StringComparison.InvariantCulture`, `StringComparison.InvariantCultureIgnoreCase`, `StringComparison.CurrentCulture`, or `StringComparison.CurrentCultureIgnoreCase`, enforced by FFS0045–FFS0048.
+- Do not use `StringComparison.InvariantCulture`, `StringComparison.InvariantCultureIgnoreCase`, `StringComparison.CurrentCulture`, or `StringComparison.CurrentCultureIgnoreCase`, enforced by FFS0045 to FFS0048.
 
 ## Source File Organisation
 
@@ -494,9 +494,9 @@ When all target frameworks listed in a project file are .NET 9 or later, framewo
 - If a warning fires, fix the root cause. If the fix is non-obvious, raise a GitHub issue rather than suppressing the warning.
 - Test projects are **not** exempt from this rule; suppressing warnings in test code is equally prohibited without explicit permission.
 
-**Exception: project-specific local instruction files:** A project's `ai/local/` instruction file may explicitly document approved suppressions for that repository. Approval must be granted via a PR comment from the repo owner; the local instruction file alone is not sufficient to grant permission. When a repo owner approves a suppression via a PR comment, the local instruction file must be updated in that same PR to document: the specific warning ID, the affected class of code, and the reasoning for the exception. Once documented in the local instruction file following an explicit PR comment approval, that entry satisfies the "explicit written permission from the repo owner" requirement for future suppressions of that warning ID in that class of code. Local instructions take precedence over this global rule per the `.ai-instructions` precedence hierarchy.
+**Exception for project-specific local instruction files:** A project's `ai/local/` instruction file may explicitly document approved suppressions for that repository. Approval must be granted via a PR comment from the repo owner; the local instruction file alone is not sufficient to grant permission. When a repo owner approves a suppression via a PR comment, the local instruction file must be updated in that same PR to document: the specific warning ID, the affected class of code, and the reasoning for the exception. Once documented in the local instruction file following an explicit PR comment approval, that entry satisfies the "explicit written permission from the repo owner" requirement for future suppressions of that warning ID in that class of code. Local instructions take precedence over this global rule per the `.ai-instructions` precedence hierarchy.
 
-**Exception: conflicting diagnostics:** When fixing one diagnostic raises another, follow [Analyzer Conflict Instructions](analyzer-conflicts.instructions.md#conflicting-diagnostics-mandatory). Its resolution table is a global, pre-approved route recorded once for every repo that uses these global instructions, where the local-file exception above is a per-repo route approved by a PR comment. What a table entry permits, and what to do for a pair not in the table, is set out there.
+**Exception for conflicting diagnostics:** When fixing one diagnostic raises another, follow [Analyzer Conflict Instructions](analyzer-conflicts.instructions.md#conflicting-diagnostics-mandatory). Its resolution table is a global, pre-approved route recorded once for every repo that uses these global instructions, where the local-file exception above is a per-repo route approved by a PR comment. What a table entry permits, and what to do for a pair not in the table, is set out there.
 
 ## NuGet Vulnerability Suppression
 
