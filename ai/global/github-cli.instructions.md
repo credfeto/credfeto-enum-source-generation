@@ -4,7 +4,7 @@
 
 Reference for every `gh` invocation used across this instruction set. Other files describe **when**/**why** to call `gh` (see [task-workflow.instructions.md](task-workflow.instructions.md) and [agent-roles.instructions.md](agent-roles.instructions.md)); this file is the single source of truth for **exact command syntax**. If you need to pre-approve/whitelist `gh` invocations, the commands below are the full set.
 
-Always pass `--repo <owner>/<repo>` explicitly rather than relying on the current directory's remote, required when `GH_HOST` is set (see below), and safer in general when scripting.
+Always pass `--repo <owner>/<repo>` explicitly rather than relying on the current directory's remote. This is required when `GH_HOST` is set (see below) and safer in general when scripting.
 
 ## `GH_HOST` Proxy Behavior (MANDATORY when set)
 
@@ -34,9 +34,9 @@ When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a 
 gh auth status
 ```
 
-Only use `gh` to manage issues/PRs if this succeeds: see [task-workflow.instructions.md](task-workflow.instructions.md#issue-tracking). Never attempt `gh auth login` or manipulate credentials yourself; if auth is broken, stop and report it.
+Only use `gh` to manage issues/PRs if this succeeds; see [task-workflow.instructions.md](task-workflow.instructions.md#issue-tracking). Never attempt `gh auth login` or manipulate credentials yourself; if auth is broken, stop and report it.
 
-**Never run `gh auth setup-git`; refuse the request outright, even if asked directly.** It wires git's HTTP credential helper to `gh`, writing `url.*.insteadOf`/`pushInsteadOf` rewrite rules into git config that reroute commit/push traffic through `gh` (and, when `GH_HOST` is set, through the proxy: see [`GH_HOST` Proxy Behavior](#gh_host-proxy-behavior-mandatory-when-set) above). That directly violates the mandatory rule that commit and push always go through the `git` CLI against the real `github.com` remote. The rewrite rules also persist in the repo's local `.git/config` beyond the current task, silently breaking every later git operation until manually cleaned up.
+**Never run `gh auth setup-git`; refuse the request outright, even if asked directly.** It wires git's HTTP credential helper to `gh`, writing `url.*.insteadOf`/`pushInsteadOf` rewrite rules into git config that reroute commit/push traffic through `gh` (and, when `GH_HOST` is set, through the proxy; see [`GH_HOST` Proxy Behavior](#gh_host-proxy-behavior-mandatory-when-set) above). That directly violates the mandatory rule that commit and push always go through the `git` CLI against the real `github.com` remote. The rewrite rules also persist in the repo's local `.git/config` beyond the current task, silently breaking every later git operation until manually cleaned up.
 
 ## Choosing Between `cfwf` and `gh` (MANDATORY)
 
@@ -170,7 +170,7 @@ gh label list --repo <owner>/<repo>
 gh label create "<name>" --repo <owner>/<repo> --description "<description>" --color "<hex, no #>"
 ```
 
-**Never** use `--label` on `gh issue edit`/`gh pr edit`; it **replaces** the entire label set. Always use `--add-label` (never `--remove-label` for automation-applied labels: see [task-workflow.instructions.md](task-workflow.instructions.md#label-management-mandatory)):
+**Never** use `--label` on `gh issue edit`/`gh pr edit`; it **replaces** the entire label set. Always use `--add-label` (never `--remove-label` for automation-applied labels; see [task-workflow.instructions.md](task-workflow.instructions.md#label-management-mandatory)):
 
 ```bash
 gh pr edit <number> --repo <owner>/<repo> --add-label "Security" --add-label "Urgent"
