@@ -169,7 +169,7 @@ runs:
                       role: 'system',
                       content:
                         'You are a helpful assistant that writes concise pull request descriptions. ' +
-                        'Write a clear 2–4 sentence description of what changed and why, using the ' +
+                        'Write a clear 2 to 4 sentence description of what changed and why, using the ' +
                         'list of modified files, commit messages, and any linked issue details provided. ' +
                         'Be specific and technical. Include the reason for the change if it is evident. ' +
                         'If linked issues are provided, reference them naturally in the description. ' +
