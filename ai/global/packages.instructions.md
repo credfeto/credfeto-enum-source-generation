@@ -12,7 +12,7 @@
 
 ## Third-Party Packages Require Human Approval (MANDATORY)
 
-Adding any package **not** published by `credfeto` or `funfair-tech` (i.e. not a `Credfeto.*`/`FunFair.*` package — see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) — or the equivalent recognised first-party namespace in another ecosystem) is prohibited without explicit human approval. This applies regardless of how small, trivial, or transitive the package seems, and regardless of how urgently it's needed. Exception: a package change a pre-commit component tool's own output demands as the specific fix for its failure; see [Conflict Resolution](#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory) below.
+Adding any package **not** published by `credfeto` or `funfair-tech` (i.e. not a `Credfeto.*`/`FunFair.*` package or the equivalent recognised first-party namespace in another ecosystem; see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md)) is prohibited without explicit human approval. This applies regardless of how small, trivial, or transitive the package seems, and regardless of how urgently it's needed. Exception: a package change a pre-commit component tool's own output demands as the specific fix for its failure; see [Conflict Resolution](#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory) below.
 
 Before requesting approval, carry out a full security review of the candidate package and version:
 
@@ -26,7 +26,7 @@ Then present the human with, and wait for their explicit sign-off before touchin
 
 - **P1.** Package name, proposed version, and links to its source repository and registry listing.
 - **P2.** The findings of the security review above.
-- **P3.** Why it's needed — what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
+- **P3.** Why it's needed: what it does that the standard library, an already-owned Credfeto/FunFair package, or an existing dependency cannot.
 - **P4.** Alternatives considered and why they were rejected.
 
 If working from a GitHub issue or PR, follow the [Blocked Label](agent-roles.instructions.md#blocked-label) workflow: post the review as a comment, add `Blocked`, and do not proceed until an explicit human approval comment exists and `Blocked` is removed. Otherwise, ask the human directly and wait for an unambiguous go-ahead (`approved` / `lgtm`).
