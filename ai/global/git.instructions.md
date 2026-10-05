@@ -12,7 +12,7 @@ If the environment is too broken to work in without first fixing infrastructure 
 
 ## Pre-Work Baseline Check (MANDATORY before starting any work)
 
-If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date **before** running the check below; see [When to Rebase](git-rebasing.instructions.md#when-to-rebase) for the fetch/check/rebase procedure. If that procedure performed a rebase, it already ran `pre-commit-check` as its final step — that satisfies this baseline gate too; do not run it again here.
+If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date **before** running the check below; see [When to Rebase](git-rebasing.instructions.md#when-to-rebase) for the fetch/check/rebase procedure. If that procedure performed a rebase, it already ran `pre-commit-check` as its final step, and that satisfies this baseline gate too; do not run it again here.
 
 Otherwise (no rebase was needed, or you're starting a fresh branch from `main`), run this now, before starting any work on an issue or PR, to verify the repo is clean:
 
@@ -30,20 +30,20 @@ Always run this check in the background, because it is more likely than not to t
 
 This ensures CI results are unambiguous: pre-existing failures are resolved before any new changes are introduced.
 
-When picking up a **new issue** (branching fresh from `main`, not resuming an existing branch): once the baseline hook passes (or only auto-fixes, handled as in [P1](#baseline-autofix-own-commit)), check whether `COVERAGE.md` exists at the repo root. **A missing `COVERAGE.md` means the coverage ratchet has never been applied to this repo, not that it can be skipped.** If you are making changes, or have already made changes, to a repo without one, you **MUST** create it and then keep it maintained — this is not optional and does not depend on whether the requested work touches code coverage at all.
+When picking up a **new issue** (branching fresh from `main`, not resuming an existing branch): once the baseline hook passes (or only auto-fixes, handled as in [P1](#baseline-autofix-own-commit)), check whether `COVERAGE.md` exists at the repo root. **A missing `COVERAGE.md` means the coverage ratchet has never been applied to this repo, not that it can be skipped.** If you are making changes, or have already made changes, to a repo without one, you **MUST** create it and then keep it maintained; this is not optional and does not depend on whether the requested work touches code coverage at all.
 
 - If it exists, nothing further is needed here: the AI Coverage phase reads it live from `origin/main` every time it runs (see [coverage-ratchet.instructions.md](coverage-ratchet.instructions.md)), so there is no per-branch capture step and nothing to refresh after a rebase.
-- If it does **not** exist, collect it now while still on `main` (run the [per-language extraction](coverage-ratchet.instructions.md#per-language-overall-coverage-extraction) procedure for each orchestrated language present), then create the work branch as normal and commit the resulting `COVERAGE.md` in **its own commit**, before starting the requested work. No separate branch or issue is needed for this, as for the auto-fix case above: only one branch/PR is allowed open per repo at a time, so there is no concurrent-bootstrap race to isolate against. The AI Coverage phase overwrites the file again with the branch's live numbers when it runs later in this same PR (see its [bootstrap rule](coverage-ratchet.instructions.md#committed-coverage-file-mandatory)), so `COVERAGE.md` ends up with two commits over the branch's lifetime — expected, not a conflict. Do not treat this as a nice-to-have or defer it to a later PR: bootstrapping `COVERAGE.md` is a precondition of the work being tracked by the ratchet at all, and skipping it leaves the repo permanently ungated.
+- If it does **not** exist, collect it now while still on `main` (run the [per-language extraction](coverage-ratchet.instructions.md#per-language-overall-coverage-extraction) procedure for each orchestrated language present), then create the work branch as normal and commit the resulting `COVERAGE.md` in **its own commit**, before starting the requested work. No separate branch or issue is needed for this, as for the auto-fix case above: only one branch/PR is allowed open per repo at a time, so there is no concurrent-bootstrap race to isolate against. The AI Coverage phase overwrites the file again with the branch's live numbers when it runs later in this same PR (see its [bootstrap rule](coverage-ratchet.instructions.md#committed-coverage-file-mandatory)), so `COVERAGE.md` ends up with two commits over the branch's lifetime, which is expected and not a conflict. Do not treat this as a nice-to-have or defer it to a later PR: bootstrapping `COVERAGE.md` is a precondition of the work being tracked by the ratchet at all, and skipping it leaves the repo permanently ungated.
 
 ## Pre-Commit Hook Verification (MANDATORY before blocking)
 
-Never block work based on inspecting config files and deducing that a tool might be missing. Always verify empirically: stage your changes and run `git commit` as normal — the pre-commit hook runs automatically and aborts the commit cleanly if it fails, leaving your staged changes intact. Only block if that actually fails with a real error.
+Never block work based on inspecting config files and deducing that a tool might be missing. Always verify empirically: stage your changes and run `git commit` as normal. The pre-commit hook runs automatically and aborts the commit cleanly if it fails, leaving your staged changes intact. Only block if that actually fails with a real error.
 
 Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context.
 
 ## Build and Test Verification (MANDATORY before any commit or push)
 
-Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask. For pre-commit-specific failures (including ones requiring a fix to pre-commit itself or a component tool), see [Fixing Pre-Commit Failures](code-quality.instructions.md#fixing-pre-commit-failures-mandatory) — new/unexpected failures there are your responsibility to fix, not a reason to stop.
+Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask. For pre-commit-specific failures (including ones requiring a fix to pre-commit itself or a component tool), see [Fixing Pre-Commit Failures](code-quality.instructions.md#fixing-pre-commit-failures-mandatory); new/unexpected failures there are your responsibility to fix, not a reason to stop.
 
 ## Pre-Commit Branch Check
 
@@ -71,7 +71,7 @@ When raising a GitHub issue autonomously (not directly requested by a human):
 - **P1.** Search for existing issues (both **open** and **closed**) covering the same topic before creating; do not create duplicates.
 - **P2.** Add the `Blocked` label immediately after creating the issue so it is held for human review before being acted upon.
 
-**Exceptions: do not add `Blocked`:**
+**Exceptions where `Blocked` is not added:**
 
 - A human explicitly asked you to raise the issue: ask for the priority label instead, then apply it.
 - The issue is raised by the dependency security detection rule (e.g. flagged during `npm install` or from a Dependabot advisory): use only the labels specified by that rule.
@@ -86,6 +86,13 @@ For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [g
 - `git -C` runs the command in the specified directory without changing the shell's working directory, using a single invocation and avoiding leaving the shell in the wrong directory for subsequent commands.
 - In Claude Code the `cd` form also triggers an unnecessary permission prompt for the directory change itself.
 - This applies to all git subcommands: `git -C /path status`, `git -C /path add`, `git -C /path commit`, etc.
+
+## File Names and Git File Lists (MANDATORY)
+
+- Name every file you create with ASCII characters only, because git, shells and CI tools quote, escape or mangle non-ASCII names and break the scripts that read them.
+- Read git file lists NUL-separated, never split on newlines: files from elsewhere may have any name, and without `-z` git quotes and escapes non-ASCII or quote-containing paths, so the printed names no longer match the files:
+  - Produce the list with `-z`: `git ls-files -z`, `git diff --name-only -z`.
+  - Split captured output with `split('\0').filter(Boolean)`, because `-z` also ends the last entry with NUL and a plain split leaves a trailing empty name; for shell scripts see [Git File Lists](shell-scripts.instructions.md#git-file-lists).
 
 ## Destructive Commands (MANDATORY)
 
