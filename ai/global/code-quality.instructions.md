@@ -23,7 +23,7 @@ Some methods open real network connections, file handles, or database sessions, 
 
 ### Fixing Pre-Commit Failures (MANDATORY)
 
-Pre-commit and its component tools (e.g. `dotnet buildcheck`, analyzers, linters) are improved incrementally precisely by encountering and fixing the problems they surface. If pre-commit reports an error that was not present before the current work started — whether caused by your own edits or a component tool catching something pre-existing — fixing it is part of the current work, not a reason to stop.
+Pre-commit and its component tools (e.g. `dotnet buildcheck`, analyzers, linters) are improved incrementally precisely by encountering and fixing the problems they surface. If pre-commit reports an error that was not present before the current work started (whether caused by your own edits or a component tool catching something pre-existing), fixing it is part of the current work, not a reason to stop.
 
 - Do not stop, escalate or add `Blocked` merely because the failure is unexpected, was not present originally, also fails on main, or requires changes outside the files you set out to edit (however many), including the pre-commit configuration or a component tool's own rules/config; see [Blocked Label](agent-roles.instructions.md#blocked-label-cite-rule) P5. Fix it in the current PR, because the PR cannot pass its checks until it is fixed.
 - <a id="pre-commit-stop-condition"></a>Only stop and ask if the issue is genuinely fatal: pre-commit cannot possibly be made to pass (e.g. a required external tool is missing from the environment and cannot be installed, or the cause is infrastructure outside the repo's control), or the only fix is a suppression, skip or exclusion that needs authorisation (see the next bullet).
