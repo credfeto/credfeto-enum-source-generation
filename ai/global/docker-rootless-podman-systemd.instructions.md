@@ -1,6 +1,6 @@
 # Rootless Podman Under an Unprivileged Systemd Service Instructions
 
-> Load when: configuring or debugging rootless podman run by a **system** systemd unit (`/etc/systemd/system/*.service`, `WantedBy=multi-user.target`) under an unprivileged `User=` account with **no real login session** — not a `systemctl --user` unit, not an interactively logged-in account. This is the shape you get when "run this as an unprivileged systemd service, not a user service" is the explicit requirement.
+> Load when: configuring or debugging rootless podman run by a **system** systemd unit (`/etc/systemd/system/*.service`, `WantedBy=multi-user.target`) under an unprivileged `User=` account with **no real login session** (not a `systemctl --user` unit or an interactively logged-in account). This is the shape you get when "run this as an unprivileged systemd service, not a user service" is the explicit requirement.
 
 [Back to Global Instructions Index](index.md)
 
@@ -61,34 +61,34 @@
 ## `ProtectHome=yes` Breaks `XDG_RUNTIME_DIR` (MANDATORY)
 
 - `ProtectHome=yes` also masks `/run/user/*` on the unit, which breaks the D-Bus session bus fix above.
-- Fix: use `ProtectSystem=strict` instead; drop `ProtectHome`. Do **not** add `NoNewPrivileges=yes` alongside this — see the next section for why. Do **not** add `PrivateTmp=yes` either — see the `PrivateTmp=yes` section further down for why.
+- Fix: use `ProtectSystem=strict` instead; drop `ProtectHome`. Do **not** add `NoNewPrivileges=yes` alongside this; see the next section for why. Do **not** add `PrivateTmp=yes` either; see the `PrivateTmp=yes` section further down for why.
 
 ## `NoNewPrivileges=yes` Breaks `newuidmap`/`newgidmap` on Every Reboot (MANDATORY)
 
 - Rootless podman needs `newuidmap`/`newgidmap` to build a new user namespace, and those tools gain `cap_setuid`/`cap_setgid` at exec time via **file capabilities** (`getcap` shows `cap_setuid=ep`/`cap_setgid=ep`), not a setuid bit. `NoNewPrivileges=yes` on the unit stops the kernel from honouring file capabilities (and setuid/setgid bits) on exec for the whole process tree, so any descendant that execs `newuidmap`/`newgidmap` silently loses the capability it needs.
-- Symptom in `journalctl` for the container-runner unit — note the generic `podman-compose ... exit status 125` line alone does not show this; the actual cause is a few lines earlier:
+- Symptom in `journalctl` for the container-runner unit, a few lines before the generic `podman-compose ... exit status 125` line (which alone does not show the cause):
 
   ```text
   time="..." level=error msg="running `/usr/bin/newuidmap <pid> 0 <uid> 1 1 200000 65536`: newuidmap: Could not set caps\n"
   Error: cannot set up namespace using "/usr/bin/newuidmap": exit status 1
   ```
 
-- This only bites **after a reboot**, not on every `systemctl restart` of the unit: podman only needs to build a brand-new user namespace once per boot (the namespace does not survive a reboot), while restarts within the same boot reuse the existing one and never exec `newuidmap` again. A restart "working fine" is not evidence `NoNewPrivileges=yes` is safe — only a real reboot exercises the failing path.
+- This only bites **after a reboot**, not on every `systemctl restart` of the unit: podman only needs to build a brand-new user namespace once per boot (the namespace does not survive a reboot), while restarts within the same boot reuse the existing one and never exec `newuidmap` again. A restart "working fine" is not evidence `NoNewPrivileges=yes` is safe; only a real reboot exercises the failing path.
 - Verify by reproducing directly rather than guessing from the unit file alone: `sudo systemd-run --property=NoNewPrivileges=yes --property=User=<svc-user> --property=Group=<svc-group> /usr/bin/newuidmap <pid-owned-by-svc-user> 0 <uid> 1` reproduces `Could not set caps`; the same command with the property removed gets past that point (reaches an unrelated failure further down, e.g. `write to uid_map failed`, which confirms the capability was actually granted this time).
 - Fix: do not set `NoNewPrivileges=yes` on a rootless-podman container-runner unit at all.
 
 ## `PrivateTmp=yes` Orphans the Rootless-Podman Pause Process (MANDATORY)
 
-- Rootless podman keeps a long-lived "pause" process per UID (`/run/user/<uid>/libpod/tmp/pause.pid`, cgroup `podman-pause-*.scope`, reparented to PID 1) so it doesn't have to rebuild the user namespace on every invocation — this is the same mechanism the `NoNewPrivileges=yes` section above depends on surviving across restarts within a boot. `PrivateTmp=yes` gives every *start* of the container-runner unit its own private `/tmp` and `/var/tmp` bind mounts, torn down when that particular service instance ends.
-- If the pause process is created (or first joined) while one of those private mount namespaces is current, it keeps that namespace's view of `/var/tmp` for as long as it lives — including after the owning service instance, and its private tmp, is gone. A later `podman pull`/`podman-compose pull` that joins the same still-alive pause process then tries to create its image-copy scratch directory inside a `/var/tmp` that, from its point of view, no longer exists.
-- Symptom: `podman pull` / `podman-compose pull` (and hence the container-runner unit) fails with `creating a temporary directory: mkdir /var/tmp/container_images_storageNNNNNNNN: no such file or directory`, even though `/var/tmp` plainly exists on the host and a plain `mkdir` there (outside podman) succeeds. Nothing auto-recovers — every subsequent pull attempt fails the same way until the pause process is reset.
-- Verify: `cat /run/user/<uid>/libpod/tmp/pause.pid`, then `cat /proc/<pid>/mountinfo | grep var/tmp` — a source path containing `.../<unit-name>.service-*/tmp//deleted` confirms this cause.
-- Recovery, if it happens: confirm no containers are currently running (`podman ps -a` as the service account) before killing the pause process directly (`kill <pause-pid>`, then remove the stale pidfile) — that is only safe when nothing depends on the namespace it's holding open. If containers *are* running, use `podman system migrate` instead; it resets the pause process safely but stops all running containers as part of doing so, so it is not something to run unconditionally as an automated reactive fix on every pull failure.
+- Rootless podman keeps a long-lived "pause" process per UID (`/run/user/<uid>/libpod/tmp/pause.pid`, cgroup `podman-pause-*.scope`, reparented to PID 1) so it doesn't have to rebuild the user namespace on every invocation; this is the same mechanism the `NoNewPrivileges=yes` section above depends on surviving across restarts within a boot. `PrivateTmp=yes` gives every *start* of the container-runner unit its own private `/tmp` and `/var/tmp` bind mounts, torn down when that particular service instance ends.
+- If the pause process is created (or first joined) while one of those private mount namespaces is current, it keeps that namespace's view of `/var/tmp` for as long as it lives, even after the owning service instance and its private tmp are gone. A later `podman pull`/`podman-compose pull` that joins the same still-alive pause process then tries to create its image-copy scratch directory inside a `/var/tmp` that, from its point of view, no longer exists.
+- Symptom: `podman pull` / `podman-compose pull` (and hence the container-runner unit) fails with `creating a temporary directory: mkdir /var/tmp/container_images_storageNNNNNNNN: no such file or directory`, even though `/var/tmp` plainly exists on the host and a plain `mkdir` there (outside podman) succeeds. Nothing auto-recovers: every subsequent pull attempt fails the same way until the pause process is reset.
+- Verify: `cat /run/user/<uid>/libpod/tmp/pause.pid`, then `cat /proc/<pid>/mountinfo | grep var/tmp`; a source path containing `.../<unit-name>.service-*/tmp//deleted` confirms this cause.
+- Recovery, if it happens: confirm no containers are currently running (`podman ps -a` as the service account) before killing the pause process directly (`kill <pause-pid>`, then remove the stale pidfile); that is only safe when nothing depends on the namespace it's holding open. If containers *are* running, use `podman system migrate` instead; it resets the pause process safely but stops all running containers as part of doing so, so it is not something to run unconditionally as an automated reactive fix on every pull failure.
 - Fix: do not set `PrivateTmp=yes` on a rootless-podman container-runner unit at all. `ProtectSystem=strict` plus explicit `ReadWritePaths` for whatever the unit actually needs to write are the accepted substitute.
 
 ## Renaming a Systemd Timer During a Migration Leaves the Old One Active (MANDATORY)
 
-- A `.timer` unit defaults to targeting the identically-named `.service` when no `Unit=` override is given. If a migration renames `foo.timer`/`foo.service` to `foo-update.timer`/`foo-update.service` and also introduces a *new*, unrelated `foo.service`, any host upgrading in place still has the **old** `foo.timer` on disk, now firing against the **new** `foo.service` on its old schedule — a silent collision that only turns up as an unexpected `TriggeredBy:` in `systemctl status`.
+- A `.timer` unit defaults to targeting the identically-named `.service` when no `Unit=` override is given. If a migration renames `foo.timer`/`foo.service` to `foo-update.timer`/`foo-update.service` and also introduces a *new*, unrelated `foo.service`, any host upgrading in place still has the **old** `foo.timer` on disk, now firing against the **new** `foo.service` on its old schedule. This silent collision only turns up as an unexpected `TriggeredBy:` in `systemctl status`.
 - Fix: whenever a systemd unit is being renamed as part of a migration, have the install/upgrade script explicitly detect and remove the old timer unit file (`systemctl disable --now`, then `rm`) before installing the new units. Do not rely on copying the new files over being sufficient.
 
 ## Bind-Mounted Secrets Need `other`-Read, Not Just `group`-Read (MANDATORY)
@@ -105,14 +105,14 @@
 
 ## Docker Bypasses Firewalld for Published Ports; Podman's `pasta` Does Not (MANDATORY)
 
-- Docker manipulates iptables directly for published ports, which commonly bypasses firewalld's normal zone/port filtering entirely for that traffic — a port can "just work" over the LAN under docker with **zero explicit firewalld rule** for it. Rootless podman's `pasta` network backend does not do that same iptables insertion trick.
+- Docker manipulates iptables directly for published ports, which commonly bypasses firewalld's normal zone/port filtering entirely for that traffic; a port can "just work" over the LAN under docker with **zero explicit firewalld rule** for it. Rootless podman's `pasta` network backend does not do that same iptables insertion trick.
 - Once a service migrates from docker to podman, ports that previously worked via this implicit bypass need an **explicit** firewalld rule or they will start silently failing (connection refused/timeout, e.g. a reverse proxy on another host returning 502) even though nothing about the port publishing itself changed.
 
 ## Prune Dangling Images After Every Pull (MANDATORY)
 
 - A service that repeatedly pulls the same `:latest` tag (e.g. on a timer) leaves the previous image dangling (untagged) each time a new one lands and containers are recreated to use it; nothing reclaims that disk space on its own, and it accumulates indefinitely on a long-running host.
 - Run `podman image prune --force` (or `docker image prune -f`) after `compose up -d` on every such cycle; `image prune` only removes images no container references, so anything still in use by a running container is left alone regardless of when in the sequence it runs.
-- Make it non-fatal (`|| true`): by the time pruning runs, the containers are already up — a transient prune failure (empty store, a lock, etc.) must never fail the whole deploy/update run over what is purely best-effort disk cleanup.
+- Make it non-fatal (`|| true`): by the time pruning runs, the containers are already up; a transient prune failure (empty store, a lock, etc.) must never fail the whole deploy/update run over what is purely best-effort disk cleanup.
 
 ## `podman-compose` Has No Standalone `rm` Subcommand
 
