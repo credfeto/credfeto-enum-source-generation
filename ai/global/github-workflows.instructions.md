@@ -8,7 +8,7 @@ Classify every `uses:` reference before adding or reviewing:
 
 - **Always allowed**: `actions/*` and `github/*`
 - **Convert to github-script or local action**: all other third-party actions
-- **Acceptable as-is**: actions requiring specialised external tooling not expressible via the GitHub API or bash: see [Cannot Convert](#actions-that-cannot-be-converted)
+- **Acceptable as-is**: actions requiring specialised external tooling not expressible via the GitHub API or bash; see [Cannot Convert](#actions-that-cannot-be-converted)
 
 When encountering existing third-party actions (including `credfeto/*`), replace with local equivalents where practical.
 
@@ -42,11 +42,11 @@ See [github-workflows.examples.md](github-workflows.examples.md) for the composi
 
 ## Simple Bash Replacements
 
-Replace these with a bash step; no `github-script` needed:
+Replace these with a bash step; no `github-script` needed. Each runs under the mandatory `shell: bash` (see [Step Field Ordering](#step-field-ordering)), which sets `-eo pipefail`, so a git failure fails the step. A pipeline that lists offending files exits 0 even when it finds some, so a check built on one must capture its output and fail the step when it is non-empty: `[ -z "$out" ] || { printf '%s\n' "$out"; exit 1; }`. For other per-file loops over git file lists, use the forms in [Git File Lists](shell-scripts.instructions.md#git-file-lists):
 
-- **Merge conflict markers**: `git grep -rl '^<<<<<<< ' --`; fails if any file contains conflict markers
-- **Case sensitivity conflicts**: `git ls-files | sort -f | awk 'BEGIN{prev=""} tolower($0)==tolower(prev){print prev; print $0} {prev=$0}'`
-- **Tracked files matching `.gitignore`**: `git ls-files -i --exclude-standard`
+- **Merge conflict markers**: `rc=0; git grep -l -e '^<<<<<<< ' -e '^>>>>>>> ' -- || rc=$?; [ "$rc" -eq 1 ]`; passes only when `git grep` exits 1 (no match), so found markers (exit 0, files listed) or a git error (exit above 1) fail the step. `=======` is left out because it also matches Markdown and reStructuredText heading underlines
+- **Case sensitivity conflicts**: `out=$(git ls-files -z | LC_ALL=C sort -zf | LC_ALL=C uniq -zDi | tr '\0' '\n')`, then the check above; lists all names that differ only by the case of ASCII letters; `LC_ALL=C` folds ASCII letters only, so it misses names that differ only by the case of a non-ASCII letter (`É`/`é`), which also clash on case-insensitive file systems; when tracked names may be non-ASCII, use a `github-script` step instead that reads the list with `git ls-files -z`, splits it with `split('\0').filter(Boolean)` and compares `toLowerCase()` names, because without `-z` git quotes and escapes non-ASCII names so they never compare equal; see [File Names and Git File Lists](git.instructions.md#file-names-and-git-file-lists-mandatory)
+- **Tracked files matching `.gitignore`**: `out=$(git ls-files -z --cached -i --exclude-standard | tr '\0' '\n')`, then the check above; `-i` needs `--cached` (git rejects `-i` alone)
 - **Dotnet SDK version from global.json**: `jq -r '.sdk.version' src/global.json`; set `DOTNET_VERSION`; fall back to a default if absent
 
 Keep step names consistent with the original so PR history is legible.
@@ -81,7 +81,7 @@ This preference is opportunistic: switch a `uses:` line to SHA pinning when you 
 
 Resolve a tag to its commit SHA with `gh api repos/<owner>/<action>/commits/<tag> --jq '.sha'`.
 
-When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate: see [git-rebasing.instructions.md](git-rebasing.instructions.md#resolving-version-conflicts-when-merging-or-rebasing).
+When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate; see [git-rebasing.instructions.md](git-rebasing.instructions.md#resolving-version-conflicts-when-merging-or-rebasing).
 
 ## Keeping Actions Up to Date
 
@@ -183,7 +183,7 @@ Use this consistent field order; omit fields not needed. `name:` is always first
 
 ## Step Output Formatting
 
-> Applies to **GitHub Actions workflow steps only**. Standalone shell scripts use ANSI-coloured `✓`/`✗`: see [shell-scripts.instructions.md](shell-scripts.instructions.md#output-helpers).
+> Applies to **GitHub Actions workflow steps only**. Standalone shell scripts use ANSI-coloured `✓`/`✗`; see [shell-scripts.instructions.md](shell-scripts.instructions.md#output-helpers).
 
 | State | Character | Usage |
 | --- | --- | --- |
@@ -246,7 +246,7 @@ Use the minimum depth and tag fetching the job requires:
 
 ## Collapsing Multi-Step Groups
 
-Before extracting into a composite action, consider collapsing into a **single `actions/github-script` step**. If the logic fits in 20–30 lines with no reuse value, collapsing is preferable.
+Before extracting into a composite action, consider collapsing into a **single `actions/github-script` step**. If the logic fits in 20 to 30 lines with no reuse value, collapsing is preferable.
 
 Collapse when:
 
