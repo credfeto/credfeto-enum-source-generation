@@ -14,7 +14,7 @@ Read all of these before starting any task, regardless of language or context.
 
 | File | Covers |
 | --- | --- |
-| [git.instructions.md](git.instructions.md) | Prerequisites, build/test verification, git identity/GPG, destructive commands, deleting scratch PR review branches, branching, commits, GitHub issues, template rule escalation |
+| [git.instructions.md](git.instructions.md) | Prerequisites, build/test verification, git identity/GPG, destructive commands, deleting scratch PR review branches, ASCII-only file names, NUL-separated git file lists, branching, commits, GitHub issues, template rule escalation |
 | [claude-hooks.instructions.md](claude-hooks.instructions.md) | Claude Code `PreToolUse` hook denials: a denial means the command never ran, read its stated reason literally and retry immediately, tell a hook denial apart from a permission-system denial, reference index of the installed hook set |
 | [tool-preferences.instructions.md](tool-preferences.instructions.md) | Which tool to reach for when more than one could do the job: `Glob` over `find` for simple file listing; repo searches exclude `.env`, `.database` and `.claude/`; `gh` or a local clone over fetching `github.com`/`githubusercontent.com` URLs |
 | [git-rebasing.instructions.md](git-rebasing.instructions.md) | When to rebase (fetch/check/rebase), the mandatory `pre-commit-check` after every rebase, version-conflict resolution when merging or rebasing |
@@ -38,7 +38,7 @@ Load these only when the work involves the relevant technology or context.
 | [analyzer-conflicts.instructions.md](analyzer-conflicts.instructions.md) | Fixing one .NET diagnostic raises another (a diagnostic-vs-diagnostic conflict) | Pre-approved resolution table for conflicting diagnostic pairs (seeded with `IDE0028` vs `MA0002`), stop-and-ask for unlisted pairs, adding entries |
 | [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) | Any `.csproj`, `.sln`, or `.slnx` file is present, or a `Credfeto.*`/`FunFair.*` package is encountered | Registry of org-owned NuGet packages with source repos: never decompile these |
 | [sql.instructions.md](sql.instructions.md) | Any `.sql` file or SQL project is present | SQL linting, local DB connection, performance optimisation |
-| [shell-scripts.instructions.md](shell-scripts.instructions.md) | Any `.sh` file is present or shell script work is needed | Shebang, linting, output helper conventions (`die`/`success`/`info`) |
+| [shell-scripts.instructions.md](shell-scripts.instructions.md) | Any `.sh` file is present or shell script work is needed | Shebang, linting, output helper conventions (`die`/`success`/`info`), NUL-separated git file lists, argument size limits |
 | [shell.firewall.instructions.md](shell.firewall.instructions.md) | Firewall rule management is needed | `firewall-cmd` rules, private network constants |
 | [github-workflows.instructions.md](github-workflows.instructions.md) | Any `.github/workflows/*.yml` file is present or being created | Action policy, composite actions, step ordering, permissions, version pinning |
 | [npm.instructions.md](npm.instructions.md) | Any `package.json` is present or npm packages are being added/updated | Exact version pinning, `--save-exact`, no semver ranges, explicit updates |
