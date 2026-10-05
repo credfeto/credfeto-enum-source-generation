@@ -66,7 +66,7 @@ Once it is filed:
 
 - The project team will label the issue accordingly.
 - A team member will try to reproduce the issue with your reproduction steps. If there are no reproduction steps, or no obvious way to reproduce the issue, the team will ask you for them. An issue that cannot be reproduced may not be addressed until it can be.
-- If the team can reproduce the issue, it will be left for someone to implement, and you are welcome to contribute the fix yourself: see [Submitting Changes](#submitting-changes).
+- If the team can reproduce the issue, it will be left for someone to implement, and you are welcome to contribute the fix yourself; see [Submitting Changes](#submitting-changes).
 
 ### Suggesting Enhancements
 
