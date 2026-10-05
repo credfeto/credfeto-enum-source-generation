@@ -8,7 +8,7 @@
 
 ## Container Runner Detection
 
-- The container runner on a given machine may be **Docker or Podman**, never assume one is installed. If neither is installed, stop immediately, do not attempt to install one yourself, and ask the user to install Docker or Podman before continuing.
+- The container runner on a given machine may be **Docker or Podman**; never assume one is installed. If neither is installed, stop immediately and ask the user to install Docker or Podman before continuing; do not attempt to install one yourself.
 - Detect which is available and use that: prefer `docker` if present, otherwise fall back to `podman`. Check with `command -v docker` / `command -v podman` before running any container command.
 - Do the same for the compose tool: `docker compose` and `podman compose` are subcommands of their respective CLIs, not standalone binaries, so detect them by running e.g. `docker compose version` / `podman compose version` rather than `command -v`; fall back to the legacy standalone `docker-compose` / `podman-compose` binaries only if the subcommand isn't available.
 - Do not hardcode `docker` in scripts that need to run on either; resolve the runner once at the top of the script and use a variable.
