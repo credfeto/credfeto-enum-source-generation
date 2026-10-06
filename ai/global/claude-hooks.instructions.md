@@ -5,8 +5,9 @@
 This template's development containers (and any interactive session with the hooks installed via
 `install-claude-hooks`) run a fixed set of Claude Code `PreToolUse` hooks. Most match every Bash
 tool call; a couple also match a specific non-Bash tool call (see the reference table below). This
-file covers how to interpret a hook **denial** correctly, and how to
-tell one apart from a denial coming from Claude Code's separate permission system; for how to
+file covers how to interpret a hook **denial** correctly, how to
+tell one apart from a denial coming from Claude Code's separate permission system, and what a
+permission denial does and does not stop; for how to
 background and poll long-running commands once a call has actually been accepted, see
 [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory)
 and [Never Truncate Test/Commit Commands](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory).
@@ -59,6 +60,8 @@ Tell the two apart by the message shape, not by guessing at a cause:
   uses: `Blocked (command did not run - fix and retry, do not wait for it): <reason>`.
 - A **permission** denial names no hook, states no rule, and gives no fix, typically just
   `Permission to use Bash has been denied because Claude Code is running in don't ask mode.`
+  Read literally, it means that one command was refused, not Bash as a whole; see
+  [A `dontAsk` Denial Refuses One Command, Not Bash](#a-dontask-denial-refuses-one-command-not-bash-mandatory).
 
 The one thing both share: the command **never ran**. Everything in
 [A Denial Means the Command Never Ran](#a-denial-means-the-command-never-ran-mandatory) above
@@ -79,7 +82,52 @@ permission denial when run in the background (naming neither). These are two dif
 shapes, not one broken session. This differs from averaging two hook denials into one theory:
 one denial is a hook and the other is not.
 Identify which part of the command is being modelled as a broad read, narrow or exclude it, and
-retry before escalating to a human.
+retry, as the next section requires.
+
+### A `dontAsk` Denial Refuses One Command, Not Bash (MANDATORY)
+
+A `dontAsk` permission denial refuses only the one command it names. The message says
+"Permission to use Bash", but its scope is that single call: the command text did not match an
+allow rule, so it escalated, and under `dontAsk` the escalation came back as a denial. Bash stays
+available, and the next call is judged on its own text.
+
+Never stop the session, report that "Bash is disabled", or treat the task as blocked because of a
+permission denial. It does not meet the [Environment Health](git.instructions.md#environment-health-mandatory)
+stop bar, because nothing in the environment changed; only that command's shape was refused.
+Instead:
+
+- **P1.** Rewrite the command in its rule-compliant form and retry it at once, in the same turn.
+  Each of these shapes escalates for the same reason as a search without its exclusions: the
+  permission system cannot prove what the call will touch from its text alone.
+  - `git -C <dir> <command>`, not `cd <dir>; git <command>` or `cd <dir> && git <command>` (see
+    [Running Git Commands in a Specific Directory](git.instructions.md#running-git-commands-in-a-specific-directory)).
+  - Literal values, not `$VAR` or any other shell expansion, because an allow rule matches the
+    text as written and cannot see what a variable expands to.
+  - One simple command per call, not a `;` or `&&` chain, because every part of a chain must match
+    an allow rule on its own and one unmatched part denies the whole call; make separate tool
+    calls instead.
+  - The mandated exclusions on every search, as
+    [Exclude Secret-Bearing Files From Repo Searches](tool-preferences.instructions.md#exclude-secret-bearing-files-from-repo-searches-mandatory)
+    requires.
+- **P2.** Only if the rule-compliant form is also denied, log it as
+  [Logging an Allowlist Request](#logging-an-allowlist-request-mandatory) describes, then carry on
+  with the rest of the task.
+
+### Logging an Allowlist Request (MANDATORY)
+
+A rule-compliant command that the permission system still denies needs a new allow rule, which only
+the owner can add. Record it where the owner collects these requests, so the need is not lost when
+the session ends:
+
+- **P1.** Read the comments on credfeto/credfeto-orchestrator#1167
+  (`gh issue view 1167 --repo credfeto/credfeto-orchestrator --comments`) and check whether the
+  same command, or an allow rule that would cover it, is already listed. If it is, add nothing.
+- **P2.** Otherwise, comment on credfeto/credfeto-orchestrator#1167 with the exact denied command,
+  why the task needs it, and the repository the session is working in, building the body as
+  [Comment and Body Text](github-cli.instructions.md#comment-and-body-text-mandatory-heredoc-never-n)
+  requires.
+- **P3.** Continue with the rest of the task. The request is for the owner to act on later; it
+  does not block the current work.
 
 ## Prefer the Tool's Own Backgrounding Parameter (MANDATORY)
 
