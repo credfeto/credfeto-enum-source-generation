@@ -208,7 +208,7 @@ Whenever an instruction file is added or updated, re-evaluate all open branches 
 
 ## Commit, Push, and Issue Update Cadence
 
-- One logical change per commit; do not batch unrelated changes.
+- One logical change per commit; do not batch unrelated changes. Each change is made, tested and committed before the next starts, per [One change at a time](#one-change-at-a-time).
 
 Per-file cadence for coverage tasks:
 
@@ -326,15 +326,23 @@ Every sequence below starts with the [Pre-Work Baseline Check](git.instructions.
 
 | Work type | Agent sequence |
 | --- | --- |
-| New feature / bug fix / refactor | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
-| `CHANGES_REQUESTED` on existing PR, verbal/chat request for changes on an open PR, or a pre-existing bug the human has chosen to bring into an open PR's scope | Pre-Work Baseline Check → Code Fixer (respond to every comment) → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
-| Coverage-only task | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (tests only) → Code Tester → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
+| New feature / bug fix / refactor | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer → Code Tester → Committer → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
+| `CHANGES_REQUESTED` on existing PR, verbal/chat request for changes on an open PR, or a pre-existing bug the human has chosen to bring into an open PR's scope | Pre-Work Baseline Check → Code Fixer (respond to every comment, one comment or construct per task) → Code Tester → Committer → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
+| Coverage-only task | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (tests only) → Code Tester → Committer → Code Reviewer → Changelog (correction) → Committer → PR Submitter → CI Monitor |
 | Documentation-only | Pre-Work Baseline Check → Changelog (placeholder) → Committer → PR Submitter → Code Writer (docs only) → Changelog (correction) → Committer → PR Submitter → CI Monitor |
 | Rebase requested | Rebase Agent → Post-Rebase Check (`pre-commit-check`, with each reported issue fixed through the [review-fix route](#review-fix-route) until it is clean, per [After Every Rebase](git-rebasing.instructions.md#after-every-rebase-mandatory)) → Committer → PR Submitter → CI Monitor |
 | CI failure (unknown cause) | Pre-Work Baseline Check → CI Debugger → CI Monitor |
 | Dependabot / dependency update | Pre-Work Baseline Check → Dependency Updater |
 
-<a id="review-fix-route"></a>An [AI Review Loop](agent-roles.instructions.md#pr-workflow-ai-review-loop) fix runs the `CHANGES_REQUESTED` row from Code Fixer (or Code Writer, when the step names it) onwards: Code Fixer (or Code Writer) → Code Tester → Changelog (correction) → Committer → PR Submitter → CI Monitor. It drops the Pre-Work Baseline Check, because that check already ran when work on the PR began, and Code Reviewer, because the loop's next phase or round reviews the change anyway. No new row, role or Model Selection entry is needed, because every step is an existing role doing its usual job.
+<a id="review-fix-route"></a>An [AI Review Loop](agent-roles.instructions.md#pr-workflow-ai-review-loop) fix runs the `CHANGES_REQUESTED` row from Code Fixer (or Code Writer, when the step names it) onwards: Code Fixer (or Code Writer) → Code Tester → Changelog (correction) → Committer → PR Submitter → CI Monitor. It drops the Pre-Work Baseline Check, because that check already ran when work on the PR began, the Committer before Code Reviewer, because the single Committer after Changelog (correction) commits the change, and Code Reviewer, because the loop's next phase or round reviews the change anyway. No new row, role or Model Selection entry is needed, because every step is an existing role doing its usual job.
+
+<a id="one-change-at-a-time"></a>**One change at a time (MANDATORY).** A Code Writer or Code Fixer task carries exactly one change: one finding, one construct, or one approved request. That change goes through Code Tester, then Committer (with Changelog (correction) before it where the route places one), before the next change is started, because a commit made from a tree holding several changes cannot be reviewed, reverted or traced back to its finding on its own.
+
+- Never accumulate several changes in the working tree and split them into commits afterwards, whether by file or by hunk, because a split tree cannot be built or tested commit by commit and a file shared by two changes cannot be divided cleanly.
+- In the routes above, Committer follows Code Tester before Code Reviewer runs, so the writer's or fixer's change is committed first; each fix Code Reviewer then makes goes through Code Tester and Committer before its next fix, and Changelog (correction) → Committer still runs once at the end.
+- Committer refuses a working tree that holds more than one change and hands it back to the Orchestrator, which routes the changes again one at a time; it never splits such a tree itself.
+- A change's [Pattern Sweep](code-quality.instructions.md#pattern-sweep-mandatory) is its own commit, made immediately after that change's fix commit and before the next change starts. The one exception is Phase A's post-convergence sweeps in the [AI Review Loop](agent-roles.instructions.md#pr-workflow-ai-review-loop), which have no fix commit of their own; each is still its own change, committed before the next.
+- Pushes may be batched: Committer may push once after a run of consecutive commits instead of after each one. The branch is always pushed before PR Submitter or CI Monitor runs and before the session ends, so no commit is left only in the container.
 
 Rows starting with `Changelog (placeholder)` assume the work item takes a changelog entry at all. If it hits the skip condition in [changelog.instructions.md](changelog.instructions.md#when-to-skip) (template repo), the row runs unchanged; see [agent-roles.instructions.md](agent-roles.instructions.md#changelog) for what the Changelog agent commits instead.
 
