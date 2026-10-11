@@ -21,6 +21,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Meziantou.Analyzer to 3.0.317
 - SDK - Updated DotNet SDK to 10.0.403
 - Dependencies - Updated Nullable.Extended.Analyzer to 1.19.0
+- Dependencies - Updated xunit.analyzers to 2.2.0
 ### Deprecated
 ### Removed
 ### Deployment Changes
