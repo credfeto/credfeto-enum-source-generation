@@ -50,7 +50,9 @@ TestResult.xml
 [Rr]eleasePS/
 dlldata.c
 
-# Benchmark Results
+
+# Benchmark DotNet
+.bdn
 BenchmarkDotNet.Artifacts/
 
 # .NET Core
@@ -362,3 +364,4 @@ node_modules
 
 # Trivy
 result.json
+
