@@ -1,26 +1,26 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
-name: 'Configure Nuget Feeds'
-description: 'Configure Nuget Feeds'
+name: "Configure Nuget Feeds"
+description: "Configure Nuget Feeds"
 inputs:
   # NUGET
   nuget-public-restore-feed-cache:
-    description: 'Local cache of public nuget feed'
+    description: "Local cache of public nuget feed"
     required: false
   nuget-public-restore-feed:
-    description: 'public nuget feed'
+    description: "public nuget feed"
     required: false
   nuget-additional-restore-feed-release-cache:
-    description: 'Any additional nuget feed to download packages from'
+    description: "Any additional nuget feed to download packages from"
     required: false
   nuget-additional-restore-feed-prerelease-cache:
-    description: 'Any additional nuget feed to download packages from'
+    description: "Any additional nuget feed to download packages from"
     required: false
   nuget-additional-restore-feed-release:
-    description: 'Any additional nuget feed to download packages from'
+    description: "Any additional nuget feed to download packages from"
     required: false
   nuget-additional-restore-feed-prerelease:
-    description: 'Any additional nuget feed to download packages from'
+    description: "Any additional nuget feed to download packages from"
     required: false
 
 runs:
