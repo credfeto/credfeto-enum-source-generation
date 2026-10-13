@@ -1,11 +1,11 @@
 --- # Dotnet Build Check
 # Maintain in repo: funfair-server-template
-name: 'Dotnet Build Check'
-description: 'Dotnet Build Check'
+name: "Dotnet Build Check"
+description: "Dotnet Build Check"
 inputs:
   # GENERAL
   pre-release-build:
-    description: 'Whether pre-release NuGet packages are allowed'
+    description: "Whether pre-release NuGet packages are allowed"
     required: true
 
 runs:
