@@ -1,27 +1,27 @@
 --- # Publishes a Dotnet app to an executable
 # Maintain in repo: funfair-server-template
-name: 'Publishes a Dotnet app to an executable'
-description: 'Publishes a Dotnet app to an executable'
+name: "Publishes a Dotnet app to an executable"
+description: "Publishes a Dotnet app to an executable"
 inputs:
   # General
   production-build:
-    description: 'Whether to build a production build'
+    description: "Whether to build a production build"
     required: true
 
   build-version:
-    description: 'Build version'
+    description: "Build version"
     required: true
 
   release-notes:
-    description: 'Release notes'
+    description: "Release notes"
     required: false
 
   platform:
-    description: 'Platform to build'
+    description: "Platform to build"
     required: true
 
   project-to-publish:
-    description: 'Package (root) to deploy'
+    description: "Package (root) to deploy"
     required: false
 
 runs:
