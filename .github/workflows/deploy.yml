@@ -6,22 +6,22 @@ on:
     # note MAX inputs = 10
     inputs:
       CLOUD_FORMATION_STACK:
-        description: '1. The Cloud Formation stack to deploy as'
+        description: "1. The Cloud Formation stack to deploy as"
         required: true
       CLOUD_FORMATION_TEMPLATE_FILE:
-        description: '2. The Cloud Formation file to deploy'
+        description: "2. The Cloud Formation file to deploy"
         required: true
       DOCKER_APP_OWNER:
-        description: '3. docker app owner'
+        description: "3. docker app owner"
         required: true
       DOCKER_APP_NAME:
-        description: '4. docker app name'
+        description: "4. docker app name"
         required: true
       API_HOST:
-        description: '5. Api Host'
+        description: "5. Api Host"
         required: false
       API_PREFIX:
-        description: '6. API Prefix'
+        description: "6. API Prefix"
         required: false
       AWS_LOAD_BALANCER_HOSTNAME:
         description: "7. AWS Load Balancer match hostname"
