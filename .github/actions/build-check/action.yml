@@ -13,7 +13,7 @@ runs:
   steps:
     - name: "Dotnet: Run build check (Pre-Release)"
       if: env.Release == 'false'
-      working-directory: ${{github.workspace}}/src
+      working-directory: "${{github.workspace}}/src"
       shell: bash
       run: dotnet tool run buildcheck -Solution "$(find . -type f -iname "*.sln" | head -1)" -WarningAsErrors true -PreReleaseBuild false
       env:
@@ -28,11 +28,11 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        NUGET_PACKAGES: "${{ github.workspace }}/.nuget/packages"
 
     - name: "Dotnet: Run build check (Release)"
       if: env.Release == 'true'
-      working-directory: ${{github.workspace}}/src
+      working-directory: "${{github.workspace}}/src"
       shell: bash
       run: dotnet tool run buildcheck -Solution "$(find . -type f -iname "*.sln" | head -1)" -WarningAsErrors true -PreReleaseBuild false
       env:
@@ -47,4 +47,4 @@ runs:
         DOTNET_TC_CallCountingDelayMs: "0"
         DOTNET_TieredPGO: "1"
         MSBUILDTERMINALLOGGER: "auto"
-        NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        NUGET_PACKAGES: "${{ github.workspace }}/.nuget/packages"
