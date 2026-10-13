@@ -1,19 +1,19 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
-name: 'Build Dotnet'
-description: 'Builds and deploys the source'
+name: "Build Dotnet"
+description: "Builds and deploys the source"
 inputs:
   # General
   production-build:
-    description: 'Whether to build a production build'
+    description: "Whether to build a production build"
     required: true
 
   # NUGET
   nuget-pack:
-    description: 'Whether to pack packages with feeds'
+    description: "Whether to pack packages with feeds"
     required: false
   nuget-feed:
-    description: 'Nuget feed to push packages to'
+    description: "Nuget feed to push packages to"
     required: false
   nuget-feed-type:
     description: >-
@@ -22,50 +22,50 @@ inputs:
       empty/unset skips publishing
     required: false
   nuget-username:
-    description: 'nuget.org username (profile name) the Trusted Publishing policy is registered against'
+    description: "nuget.org username (profile name) the Trusted Publishing policy is registered against"
     required: false
   sleet-config:
-    description: 'Sleet config file'
+    description: "Sleet config file"
     required: false
   sleet-feed:
-    description: 'Sleet feed to push packages to'
+    description: "Sleet feed to push packages to"
     required: false
   dotnet-docker-platform:
-    description: 'Dotnet docker platform (e.g. linux-arm64)'
+    description: "Dotnet docker platform (e.g. linux-arm64)"
     required: false
 
   # General
   build-version:
-    description: 'Build version'
+    description: "Build version"
     required: true
 
   release:
-    description: 'Is this a release build'
+    description: "Is this a release build"
     required: true
 
   pre-release-build:
-    description: 'Whether pre-release NuGet packages are allowed'
+    description: "Whether pre-release NuGet packages are allowed"
     required: true
 
   release-notes:
-    description: 'Release notes'
+    description: "Release notes"
     required: false
 
   build-sql:
-    description: 'Whether to build SQL DB'
+    description: "Whether to build SQL DB"
     required: true
   db-folder:
-    description: 'Folder where SQL Files live'
+    description: "Folder where SQL Files live"
     required: false
 
   # GENERAL
   github-token:
-    description: 'Github Token'
+    description: "Github Token"
     required: true
 
   # DEPLOYMENT
   project-to-publish:
-    description: 'Package (root) to deploy'
+    description: "Package (root) to deploy"
     required: false
 
 runs:
