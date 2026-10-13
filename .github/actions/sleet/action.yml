@@ -1,13 +1,13 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
-name: 'Publish to Sleet'
-description: 'Publishes Nuget packages with sleet'
+name: "Publish to Sleet"
+description: "Publishes Nuget packages with sleet"
 inputs:
   sleet-config:
-    description: 'Sleet config file'
+    description: "Sleet config file"
     required: false
   sleet-feed:
-    description: 'Sleet feed to push packages to'
+    description: "Sleet feed to push packages to"
     required: false
 
 runs:
