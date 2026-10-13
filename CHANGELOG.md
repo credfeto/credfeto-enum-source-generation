@@ -15,9 +15,9 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated Microsoft.Sbom.Targets to 4.1.13
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.35.0.4138
-- Dependencies - Updated Meziantou.Analyzer to 3.0.299
 - Dependencies - Updated Roslynator.Analyzers to 5.0.1
 - Dependencies - Updated Microsoft.VisualStudio.Threading.Analyzers to 18.12.1
+- Dependencies - Updated Meziantou.Analyzer to 3.0.301
 ### Deprecated
 ### Removed
 ### Deployment Changes
