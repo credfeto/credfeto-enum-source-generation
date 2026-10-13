@@ -1,19 +1,19 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
-name: 'Pack and publish nuget packages'
-description: 'Packs nuget packages and publishes them to the configured feed'
+name: "Pack and publish nuget packages"
+description: "Packs nuget packages and publishes them to the configured feed"
 inputs:
   build-version:
-    description: 'Build version'
+    description: "Build version"
     required: true
   production-build:
-    description: 'Whether to build a production build'
+    description: "Whether to build a production build"
     required: true
   release-notes:
-    description: 'Release notes'
+    description: "Release notes"
     required: false
   nuget-feed:
-    description: 'Nuget feed to push packages to'
+    description: "Nuget feed to push packages to"
     required: false
   nuget-feed-type:
     description: >-
@@ -22,13 +22,13 @@ inputs:
       empty/unset skips publishing
     required: false
   nuget-username:
-    description: 'nuget.org username (profile name) the Trusted Publishing policy is registered against'
+    description: "nuget.org username (profile name) the Trusted Publishing policy is registered against"
     required: false
   sleet-config:
-    description: 'Sleet config file'
+    description: "Sleet config file"
     required: false
   sleet-feed:
-    description: 'Sleet feed to push packages to'
+    description: "Sleet feed to push packages to"
     required: false
 
 runs:
