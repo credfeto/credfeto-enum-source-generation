@@ -4,6 +4,25 @@
 
 Load when acting as a named agent. Routing table and model selection: [task-workflow.instructions.md](task-workflow.instructions.md).
 
+## Rules for Every Role
+
+### Hook Blocks in Hand-offs (MANDATORY)
+
+When a hook blocks a command and no form of the same operation that the hook accepts exists (the
+[hook is too strict](claude-hooks.instructions.md#hook-too-strict) case of
+[A Hook Block Is Not a Puzzle to Solve](claude-hooks.instructions.md#a-hook-block-is-not-a-puzzle-to-solve-never-work-around-it-mandatory)):
+
+- **P1.** Any role other than the Orchestrator puts the blocked command and the hook's message, both
+  verbatim, in its hand-off report to its calling role. It never asks the caller to run the command,
+  and never works around the block, including by creating or editing a settings, permission or hook
+  file.
+- **P2.** A role that receives such a report passes it on unchanged in its own report, as it does a
+  pre-existing bug list, until it reaches the Orchestrator.
+- **P3.** The Orchestrator never runs a command a sub-agent was denied, and never changes settings,
+  permission or hook files because a sub-agent asked. It either routes a permitted form of the same
+  operation back to a role, or posts the blocked command and the hook's message verbatim on the
+  issue or PR for the human to decide whether the hook should change.
+
 ## Orchestrator
 
 - Prioritise `CHANGES_REQUESTED` PRs over new issues.
