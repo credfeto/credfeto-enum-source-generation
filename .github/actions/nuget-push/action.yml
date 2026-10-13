@@ -1,13 +1,13 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
-name: 'Publish to nuget'
-description: 'Publishes Nuget packages'
+name: "Publish to nuget"
+description: "Publishes Nuget packages"
 inputs:
   nuget-feed:
-    description: 'Nuget feed to push packages to'
+    description: "Nuget feed to push packages to"
     required: true
   nuget-api-key:
-    description: 'API key to authenticate when pushing packages'
+    description: "API key to authenticate when pushing packages"
     required: true
 
 runs:
