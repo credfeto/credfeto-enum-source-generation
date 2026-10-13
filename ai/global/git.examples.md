@@ -6,7 +6,7 @@
 
 ```bash
 gh issue create --repo credfeto/cs-template \
-  --title "<short description of the rule change>" \
+  --title "<prefix>: <short description of the rule change>" \
   --label "AI-Work" \
   --body "**Source repository**: <repo where need was discovered>
 
