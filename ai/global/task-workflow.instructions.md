@@ -89,7 +89,7 @@ This is distinct from [Ad-Hoc Prompt Intake](#ad-hoc-prompt-intake-mandatory) be
 Applies whenever a human asks you to _do_ something in the context of a repo (a task, not a request to raise an issue, which is covered above), and no existing issue or PR has already been specified as the thing to work on. No exception for triviality of the request, no exception for the `credfeto/cs-template` repo itself, and no "skip straight to diagnosis/fix in chat" alternative to offer or ask about: there is no path around this flow, so do not present it as a choice.
 
 - **P1.** Before taking any other action (including answering a read-only question), create a GitHub issue in the current repo:
-  - Title: a concise summary of the prompt.
+  - Title: a concise summary of the prompt, in `<prefix>: <summary>` form per [Issue Titles](github-cli.instructions.md#issue-titles-mandatory) (the repo's local title rule takes precedence where one exists).
   - Body: the prompt, verbatim, as the starting point.
   - Labels: `AI-Work` and `Blocked` (minimum), always, regardless of who initiated the underlying task; add other relevant labels (e.g. priority) as appropriate.
 - **P2.** Use Plan Mode to work out scope, affected files, and approach, and post it as an `## Implementation Plan` issue comment per the format in [agent-roles.instructions.md](agent-roles.instructions.md#issue-workflow-plan-first-new-issues-only).
