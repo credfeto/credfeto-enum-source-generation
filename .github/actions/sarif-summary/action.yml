@@ -1,22 +1,22 @@
 --- # Summarise SARIF findings as a markdown table in the job summary
 # Maintain in repo: funfair-server-template
-name: 'Summarise SARIF findings'
-description: 'Extracts SARIF results into a markdown table on the job summary and the associated PR as a comment; fails on error-level findings'
+name: "Summarise SARIF findings"
+description: "Extracts SARIF results into a markdown table on the job summary and the associated PR as a comment; fails on error-level findings"
 inputs:
   title:
-    description: 'Heading for the summary table'
+    description: "Heading for the summary table"
     required: true
   glob:
-    description: 'Glob (relative to the results folder) matching the SARIF files to summarise'
+    description: "Glob (relative to the results folder) matching the SARIF files to summarise"
     required: true
   github-token:
-    description: 'GitHub token used to find the pull request (on push) and post the comment'
+    description: "GitHub token used to find the pull request (on push) and post the comment"
     required: false
   pr-number:
-    description: 'Pull request number already resolved by the caller, to skip the internal lookup on push'
+    description: "Pull request number already resolved by the caller, to skip the internal lookup on push"
     required: false
   pr-lookup-done:
-    description: 'Set to true when the caller already attempted to resolve pr-number, even if none was found - skips the redundant internal lookup'
+    description: "Set to true when the caller already attempted to resolve pr-number, even if none was found - skips the redundant internal lookup"
     required: false
 
 runs:
