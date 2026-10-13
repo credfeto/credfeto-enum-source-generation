@@ -1,15 +1,15 @@
 --- # Build SQL
 # Maintain in repo: funfair-server-template
-name: 'Build SQL'
-description: 'Builds SQL Package'
+name: "Build SQL"
+description: "Builds SQL Package"
 inputs:
   db-folder:
-    description: 'Folder where SQL Files live'
+    description: "Folder where SQL Files live"
     required: true
 
   # GITHUB
   github-token:
-    description: 'Github Token'
+    description: "Github Token"
     required: true
 
 runs:
