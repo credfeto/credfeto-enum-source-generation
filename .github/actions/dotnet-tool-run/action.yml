@@ -1,17 +1,17 @@
 --- # Run dotnet tool
 # Maintain in repo: funfair-server-template
-name: 'Run dotnet tool'
-description: 'Run dotnet tool'
+name: "Run dotnet tool"
+description: "Run dotnet tool"
 inputs:
   working-directory:
-    description: 'Working directory'
+    description: "Working directory"
     required: true
     default: 'latest'
   tool-name:
-    description: 'Tool to run'
+    description: "Tool to run"
     required: true
   tool-arguments:
-    description: 'Tool arguments'
+    description: "Tool arguments"
     required: false
     default: 'latest'
 
