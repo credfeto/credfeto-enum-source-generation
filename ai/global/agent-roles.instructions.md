@@ -311,11 +311,11 @@ A request is identified by any natural-language phrasing such as: "raise an issu
 For each such request that has not already been actioned (i.e. no reply from you linking to a newly created issue):
 
 - **P1.** Search for an existing open **or closed** issue covering the same topic; do not create duplicates.
-- **P2.** If no duplicate exists, create the issue immediately:
+- **P2.** If no duplicate exists, create the issue immediately, titled per [Issue Titles](github-cli.instructions.md#issue-titles-mandatory) (the repository's local title rule takes precedence where one exists):
 
   ```bash
   gh issue create --repo <owner/repo> \
-    --title "<concise title from the request>" \
+    --title "<prefix>: <concise title from the request>" \
     --body "<description from the request>" \
     --label "<priority label from the request, or 'Medium' if unspecified>"
   ```
@@ -547,7 +547,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Process groups sequentially. For each group, apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the group's files, then launch the Code Reviewer sub-agents (Reuse, Quality, Efficiency, Correctness, Security, Compliance) **in parallel**.
   - The "newly changed files" scope does not apply; sub-agents review the full file set for the group.
 - Do NOT fix findings. For each group that has findings, raise one GitHub issue:
-  - Title: `Audit: <group-name> - <brief summary>`
+  - Title: `audit: <group-name> - <brief summary>`, unless the repository's local title rule says otherwise, which takes precedence (see [Issue Titles](github-cli.instructions.md#issue-titles-mandatory)). When looking for an existing audit issue by title, match both `audit:` and `Audit:`, because existing audit issues may use the capitalised prefix.
   - Body: all findings from all sub-agents for that group, organised by sub-agent.
   - Label: `audit`
 - Skip groups where all sub-agents report `{"clean": true}`.
@@ -612,7 +612,7 @@ Runs in two modes; both use `dotnet changelog` (see [changelog.instructions.md](
 
 - Run after Committer has pushed.
 - Wait up to 1 minute for GitHub to auto-create a PR (`gh pr list --head <branch>`); create one if absent.
-- Title: Conventional Commits format matching the primary commit; for the placeholder-only commit that opens the PR before any code exists, base it on the issue title/expected Conventional Commits type instead, and correct it once the primary code commit lands if it differs. Body: summary + `Closes #<n>` (or `Related to #<n>`).
+- Title: Conventional Commits format matching the primary commit; for the placeholder-only commit that opens the PR before any code exists, take the Conventional Commits type from the expected change or from the issue's labels instead (e.g. `bug` gives `fix`, `enhancement` gives `feat`), and correct it once the primary code commit lands if it differs. Never take the PR title or its type from the issue title, because issue titles follow [Issue Titles](github-cli.instructions.md#issue-titles-mandatory), whose prefixes (e.g. `learning:`, `audit:`, `tool(cfwf):`) are not Conventional Commits types. Body: summary + `Closes #<n>` (or `Related to #<n>`).
 - Update body if PR already exists. Add yourself as assignee.
 - Do **not** mark ready or enable auto-merge here; that is the Orchestrator's job after the AI review loop (see [PR Workflow: AI Review Loop](#pr-workflow-ai-review-loop)). Leave the PR as draft.
 
