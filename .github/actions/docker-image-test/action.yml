@@ -1,13 +1,13 @@
 --- # Run docker image tests
 # Maintain in repo: funfair-server-template
-name: 'Run docker image tests'
-description: 'Docker image tests'
+name: "Run docker image tests"
+description: "Docker image tests"
 inputs:
   app-owner:
-    description: 'docker app owner'
+    description: "docker app owner"
     required: true
   app-name:
-    description: 'docker app name'
+    description: "docker app name"
     required: true
 
 runs:
