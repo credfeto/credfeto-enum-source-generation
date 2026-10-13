@@ -1,16 +1,16 @@
 --- # Merge multiple SARIF files into one
 # Maintain in repo: funfair-server-template
-name: 'Merge SARIF files'
-description: 'Combines SARIF files in the results folder into one, since code scanning upload rejects multiple files from the same tool'
+name: "Merge SARIF files"
+description: "Combines SARIF files in the results folder into one, since code scanning upload rejects multiple files from the same tool"
 inputs:
   glob:
-    description: 'Glob (relative to the results folder) matching the SARIF files to merge'
+    description: "Glob (relative to the results folder) matching the SARIF files to merge"
     required: true
   exclude:
-    description: 'Glob (relative to the results folder) of SARIF files to leave untouched'
+    description: "Glob (relative to the results folder) of SARIF files to leave untouched"
     required: false
   output:
-    description: 'Filename (relative to the results folder) to write the merged SARIF document to'
+    description: "Filename (relative to the results folder) to write the merged SARIF document to"
     required: true
 
 runs:
