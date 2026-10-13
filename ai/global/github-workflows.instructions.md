@@ -103,7 +103,7 @@ Take the following steps:
 - **P2.** **Locate the workflow file** that references it; it could live in `funfair-tech/funfair-server-template`, `credfeto/cs-template`, or the current repo. Search `.github/workflows/` in each.
 - **P3.** **Find the minimum compliant version**: enumerate candidate releases with `gh api --paginate repos/<owner>/<action>/releases --jq '.[].tag_name'` (or browse the action's releases), then inspect tagged `action.yml`/`action.yaml` `runs.using` values to confirm the earliest release that ships a Node.js 24 runtime.
 - **P4.** **Raise an issue in the repo that owns the workflow file**, with:
-  - **Title**: `chore: update <action> to a Node.js 24 compatible version`
+  - **Title**: `chore: update <action> to a Node.js 24 compatible version`, unless the owning repo's local title rule says otherwise, which takes precedence (see [Issue Titles](github-cli.instructions.md#issue-titles-mandatory))
   - **Labels**: `AI-Work`, `dependencies`, `github-actions`, `High`
   - **Body**: include the current version, the minimum compliant version (if one exists), a link to the upstream release, and the deprecation deadline.
 - **P5.** Do **not** silently ignore the warning or defer it; raise the issue even if no compliant version is available yet (note that in the issue body).
