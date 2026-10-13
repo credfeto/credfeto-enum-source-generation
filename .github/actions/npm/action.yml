@@ -1,36 +1,36 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
-name: 'Build using NPM'
-description: 'Builds using NPM'
+name: "Build using NPM"
+description: "Builds using NPM"
 inputs:
   # NPM
   npm-content-package-wallet-password:
-    description: 'Password to unlock /Wallet.json'
+    description: "Password to unlock /Wallet.json"
     required: false
   npm-package-store-signing-wallet:
-    description: 'Store signing wallet.json'
+    description: "Store signing wallet.json"
     required: false
   npm-package-store-signing-wallet-password:
-    description: 'Password to unlock NPM_PACKAGE_STORE_SIGNING_WALLET'
+    description: "Password to unlock NPM_PACKAGE_STORE_SIGNING_WALLET"
     required: false
   npm-signing:
-    description: 'Whether produce a signed package'
+    description: "Whether produce a signed package"
     required: false
   npm-registry:
-    description: 'The NPM Registry to use'
+    description: "The NPM Registry to use"
     required: false
   npm-cache-cert:
-    description: 'The NPM Registry cert'
+    description: "The NPM Registry cert"
     required: false
 
   # General
   build-version:
-    description: 'Build version'
+    description: "Build version"
     required: true
 
   # DEPLOYMENT
   project-to-publish:
-    description: 'Package (root) to deploy'
+    description: "Package (root) to deploy"
     required: false
 
 runs:
