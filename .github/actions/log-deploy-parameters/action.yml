@@ -4,25 +4,25 @@ name: "Log Deploy Parameters"
 description: "Logs Cloud Formation deployment parameters"
 inputs:
   cloud-formation-stack:
-    description: 'The Cloud Formation stack to deploy as'
+    description: "The Cloud Formation stack to deploy as"
     required: true
   cloud-formation-template-file:
-    description: 'The Cloud Formation file to deploy'
+    description: "The Cloud Formation file to deploy"
     required: true
   docker-app-owner:
-    description: 'docker app owner'
+    description: "docker app owner"
     required: true
   docker-app-name:
-    description: 'docker app name'
+    description: "docker app name"
     required: true
   build-version:
     description: "Build Version"
     required: true
   api-host:
-    description: 'Api Host'
+    description: "Api Host"
     required: false
   api-prefix:
-    description: 'API Prefix'
+    description: "API Prefix"
     required: false
   aws-load-balancer-hostname:
     description: "AWS Load Balancer match hostname"
