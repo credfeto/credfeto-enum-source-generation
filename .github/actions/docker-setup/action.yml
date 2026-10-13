@@ -1,25 +1,25 @@
 --- # Setup Docker
 # Maintain in repo: funfair-server-template
-name: 'Setup Docker'
-description: 'Setup docker'
+name: "Setup Docker"
+description: "Setup docker"
 inputs:
   aws-access-key-id:
-    description: 'AWS Access key'
+    description: "AWS Access key"
     required: true
   aws-secret-access-key:
-    description: 'AWS Secret key'
+    description: "AWS Secret key"
     required: true
   aws-region:
-    description: 'AWS region'
+    description: "AWS region"
     required: true
   docker-container-registry:
-    description: 'AWS Elastic Container Registry'
+    description: "AWS Elastic Container Registry"
     required: true
   docker-username:
-    description: 'Docker username'
+    description: "Docker username"
     required: true
   docker-access-token:
-    description: 'Docker access token'
+    description: "Docker access token"
     required: true
 
 runs:
