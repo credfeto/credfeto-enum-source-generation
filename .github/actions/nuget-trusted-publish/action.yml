@@ -1,13 +1,13 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
-name: 'Publish to nuget using trusted publishing'
-description: 'Exchanges a GitHub OIDC token for a short-lived nuget.org API key, then publishes NuGet packages'
+name: "Publish to nuget using trusted publishing"
+description: "Exchanges a GitHub OIDC token for a short-lived nuget.org API key, then publishes NuGet packages"
 inputs:
   nuget-feed:
-    description: 'Nuget feed to push packages to (must be the nuget.org v3 index)'
+    description: "Nuget feed to push packages to (must be the nuget.org v3 index)"
     required: true
   nuget-username:
-    description: 'nuget.org username (profile name) the trusted publishing policy is registered against'
+    description: "nuget.org username (profile name) the trusted publishing policy is registered against"
     required: true
 
 runs:
