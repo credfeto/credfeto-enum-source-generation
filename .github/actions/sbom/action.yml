@@ -1,10 +1,10 @@
 --- # Software Bill of Materials (SBOM) Action
 # Maintain in repo: funfair-server-template
-name: 'Run Software Bill of Materials'
-description: 'Software Bill of materials'
+name: "Run Software Bill of Materials"
+description: "Software Bill of materials"
 inputs:
   repo-visibility:
-    description: 'Visibility of the repo (public or private)'
+    description: "Visibility of the repo (public or private)"
     required: true
 
 runs:
