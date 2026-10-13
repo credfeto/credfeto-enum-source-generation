@@ -142,7 +142,7 @@ When deprecation warnings appear in test output (e.g. framework or runtime warni
 - **If the warning is pre-existing and not caused by your change**: first check for an existing open GitHub issue in the current repository covering the same warning (for example by searching for the deprecated API, the warning text, and the affected component or dependency).
   - If a matching open issue already exists, update it with any new context you found or reference it in your work; do not create a duplicate issue.
   - If no matching open issue exists, raise a new GitHub issue in the current repository with:
-    - A clear title describing the deprecated API.
+    - A clear title describing the deprecated API, in `<prefix>: <description>` form per [Issue Titles](github-cli.instructions.md#issue-titles-mandatory) (the repo's local title rule takes precedence where one exists).
     - The full warning text.
     - The component or dependency responsible.
     - What needs to be done to resolve it.
