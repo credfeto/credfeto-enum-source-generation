@@ -1,22 +1,22 @@
 --- # Deploy SQL Server database package
 # Maintain in repo: funfair-server-template
-name: 'Deploy Database'
-description: 'Deploys the database dacpac package to a SQL Server instance using sqlpackage'
+name: "Deploy Database"
+description: "Deploys the database dacpac package to a SQL Server instance using sqlpackage"
 inputs:
   sql-server:
-    description: 'SQL Server to connect to'
+    description: "SQL Server to connect to"
     required: true
   sql-db:
-    description: 'Database to deploy to'
+    description: "Database to deploy to"
     required: true
   sql-user:
-    description: 'User to connect to the database as'
+    description: "User to connect to the database as"
     required: true
   sql-password:
-    description: 'Password for SQL_USER'
+    description: "Password for SQL_USER"
     required: true
   db-folder:
-    description: 'Folder where SQL Files live'
+    description: "Folder where SQL Files live"
     required: true
 
 runs:
