@@ -49,14 +49,14 @@ Reach for these in this order:
 `cfwf` (in the `credfeto/credfeto-orchestrator` agent image) is where routine `gh` operations are meant to end up as standardised, pre-canned commands rather than long `gh` scripts composed by hand. When you use `gh api` (REST or GraphQL) or `gh ... --json <fields>` (with or without `--jq`), for a read or a write, and no `cfwf` command covers that use, raise an issue on `credfeto/credfeto-orchestrator` asking for it to be added to `cfwf`, then carry on with `gh` for the current task. This applies to routine uses such as `gh issue view --json` and `gh pr list --json` as much as to unusual ones. If `cfwf` is not installed or a command fails, follow [Missing CLI Tools](task-workflow.instructions.md#missing-cli-tools-mandatory) and report it; do not fall back to hand-composed `gh` for a use `cfwf` covers. Plain native subcommands without `--json`, such as `gh pr create`, `gh issue comment` and `gh pr edit --add-label`, are exempt.
 
 - **One issue per distinct use.** Search `credfeto/credfeto-orchestrator` first, using plain output so the search does not itself need `--json`: `gh issue list --repo credfeto/credfeto-orchestrator --state all --search "cfwf <keywords>"`. If an open or closed issue already covers the use, do not raise another; if a closed one was declined, follow its outcome. The uses these instructions themselves prescribe are already covered this way, so the search finds them and nothing more is needed.
-- **Say what is needed.** Give the exact `gh` command (with placeholders for the values), what it is for, and where in these instructions or the current task it is used. Add the new issue to the "Workflow" project as for any issue ([Adding an Issue to the Workflow Project](#adding-an-issue-to-the-workflow-project)).
+- **Say what is needed.** Title the issue `tool(cfwf): <What is needed>`: always the `tool(cfwf)` prefix, never a Conventional Commits type, with the first word after the prefix capitalised (e.g. `tool(cfwf): Command to list a PR's closing issues`), unless a local title rule takes precedence (see [Issue Titles](#issue-titles-mandatory)). Give the exact `gh` command (with placeholders for the values), what it is for, and where in these instructions or the current task it is used. Add the new issue to the "Workflow" project as for any issue ([Adding an Issue to the Workflow Project](#adding-an-issue-to-the-workflow-project)).
 
 ## Issues
 
 ```bash
-# Create
+# Create (title per Issue Titles below)
 gh issue create --repo <owner>/<repo> \
-  --title "<concise title>" \
+  --title "<prefix>: <concise title>" \
   --body "<description>" \
   --label "<label>"
 
@@ -81,6 +81,15 @@ gh issue comment <number> --repo <owner>/<repo> --body "<text>"
 gh issue close <number> --repo <owner>/<repo>
 gh issue reopen <number> --repo <owner>/<repo>
 ```
+
+### Issue Titles (MANDATORY)
+
+Every issue title, in any repository, is `prefix: text` or `prefix(name): text`.
+
+- **P1.** The prefix, and the name in brackets, are lower-case. The text after the colon and space is free text.
+- **P2.** Where the repository's local instructions (`ai/local`) give a title rule, the local rule takes precedence over this rule and over every issue title format given in the global instructions.
+- **P3.** Otherwise, use the prefix a specific global rule gives (e.g. `learning:`, `audit:`, `tool(cfwf):`), or failing that a Conventional Commits type that matches the work (`feat`, `fix`, `docs`, `chore`, etc.; see [git.instructions.md](git.instructions.md) for the types).
+- **P4.** PR titles stay in Conventional Commits format and are never copied from the linked issue's title (see [PR Submitter](agent-roles.instructions.md#pr-submitter)).
 
 ### Adding an Issue to the Workflow Project
 
