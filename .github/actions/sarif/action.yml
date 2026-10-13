@@ -1,11 +1,11 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
-name: 'Upload sarif files'
-description: 'Builds and deploys the source'
+name: "Upload sarif files"
+description: "Builds and deploys the source"
 inputs:
   # GENERAL
   repo-visibility:
-    description: 'Visibility of the repo'
+    description: "Visibility of the repo"
     required: true
 
 runs:
