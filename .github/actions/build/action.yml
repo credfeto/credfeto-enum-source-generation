@@ -1,57 +1,57 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
-name: 'Build and deploy'
-description: 'Builds and deploys the source'
+name: "Build and deploy"
+description: "Builds and deploys the source"
 inputs:
   # GENERAL
   production-build:
-    description: 'Whether to build a production build'
+    description: "Whether to build a production build"
     required: true
 
   # NPM
   npm-production-packager-version:
-    description: 'Version of the NPM output nuget packager to use'
+    description: "Version of the NPM output nuget packager to use"
     required: false
   npm-content-package-wallet-password:
-    description: 'Password to unlock /Wallet.json'
+    description: "Password to unlock /Wallet.json"
     required: false
   npm-package-store-signing-wallet:
-    description: 'Store signing wallet.json'
+    description: "Store signing wallet.json"
     required: false
   npm-package-store-signing-wallet-password:
-    description: 'Password to unlock NPM_PACKAGE_STORE_SIGNING_WALLET'
+    description: "Password to unlock NPM_PACKAGE_STORE_SIGNING_WALLET"
     required: false
   npm-registry:
-    description: 'The NPM Registry to use'
+    description: "The NPM Registry to use"
     required: true
   npm-cache-cert:
-    description: 'The NPM Registry cert'
+    description: "The NPM Registry cert"
     required: false
 
   # NUGET
   nuget-public-restore-feed-cache:
-    description: 'Local cache of public nuget feed'
+    description: "Local cache of public nuget feed"
     required: false
   nuget-public-restore-feed:
-    description: 'public nuget feed'
+    description: "public nuget feed"
     required: false
   nuget-additional-restore-feed-prerelease-cache:
-    description: 'Cache of any additional nuget feed to download packages from'
+    description: "Cache of any additional nuget feed to download packages from"
     required: false
   nuget-additional-restore-feed-release-cache:
-    description: 'Cache of Any additional nuget feed to download packages from'
+    description: "Cache of Any additional nuget feed to download packages from"
     required: false
   nuget-additional-restore-feed-release:
-    description: 'Any additional nuget feed to download packages from'
+    description: "Any additional nuget feed to download packages from"
     required: false
   nuget-additional-restore-feed-prerelease:
-    description: 'Any additional nuget feed to download packages from'
+    description: "Any additional nuget feed to download packages from"
     required: false
   nuget-pack:
-    description: 'Whether to pack packages with feeds'
+    description: "Whether to pack packages with feeds"
     required: false
   nuget-feed:
-    description: 'Nuget feed to push packages to'
+    description: "Nuget feed to push packages to"
     required: false
   nuget-feed-type:
     description: >-
@@ -60,97 +60,97 @@ inputs:
       empty/unset skips publishing
     required: false
   nuget-username:
-    description: 'nuget.org username (profile name) the Trusted Publishing policy is registered against'
+    description: "nuget.org username (profile name) the Trusted Publishing policy is registered against"
     required: false
   sleet-config:
-    description: 'Sleet config file'
+    description: "Sleet config file"
     required: false
   sleet-feed:
-    description: 'Sleet feed to push packages to'
+    description: "Sleet feed to push packages to"
     required: false
   dotnet-docker-platform:
-    description: 'Dotnet docker platform (e.g. linux-arm64)'
+    description: "Dotnet docker platform (e.g. linux-arm64)"
     required: false
   dotnet-container-platform:
-    description: 'Docker container platform (e.g. linux/arm64)'
+    description: "Docker container platform (e.g. linux/arm64)"
     required: false
 
   # DEPLOYMENT
   project-to-publish:
-    description: 'Package (root) to deploy'
+    description: "Package (root) to deploy"
     required: false
 
   # AWS
   aws-access-key-id:
-    description: 'AWS Access key'
+    description: "AWS Access key"
     required: true
   aws-secret-access-key:
-    description: 'AWS Secret key'
+    description: "AWS Secret key"
     required: true
   aws-region:
-    description: 'AWS region'
+    description: "AWS region"
     required: true
   docker-container-registry:
-    description: 'Docker Container Registry'
+    description: "Docker Container Registry"
     required: true
   aws-load-balancer-hostname:
-    description: 'LoadBalancer Hostname'
+    description: "LoadBalancer Hostname"
     required: true
   aws-load-balancer-priority:
-    description: 'LoadBalancer Priority'
+    description: "LoadBalancer Priority"
     required: true
   api-host:
-    description: 'API Hostname'
+    description: "API Hostname"
     required: true
   api-prefix:
-    description: 'API prefix'
+    description: "API prefix"
     required: true
 
   # CLOUD FORMATION
   cloud-formation-deploy:
-    description: 'Whether to deploy to cloudformation'
+    description: "Whether to deploy to cloudformation"
     required: true
   cloud-formation-stack:
-    description: 'The Cloud Formation stack to deploy as'
+    description: "The Cloud Formation stack to deploy as"
     required: true
 
   # DOCKER
   docker-username:
-    description: 'Docker username'
+    description: "Docker username"
     required: true
   docker-access-token:
-    description: 'Docker access token'
+    description: "Docker access token"
     required: true
   docker-app-owner:
-    description: 'docker app owner'
+    description: "docker app owner"
     required: true
   docker-app-name:
-    description: 'docker app name'
+    description: "docker app name"
     required: true
   build-tag:
-    description: 'Build tag'
+    description: "Build tag"
     required: true
 
   # GITHUB
   github-token:
-    description: 'Github Token'
+    description: "Github Token"
     required: true
   create-release:
-    description: 'Whether to create a release in github'
+    description: "Whether to create a release in github"
     required: true
 
   # DATABASE
   sql-server:
-    description: 'SQL Server to connect to'
+    description: "SQL Server to connect to"
     required: false
   sql-db:
-    description: 'Database to deploy to'
+    description: "Database to deploy to"
     required: false
   sql-user:
-    description: 'User to connect to the database as'
+    description: "User to connect to the database as"
     required: false
   sql-password:
-    description: 'Password for SQL_USER'
+    description: "Password for SQL_USER"
     required: false
 
 runs:
@@ -221,6 +221,19 @@ runs:
       env:
         CHECK_FILES_OUTPUTS: ${{ toJSON(steps.check_files.outputs) }}
       run: echo "$CHECK_FILES_OUTPUTS"
+
+    - name: "Validate CloudFormation template"
+      if: |-
+        steps.check_files.outputs.DOTNET_EXIST == 'true' &&
+        steps.check_files.outputs.CLOUDFORMATION_EXIST == 'true' &&
+        inputs.cloud-formation-deploy == 'true' &&
+        inputs.docker-app-name != ''
+      uses: ./.github/actions/cloudformation-validate
+      with:
+        template: "cloudformation.json"
+        aws-access-key-id: ${{inputs.aws-access-key-id}}
+        aws-secret-access-key: ${{inputs.aws-secret-access-key}}
+        aws-region: ${{inputs.aws-region}}
 
     - name: "Prepare build Results folder"
       working-directory: ${{github.workspace}}
