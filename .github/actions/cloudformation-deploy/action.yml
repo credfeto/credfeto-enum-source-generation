@@ -1,22 +1,22 @@
 --- # Deploy docker image using cloudformation template to aws
 # Maintain in repo: funfair-server-template
-name: 'Deploy to Cloudformation template'
-description: 'Deploy docker image using cloudformation template to aws'
+name: "Deploy to Cloudformation template"
+description: "Deploy docker image using cloudformation template to aws"
 inputs:
   cloud-formation-stack:
-    description: 'The Cloud Formation stack to deploy as'
+    description: "The Cloud Formation stack to deploy as"
     required: true
   cloudformation-sns-arn:
-    description: 'SSN Notification ARN'
+    description: "SSN Notification ARN"
     required: false
   cloud-formation-template-file:
-    description: 'The Cloud Formation file to deploy'
+    description: "The Cloud Formation file to deploy"
     required: true
   docker-app-name:
-    description: 'docker app name'
+    description: "docker app name"
     required: true
   api-host:
-    description: 'Api Host'
+    description: "Api Host"
     required: true
   aws-load-balancer-hostname:
     description: "AWS Load Balancer match hostname"
