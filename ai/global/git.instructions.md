@@ -202,7 +202,7 @@ After any push, if the remote reports vulnerabilities:
 When working outside `credfeto/cs-template` and a gap in the global template rules is found:
 
 - **P1.** Do not apply the change locally.
-- **P2.** Create an issue in `credfeto/cs-template`; see [git.examples.md](git.examples.md) for the command template.
+- **P2.** Create an issue in `credfeto/cs-template`, titled per [Issue Titles](github-cli.instructions.md#issue-titles-mandatory) (a local title rule takes precedence where one exists); see [git.examples.md](git.examples.md) for the command template.
 - **P3.** The issue must include: source repository, current behaviour/gap, proposed rule text, reason for template propagation.
 - **P4.** Note the issue URL in any relevant commit or PR description.
 - **P5.** Continue work without waiting for the template issue to be resolved.
