@@ -1,13 +1,13 @@
 --- # Install dotnet tool
 # Maintain in repo: funfair-server-template
-name: 'Install dotnet tool'
-description: 'Install dotnet tool'
+name: "Install dotnet tool"
+description: "Install dotnet tool"
 inputs:
   tool-name:
-    description: 'Tool to install'
+    description: "Tool to install"
     required: true
   tool-version:
-    description: 'Tool version to install'
+    description: "Tool version to install"
     required: false
     default: 'latest'
 
