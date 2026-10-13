@@ -6,7 +6,7 @@
 
 ```bash
 gh issue create --repo credfeto/credfeto-notes \
-  --title "<short, human-readable description of what was learned>" \
+  --title "learning: <short, human-readable description of what was learned>" \
   --label "AI-Work" \
   --body "**Context**: <repo and task where this came up>
 
