@@ -1,0 +1,56 @@
+--- # Validate a CloudFormation template with AWS
+# Maintain in repo: funfair-server-template
+name: "Validate CloudFormation template"
+description: "Validate a CloudFormation template with AWS before it is deployed"
+inputs:
+  template:
+    description: "Path to the CloudFormation template to validate"
+    required: true
+  aws-access-key-id:
+    description: "AWS Access key"
+    required: true
+  aws-secret-access-key:
+    description: "AWS Secret key"
+    required: true
+  aws-region:
+    description: "AWS region"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: "Check AWS credentials"
+      id: credentials
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        AWS_KEY_ID: ${{inputs.aws-access-key-id}}
+        AWS_SECRET_KEY: ${{inputs.aws-secret-access-key}}
+        ACTOR: ${{github.actor}}
+        IS_FORK: ${{github.event.pull_request.head.repo.fork}}
+      with:
+        script: |
+          if (process.env.AWS_KEY_ID && process.env.AWS_SECRET_KEY) {
+            core.info('✅ AWS key for CloudFormation template validation is set');
+            core.setOutput('validate', 'true');
+          } else if (process.env.ACTOR === 'dependabot[bot]' || process.env.IS_FORK === 'true') {
+            core.warning('⚠️ AWS key for CloudFormation template validation is not available; skipping validation');
+            core.setOutput('validate', 'false');
+          } else {
+            core.setFailed('❌ AWS key needed for CloudFormation template validation is not set');
+          }
+
+    - name: "Configure AWS Credentials"
+      if: steps.credentials.outputs.validate == 'true'
+      uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+      with:
+        aws-access-key-id: ${{inputs.aws-access-key-id}}
+        aws-secret-access-key: ${{inputs.aws-secret-access-key}}
+        aws-region: ${{inputs.aws-region}}
+
+    - name: "AWS CloudFormation Validate Template"
+      if: steps.credentials.outputs.validate == 'true'
+      shell: bash
+      run: /usr/local/aws-cli/v2/current/bin/aws cloudformation validate-template --template-body "file://$TEMPLATE"
+      env:
+        TEMPLATE: ${{inputs.template}}
