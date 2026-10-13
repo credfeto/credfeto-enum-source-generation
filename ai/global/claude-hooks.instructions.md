@@ -47,6 +47,46 @@ command with both `run_in_background: true` *and* a `timeout N` shell wrapper is
 wrapper-command rejection, unrelated to backgrounding. These are two independent, correctly-working
 checks, not one contradiction.
 
+## A Hook Block Is Not a Puzzle to Solve (Never Work Around It) (MANDATORY)
+
+Fixing and retrying, as
+[A Denial Means the Command Never Ran](#a-denial-means-the-command-never-ran-mandatory) and the
+section above require, means retrying **the same operation** in a form the hook accepts. It never
+means finding another way to get the same effect, because a hook that can be got round no longer
+enforces anything. Decide which of two cases applies:
+
+- **The block is correct.** The command broke a rule or took a shortcut the hook exists to stop.
+  Change approach to the permitted way of doing the same thing; there is nothing to report. For
+  example:
+  - `git grep` blocked by `enforce-git-dash-c`: use the Grep tool or plain `grep` instead.
+  - `cd <dir> && git <command>` blocked: use `git -C <dir> <command>`.
+  - A file edit written through a Bash heredoc blocked by `block-no-verify` (a false positive on the
+    heredoc's text): make the edit with the Edit tool instead.
+- <a id="hook-too-strict"></a>**The hook is too strict.** The operation is legitimate, and no form
+  of it that the hook accepts exists. Do **not** get the same effect a different way. In
+  particular, never:
+  - write an inline or ad-hoc script (Python, shell or any other language) that does what the
+    blocked command would have done;
+  - use copy-and-swap tricks, such as copying files aside and swapping them back, to stand in for a
+    blocked copy, compare or restore;
+  - switch to a different command or tool with the same effect, such as `git checkout -- <path>`
+    when `git restore` is blocked;
+  - create or edit any settings, permission or hook file to make the blocked command run, including
+    `.claude/settings*.json` in any repository, anything under `~/.claude/`, and any `CLAUDE.md`, or
+    load a skill that does so;
+  - ask the calling role, the Orchestrator or the human to run the blocked command for you.
+
+  Instead, stop that operation and report the blocked command and the hook's message, both
+  verbatim, to the calling role, or to the Orchestrator if there is no calling role, so the human
+  can decide whether the hook should change. The report is passed up the chain as described in
+  [Hook Blocks in Hand-offs](agent-roles.instructions.md#hook-blocks-in-hand-offs-mandatory).
+
+In both cases, retrying the same operation in a form the hook accepts is fine: literal paths instead
+of variables, `git -C <dir>` instead of `cd && git`, `run_in_background: true` on the same call, as
+[Read the Denial's Stated Reason Literally](#read-the-denials-stated-reason-literally-mandatory)
+describes. An agent that hits a `git grep` block and stops to ask is behaving correctly; the answer
+is that the block is correct and plain `grep` is the permitted form.
+
 ## A Permission Denial Is Not a Hook Denial (MANDATORY)
 
 Claude Code has a second way to refuse a command: the permission system itself, sitting above the
