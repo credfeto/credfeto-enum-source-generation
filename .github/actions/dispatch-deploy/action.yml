@@ -1,25 +1,25 @@
 --- # Dispatch to deploy workflow for deployment.
 # Maintain in repo: funfair-server-template
-name: 'Dispatch to deploy workflow'
-description: 'Dispatches deployment to a separate workflow'
+name: "Dispatch to deploy workflow"
+description: "Dispatches deployment to a separate workflow"
 inputs:
   cloud-formation-stack:
-    description: 'The Cloud Formation stack to deploy as'
+    description: "The Cloud Formation stack to deploy as"
     required: true
   cloud-formation-template-file:
-    description: 'The Cloud Formation file to deploy'
+    description: "The Cloud Formation file to deploy"
     required: true
   docker-app-owner:
-    description: 'docker app owner'
+    description: "docker app owner"
     required: true
   docker-app-name:
-    description: 'docker app name'
+    description: "docker app name"
     required: true
   api-host:
-    description: 'Api Host'
+    description: "Api Host"
     required: false
   api-prefix:
-    description: 'API Prefix'
+    description: "API Prefix"
     required: false
   aws-load-balancer-hostname:
     description: "AWS Load Balancer match hostname"
@@ -34,7 +34,7 @@ inputs:
     description: "Build Version"
     required: true
   github-token:
-    description: 'github token for accessing github'
+    description: "github token for accessing github"
     required: true
 
 runs:
