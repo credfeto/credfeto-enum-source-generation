@@ -18,6 +18,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Roslynator.Analyzers to 5.0.1
 - Dependencies - Updated Microsoft.VisualStudio.Threading.Analyzers to 18.12.1
 - Dependencies - Updated Meziantou.Analyzer to 3.0.303
+- Dependencies - Updated FunFair.CodeAnalysis to 7.2.19.2499
 ### Deprecated
 ### Removed
 ### Deployment Changes
