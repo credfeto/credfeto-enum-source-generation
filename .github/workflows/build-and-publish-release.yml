@@ -23,7 +23,7 @@ permissions:
 jobs:
   build-release:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ startsWith(vars.RELEASE_BUILD_ENVIRONMENT, '[') && fromJSON(vars.RELEASE_BUILD_ENVIRONMENT) || vars.RELEASE_BUILD_ENVIRONMENT || 'ubuntu-latest' }}
 
     env:
       # Which NPM Registry to use
