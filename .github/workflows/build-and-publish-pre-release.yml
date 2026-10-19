@@ -28,7 +28,7 @@ jobs:
   # @@required: main
   build-pre-release:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ startsWith(vars.PRE_RELEASE_BUILD_ENVIRONMENT, '[') && fromJSON(vars.PRE_RELEASE_BUILD_ENVIRONMENT) || vars.PRE_RELEASE_BUILD_ENVIRONMENT || 'ubuntu-latest' }}
 
     env:
       # Which NPM Registry to use
