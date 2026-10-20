@@ -12,7 +12,7 @@ on:
     - cron: "17 4 * * *"
 
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: false
 
 permissions:
@@ -56,4 +56,4 @@ jobs:
       - name: "Sync Branch Protection"
         uses: ./.github/actions/branch-protection-sync
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
