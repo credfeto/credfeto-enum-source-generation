@@ -19,7 +19,7 @@ runs:
 
     - name: "Dotnet: Find Solution"
       id: find_solution
-      working-directory: ${{github.workspace}}/src
+      working-directory: "${{github.workspace}}/src"
       shell: bash
       run: |
         echo "Looking for solution"
