@@ -80,16 +80,16 @@ runs:
       if: (!endsWith(github.repository, 'funfair-dotnet-build-check')) && (!endsWith(github.repository, '-template'))
       uses: ./.github/actions/dotnet-build-check
       with:
-        pre-release-build: ${{inputs.pre-release-build}}
+        pre-release-build: "${{inputs.pre-release-build}}"
 
     - name: "Dotnet: Override code analysis rules"
       if: "!endsWith(github.repository, '-template')"
       uses: ./.github/actions/dotnet-code-analysis-override
       with:
-        release: ${{inputs.release}}
+        release: "${{inputs.release}}"
 
     - name: "Dotnet: Restore packages"
-      working-directory: ${{github.workspace}}/src
+      working-directory: "${{github.workspace}}/src"
       shell: bash
       run: |
         r=5
@@ -106,7 +106,7 @@ runs:
         done
 
     - name: "Dotnet: Build"
-      working-directory: ${{github.workspace}}/src
+      working-directory: "${{github.workspace}}/src"
       shell: bash
       run: |
         dotnet build \
@@ -122,11 +122,11 @@ runs:
                   "-p:Version=${{inputs.build-version}}" \
                   -nodeReuse:False
       env:
-        ReleaseNotes: ${{inputs.release-notes}}
+        ReleaseNotes: "${{inputs.release-notes}}"
 
     ## RUN TESTS
     - name: "Dotnet: Test"
-      working-directory: ${{github.workspace}}/src
+      working-directory: "${{github.workspace}}/src"
       shell: bash
       run: |
         dotnet test \
@@ -147,7 +147,7 @@ runs:
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
                   "-p:Version=${{inputs.build-version}}"
       env:
-        ReleaseNotes: ${{inputs.release-notes}}
+        ReleaseNotes: "${{inputs.release-notes}}"
 
     # ############################################################################################################
     # # DATABASE BUILD
@@ -156,8 +156,8 @@ runs:
       if: inputs.build-sql == 'true'
       uses: ./.github/actions/sql
       with:
-        db-folder: ${{inputs.db-folder}}
-        github-token: ${{inputs.github-token}}
+        db-folder: "${{inputs.db-folder}}"
+        github-token: "${{inputs.github-token}}"
 
     ############################################################################################################
     # Publish ready for deploy
@@ -167,11 +167,11 @@ runs:
       if: inputs.project-to-publish != ''
       uses: ./.github/actions/dotnet-publish
       with:
-        production-build: ${{inputs.production-build}}
-        build-version: ${{inputs.build-version}}
-        release-notes: ${{inputs.release-notes}}
-        platform: ${{inputs.dotnet-docker-platform}}
-        project-to-publish: ${{inputs.project-to-publish}}
+        production-build: "${{inputs.production-build}}"
+        build-version: "${{inputs.build-version}}"
+        release-notes: "${{inputs.release-notes}}"
+        platform: "${{inputs.dotnet-docker-platform}}"
+        project-to-publish: "${{inputs.project-to-publish}}"
 
     ############################################################################################################
     # DOTNET PUSH TO NUGET
@@ -180,11 +180,11 @@ runs:
       if: inputs.nuget-pack == 'true'
       uses: ./.github/actions/nuget-publish
       with:
-        build-version: ${{inputs.build-version}}
-        production-build: ${{inputs.production-build}}
-        release-notes: ${{inputs.release-notes}}
-        nuget-feed: ${{inputs.nuget-feed}}
-        nuget-feed-type: ${{inputs.nuget-feed-type}}
-        nuget-username: ${{inputs.nuget-username}}
-        sleet-config: ${{inputs.sleet-config}}
-        sleet-feed: ${{inputs.sleet-feed}}
+        build-version: "${{inputs.build-version}}"
+        production-build: "${{inputs.production-build}}"
+        release-notes: "${{inputs.release-notes}}"
+        nuget-feed: "${{inputs.nuget-feed}}"
+        nuget-feed-type: "${{inputs.nuget-feed-type}}"
+        nuget-username: "${{inputs.nuget-username}}"
+        sleet-config: "${{inputs.sleet-config}}"
+        sleet-feed: "${{inputs.sleet-feed}}"
