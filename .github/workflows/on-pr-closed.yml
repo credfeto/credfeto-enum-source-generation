@@ -39,7 +39,7 @@ jobs:
       - name: "Cleanup"
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           script: |
             const ref = process.env.BRANCH;
             const caches = await github.paginate(github.rest.actions.getActionsCacheList, {
