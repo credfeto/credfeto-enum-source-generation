@@ -50,7 +50,7 @@ runs:
       with:
         node-version-file: .nvmrc
         check-latest: false
-        registry-url: ${{inputs.npm-registry}}
+        registry-url: "${{inputs.npm-registry}}"
         package-manager-cache: false
 
     - if: steps.node_files.outputs.NVMRC_EXIST == 'false'
@@ -59,7 +59,7 @@ runs:
       with:
         node-version: '22'
         check-latest: true
-        registry-url: ${{inputs.npm-registry}}
+        registry-url: "${{inputs.npm-registry}}"
         package-manager-cache: false
 
     ####################################################################################################################
@@ -87,7 +87,7 @@ runs:
     ####################################################################################################################
 
     - name: "NPM: Show Config"
-      working-directory: ${{github.workspace}}/src
+      working-directory: "${{github.workspace}}/src"
       shell: bash
       run: |
         echo "NPM_REGISTRY: ${{inputs.npm-registry}}"
@@ -108,7 +108,7 @@ runs:
         echo "$NPM_CACHE_CERT" > "${{github.workspace}}/npm.crt"
         npm config set cafile "${{github.workspace}}/npm.crt"
       env:
-        NPM_CACHE_CERT: ${{inputs.npm-cache-cert}}
+        NPM_CACHE_CERT: "${{inputs.npm-cache-cert}}"
 
     - name: "Npm: Clear node modules"
       shell: bash
@@ -124,10 +124,10 @@ runs:
 
     - name: "NPM: Force registry before restore"
       if: inputs.npm-registry != ''
-      working-directory: ${{steps.build_context.outputs.WORK_DIR}}
+      working-directory: "${{steps.build_context.outputs.WORK_DIR}}"
       shell: bash
       env:
-        NPM_REGISTRY: ${{inputs.npm-registry}}
+        NPM_REGISTRY: "${{inputs.npm-registry}}"
       run: |
         sed -i "s|https://registry.npmjs.org/|${NPM_REGISTRY}|g" package-lock.json
         sed -i "s|http://npm.local:5554/|${NPM_REGISTRY}|g" package-lock.json
@@ -137,10 +137,10 @@ runs:
 # but it doesn't actually work...  So instead we have to add the cert to the npm config above
 # --use-system-ca is a deprecated setting!
     - name: "NPM: Install dependencies"
-      working-directory: ${{steps.build_context.outputs.WORK_DIR}}
+      working-directory: "${{steps.build_context.outputs.WORK_DIR}}"
       shell: bash
       env:
-        NPM_REGISTRY: ${{inputs.npm-registry}}
+        NPM_REGISTRY: "${{inputs.npm-registry}}"
       run: |
         ARGS=(--ignore-scripts --no-fund --no-audit --no-progress)
         [ -n "$NPM_REGISTRY" ] && ARGS+=(--prefer-offline --registry="$NPM_REGISTRY")
@@ -153,7 +153,7 @@ runs:
     #   run: npm run test
 
     - name: "NPM: Build"
-      working-directory: ${{steps.build_context.outputs.WORK_DIR}}
+      working-directory: "${{steps.build_context.outputs.WORK_DIR}}"
       shell: bash
       run: npm run build
 
@@ -197,7 +197,7 @@ runs:
       uses: ./.github/actions/save-secret-as-file
       id: store-signing-wallet
       with:
-        secret: ${{inputs.npm-package-store-signing-wallet}}
+        secret: "${{inputs.npm-package-store-signing-wallet}}"
 
     - if: |
         inputs.npm-signing == 'true' &&
