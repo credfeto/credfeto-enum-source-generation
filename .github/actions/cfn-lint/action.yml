@@ -36,7 +36,7 @@ runs:
       run: |
         "$CFN_LINT_VENV/bin/cfn-lint" --info --include-checks I --template "$TEMPLATE"
       env:
-        TEMPLATE: ${{inputs.template}}
+        TEMPLATE: "${{inputs.template}}"
 
     - name: "Cleanup cfn-lint virtual environment"
       if: always()
