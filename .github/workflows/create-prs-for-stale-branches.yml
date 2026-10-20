@@ -18,7 +18,7 @@ on:
     - cron: "0 1 * * *"
 
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: false
 
 permissions:
@@ -56,7 +56,7 @@ jobs:
           clean: true
           fetch-depth: 0
           ref: main
-          repository: ${{github.repository}}
+          repository: "${{github.repository}}"
 
       - name: "Create matrix of branches"
         id: set-matrix
@@ -111,10 +111,10 @@ jobs:
             core.setOutput('defaultbranch', defaultBranch);
             core.setOutput('commitmsg', commitMsg);
     outputs:
-      branches: ${{steps.set-matrix.outputs.branches}}
-      haschanges: ${{steps.set-matrix.outputs.haschanges}}
-      defaultbranch: ${{steps.set-matrix.outputs.defaultbranch}}
-      commitmsg: ${{steps.set-matrix.outputs.commitmsg}}
+      branches: "${{steps.set-matrix.outputs.branches}}"
+      haschanges: "${{steps.set-matrix.outputs.haschanges}}"
+      defaultbranch: "${{steps.set-matrix.outputs.defaultbranch}}"
+      commitmsg: "${{steps.set-matrix.outputs.commitmsg}}"
 
   check-branch:
     needs: build-matrix
@@ -127,13 +127,13 @@ jobs:
 
     strategy:
       matrix:
-        include: ${{fromJson(needs.build-matrix.outputs.branches)}}
+        include: "${{fromJson(needs.build-matrix.outputs.branches)}}"
     env:
-      BRANCH: ${{matrix.branch}}
-      DEFAULT_BRANCH: ${{needs.build-matrix.outputs.defaultbranch}}
-      AHEAD: ${{matrix.ahead}}
-      BEHIND: ${{matrix.behind}}
-      DAYS_SINCE_UPDATE: ${{matrix.dayssinceupdate}}
+      BRANCH: "${{matrix.branch}}"
+      DEFAULT_BRANCH: "${{needs.build-matrix.outputs.defaultbranch}}"
+      AHEAD: "${{matrix.ahead}}"
+      BEHIND: "${{matrix.behind}}"
+      DAYS_SINCE_UPDATE: "${{matrix.dayssinceupdate}}"
 
     steps:
       - name: "Initialise Workspace"
@@ -155,13 +155,13 @@ jobs:
         with:
           clean: true
           ref: main
-          repository: ${{github.repository}}
+          repository: "${{github.repository}}"
 
       - name: "Check Required Secrets"
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
-          secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Find Existing PR"
         uses: ./.github/actions/find-pull-request
@@ -199,7 +199,7 @@ jobs:
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "PR_CREATE_TOKEN"
-          secret-value: ${{secrets.PR_CREATE_TOKEN}}
+          secret-value: "${{secrets.PR_CREATE_TOKEN}}"
 
       - name: "Create PR"
         if: |-
@@ -209,10 +209,10 @@ jobs:
         id: open-pr
         uses: ./.github/actions/create-pull-request
         with:
-          github-token: ${{secrets.PR_CREATE_TOKEN}}
-          source-branch: ${{matrix.branch}}
-          destination-branch: ${{env.DEFAULT_BRANCH}}
-          assignee: ${{github.actor}}
+          github-token: "${{secrets.PR_CREATE_TOKEN}}"
+          source-branch: "${{matrix.branch}}"
+          destination-branch: "${{env.DEFAULT_BRANCH}}"
+          assignee: "${{github.actor}}"
           labels: "auto-pr,stale"
           draft: true
           title: "${{needs.build-matrix.outputs.commitmsg}} [No commits for ${{matrix.dayssinceupdate}} days]"
@@ -225,9 +225,9 @@ jobs:
           && matrix.dayssinceupdate > 7
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          PR_URL: ${{steps.open-pr.outputs.pr_url}}
-          PR_NUMBER: ${{steps.open-pr.outputs.pr_number}}
-          HAS_CHANGED_FILES: ${{steps.open-pr.outputs.has_changed_files}}
+          PR_URL: "${{steps.open-pr.outputs.pr_url}}"
+          PR_NUMBER: "${{steps.open-pr.outputs.pr_number}}"
+          HAS_CHANGED_FILES: "${{steps.open-pr.outputs.has_changed_files}}"
         with:
           script: |
             core.info(`URL: ${process.env.PR_URL}`);
@@ -238,8 +238,8 @@ jobs:
         if: steps.open-pr.outputs.pr_number != ''
         uses: ./.github/actions/sync-labels
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          pr-number: ${{steps.open-pr.outputs.pr_number}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          pr-number: "${{steps.open-pr.outputs.pr_number}}"
 
       - name: "Rebase"
         if: |-
@@ -259,8 +259,8 @@ jobs:
           && matrix.dayssinceupdate > 60
         uses: ./.github/actions/delete-branch
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          branch: ${{matrix.branch}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          branch: "${{matrix.branch}}"
 
       - name: "Statistics"
         if: steps.find-pull-request.outputs.number == ''
