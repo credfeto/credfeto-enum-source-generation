@@ -14,13 +14,13 @@ inputs:
 outputs:
   number:
     description: "Pull request number, or empty string if not found"
-    value: ${{steps.find-pr.outputs.number}}
+    value: "${{steps.find-pr.outputs.number}}"
   head-sha:
     description: "Head commit SHA of the pull request, or empty string if not found"
-    value: ${{steps.find-pr.outputs.head-sha}}
+    value: "${{steps.find-pr.outputs.head-sha}}"
   pre-release-build:
     description: "Whether the pull request is a draft targeting main, or 'false' if not"
-    value: ${{steps.find-pr.outputs.pre-release-build}}
+    value: "${{steps.find-pr.outputs.pre-release-build}}"
 
 runs:
   using: composite
@@ -29,9 +29,9 @@ runs:
       id: find-pr
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        BRANCH: ${{inputs.branch}}
+        BRANCH: "${{inputs.branch}}"
       with:
-        github-token: ${{inputs.github-token || github.token}}
+        github-token: "${{inputs.github-token || github.token}}"
         script: |
           const branch = process.env.BRANCH;
           const { data: pulls } = await github.rest.pulls.list({
