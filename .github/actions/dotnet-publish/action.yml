@@ -36,12 +36,12 @@ runs:
           exit 1
         fi
       env:
-        PLATFORM: ${{inputs.platform}}
+        PLATFORM: "${{inputs.platform}}"
 
     # PublishTrimmed and PublishAot are controlled per-project in .csproj files so each project can opt in independently.
     ## Notes: NETSDK1094  can't use --no-restore
     - name: "Dotnet: Publish"
-      working-directory: ${{github.workspace}}/src/${{inputs.project-to-publish}}
+      working-directory: "${{github.workspace}}/src/${{inputs.project-to-publish}}"
       shell: bash
       run: |
         dotnet publish \
@@ -68,7 +68,7 @@ runs:
                   "-p:ContinuousIntegrationBuild=true" \
                   --output "${{github.workspace}}/server-dist/${{inputs.platform}}"
       env:
-        ReleaseNotes: ${{inputs.release-notes}}
+        ReleaseNotes: "${{inputs.release-notes}}"
 
     - name: "Report publish output size"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
