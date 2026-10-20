@@ -17,7 +17,7 @@ runs:
     - name: "Delete Branch"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
-        github-token: ${{inputs.github-token}}
+        github-token: "${{inputs.github-token}}"
         script: |
           const branch = process.env.BRANCH;
           await github.rest.git.deleteRef({
@@ -27,4 +27,4 @@ runs:
           });
           core.info(`Deleted branch: ${branch}`);
       env:
-        BRANCH: ${{inputs.branch}}
+        BRANCH: "${{inputs.branch}}"
