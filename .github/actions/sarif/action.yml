@@ -13,9 +13,9 @@ runs:
   steps:
     - name: "Sarif Files to upload"
       shell: bash
-      working-directory: ${{github.workspace}}/results
+      working-directory: "${{github.workspace}}/results"
       env:
-        SARIF_HASH: ${{ hashfiles('**/*.sarif') }}
+        SARIF_HASH: "${{ hashfiles('**/*.sarif') }}"
       run: |
         ls -la
         rm -rf *.Tests.sarif
@@ -25,11 +25,11 @@ runs:
     - if: inputs.repo-visibility == 'public' && env.SARIF_HASH != ''
       name: "Upload SARIF file for diagnostics"
       id: sarif
-      uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+      uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
       continue-on-error: true
       with:
-        sarif_file: ${{github.workspace}}/results
-        token: ${{github.token}}
+        sarif_file: "${{github.workspace}}/results"
+        token: "${{github.token}}"
         # Upload is fire-and-forget: nothing later in the job consumes processing results,
         # and continue-on-error above already absorbs any processing failure.
         wait-for-processing: false
@@ -39,7 +39,7 @@ runs:
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       continue-on-error: true
       env:
-        SARIF_ID: ${{steps.sarif.outputs.sarif-id}}
+        SARIF_ID: "${{steps.sarif.outputs.sarif-id}}"
       with:
         script: |
           core.info('Sarif Upload Completed');
