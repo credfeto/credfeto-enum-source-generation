@@ -9,7 +9,7 @@ on:
     types: [published]
 
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: false
 
 permissions:
@@ -47,7 +47,7 @@ jobs:
       - name: "Rebase"
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           script: |
             const pulls = await github.paginate(github.rest.pulls.list, {
               owner: context.repo.owner,
