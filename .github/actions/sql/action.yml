@@ -26,10 +26,10 @@ runs:
       with:
         tool-name: "tsqllint"
         tool-arguments: "${{inputs.db-folder}}"
-        working-directory: ${{github.workspace}}
+        working-directory: "${{github.workspace}}"
 
     - name: "SQL: Lint SQL Files (SQLFluff)"
       uses: ./.github/actions/super-linter
       with:
         mode: "sql"
-        github-token: ${{inputs.github-token}}
+        github-token: "${{inputs.github-token}}"
