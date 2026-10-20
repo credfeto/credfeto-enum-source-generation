@@ -25,7 +25,7 @@ runs:
 
     - name: "Dotnet: Test SQL Password"
       if: inputs.sql-password == ''
-      working-directory: ${{github.workspace}}/src
+      working-directory: "${{github.workspace}}/src"
       shell: bash
       run: |
         echo "Missing SQL Password!"
@@ -33,7 +33,7 @@ runs:
 
     - name: "Dotnet: Find Dacpac"
       id: find_dacpac
-      working-directory: ${{github.workspace}}/src
+      working-directory: "${{github.workspace}}/src"
       shell: bash
       run: |
         echo "Looking for dacpac"
@@ -50,7 +50,7 @@ runs:
 
 # yamllint disable rule:line-length
     - name: "Dotnet: Deploy/Live Server"
-      working-directory: ${{github.workspace}}/src
+      working-directory: "${{github.workspace}}/src"
       shell: bash
       # yamllint disable rule:line-length
       run: |
