@@ -15,7 +15,7 @@ runs:
     - name: "Check Composite Action Versions"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
-        github-token: ${{inputs.github-token}}
+        github-token: "${{inputs.github-token}}"
         script: |
           const { readFileSync, readdirSync } = require('fs');
           const path = require('path');
