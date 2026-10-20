@@ -38,13 +38,13 @@ inputs:
 outputs:
   pr_number:
     description: "Number of the created pull request"
-    value: ${{steps.create.outputs.pr_number}}
+    value: "${{steps.create.outputs.pr_number}}"
   pr_url:
     description: "URL of the created pull request"
-    value: ${{steps.create.outputs.pr_url}}
+    value: "${{steps.create.outputs.pr_url}}"
   has_changed_files:
     description: "Whether the pull request has changed files"
-    value: ${{steps.create.outputs.has_changed_files}}
+    value: "${{steps.create.outputs.has_changed_files}}"
 
 runs:
   using: composite
@@ -53,7 +53,7 @@ runs:
       id: create
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
-        github-token: ${{inputs.github-token}}
+        github-token: "${{inputs.github-token}}"
         script: |
           const sourceBranch = process.env.SOURCE_BRANCH || context.ref.replace('refs/heads/', '');
           const destinationBranch = process.env.DESTINATION_BRANCH;
@@ -155,10 +155,10 @@ runs:
           core.setOutput('pr_url', pr.html_url);
           core.setOutput('has_changed_files', String(pr.changed_files > 0));
       env:
-        SOURCE_BRANCH: ${{inputs.source-branch}}
-        DESTINATION_BRANCH: ${{inputs.destination-branch}}
-        TITLE: ${{inputs.title}}
-        BODY: ${{inputs.body}}
-        DRAFT: ${{inputs.draft}}
-        ASSIGNEE: ${{inputs.assignee}}
-        LABELS: ${{inputs.labels}}
+        SOURCE_BRANCH: "${{inputs.source-branch}}"
+        DESTINATION_BRANCH: "${{inputs.destination-branch}}"
+        TITLE: "${{inputs.title}}"
+        BODY: "${{inputs.body}}"
+        DRAFT: "${{inputs.draft}}"
+        ASSIGNEE: "${{inputs.assignee}}"
+        LABELS: "${{inputs.labels}}"
