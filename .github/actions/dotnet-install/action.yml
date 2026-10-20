@@ -41,7 +41,7 @@ runs:
       id: resolve_dotnet_sdk_versions
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        DOTNET_SDK_CHANNELS: ${{inputs.dotnet-sdk-channels}}
+        DOTNET_SDK_CHANNELS: "${{inputs.dotnet-sdk-channels}}"
       with:
         script: |
           const { existsSync, readFileSync } = require('fs');
@@ -154,7 +154,7 @@ runs:
     # Workaround for https://github.com/dotnet/sdk/issues/11432
     - name: "Reset users dotnet state"
       shell: bash
-      working-directory: ${{ github.workspace }}
+      working-directory: "${{ github.workspace }}"
       run: |
         [ -d "$HOME/.dotnet" ] && rm -fr "$HOME/.dotnet"
         mkdir "$HOME/.dotnet"
@@ -162,7 +162,7 @@ runs:
     # Workaround for https://github.com/dotnet/sdk/issues/11432
     - name: "Re-map users nuget package feed to temp folder"
       shell: bash
-      working-directory: ${{ github.workspace }}
+      working-directory: "${{ github.workspace }}"
       run: |
         echo "Ensure ~/.nuget folder exists"
         [ -d "$HOME/.nuget" ] || mkdir -p "$HOME/.nuget"
@@ -178,7 +178,7 @@ runs:
     - name: "Check for existing dotnet install"
       id: check_dotnet_install
       shell: bash
-      working-directory: ${{ github.workspace }}
+      working-directory: "${{ github.workspace }}"
       run: |
         INSTALL_NEEDED="false"
         DOTNET_BIN="${{env.DOTNET_ROOT}}/dotnet"
@@ -205,7 +205,7 @@ runs:
       if: steps.check_dotnet_install.outputs.install-needed == 'true'
       uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
       env:
-        GITHUB_TOKEN: ${{inputs.github-token}}
+        GITHUB_TOKEN: "${{inputs.github-token}}"
       with:
         cache: false
         dotnet-version: |
@@ -214,7 +214,7 @@ runs:
     - name: "Prune old dotnet installs"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        CURRENT_SDK_VERSIONS: ${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions}}
+        CURRENT_SDK_VERSIONS: "${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions}}"
       with:
         script: |
           const fs = require('fs');
@@ -358,16 +358,16 @@ runs:
     - name: "Configure nuget feeds"
       uses: ./.github/actions/nuget
       with:
-        nuget-public-restore-feed-cache: ${{inputs.nuget-public-restore-feed-cache}}
-        nuget-public-restore-feed: ${{inputs.nuget-public-restore-feed}}
-        nuget-additional-restore-feed-release-cache: ${{inputs.nuget-additional-restore-feed-release-cache}}
-        nuget-additional-restore-feed-prerelease-cache: ${{inputs.nuget-additional-restore-feed-prerelease-cache}}
-        nuget-additional-restore-feed-release: ${{inputs.nuget-additional-restore-feed-release}}
-        nuget-additional-restore-feed-prerelease: ${{inputs.nuget-additional-restore-feed-prerelease}}
+        nuget-public-restore-feed-cache: "${{inputs.nuget-public-restore-feed-cache}}"
+        nuget-public-restore-feed: "${{inputs.nuget-public-restore-feed}}"
+        nuget-additional-restore-feed-release-cache: "${{inputs.nuget-additional-restore-feed-release-cache}}"
+        nuget-additional-restore-feed-prerelease-cache: "${{inputs.nuget-additional-restore-feed-prerelease-cache}}"
+        nuget-additional-restore-feed-release: "${{inputs.nuget-additional-restore-feed-release}}"
+        nuget-additional-restore-feed-prerelease: "${{inputs.nuget-additional-restore-feed-prerelease}}"
 
     - name: "Enable dotnet tools"
       shell: bash
-      working-directory: ${{ github.workspace }}
+      working-directory: "${{ github.workspace }}"
       run: |
         rm -f dotnet-tools.json
         rm -f .config/dotnet-tools.json
