@@ -34,13 +34,13 @@ runs:
     - name: "Install dotnet"
       uses: ./.github/actions/dotnet-install
       with:
-        github-token: ${{inputs.github-token}}
-        nuget-public-restore-feed-cache: ${{inputs.nuget-public-restore-feed-cache}}
-        nuget-public-restore-feed: ${{inputs.nuget-public-restore-feed}}
-        nuget-additional-restore-feed-release-cache: ${{inputs.nuget-additional-restore-feed-release-cache}}
-        nuget-additional-restore-feed-prerelease-cache: ${{inputs.nuget-additional-restore-feed-prerelease-cache}}
-        nuget-additional-restore-feed-release: ${{inputs.nuget-additional-restore-feed-release}}
-        nuget-additional-restore-feed-prerelease: ${{inputs.nuget-additional-restore-feed-prerelease}}
+        github-token: "${{inputs.github-token}}"
+        nuget-public-restore-feed-cache: "${{inputs.nuget-public-restore-feed-cache}}"
+        nuget-public-restore-feed: "${{inputs.nuget-public-restore-feed}}"
+        nuget-additional-restore-feed-release-cache: "${{inputs.nuget-additional-restore-feed-release-cache}}"
+        nuget-additional-restore-feed-prerelease-cache: "${{inputs.nuget-additional-restore-feed-prerelease-cache}}"
+        nuget-additional-restore-feed-release: "${{inputs.nuget-additional-restore-feed-release}}"
+        nuget-additional-restore-feed-prerelease: "${{inputs.nuget-additional-restore-feed-prerelease}}"
 
     - name: "Install Build Version Tool"
       uses: ./.github/actions/dotnet-tool
