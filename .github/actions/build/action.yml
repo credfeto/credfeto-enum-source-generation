@@ -169,16 +169,16 @@ runs:
     - name: "Parameter Summary"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        NUGET_FEED_TYPE: ${{inputs.nuget-feed-type}}
-        PROJECT_TO_PUBLISH: ${{inputs.project-to-publish}}
-        NUGET_FEED: ${{inputs.nuget-feed}}
-        NUGET_PUBLIC_RESTORE_FEED_CACHE: ${{inputs.nuget-public-restore-feed-cache}}
-        NUGET_PUBLIC_RESTORE_FEED: ${{inputs.nuget-public-restore-feed}}
-        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: ${{inputs.nuget-additional-restore-feed-release-cache}}
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: ${{inputs.nuget-additional-restore-feed-prerelease-cache}}
-        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: ${{inputs.nuget-additional-restore-feed-release}}
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: ${{inputs.nuget-additional-restore-feed-prerelease}}
-        NUGET_PACK: ${{inputs.nuget-pack}}
+        NUGET_FEED_TYPE: "${{inputs.nuget-feed-type}}"
+        PROJECT_TO_PUBLISH: "${{inputs.project-to-publish}}"
+        NUGET_FEED: "${{inputs.nuget-feed}}"
+        NUGET_PUBLIC_RESTORE_FEED_CACHE: "${{inputs.nuget-public-restore-feed-cache}}"
+        NUGET_PUBLIC_RESTORE_FEED: "${{inputs.nuget-public-restore-feed}}"
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: "${{inputs.nuget-additional-restore-feed-release-cache}}"
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: "${{inputs.nuget-additional-restore-feed-prerelease-cache}}"
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: "${{inputs.nuget-additional-restore-feed-release}}"
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: "${{inputs.nuget-additional-restore-feed-prerelease}}"
+        NUGET_PACK: "${{inputs.nuget-pack}}"
       with:
         script: |
           const names = [
@@ -219,7 +219,7 @@ runs:
     - name: "Check Files Results"
       shell: bash
       env:
-        CHECK_FILES_OUTPUTS: ${{ toJSON(steps.check_files.outputs) }}
+        CHECK_FILES_OUTPUTS: "${{ toJSON(steps.check_files.outputs) }}"
       run: echo "$CHECK_FILES_OUTPUTS"
 
     - name: "Validate CloudFormation template"
@@ -236,13 +236,13 @@ runs:
         aws-region: ${{inputs.aws-region}}
 
     - name: "Prepare build Results folder"
-      working-directory: ${{github.workspace}}
+      working-directory: "${{github.workspace}}"
       shell: bash
       run: |
         [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
 
     - name: "Prepare dist folder"
-      working-directory: ${{github.workspace}}
+      working-directory: "${{github.workspace}}"
       shell: bash
       run: |
         [ ! -d "${{github.workspace}}/dist" ] && mkdir "${{github.workspace}}/dist" || echo "dist created"
@@ -250,13 +250,13 @@ runs:
     - name: "Install Build tools"
       uses: ./.github/actions/build-tools
       with:
-        github-token: ${{inputs.github-token}}
-        nuget-public-restore-feed-cache: ${{inputs.nuget-public-restore-feed-cache}}
-        nuget-public-restore-feed: ${{inputs.nuget-public-restore-feed}}
-        nuget-additional-restore-feed-release-cache: ${{inputs.nuget-additional-restore-feed-release-cache}}
-        nuget-additional-restore-feed-prerelease-cache: ${{inputs.nuget-additional-restore-feed-prerelease-cache}}
-        nuget-additional-restore-feed-release: ${{inputs.nuget-additional-restore-feed-release}}
-        nuget-additional-restore-feed-prerelease: ${{inputs.nuget-additional-restore-feed-prerelease}}
+        github-token: "${{inputs.github-token}}"
+        nuget-public-restore-feed-cache: "${{inputs.nuget-public-restore-feed-cache}}"
+        nuget-public-restore-feed: "${{inputs.nuget-public-restore-feed}}"
+        nuget-additional-restore-feed-release-cache: "${{inputs.nuget-additional-restore-feed-release-cache}}"
+        nuget-additional-restore-feed-prerelease-cache: "${{inputs.nuget-additional-restore-feed-prerelease-cache}}"
+        nuget-additional-restore-feed-release: "${{inputs.nuget-additional-restore-feed-release}}"
+        nuget-additional-restore-feed-prerelease: "${{inputs.nuget-additional-restore-feed-prerelease}}"
 
     - name: "Set up QEMU"
       if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
@@ -266,21 +266,21 @@ runs:
       if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
       uses: ./.github/actions/docker-setup
       with:
-        aws-access-key-id: ${{inputs.aws-access-key-id}}
-        aws-secret-access-key: ${{inputs.aws-secret-access-key}}
-        aws-region: ${{inputs.aws-region}}
-        docker-container-registry: ${{inputs.docker-container-registry}}
-        docker-username: ${{inputs.docker-username}}
-        docker-access-token: ${{inputs.docker-access-token}}
+        aws-access-key-id: "${{inputs.aws-access-key-id}}"
+        aws-secret-access-key: "${{inputs.aws-secret-access-key}}"
+        aws-region: "${{inputs.aws-region}}"
+        docker-container-registry: "${{inputs.docker-container-registry}}"
+        docker-username: "${{inputs.docker-username}}"
+        docker-access-token: "${{inputs.docker-access-token}}"
 
 # yamllint disable rule:line-length
     - name: "Check Build Tools Requirements"
       id: build_tools
       shell: bash
       env:
-        DOTNET_EXIST: ${{steps.check_files.outputs.DOTNET_EXIST}}
-        NPM_EXIST_SRC: ${{steps.check_files.outputs.NPM_EXIST_SRC}}
-        NPM_EXIST_ROOT: ${{steps.check_files.outputs.NPM_EXIST_ROOT}}
+        DOTNET_EXIST: "${{steps.check_files.outputs.DOTNET_EXIST}}"
+        NPM_EXIST_SRC: "${{steps.check_files.outputs.NPM_EXIST_SRC}}"
+        NPM_EXIST_ROOT: "${{steps.check_files.outputs.NPM_EXIST_ROOT}}"
       run: |
         [[ "$DOTNET_EXIST" == 'true' || "$NPM_EXIST_SRC" == 'true' || "$NPM_EXIST_ROOT" == 'true' ]] && echo 'BUILD_ENV=true' >> "$GITHUB_OUTPUT" || echo 'BUILD_ENV=false' >> "$GITHUB_OUTPUT"
 # yamllint enable rule:line-length
@@ -297,7 +297,7 @@ runs:
     - name: "Get Unique Build Number"
       uses: ./.github/actions/build-version
       with:
-        github-token: ${{inputs.github-token}}
+        github-token: "${{inputs.github-token}}"
 
     - name: "Find Pull Request for branch"
       id: find_pull_request
@@ -307,8 +307,8 @@ runs:
       continue-on-error: true
       uses: ./.github/actions/find-pull-request
       with:
-        branch: ${{github.head_ref || github.ref_name}}
-        github-token: ${{inputs.github-token}}
+        branch: "${{github.head_ref || github.ref_name}}"
+        github-token: "${{inputs.github-token}}"
 
     - name: "Deploy check - Default"
       shell: bash
@@ -358,7 +358,7 @@ runs:
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
       uses: ./.github/actions/dotnet-tool-run
       with:
-        working-directory: ${{github.workspace}}
+        working-directory: "${{github.workspace}}"
         tool-name: "changelog"
         tool-arguments: "\"${{github.workspace}}/CHANGELOG.md\" --extract RELEASE_NOTES.md --version \"${{env.BUILD_VERSION}}\""
 
@@ -369,21 +369,21 @@ runs:
       if: steps.check_files.outputs.DOTNET_EXIST == 'true'
       uses: ./.github/actions/dotnet
       with:
-        production-build: ${{inputs.production-build}}
-        build-version: ${{env.BUILD_VERSION}}
-        release: ${{env.RELEASE}}
-        pre-release-build: ${{steps.find_pull_request.outputs.pre-release-build || 'false'}}
-        build-sql: ${{steps.check_files.outputs.SQL_EXIST}}
-        db-folder: ${{github.workspace}}/db
-        nuget-pack: ${{inputs.nuget-pack}}
-        nuget-feed: ${{inputs.nuget-feed}}
-        nuget-feed-type: ${{inputs.nuget-feed-type}}
-        nuget-username: ${{inputs.nuget-username}}
-        sleet-config: ${{inputs.sleet-config}}
-        sleet-feed: ${{inputs.sleet-feed}}
-        github-token: ${{inputs.github-token}}
-        project-to-publish: ${{inputs.project-to-publish}}
-        dotnet-docker-platform: ${{inputs.dotnet-docker-platform}}
+        production-build: "${{inputs.production-build}}"
+        build-version: "${{env.BUILD_VERSION}}"
+        release: "${{env.RELEASE}}"
+        pre-release-build: "${{steps.find_pull_request.outputs.pre-release-build || 'false'}}"
+        build-sql: "${{steps.check_files.outputs.SQL_EXIST}}"
+        db-folder: "${{github.workspace}}/db"
+        nuget-pack: "${{inputs.nuget-pack}}"
+        nuget-feed: "${{inputs.nuget-feed}}"
+        nuget-feed-type: "${{inputs.nuget-feed-type}}"
+        nuget-username: "${{inputs.nuget-username}}"
+        sleet-config: "${{inputs.sleet-config}}"
+        sleet-feed: "${{inputs.sleet-feed}}"
+        github-token: "${{inputs.github-token}}"
+        project-to-publish: "${{inputs.project-to-publish}}"
+        dotnet-docker-platform: "${{inputs.dotnet-docker-platform}}"
 
     ############################################################################################################
     # Merge and summarise Roslyn analyzer SARIF files
@@ -409,9 +409,9 @@ runs:
       with:
         title: "Roslyn analyzer findings"
         glob: "DotNet.sarif"
-        pr-number: ${{steps.find_pull_request.outputs.number}}
-        pr-lookup-done: ${{steps.find_pull_request.outcome != 'skipped'}}
-        github-token: ${{inputs.github-token}}
+        pr-number: "${{steps.find_pull_request.outputs.number}}"
+        pr-lookup-done: "${{steps.find_pull_request.outcome != 'skipped'}}"
+        github-token: "${{inputs.github-token}}"
 
     ############################################################################################################
     # NPM BUILD
@@ -420,14 +420,14 @@ runs:
       if: steps.check_files.outputs.NPM_EXIST_SRC == 'true' || steps.check_files.outputs.NPM_EXIST_ROOT == 'true'
       uses: ./.github/actions/npm
       with:
-        build-version: ${{env.BUILD_VERSION}}
-        npm-content-package-wallet-password: ${{inputs.npm-content-package-wallet-password}}
-        npm-package-store-signing-wallet: ${{inputs.npm-package-store-signing-wallet}}
-        npm-package-store-signing-wallet-password: ${{inputs.npm-package-store-signing-wallet-password}}
-        npm-signing: ${{steps.check_files.outputs.NPM_SIGNING_EXIST}}
-        npm-registry: ${{inputs.npm-registry}}
-        npm-cache-cert: ${{inputs.npm-cache-cert}}
-        project-to-publish: ${{inputs.project-to-publish}}
+        build-version: "${{env.BUILD_VERSION}}"
+        npm-content-package-wallet-password: "${{inputs.npm-content-package-wallet-password}}"
+        npm-package-store-signing-wallet: "${{inputs.npm-package-store-signing-wallet}}"
+        npm-package-store-signing-wallet-password: "${{inputs.npm-package-store-signing-wallet-password}}"
+        npm-signing: "${{steps.check_files.outputs.NPM_SIGNING_EXIST}}"
+        npm-registry: "${{inputs.npm-registry}}"
+        npm-cache-cert: "${{inputs.npm-cache-cert}}"
+        project-to-publish: "${{inputs.project-to-publish}}"
 
     ############################################################################################################
     # DEPLOY TO DOCKER
@@ -469,14 +469,14 @@ runs:
         inputs.docker-app-name != ''
       uses: ./.github/actions/docker-build-to-registry
       with:
-        deploy: ${{env.DEPLOY}}
-        build-version: ${{env.BUILD_VERSION}}
-        build-tag: ${{inputs.build-tag}}
-        app-owner: ${{inputs.docker-app-owner}}
-        app-name: ${{inputs.docker-app-name}}
-        docker-container-registry: ${{inputs.docker-container-registry}}
-        container-source: ${{github.workspace}}/server-dist/${{inputs.dotnet-docker-platform}}
-        container-platform: ${{inputs.dotnet-container-platform}}
+        deploy: "${{env.DEPLOY}}"
+        build-version: "${{env.BUILD_VERSION}}"
+        build-tag: "${{inputs.build-tag}}"
+        app-owner: "${{inputs.docker-app-owner}}"
+        app-name: "${{inputs.docker-app-name}}"
+        docker-container-registry: "${{inputs.docker-container-registry}}"
+        container-source: "${{github.workspace}}/server-dist/${{inputs.dotnet-docker-platform}}"
+        container-platform: "${{inputs.dotnet-container-platform}}"
 
     - name: "Dotnet: SQL Deploy"
       if: |-
@@ -518,17 +518,17 @@ runs:
         env.DEPLOY == 'true'
       uses: ./.github/actions/dispatch-deploy
       with:
-        cloud-formation-stack: ${{inputs.cloud-formation-stack}}
+        cloud-formation-stack: "${{inputs.cloud-formation-stack}}"
         cloud-formation-template-file: "cloudformation.json"
-        build-version: ${{env.BUILD_VERSION}}
-        docker-app-owner: ${{inputs.docker-app-owner}}
-        docker-app-name: ${{inputs.docker-app-name}}
-        api-host: ${{inputs.api-host}}
-        api-prefix: ${{inputs.api-prefix}}
-        aws-load-balancer-hostname: ${{inputs.aws-load-balancer-hostname}}
-        aws-load-balancer-priority: ${{inputs.aws-load-balancer-priority}}
-        docker-container-registry: ${{inputs.docker-container-registry}}
-        github-token: ${{inputs.github-token}}
+        build-version: "${{env.BUILD_VERSION}}"
+        docker-app-owner: "${{inputs.docker-app-owner}}"
+        docker-app-name: "${{inputs.docker-app-name}}"
+        api-host: "${{inputs.api-host}}"
+        api-prefix: "${{inputs.api-prefix}}"
+        aws-load-balancer-hostname: "${{inputs.aws-load-balancer-hostname}}"
+        aws-load-balancer-priority: "${{inputs.aws-load-balancer-priority}}"
+        docker-container-registry: "${{inputs.docker-container-registry}}"
+        github-token: "${{inputs.github-token}}"
 
     - name: "Dotnet: NPM Deploy"
       if: |-
@@ -537,8 +537,8 @@ runs:
         env.DEPLOY == 'true'
       uses: ./.github/actions/sleet
       with:
-        sleet-config: ${{inputs.sleet-config}}
-        sleet-feed: ${{inputs.sleet-feed}}
+        sleet-config: "${{inputs.sleet-config}}"
+        sleet-feed: "${{inputs.sleet-feed}}"
 
     ############################################################################################################
     # Create GitHub Release
@@ -547,8 +547,8 @@ runs:
       if: steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.create-release == 'true'
       uses: ./.github/actions/create-release
       with:
-        github-token: ${{inputs.github-token}}
-        version: ${{env.BUILD_VERSION}}
+        github-token: "${{inputs.github-token}}"
+        version: "${{env.BUILD_VERSION}}"
         release-notes-file: "RELEASE_NOTES.md"
 
     ############################################################################################################
@@ -558,7 +558,7 @@ runs:
       if: steps.build_tools.outputs.BUILD_ENV == 'true'
       uses: ./.github/actions/sbom
       with:
-        repo-visibility: ${{steps.repo-visibility.outputs.value}}
+        repo-visibility: "${{steps.repo-visibility.outputs.value}}"
 
     ############################################################################################################
     # Upload Sarif files to GitHub
@@ -566,4 +566,4 @@ runs:
     - name: "Upload SARIF file for diagnostics"
       uses: ./.github/actions/sarif
       with:
-        repo-visibility: ${{steps.repo-visibility.outputs.value}}
+        repo-visibility: "${{steps.repo-visibility.outputs.value}}"
