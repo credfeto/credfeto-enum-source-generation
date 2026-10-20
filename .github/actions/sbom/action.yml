@@ -27,9 +27,9 @@ runs:
       id: scan-config
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        REPO_VISIBILITY: ${{inputs.repo-visibility}}
-        WORKSPACE: ${{github.workspace}}
-        REPO_NAME: ${{github.event.repository.name}}
+        REPO_VISIBILITY: "${{inputs.repo-visibility}}"
+        WORKSPACE: "${{github.workspace}}"
+        REPO_NAME: "${{github.event.repository.name}}"
       with:
         script: |
           const isPublic = process.env.REPO_VISIBILITY === 'public';
@@ -42,8 +42,8 @@ runs:
       with:
         scan-type: "sbom"
         scan-ref: "${{github.event.repository.name}}-sbom.spdx.json"
-        format: ${{steps.scan-config.outputs.format}}
-        output: ${{steps.scan-config.outputs.output}}
+        format: "${{steps.scan-config.outputs.format}}"
+        output: "${{steps.scan-config.outputs.output}}"
         ignore-unfixed: true
         severity: "HIGH,CRITICAL"
         cache-dir: "${{github.workspace}}/.trivy-cache"
