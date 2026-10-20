@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: false
 
 permissions:
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      is_template: ${{steps.visibility.outputs.is_template}}
+      is_template: "${{steps.visibility.outputs.is_template}}"
 
     steps:
       - name: "Initialise Workspace"
@@ -73,9 +73,9 @@ jobs:
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
-          secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Check Composite Action Versions"
         uses: ./.github/actions/check-composite-action-versions
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
