@@ -18,7 +18,7 @@ runs:
       uses: ./.github/actions/check-required-secret
       with:
         secret-name: "nuget-api-key"
-        secret-value: ${{inputs.nuget-api-key}}
+        secret-value: "${{inputs.nuget-api-key}}"
 
     - name: "NuGet Push"
       uses: ./.github/actions/dotnet-tool-run
