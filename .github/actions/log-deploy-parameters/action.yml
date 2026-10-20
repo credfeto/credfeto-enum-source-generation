@@ -40,16 +40,16 @@ runs:
     - name: "Log parameters"
       shell: bash
       env:
-        CLOUD_FORMATION_STACK: ${{inputs.cloud-formation-stack}}
-        CLOUD_FORMATION_TEMPLATE_FILE: ${{inputs.cloud-formation-template-file}}
-        DOCKER_APP_OWNER: ${{inputs.docker-app-owner}}
-        DOCKER_APP_NAME: ${{inputs.docker-app-name}}
-        BUILD_VERSION: ${{inputs.build-version}}
-        API_HOST: ${{inputs.api-host}}
-        API_PREFIX: ${{inputs.api-prefix}}
-        AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.aws-load-balancer-hostname}}
-        DOCKER_CONTAINER_REGISTRY: ${{inputs.docker-container-registry}}
-        AWS_LOAD_BALANCER_PRIORITY: ${{inputs.aws-load-balancer-priority}}
+        CLOUD_FORMATION_STACK: "${{inputs.cloud-formation-stack}}"
+        CLOUD_FORMATION_TEMPLATE_FILE: "${{inputs.cloud-formation-template-file}}"
+        DOCKER_APP_OWNER: "${{inputs.docker-app-owner}}"
+        DOCKER_APP_NAME: "${{inputs.docker-app-name}}"
+        BUILD_VERSION: "${{inputs.build-version}}"
+        API_HOST: "${{inputs.api-host}}"
+        API_PREFIX: "${{inputs.api-prefix}}"
+        AWS_LOAD_BALANCER_HOSTNAME: "${{inputs.aws-load-balancer-hostname}}"
+        DOCKER_CONTAINER_REGISTRY: "${{inputs.docker-container-registry}}"
+        AWS_LOAD_BALANCER_PRIORITY: "${{inputs.aws-load-balancer-priority}}"
       run: |
         echo "CLOUD_FORMATION_STACK: $CLOUD_FORMATION_STACK"
         echo "CLOUD_FORMATION_TEMPLATE_FILE: $CLOUD_FORMATION_TEMPLATE_FILE"
