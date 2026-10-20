@@ -26,8 +26,8 @@ runs:
       id: build-table
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        TITLE: ${{inputs.title}}
-        GLOB_PATTERN: ${{inputs.glob}}
+        TITLE: "${{inputs.title}}"
+        GLOB_PATTERN: "${{inputs.glob}}"
       with:
         script: |
           const fs = require('fs');
@@ -122,10 +122,10 @@ runs:
           core.info(`✅ ${title}: ${rows.length} finding(s), ${errorCount} error-level`);
 
     - name: "Post job summary"
-      if: ${{ !cancelled() && steps.build-table.outputs.table-file != '' }}
+      if: "${{ !cancelled() && steps.build-table.outputs.table-file != '' }}"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        TABLE_FILE: ${{steps.build-table.outputs.table-file}}
+        TABLE_FILE: "${{steps.build-table.outputs.table-file}}"
       with:
         script: |
           const fs = require('fs');
@@ -145,12 +145,12 @@ runs:
       continue-on-error: true
       uses: ./.github/actions/find-pull-request
       with:
-        branch: ${{github.ref_name}}
-        github-token: ${{inputs.github-token || github.token}}
+        branch: "${{github.ref_name}}"
+        github-token: "${{inputs.github-token || github.token}}"
 
     - name: "Resolve pull request number"
       id: resolve-pr
-      if: ${{ !cancelled() && steps.build-table.outputs.table-file != '' }}
+      if: "${{ !cancelled() && steps.build-table.outputs.table-file != '' }}"
       shell: bash
       run: echo "number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
       env:
@@ -168,12 +168,12 @@ runs:
       continue-on-error: true
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        TITLE: ${{inputs.title}}
-        TABLE_FILE: ${{steps.build-table.outputs.table-file}}
-        ROW_COUNT: ${{steps.build-table.outputs.row-count}}
-        PR_NUMBER: ${{steps.resolve-pr.outputs.number}}
+        TITLE: "${{inputs.title}}"
+        TABLE_FILE: "${{steps.build-table.outputs.table-file}}"
+        ROW_COUNT: "${{steps.build-table.outputs.row-count}}"
+        PR_NUMBER: "${{steps.resolve-pr.outputs.number}}"
       with:
-        github-token: ${{inputs.github-token || github.token}}
+        github-token: "${{inputs.github-token || github.token}}"
         script: |
           const fs = require('fs');
 
@@ -222,11 +222,11 @@ runs:
           }
 
     - name: "Report error-level findings"
-      if: ${{ !cancelled() && steps.build-table.outputs.table-file != '' && steps.build-table.outputs.error-count != '0' }}
+      if: "${{ !cancelled() && steps.build-table.outputs.table-file != '' && steps.build-table.outputs.error-count != '0' }}"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        TITLE: ${{inputs.title}}
-        ERROR_COUNT: ${{steps.build-table.outputs.error-count}}
+        TITLE: "${{inputs.title}}"
+        ERROR_COUNT: "${{steps.build-table.outputs.error-count}}"
       with:
         script: |
           core.setFailed(`❌ ${process.env.TITLE}: found ${process.env.ERROR_COUNT} error-level finding(s); see job summary for details.`);
