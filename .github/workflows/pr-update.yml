@@ -11,15 +11,15 @@ on:
       - main
 
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 env:
-  HEAD_REF: ${{github.head_ref}}
-  BASE_REF: ${{github.base_ref}}
+  HEAD_REF: "${{github.head_ref}}"
+  BASE_REF: "${{github.base_ref}}"
 
 jobs:
   requirements:
@@ -37,7 +37,7 @@ jobs:
   repo-info:
     runs-on: ubuntu-latest
     outputs:
-      is_template: ${{steps.visibility.outputs.is_template}}
+      is_template: "${{steps.visibility.outputs.is_template}}"
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -116,7 +116,7 @@ jobs:
 
   add-pr-label:
     needs: [requirements]
-    if: ${{github.actor != 'dependabot[bot]'}}
+    if: "${{github.actor != 'dependabot[bot]'}}"
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
@@ -142,8 +142,8 @@ jobs:
       - name: "Add Labels"
         uses: ./.github/actions/sync-labels
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          pr-number: ${{github.event.pull_request.number}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          pr-number: "${{github.event.pull_request.number}}"
 
   assign-to-creator:
     needs: [requirements]
@@ -177,4 +177,4 @@ jobs:
       - name: "Assign PR to the creator"
         uses: ./.github/actions/assign-pr-to-creator
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
