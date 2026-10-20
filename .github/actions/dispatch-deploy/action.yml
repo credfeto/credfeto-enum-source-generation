@@ -43,24 +43,24 @@ runs:
     - name: "Log parameters"
       uses: ./.github/actions/log-deploy-parameters
       with:
-        cloud-formation-stack: ${{inputs.cloud-formation-stack}}
-        cloud-formation-template-file: ${{inputs.cloud-formation-template-file}}
-        docker-app-owner: ${{inputs.docker-app-owner}}
-        docker-app-name: ${{inputs.docker-app-name}}
-        build-version: ${{inputs.build-version}}
-        api-host: ${{inputs.api-host}}
-        api-prefix: ${{inputs.api-prefix}}
-        aws-load-balancer-hostname: ${{inputs.aws-load-balancer-hostname}}
-        docker-container-registry: ${{inputs.docker-container-registry}}
-        aws-load-balancer-priority: ${{inputs.aws-load-balancer-priority}}
+        cloud-formation-stack: "${{inputs.cloud-formation-stack}}"
+        cloud-formation-template-file: "${{inputs.cloud-formation-template-file}}"
+        docker-app-owner: "${{inputs.docker-app-owner}}"
+        docker-app-name: "${{inputs.docker-app-name}}"
+        build-version: "${{inputs.build-version}}"
+        api-host: "${{inputs.api-host}}"
+        api-prefix: "${{inputs.api-prefix}}"
+        aws-load-balancer-hostname: "${{inputs.aws-load-balancer-hostname}}"
+        docker-container-registry: "${{inputs.docker-container-registry}}"
+        aws-load-balancer-priority: "${{inputs.aws-load-balancer-priority}}"
 
     - name: "Create tag"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        DOCKER_APP_NAME: ${{inputs.docker-app-name}}
-        BUILD_VERSION: ${{inputs.build-version}}
+        DOCKER_APP_NAME: "${{inputs.docker-app-name}}"
+        BUILD_VERSION: "${{inputs.build-version}}"
       with:
-        github-token: ${{ inputs.github-token }}
+        github-token: "${{ inputs.github-token }}"
         script: |
           const tag = `${process.env.DOCKER_APP_NAME}/v${process.env.BUILD_VERSION}`;
           try {
@@ -78,18 +78,18 @@ runs:
     - name: "Trigger Deployment Workflow"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        DOCKER_APP_NAME: ${{inputs.docker-app-name}}
-        BUILD_VERSION: ${{inputs.build-version}}
-        CLOUD_FORMATION_STACK: ${{inputs.cloud-formation-stack}}
-        CLOUD_FORMATION_TEMPLATE_FILE: ${{inputs.cloud-formation-template-file}}
-        DOCKER_APP_OWNER: ${{inputs.docker-app-owner}}
-        API_HOST: ${{inputs.api-host}}
-        API_PREFIX: ${{inputs.api-prefix}}
-        AWS_LOAD_BALANCER_HOSTNAME: ${{inputs.aws-load-balancer-hostname}}
-        DOCKER_CONTAINER_REGISTRY: ${{inputs.docker-container-registry}}
-        AWS_LOAD_BALANCER_PRIORITY: ${{inputs.aws-load-balancer-priority}}
+        DOCKER_APP_NAME: "${{inputs.docker-app-name}}"
+        BUILD_VERSION: "${{inputs.build-version}}"
+        CLOUD_FORMATION_STACK: "${{inputs.cloud-formation-stack}}"
+        CLOUD_FORMATION_TEMPLATE_FILE: "${{inputs.cloud-formation-template-file}}"
+        DOCKER_APP_OWNER: "${{inputs.docker-app-owner}}"
+        API_HOST: "${{inputs.api-host}}"
+        API_PREFIX: "${{inputs.api-prefix}}"
+        AWS_LOAD_BALANCER_HOSTNAME: "${{inputs.aws-load-balancer-hostname}}"
+        DOCKER_CONTAINER_REGISTRY: "${{inputs.docker-container-registry}}"
+        AWS_LOAD_BALANCER_PRIORITY: "${{inputs.aws-load-balancer-priority}}"
       with:
-        github-token: ${{ inputs.github-token }}
+        github-token: "${{ inputs.github-token }}"
         script: |
           const id = await github.rest.actions.createWorkflowDispatch({
             owner: context.repo.owner,
