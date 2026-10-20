@@ -19,9 +19,9 @@ runs:
     - name: "Merge SARIF files"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        GLOB_PATTERN: ${{inputs.glob}}
-        EXCLUDE_PATTERN: ${{inputs.exclude}}
-        OUTPUT_NAME: ${{inputs.output}}
+        GLOB_PATTERN: "${{inputs.glob}}"
+        EXCLUDE_PATTERN: "${{inputs.exclude}}"
+        OUTPUT_NAME: "${{inputs.output}}"
       with:
         script: |
           const fs = require('fs');
