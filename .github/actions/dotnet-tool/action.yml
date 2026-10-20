@@ -16,10 +16,10 @@ runs:
   steps:
     - name: "Install dotnet tool"
       shell: bash
-      working-directory: ${{ github.workspace }}
+      working-directory: "${{ github.workspace }}"
       env:
-        TOOL_NAME: ${{inputs.tool-name}}
-        TOOL_VERSION: ${{inputs.tool-version}}
+        TOOL_NAME: "${{inputs.tool-name}}"
+        TOOL_VERSION: "${{inputs.tool-version}}"
       run: |
         VERSION_ARGS=()
         [ "$TOOL_VERSION" != 'latest' ] && VERSION_ARGS=(--version "$TOOL_VERSION")
