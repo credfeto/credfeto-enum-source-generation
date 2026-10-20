@@ -39,7 +39,7 @@ runs:
       id: priorities
       shell: bash
       env:
-        AWS_LOAD_BALANCER_PRIORITY: ${{inputs.aws-load-balancer-priority}}
+        AWS_LOAD_BALANCER_PRIORITY: "${{inputs.aws-load-balancer-priority}}"
       run: |
         if ! [[ "$AWS_LOAD_BALANCER_PRIORITY" =~ ^[0-9]+$ ]]; then
           echo "::error::AWS_LOAD_BALANCER_PRIORITY must be a non-negative integer, got: $AWS_LOAD_BALANCER_PRIORITY"
@@ -92,22 +92,22 @@ runs:
             echo "]"
           } > "${{github.workspace}}/TemplateParameters.json"
       env:
-        CLOUD_FORMATION_TEMPLATE_FILE: ${{inputs.cloud-formation-template-file}}
-        ApplicationName: ${{inputs.cloud-formation-stack}}
-        ApplicationContainer: ${{inputs.docker-app-name}}
-        ApplicationVersion: ${{inputs.build-version}}
+        CLOUD_FORMATION_TEMPLATE_FILE: "${{inputs.cloud-formation-template-file}}"
+        ApplicationName: "${{inputs.cloud-formation-stack}}"
+        ApplicationContainer: "${{inputs.docker-app-name}}"
+        ApplicationVersion: "${{inputs.build-version}}"
         ApiPrefix: /${{inputs.docker-app-name}}
-        ApiHost: ${{inputs.api-host}}
-        LoadBalancerHostName: ${{inputs.aws-load-balancer-hostname}}
-        LoadBalancerPriority: ${{steps.priorities.outputs.MAIN}}
-        Direct1LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT1}}
-        Direct2LoadBalancerPriority: ${{steps.priorities.outputs.DIRECT2}}
-        AwsContainerRegistry: ${{inputs.docker-container-registry}}
+        ApiHost: "${{inputs.api-host}}"
+        LoadBalancerHostName: "${{inputs.aws-load-balancer-hostname}}"
+        LoadBalancerPriority: "${{steps.priorities.outputs.MAIN}}"
+        Direct1LoadBalancerPriority: "${{steps.priorities.outputs.DIRECT1}}"
+        Direct2LoadBalancerPriority: "${{steps.priorities.outputs.DIRECT2}}"
+        AwsContainerRegistry: "${{inputs.docker-container-registry}}"
 
     - name: "show Validated TemplateParameters"
       shell: bash
       env:
-        CLOUDFORMATION_SNS_ARN: ${{inputs.cloudformation-sns-arn}}
+        CLOUDFORMATION_SNS_ARN: "${{inputs.cloudformation-sns-arn}}"
       run: |
         echo "SNS ARN: $CLOUDFORMATION_SNS_ARN"
         echo "Validated parameters:"
@@ -116,10 +116,10 @@ runs:
     - name: "AWS Cloudformation Deploy"
       shell: bash
       env:
-        CLOUD_FORMATION_TEMPLATE_FILE: ${{inputs.cloud-formation-template-file}}
-        CLOUD_FORMATION_STACK: ${{inputs.cloud-formation-stack}}
-        CLOUDFORMATION_SNS_ARN: ${{inputs.cloudformation-sns-arn}}
-        BUILD_VERSION: ${{inputs.build-version}}
+        CLOUD_FORMATION_TEMPLATE_FILE: "${{inputs.cloud-formation-template-file}}"
+        CLOUD_FORMATION_STACK: "${{inputs.cloud-formation-stack}}"
+        CLOUDFORMATION_SNS_ARN: "${{inputs.cloudformation-sns-arn}}"
+        BUILD_VERSION: "${{inputs.build-version}}"
       run: |
         NOTIFICATION_ARGS=()
         [ -n "$CLOUDFORMATION_SNS_ARN" ] && NOTIFICATION_ARGS=(--notification-arns "$CLOUDFORMATION_SNS_ARN")
@@ -139,7 +139,7 @@ runs:
     - name: "AWS Enable Stack termination protection"
       shell: bash
       env:
-        CLOUD_FORMATION_STACK: ${{inputs.cloud-formation-stack}}
+        CLOUD_FORMATION_STACK: "${{inputs.cloud-formation-stack}}"
       run: |
         /usr/local/aws-cli/v2/current/bin/aws \
                   cloudformation update-termination-protection \
