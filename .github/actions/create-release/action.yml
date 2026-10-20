@@ -21,10 +21,10 @@ runs:
     - name: "Create Release"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
-        RELEASE_VERSION: ${{inputs.version}}
-        RELEASE_NOTES_FILE: ${{inputs.release-notes-file}}
+        RELEASE_VERSION: "${{inputs.version}}"
+        RELEASE_NOTES_FILE: "${{inputs.release-notes-file}}"
       with:
-        github-token: ${{inputs.github-token}}
+        github-token: "${{inputs.github-token}}"
         script: |
           const fs = require('fs');
           const tag = `v${process.env.RELEASE_VERSION}`;
