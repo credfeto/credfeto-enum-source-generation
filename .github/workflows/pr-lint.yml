@@ -12,18 +12,18 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: true
 
 env:
-  HEAD_REF: ${{github.head_ref}}
-  BASE_REF: ${{github.base_ref}}
+  HEAD_REF: "${{github.head_ref}}"
+  BASE_REF: "${{github.base_ref}}"
 
 jobs:
   repo-info:
     runs-on: ubuntu-latest
     outputs:
-      is_template: ${{steps.visibility.outputs.is_template}}
+      is_template: "${{steps.visibility.outputs.is_template}}"
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -178,15 +178,15 @@ jobs:
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
-          secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Install dotnet"
         if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
         uses: ./.github/actions/dotnet-install
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          nuget-public-restore-feed-cache: ${{vars.NUGET_BAGET_CACHE}}
-          nuget-public-restore-feed: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-additional-restore-feed-release-cache: ""
           nuget-additional-restore-feed-prerelease-cache: ""
           nuget-additional-restore-feed-release: ""
@@ -203,7 +203,7 @@ jobs:
         if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
         uses: ./.github/actions/dotnet-tool-run
         with:
-          working-directory: ${{github.workspace}}
+          working-directory: "${{github.workspace}}"
           tool-name: "changelog"
           tool-arguments: "--changelog \"${{github.workspace}}/CHANGELOG.md\" --check-insert \"origin/${{github.base_ref}}\""
 
@@ -446,14 +446,14 @@ jobs:
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
-          secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Install dotnet"
         uses: ./.github/actions/dotnet-install
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          nuget-public-restore-feed-cache: ${{vars.NUGET_BAGET_CACHE}}
-          nuget-public-restore-feed: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-additional-restore-feed-release-cache: ""
           nuget-additional-restore-feed-prerelease-cache: ""
           nuget-additional-restore-feed-release: ""
@@ -468,7 +468,7 @@ jobs:
       - name: "Check Changelog"
         uses: ./.github/actions/dotnet-tool-run
         with:
-          working-directory: ${{github.workspace}}
+          working-directory: "${{github.workspace}}"
           tool-name: "changelog"
           tool-arguments: "--changelog \"${{github.workspace}}/CHANGELOG.md\" --lint"
 
@@ -503,13 +503,13 @@ jobs:
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
-          secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Run Linter"
         uses: ./.github/actions/super-linter
         with:
           mode: "pr"
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
   # @@required: main
   poutine:
@@ -532,7 +532,7 @@ jobs:
         id: visibility
 
       - name: "Ensure Results folder exists"
-        working-directory: ${{github.workspace}}
+        working-directory: "${{github.workspace}}"
         shell: bash
         run: |
           [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
@@ -556,4 +556,4 @@ jobs:
         if: always()
         uses: ./.github/actions/sarif
         with:
-          repo-visibility: ${{steps.visibility.outputs.is_public == 'true' && 'public' || 'private'}}
+          repo-visibility: "${{steps.visibility.outputs.is_public == 'true' && 'public' || 'private'}}"
