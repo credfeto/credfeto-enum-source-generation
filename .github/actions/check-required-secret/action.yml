@@ -17,8 +17,8 @@ runs:
     - name: "Check Required Secret"
       shell: bash
       env:
-        SECRET_NAME: ${{inputs.secret-name}}
-        SECRET_VALUE: ${{inputs.secret-value}}
+        SECRET_NAME: "${{inputs.secret-name}}"
+        SECRET_VALUE: "${{inputs.secret-value}}"
       run: |
         if [ -z "$SECRET_VALUE" ]; then
           echo "::error::${SECRET_NAME} is required but not set"
