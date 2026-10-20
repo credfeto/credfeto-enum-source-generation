@@ -10,7 +10,7 @@ on:
 
 # Don't cancel anything in progress
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}-release
+  group: "${{github.workflow}}-${{github.ref}}-release"
   cancel-in-progress: false
 
 permissions:
@@ -23,14 +23,18 @@ permissions:
 jobs:
   build-release:
 
-    runs-on: ${{ startsWith(vars.RELEASE_BUILD_ENVIRONMENT, '[') && fromJSON(vars.RELEASE_BUILD_ENVIRONMENT) || vars.RELEASE_BUILD_ENVIRONMENT || 'ubuntu-latest' }}
+    runs-on: >-
+      ${{ startsWith(vars.RELEASE_BUILD_ENVIRONMENT, '[')
+      && fromJSON(vars.RELEASE_BUILD_ENVIRONMENT)
+      || vars.RELEASE_BUILD_ENVIRONMENT
+      || 'ubuntu-latest' }}
 
     env:
       # Which NPM Registry to use
-      NPM_REGISTRY: ${{vars.NPM_REGISTRY}}
-      NPM_CACHE_CERT: ${{vars.NPM_CACHE_CERT}}
+      NPM_REGISTRY: "${{vars.NPM_REGISTRY}}"
+      NPM_CACHE_CERT: "${{vars.NPM_CACHE_CERT}}"
       # Nuget caching
-      USE_NUGET_CACHE: ${{vars.USE_NUGET_CACHE}}
+      USE_NUGET_CACHE: "${{vars.USE_NUGET_CACHE}}"
       NUGET_BAGET_CACHE: ''
       PRERELEASE_BAGET_CACHE: ''
       RELEASE_BAGET_CACHE: ''
@@ -70,53 +74,53 @@ jobs:
       - name: "Setup Build Cache"
         uses: ./.github/actions/setup-build-cache
         with:
-          use-nuget-cache: ${{vars.USE_NUGET_CACHE}}
-          nuget-baget-cache: ${{vars.NUGET_BAGET_CACHE}}
-          prerelease-baget-cache: ${{vars.PRERELEASE_BAGET_CACHE}}
-          release-baget-cache: ${{vars.RELEASE_BAGET_CACHE}}
-          npm-cache: ${{vars.NPM_CACHE}}
+          use-nuget-cache: "${{vars.USE_NUGET_CACHE}}"
+          nuget-baget-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          prerelease-baget-cache: "${{vars.PRERELEASE_BAGET_CACHE}}"
+          release-baget-cache: "${{vars.RELEASE_BAGET_CACHE}}"
+          npm-cache: "${{vars.NPM_CACHE}}"
 
       - name: "Build and deploy"
         uses: ./.github/actions/build
         with:
           production-build: "true"
-          npm-production-packager-version: ${{vars.PRODUCTION_PACKAGER_VERSION}}
-          npm-content-package-wallet-password: ${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}
-          npm-package-store-signing-wallet: ${{secrets.PACKAGE_STORE_SIGNING_WALLET}}
-          npm-package-store-signing-wallet-password: ${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}
-          npm-registry: ${{env.NPM_REGISTRY}}
-          npm-cache-cert: ${{env.NPM_CACHE_CERT}}
-          nuget-public-restore-feed-cache: ${{env.NUGET_BAGET_CACHE}}
-          nuget-public-restore-feed: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
-          nuget-additional-restore-feed-release-cache: ${{env.RELEASE_BAGET_CACHE}}
+          npm-production-packager-version: "${{vars.PRODUCTION_PACKAGER_VERSION}}"
+          npm-content-package-wallet-password: "${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}"
+          npm-package-store-signing-wallet: "${{secrets.PACKAGE_STORE_SIGNING_WALLET}}"
+          npm-package-store-signing-wallet-password: "${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
+          npm-registry: "${{env.NPM_REGISTRY}}"
+          npm-cache-cert: "${{env.NPM_CACHE_CERT}}"
+          nuget-public-restore-feed-cache: "${{env.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          nuget-additional-restore-feed-release-cache: "${{env.RELEASE_BAGET_CACHE}}"
           nuget-additional-restore-feed-prerelease-cache: ""
-          nuget-additional-restore-feed-release: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+          nuget-additional-restore-feed-release: "${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
           nuget-additional-restore-feed-prerelease: ""
-          nuget-pack: ${{vars.NUGET_PACK}}
-          nuget-feed: ${{secrets.NUGET_FEED || 'https://api.nuget.org/v3/index.json'}}
-          nuget-feed-type: ${{vars.NUGET_FEED_TYPE}}
-          nuget-username: ${{secrets.NUGET_USER_NAME}}
-          sleet-config: ${{secrets.SLEET_CONFIG}}
+          nuget-pack: "${{vars.NUGET_PACK}}"
+          nuget-feed: "${{secrets.NUGET_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          nuget-feed-type: "${{vars.NUGET_FEED_TYPE}}"
+          nuget-username: "${{secrets.NUGET_USER_NAME}}"
+          sleet-config: "${{secrets.SLEET_CONFIG}}"
           sleet-feed: "dotnet-release"
-          project-to-publish: ${{vars.PROJECT_TO_PUBLISH}}
-          docker-app-owner: ${{vars.DOCKER_APP_OWNER}}
-          docker-app-name: ${{vars.DOCKER_APP_NAME}}
+          project-to-publish: "${{vars.PROJECT_TO_PUBLISH}}"
+          docker-app-owner: "${{vars.DOCKER_APP_OWNER}}"
+          docker-app-name: "${{vars.DOCKER_APP_NAME}}"
           build-tag: stable
-          cloud-formation-deploy: ${{vars.CLOUD_FORMATION_DEPLOY}}
-          cloud-formation-stack: ${{vars.CLOUD_FORMATION_STACK}}
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          aws-access-key-id: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}
-          aws-secret-access-key: ${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY}}
-          aws-region: ${{vars.AWS_REGION}}
-          docker-container-registry: ${{vars.DOCKER_CONTAINER_REGISTRY_RELEASE}}
-          aws-load-balancer-hostname: ${{vars.AWS_LOAD_BALANCER_HOSTNAME_PROD}}
-          aws-load-balancer-priority: ${{vars.AWS_LOAD_BALANCER_PRIORITY_PROD}}
-          api-host: ${{vars.AWS_LOAD_BALANCER_HOSTNAME_PROD}}
-          api-prefix: ${{vars.API_PREFIX}}
-          docker-username: ${{secrets.DOCKER_USERNAME}}
-          docker-access-token: ${{secrets.DOCKER_ACCESS_TOKEN}}
-          dotnet-docker-platform: ${{vars.DOTNET_DOCKER_PLATFORM}}
-          dotnet-container-platform: ${{vars.DOTNET_CONTAINER_PLATFORM}}
+          cloud-formation-deploy: "${{vars.CLOUD_FORMATION_DEPLOY}}"
+          cloud-formation-stack: "${{vars.CLOUD_FORMATION_STACK}}"
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          aws-access-key-id: "${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}"
+          aws-secret-access-key: "${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY}}"
+          aws-region: "${{vars.AWS_REGION}}"
+          docker-container-registry: "${{vars.DOCKER_CONTAINER_REGISTRY_RELEASE}}"
+          aws-load-balancer-hostname: "${{vars.AWS_LOAD_BALANCER_HOSTNAME_PROD}}"
+          aws-load-balancer-priority: "${{vars.AWS_LOAD_BALANCER_PRIORITY_PROD}}"
+          api-host: "${{vars.AWS_LOAD_BALANCER_HOSTNAME_PROD}}"
+          api-prefix: "${{vars.API_PREFIX}}"
+          docker-username: "${{secrets.DOCKER_USERNAME}}"
+          docker-access-token: "${{secrets.DOCKER_ACCESS_TOKEN}}"
+          dotnet-docker-platform: "${{vars.DOTNET_DOCKER_PLATFORM}}"
+          dotnet-container-platform: "${{vars.DOTNET_CONTAINER_PLATFORM}}"
           sql-server: "${{vars.SQL_SERVER}}"
           sql-db: "${{vars.SQL_DB}}"
           sql-user: "${{vars.SQL_USER}}"
@@ -126,6 +130,6 @@ jobs:
       - name: "Build Version"
         shell: bash
         env:
-          BUILD_VERSION: ${{env.BUILD_VERSION}}
+          BUILD_VERSION: "${{env.BUILD_VERSION}}"
         run: |
           echo "::notice::Version: $BUILD_VERSION"
