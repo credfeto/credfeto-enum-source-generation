@@ -17,7 +17,7 @@ runs:
       if: inputs.mode != 'pr' && inputs.mode != 'sql'
       shell: bash
       env:
-        MODE: ${{inputs.mode}}
+        MODE: "${{inputs.mode}}"
       run: |
         echo "::error::Unsupported mode '$MODE' (expected 'pr' or 'sql')"
         exit 1
@@ -42,7 +42,7 @@ runs:
       if: inputs.mode == 'pr'
       uses: super-linter/super-linter@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
       env:
-        GITHUB_TOKEN: ${{inputs.github-token}}
+        GITHUB_TOKEN: "${{inputs.github-token}}"
         CLOUDFORMATION_CONFIG_FILE: .cfnlintrc.yaml
         DEFAULT_BRANCH: main
         ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
@@ -73,7 +73,7 @@ runs:
       if: inputs.mode == 'sql'
       uses: super-linter/super-linter@4ce20838b8ab83717e78138c5b3a1407148e0918 # v8.7.0
       env:
-        GITHUB_TOKEN: ${{inputs.github-token}}
+        GITHUB_TOKEN: "${{inputs.github-token}}"
         ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false
         ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: false
         FILTER_REGEX_EXCLUDE: "(^|/)([Bb]in|[Oo]bj)/"
