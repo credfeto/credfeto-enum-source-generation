@@ -35,7 +35,7 @@ runs:
       uses: ./.github/actions/check-required-secret
       with:
         secret-name: "docker-container-registry"
-        secret-value: ${{inputs.docker-container-registry}}
+        secret-value: "${{inputs.docker-container-registry}}"
 
     - name: "Docker Trust Enable"
       shell: bash
@@ -47,9 +47,9 @@ runs:
       id: build-test
       uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
       with:
-        context: ${{inputs.container-source}}
+        context: "${{inputs.container-source}}"
         load: true
-        tags: ${{inputs.app-owner}}/${{inputs.app-name}}:test
+        tags: "${{inputs.app-owner}}/${{inputs.app-name}}:test"
         cache-from: type=local,src=${{runner.temp}}/.buildx-cache
         cache-to: type=local,dest=${{runner.temp}}/.buildx-cache-new,mode=max
 
@@ -61,17 +61,17 @@ runs:
     - name: "Run docker image tests"
       uses: ./.github/actions/docker-image-test
       with:
-        app-owner: ${{inputs.app-owner}}
-        app-name: ${{inputs.app-name}}
+        app-owner: "${{inputs.app-owner}}"
+        app-name: "${{inputs.app-name}}"
 
     - name: "Docker: Build with tags"
       id: build-with-tags
       if: inputs.deploy == 'true'
       uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
       with:
-        context: ${{inputs.container-source}}
-        platforms: ${{inputs.container-platform}}
-        push: ${{inputs.deploy}}
+        context: "${{inputs.container-source}}"
+        platforms: "${{inputs.container-platform}}"
+        push: "${{inputs.deploy}}"
         tags: |
           ${{inputs.docker-container-registry}}/${{inputs.app-owner}}/${{inputs.app-name}}:${{inputs.build-tag}}
           ${{inputs.docker-container-registry}}/${{inputs.app-owner}}/${{inputs.app-name}}:${{inputs.build-version}}
