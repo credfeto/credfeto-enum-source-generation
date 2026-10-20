@@ -9,7 +9,7 @@ inputs:
 outputs:
   file:
     description: "The file the secret was written to"
-    value: ${{ steps.generate-filename.outputs.file }}
+    value: "${{ steps.generate-filename.outputs.file }}"
 
 runs:
   using: "composite"
@@ -20,7 +20,7 @@ runs:
       run: |
         echo "file=$RUNNER_TEMP/$(openssl rand -base64 40 | tr '/+' '_-' | tr -d '=').tmp" >> "${GITHUB_OUTPUT}"
       env:
-        RUNNER_TEMP: ${{runner.temp}}
+        RUNNER_TEMP: "${{runner.temp}}"
 
     - name: "Write secret to file"
       shell: bash
