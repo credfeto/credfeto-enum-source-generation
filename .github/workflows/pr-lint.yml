@@ -557,3 +557,4 @@ jobs:
         uses: ./.github/actions/sarif
         with:
           repo-visibility: "${{steps.visibility.outputs.is_public == 'true' && 'public' || 'private'}}"
+          repo-fork: "${{steps.visibility.outputs.is_fork}}"
