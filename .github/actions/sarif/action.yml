@@ -1,11 +1,14 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
 name: "Upload sarif files"
-description: "Builds and deploys the source"
+description: "Uploads SARIF files (excluding test results) to GitHub code scanning"
 inputs:
   # GENERAL
   repo-visibility:
     description: "Visibility of the repo"
+    required: true
+  repo-fork:
+    description: "Whether the repo is a fork ('true' or 'false'); upload failures are tolerated on forks"
     required: true
 
 runs:
@@ -14,30 +17,32 @@ runs:
     - name: "Sarif Files to upload"
       shell: bash
       working-directory: "${{github.workspace}}/results"
-      env:
-        SARIF_HASH: "${{ hashfiles('**/*.sarif') }}"
       run: |
         ls -la
-        rm -rf *.Tests.sarif
-        echo "Hash: $SARIF_HASH"
-        echo "SARIF_HASH=$SARIF_HASH" >> $GITHUB_ENV
+        rm -f ./*.Tests.sarif
+        if [ -n "$(find . -maxdepth 1 -name '*.sarif' -print -quit)" ]; then
+          echo "SARIF_HASH=present" >> "$GITHUB_ENV"
+        else
+          echo "No sarif files to upload"
+          echo "SARIF_HASH=" >> "$GITHUB_ENV"
+        fi
 
     - if: inputs.repo-visibility == 'public' && env.SARIF_HASH != ''
       name: "Upload SARIF file for diagnostics"
       id: sarif
       uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
-      continue-on-error: true
+      continue-on-error: ${{inputs.repo-fork == 'true'}}
       with:
         sarif_file: "${{github.workspace}}/results"
         token: "${{github.token}}"
-        # Upload is fire-and-forget: nothing later in the job consumes processing results,
-        # and continue-on-error above already absorbs any processing failure.
+        # Upload is fire-and-forget: nothing later in the job consumes processing results.
+        # continue-on-error above only tolerates failures on forks (read-only token).
         wait-for-processing: false
 
     - if: inputs.repo-visibility == 'public' && env.SARIF_HASH != ''
       name: "Sarif Upload Summary"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-      continue-on-error: true
+      continue-on-error: ${{inputs.repo-fork == 'true'}}
       env:
         SARIF_ID: "${{steps.sarif.outputs.sarif-id}}"
       with:
