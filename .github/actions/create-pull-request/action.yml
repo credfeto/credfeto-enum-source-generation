@@ -15,7 +15,7 @@ inputs:
     description: "Branch to merge into"
     required: false
     default: "main"
-  assignee:
+  assignees:
     description: "Comma-separated list of assignees"
     required: false
     default: ""
@@ -36,15 +36,15 @@ inputs:
     default: ""
 
 outputs:
-  pr_number:
+  pr-number:
     description: "Number of the created pull request"
-    value: "${{steps.create.outputs.pr_number}}"
-  pr_url:
+    value: "${{steps.create.outputs.pr-number}}"
+  pr-url:
     description: "URL of the created pull request"
-    value: "${{steps.create.outputs.pr_url}}"
-  has_changed_files:
+    value: "${{steps.create.outputs.pr-url}}"
+  has-changed-files:
     description: "Whether the pull request has changed files"
-    value: "${{steps.create.outputs.has_changed_files}}"
+    value: "${{steps.create.outputs.has-changed-files}}"
 
 runs:
   using: composite
@@ -60,8 +60,8 @@ runs:
           const title = process.env.TITLE;
           const body = process.env.BODY;
           const draft = process.env.DRAFT === 'true';
-          const assignees = process.env.ASSIGNEE
-            ? process.env.ASSIGNEE.split(',').map(a => a.trim()).filter(Boolean)
+          const assignees = process.env.ASSIGNEES
+            ? process.env.ASSIGNEES.split(',').map(a => a.trim()).filter(Boolean)
             : [];
           const labels = process.env.LABELS
             ? process.env.LABELS.split(',').map(l => l.trim()).filter(Boolean)
@@ -151,14 +151,14 @@ runs:
           await Promise.all(followUps);
 
           core.info(`Pull request #${pr.number}: ${pr.html_url}`);
-          core.setOutput('pr_number', String(pr.number));
-          core.setOutput('pr_url', pr.html_url);
-          core.setOutput('has_changed_files', String(pr.changed_files > 0));
+          core.setOutput('pr-number', String(pr.number));
+          core.setOutput('pr-url', pr.html_url);
+          core.setOutput('has-changed-files', String(pr.changed_files > 0));
       env:
         SOURCE_BRANCH: "${{inputs.source-branch}}"
         DESTINATION_BRANCH: "${{inputs.destination-branch}}"
         TITLE: "${{inputs.title}}"
         BODY: "${{inputs.body}}"
         DRAFT: "${{inputs.draft}}"
-        ASSIGNEE: "${{inputs.assignee}}"
+        ASSIGNEES: "${{inputs.assignees}}"
         LABELS: "${{inputs.labels}}"
