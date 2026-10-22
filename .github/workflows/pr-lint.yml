@@ -145,7 +145,10 @@ jobs:
 
   # @@required: merge
   change-log-entry-is-in-unreleased:
-    if: github.event.pull_request.draft == false
+    if: |-
+      github.event.pull_request.draft == false &&
+      github.actor != 'dependabot[bot]' &&
+      !endsWith(github.repository, '-template')
     # As LibGit2Sharp doesn't work on 20.04
     runs-on: ubuntu-latest
     steps:
@@ -171,18 +174,17 @@ jobs:
 
       - name: "Check repo visibility"
         id: visibility
-        if: github.actor != 'dependabot[bot]'
         uses: ./.github/actions/check-repo-visibility
 
       - name: "Check Required Secrets"
-        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
+        if: steps.visibility.outputs.is_template != 'true'
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
           secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Install dotnet"
-        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
+        if: steps.visibility.outputs.is_template != 'true'
         uses: ./.github/actions/dotnet-install
         with:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
@@ -194,14 +196,14 @@ jobs:
           nuget-additional-restore-feed-prerelease: ""
 
       - name: "Install Changelog tool"
-        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
+        if: steps.visibility.outputs.is_template != 'true'
         uses: ./.github/actions/dotnet-tool
         with:
           tool-name: "Credfeto.ChangeLog.Cmd"
           tool-version: "latest"
 
       - name: "Check Changelog"
-        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
+        if: steps.visibility.outputs.is_template != 'true'
         uses: ./.github/actions/dotnet-tool-run
         with:
           working-directory: "${{github.workspace}}"
