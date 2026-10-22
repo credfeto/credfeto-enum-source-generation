@@ -121,7 +121,7 @@ jobs:
         with:
           github-token: "${{secrets.PR_CREATE_TOKEN}}"
           destination-branch: "main"
-          assignee: "${{github.actor}}"
+          assignees: "${{github.actor}}"
           labels: "auto-pr"
           draft: true
           title: "${{steps.commit-info.outputs.commit-title}}"
@@ -131,9 +131,9 @@ jobs:
         if: steps.findPr.outputs.number == ''
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          PR_URL: "${{steps.open-pr.outputs.pr_url}}"
-          PR_NUMBER: "${{steps.open-pr.outputs.pr_number}}"
-          HAS_CHANGED_FILES: "${{steps.open-pr.outputs.has_changed_files}}"
+          PR_URL: "${{steps.open-pr.outputs.pr-url}}"
+          PR_NUMBER: "${{steps.open-pr.outputs.pr-number}}"
+          HAS_CHANGED_FILES: "${{steps.open-pr.outputs.has-changed-files}}"
         with:
           script: |
             core.info(`URL: ${process.env.PR_URL}`);
@@ -155,4 +155,4 @@ jobs:
         uses: ./.github/actions/sync-labels
         with:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
-          pr-number: "${{steps.open-pr.outputs.pr_number}}"
+          pr-number: "${{steps.open-pr.outputs.pr-number}}"
