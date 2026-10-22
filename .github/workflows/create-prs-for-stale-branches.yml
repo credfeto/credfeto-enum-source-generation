@@ -212,7 +212,7 @@ jobs:
           github-token: "${{secrets.PR_CREATE_TOKEN}}"
           source-branch: "${{matrix.branch}}"
           destination-branch: "${{env.DEFAULT_BRANCH}}"
-          assignee: "${{github.actor}}"
+          assignees: "${{github.actor}}"
           labels: "auto-pr,stale"
           draft: true
           title: "${{needs.build-matrix.outputs.commitmsg}} [No commits for ${{matrix.dayssinceupdate}} days]"
@@ -225,9 +225,9 @@ jobs:
           && matrix.dayssinceupdate > 7
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          PR_URL: "${{steps.open-pr.outputs.pr_url}}"
-          PR_NUMBER: "${{steps.open-pr.outputs.pr_number}}"
-          HAS_CHANGED_FILES: "${{steps.open-pr.outputs.has_changed_files}}"
+          PR_URL: "${{steps.open-pr.outputs.pr-url}}"
+          PR_NUMBER: "${{steps.open-pr.outputs.pr-number}}"
+          HAS_CHANGED_FILES: "${{steps.open-pr.outputs.has-changed-files}}"
         with:
           script: |
             core.info(`URL: ${process.env.PR_URL}`);
@@ -235,11 +235,11 @@ jobs:
             core.info(`CF: ${process.env.HAS_CHANGED_FILES}`);
 
       - name: "Update PR Labels"
-        if: steps.open-pr.outputs.pr_number != ''
+        if: steps.open-pr.outputs.pr-number != ''
         uses: ./.github/actions/sync-labels
         with:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
-          pr-number: "${{steps.open-pr.outputs.pr_number}}"
+          pr-number: "${{steps.open-pr.outputs.pr-number}}"
 
       - name: "Rebase"
         if: |-
