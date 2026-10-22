@@ -7,6 +7,10 @@ inputs:
   branch:
     description: "Branch name to search for"
     required: true
+  base:
+    description: "Base branch the pull request must target; when empty, open pull requests to any base are considered"
+    required: false
+    default: ""
   github-token:
     description: "GitHub token to use for the API call"
     required: false
@@ -30,15 +34,18 @@ runs:
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
         BRANCH: "${{inputs.branch}}"
+        BASE: "${{inputs.base}}"
       with:
         github-token: "${{inputs.github-token || github.token}}"
         script: |
           const branch = process.env.BRANCH;
+          const base = process.env.BASE;
           const { data: pulls } = await github.rest.pulls.list({
             owner: context.repo.owner,
             repo: context.repo.repo,
             state: 'open',
             head: `${context.repo.owner}:${branch}`,
+            ...(base ? { base } : {}),
           });
           if (pulls.length > 0) {
             const pr = pulls[0];
