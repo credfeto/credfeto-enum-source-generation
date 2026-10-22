@@ -1,12 +1,16 @@
 --- # Assign the pull request to its creator
 # Maintain in repo: funfair-server-template
 name: "Assign PR to Creator"
-description: "Assigns the pull request to the user who created it"
+description: "Assigns the pull request identified by pr-number, or the current pull request when pr-number is not supplied, to the user who created it"
 
 inputs:
   github-token:
     description: "GitHub token with pull-requests write permission"
     required: true
+  pr-number:
+    description: "Pull request number to assign; defaults to the pull request that triggered the workflow"
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -16,12 +20,26 @@ runs:
       with:
         github-token: "${{inputs.github-token}}"
         script: |
-          const creator = context.payload.pull_request.user.login;
+          const prNumber = Number(process.env.PR_NUMBER || context.payload.pull_request?.number);
+          if (!Number.isInteger(prNumber) || prNumber <= 0) {
+            core.setFailed('No pull request number available: supply the pr-number input or run on a pull_request event.');
+            return;
+          }
+          const pullRequest = process.env.PR_NUMBER
+            ? (await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+              })).data
+            : context.payload.pull_request;
+          const creator = pullRequest.user.login;
           await github.rest.issues.addAssignees({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            issue_number: context.payload.pull_request.number,
+            issue_number: prNumber,
             assignees: [creator],
           });
-          core.info(`✅ Assigned PR #${context.payload.pull_request.number} to ${creator}`);
-          core.notice(`Assigned PR #${context.payload.pull_request.number} to ${creator}`);
+          core.info(`✅ Assigned PR #${prNumber} to ${creator}`);
+          core.notice(`Assigned PR #${prNumber} to ${creator}`);
+      env:
+        PR_NUMBER: "${{inputs.pr-number}}"
