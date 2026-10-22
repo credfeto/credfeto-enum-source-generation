@@ -81,7 +81,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.Sbom.Targets" Version="4.1.13" PrivateAssets="All" ExcludeAssets="runtime" Condition="$(EnableSbom)=='True'" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="18.12.1" PrivateAssets="All" ExcludeAssets="runtime" />
-    <PackageReference Include="Nullable.Extended.Analyzer" Version="1.17.0" PrivateAssets="All" ExcludeAssets="runtime" />
+    <PackageReference Include="Nullable.Extended.Analyzer" Version="1.17.1" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Philips.CodeAnalysis.DuplicateCodeAnalyzer" Version="2.0.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Philips.CodeAnalysis.MaintainabilityAnalyzers" Version="2.0.0" PrivateAssets="All" ExcludeAssets="runtime" />
     <PackageReference Include="Roslynator.Analyzers" Version="5.0.1" PrivateAssets="All" ExcludeAssets="runtime" />
