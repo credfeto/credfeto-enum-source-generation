@@ -143,6 +143,7 @@ jobs:
           script: |
             core.setFailed('Changelog has not changed')
 
+  # @@required: merge
   change-log-entry-is-in-unreleased:
     if: github.event.pull_request.draft == false
     # As LibGit2Sharp doesn't work on 20.04
@@ -387,6 +388,7 @@ jobs:
         if: steps.visibility.outputs.is_public == 'true'
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
 
+  # @@required: merge
   no-merge-commits:
     # Check that there are no merge commits in the PR
     if: github.event.pull_request.draft == false
@@ -418,6 +420,7 @@ jobs:
       - name: "Check for merge commits"
         uses: ./.github/actions/check-no-merge-commits
 
+  # @@required: merge
   valid-changelog:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
