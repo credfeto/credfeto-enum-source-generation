@@ -4,21 +4,21 @@ name: "Check Repository Visibility"
 description: "Checks whether the current repository is public, a template, and/or a fork"
 
 outputs:
-  is_public:
+  is-public:
     description: "Whether the repository is public ('true' or 'false')"
-    value: "${{steps.check.outputs.is_public}}"
-  is_template:
+    value: "${{steps.check.outputs.is-public}}"
+  is-template:
     description: "Whether the repository is a template repository ('true' or 'false')"
-    value: "${{steps.check.outputs.is_template}}"
-  is_fork:
+    value: "${{steps.check.outputs.is-template}}"
+  is-fork:
     description: "Whether the repository is a fork ('true' or 'false')"
-    value: "${{steps.check.outputs.is_fork}}"
-  fork_parent:
+    value: "${{steps.check.outputs.is-fork}}"
+  fork-parent:
     description: "Full name (owner/repo) of the parent repository if this is a fork, otherwise empty"
-    value: "${{steps.check.outputs.fork_parent}}"
-  lookup_error:
+    value: "${{steps.check.outputs.fork-parent}}"
+  lookup-error:
     description: "Error message if the lookup failed, otherwise empty. On failure other outputs default to the most restrictive values (false/empty)"
-    value: "${{steps.check.outputs.lookup_error}}"
+    value: "${{steps.check.outputs.lookup-error}}"
 
 runs:
   using: composite
@@ -37,11 +37,11 @@ runs:
             }));
           } catch (err) {
             core.warning(`⚠️ Could not retrieve repository info - defaulting to restrictive values: ${err.message}`);
-            core.setOutput('is_public', 'false');
-            core.setOutput('is_template', 'false');
-            core.setOutput('is_fork', 'false');
-            core.setOutput('fork_parent', '');
-            core.setOutput('lookup_error', err.message);
+            core.setOutput('is-public', 'false');
+            core.setOutput('is-template', 'false');
+            core.setOutput('is-fork', 'false');
+            core.setOutput('fork-parent', '');
+            core.setOutput('lookup-error', err.message);
             return;
           }
 
@@ -54,8 +54,8 @@ runs:
           core.info(`Template repository: ${isTemplate ? '✅ Yes' : '❌ No'}`);
           core.info(`Forked repository: ${isFork ? `✅ Yes (from ${forkParent})` : '❌ No'}`);
 
-          core.setOutput('is_public', isPublic ? 'true' : 'false');
-          core.setOutput('is_template', isTemplate ? 'true' : 'false');
-          core.setOutput('is_fork', isFork ? 'true' : 'false');
-          core.setOutput('fork_parent', forkParent);
-          core.setOutput('lookup_error', '');
+          core.setOutput('is-public', isPublic ? 'true' : 'false');
+          core.setOutput('is-template', isTemplate ? 'true' : 'false');
+          core.setOutput('is-fork', isFork ? 'true' : 'false');
+          core.setOutput('fork-parent', forkParent);
+          core.setOutput('lookup-error', '');
