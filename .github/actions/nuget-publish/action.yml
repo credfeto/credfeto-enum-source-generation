@@ -68,8 +68,13 @@ runs:
     - name: "Dotnet: Copy packed to dist"
       shell: bash
       run: |
-        shopt -s globstar
-        cp **/*.nupkg "${{github.workspace}}/dist"
+        shopt -s globstar nullglob
+        packages=(**/*.nupkg)
+        if [ "${#packages[@]}" -eq 0 ]; then
+          echo "::error::No .nupkg files found to copy to dist"
+          exit 1
+        fi
+        cp "${packages[@]}" "${{github.workspace}}/dist"
       working-directory: "${{github.workspace}}/src"
 
     - name: "Dotnet: Publish Packages to Nuget (Trusted Publishing)"
