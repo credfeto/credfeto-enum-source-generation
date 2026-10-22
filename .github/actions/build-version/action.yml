@@ -21,6 +21,10 @@ runs:
     - name: "Log build version"
       shell: bash
       run: |
+        if [ -z "${BUILD_VERSION:-}" ]; then
+          echo "::error::BUILD_VERSION was not set by the buildversion tool"
+          exit 1
+        fi
         echo "****************************************************************"
         printf '* Current Build: \033[38;5;6m%s\033[0m\n' "$BUILD_VERSION"
         echo "****************************************************************"
