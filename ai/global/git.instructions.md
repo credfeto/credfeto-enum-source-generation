@@ -110,13 +110,24 @@ For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [g
 
 Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git -C <dir> stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, silently discards any uncommitted work that is there; the check costs one command and is never skippable "because it should be clean".
 
-## Scratch Review Branches
+## Reviewing a PR Locally
 
-A local branch created only to review a PR, named `pr<number>-review` or `pr-<number>-review`, may be deleted without asking once the review is done, because it is a throwaway copy of an existing PR head and holds no work of its own.
+Check a PR out with git, never with `gh pr checkout`, because that command checks the local git remotes against `GH_HOST` and refuses when `gh` runs through the proxy, even with `--repo` (see [`GH_HOST` Proxy Behavior](github-cli.instructions.md#gh_host-proxy-behavior-mandatory-when-set)). Run each step as its own command:
 
-- Create it tracking the PR head, as two separate commands: `git -C <dir> fetch origin +refs/pull/<number>/head:refs/remotes/origin/pr/<number>`, then `git -C <dir> branch --track pr<number>-review origin/pr/<number>`. `git branch -d` checks a branch against its upstream, so without one it checks against HEAD and refuses while the PR is still open, even though every commit is safe on the PR head.
-- Delete it with the same fetch followed by `git branch -d`, never `-D`, as two separate commands: `git -C <dir> fetch origin +refs/pull/<number>/head:refs/remotes/origin/pr/<number>`, then `git -C <dir> branch -d pr<number>-review`. Run the delete only once the fetch has succeeded, because a failed fetch can leave `origin/pr/<number>` missing and `-d` then checks against HEAD instead. The fetch is repeated because `origin/pr/<number>` sits inside origin's default refspec with no matching branch on origin, so any plain `git fetch origin` or `git pull` with `fetch.prune` set deletes it, and `-d` then checks against HEAD and refuses even an unchanged branch; the ref cannot live outside `refs/remotes/origin/*` instead, because `git branch --track` only accepts a ref that a remote's refspec maps. `-d` refuses unless the branch is merged into its upstream (or into HEAD when it has none). A branch still equal to the PR head is deleted (exit 0; the warning that it is not yet merged to HEAD is expected); a branch left with local commits is refused as `not fully merged` (exit 1). If git refuses, keep the branch and report it rather than forcing the deletion, because those local commits would otherwise be lost.
-- This covers local branches only. Deleting a remote branch, or any other local branch, still needs human approval.
+- For a review that makes no commits: `git -C <dir> fetch origin pull/<number>/head`, then `git -C <dir> switch --detach FETCH_HEAD`, run back to back so that no other fetch rewrites `FETCH_HEAD` in between. This checks out the PR head with no local branch, so nothing is left to delete, and it works for a fork PR too. When the review is done, switch back to the branch being worked on (`git -C <dir> switch <branch>`), so that later commits are not made on a detached HEAD.
+- To add commits to a same-repository PR: `git -C <dir> fetch origin <headRefName>`, then `git -C <dir> switch <headRefName>`, using the head branch name shown on the PR, then `git -C <dir> merge --ff-only origin/<headRefName>`. The merge is needed because a local branch that already exists can be behind the PR's current head; if it cannot fast-forward, stop and report it. Never create a separate review branch, because the head branch already exists and a copy only leaves a branch that later needs cleaning up.
+
+A fork PR's commits live on the fork, so it can be reviewed detached but commits cannot be pushed to it through `origin`.
+
+## Deleting Local Branches
+
+An agent may delete a local branch without asking only when all of these hold:
+
+- After `git -C <dir> fetch --all --prune` has succeeded, `git -C <dir> rev-list <branch> --not --remotes`, run as a separate command, prints nothing, so every commit on the branch is on some remote-tracking branch and nothing is lost by deleting it. Use `--all` because `--not --remotes` trusts the remote-tracking refs of every remote, while a fetch without it refreshes only the default remote. Use `--prune` because a fetch without it keeps the remote-tracking ref of a remote branch that has since been deleted, and that stale ref would make commits that are no longer on any remote look safe. Pass it explicitly even on a machine that sets `fetch.prune`, because the rule cannot rely on local git configuration.
+- The branch is not checked out in any worktree, including one a human created (`git -C <dir> worktree list`).
+- It is not `main`, `master`, `develop` or `release/*`.
+
+Then delete it with `git -C <dir> branch -d <branch>`; never use `-D`. `-d` checks the branch against its upstream, or against HEAD when it has none, so it can refuse a branch that passed the `rev-list` check. If it refuses, keep the branch and report it rather than setting an upstream or forcing the deletion. Deleting a remote branch, or a local branch that fails any of these checks, still needs human approval.
 
 ## Avoid `git worktree`
 
