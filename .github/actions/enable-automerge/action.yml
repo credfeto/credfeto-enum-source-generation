@@ -1,7 +1,7 @@
---- # Enable auto-merge on the current pull request
+--- # Enable auto-merge on a pull request (defaults to the current pull request)
 # Maintain in repo: funfair-server-template
 name: "Enable Auto-Merge"
-description: "Enables auto-merge on the current pull request"
+description: "Enables auto-merge on the pull request identified by pr-number, or the current pull request when pr-number is not supplied"
 
 inputs:
   github-token:
@@ -11,6 +11,10 @@ inputs:
     description: "Merge method to use: MERGE, SQUASH, or REBASE"
     required: false
     default: "MERGE"
+  pr-number:
+    description: "Pull request number to enable auto-merge on; defaults to the pull request that triggered the workflow"
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -21,7 +25,18 @@ runs:
         github-token: "${{inputs.github-token}}"
         script: |
           const mergeMethod = process.env.MERGE_METHOD;
-          const nodeId = context.payload.pull_request.node_id;
+          const prNumber = Number(process.env.PR_NUMBER || context.payload.pull_request?.number);
+          if (!Number.isInteger(prNumber) || prNumber <= 0) {
+            core.setFailed('No pull request number available: supply the pr-number input or run on a pull_request event.');
+            return;
+          }
+          const pullRequest = process.env.PR_NUMBER
+            ? (await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+              })).data
+            : context.payload.pull_request;
           await github.graphql(`
             mutation EnableAutoMerge($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
               enablePullRequestAutoMerge(input: {
@@ -36,10 +51,11 @@ runs:
               }
             }
           `, {
-            pullRequestId: nodeId,
+            pullRequestId: pullRequest.node_id,
             mergeMethod: mergeMethod,
           });
-          core.info(`✅ Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
-          core.notice(`Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
+          core.info(`✅ Enabled auto-merge (${mergeMethod}) on PR #${prNumber}`);
+          core.notice(`Enabled auto-merge (${mergeMethod}) on PR #${prNumber}`);
       env:
         MERGE_METHOD: "${{inputs.merge-method}}"
+        PR_NUMBER: "${{inputs.pr-number}}"
