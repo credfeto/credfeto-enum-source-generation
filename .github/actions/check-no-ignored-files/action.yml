@@ -3,22 +3,29 @@
 name: "Check No Ignored Files"
 description: "Fails if tracked files are matched by ignore rules"
 
+inputs:
+  extra-excluded-files:
+    description: "Comma or newline separated list of additional file names (basename match) to allow even if ignored"
+    required: false
+    default: ""
+
 runs:
   using: composite
   steps:
     - name: "Check for ignored files"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        EXTRA_EXCLUDED_FILES: "${{inputs.extra-excluded-files}}"
       with:
         script: |
           const { execSync } = require('node:child_process');
           const path = require('node:path');
 
-          const excludedFiles = ['server.pfx', '.gitignore'];
-          const isPreCommitRepo = context.repo.repo.endsWith('global-pre-commit');
-
-          if (isPreCommitRepo) {
-            excludedFiles.push('.pre-commit-config.yaml');
-          }
+          const extraExcludedFiles = (process.env.EXTRA_EXCLUDED_FILES || '')
+            .split(/[,\r\n]+/)
+            .map((file) => file.trim())
+            .filter(Boolean);
+          const excludedFiles = ['server.pfx', '.gitignore', ...extraExcludedFiles];
 
           const isExcludedFile = (file) => excludedFiles.includes(path.basename(file));
 
