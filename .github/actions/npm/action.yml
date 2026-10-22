@@ -41,7 +41,7 @@ runs:
       shell: bash
       run: |
         {
-          [[ -d src && -f .nvmrc && '${{hashfiles('.nvmrc')}}' != '' ]] && echo 'NVMRC_EXIST=true' || echo 'NVMRC_EXIST=false'
+          [[ -f .nvmrc && '${{hashfiles('.nvmrc')}}' != '' ]] && echo 'NVMRC_EXIST=true' || echo 'NVMRC_EXIST=false'
         } >> "$GITHUB_OUTPUT"
 
     - if: steps.node_files.outputs.NVMRC_EXIST == 'true'
@@ -86,8 +86,16 @@ runs:
     #          core.notice('Cache Hit: ${{steps.npm-cache.outputs.cache-hit}}');
     ####################################################################################################################
 
+    - name: "Npm: Detect package-lock location"
+      id: build_context
+      shell: bash
+      run: |
+        [ -f ${{github.workspace}}/package-lock.json ] && echo "WORK_DIR=${{github.workspace}}" >> "$GITHUB_OUTPUT" && exit 0
+        [ -f ${{github.workspace}}/src/package-lock.json ] && echo "WORK_DIR=${{github.workspace}}/src" >> "$GITHUB_OUTPUT" && exit 0
+        echo "Error: no package-lock.json" && exit 1
+
     - name: "NPM: Show Config"
-      working-directory: "${{github.workspace}}/src"
+      working-directory: "${{steps.build_context.outputs.WORK_DIR}}"
       shell: bash
       run: |
         echo "NPM_REGISTRY: ${{inputs.npm-registry}}"
@@ -113,14 +121,6 @@ runs:
     - name: "Npm: Clear node modules"
       shell: bash
       run: rm -rf "${{github.workspace}}/node_modules"
-
-    - name: "Npm: Detect package-lock location"
-      id: build_context
-      shell: bash
-      run: |
-        [ -f ${{github.workspace}}/package-lock.json ] && echo "WORK_DIR=${{github.workspace}}" >> "$GITHUB_OUTPUT" && exit 0
-        [ -f ${{github.workspace}}/src/package-lock.json ] && echo "WORK_DIR=${{github.workspace}}/src" >> "$GITHUB_OUTPUT" && exit 0
-        echo "Error: no package-lock.json" && exit 1
 
     - name: "NPM: Force registry before restore"
       if: inputs.npm-registry != ''
@@ -157,7 +157,7 @@ runs:
       shell: bash
       run: npm run build
 
-    - name: "NPM: Build Package"
+    - name: "NPM: Show Package Settings"
       shell: bash
       run: |
         echo "SIGNING: ${{inputs.npm-signing}}"
@@ -188,7 +188,7 @@ runs:
       run: |
           ls -la "${{github.workspace}}"
           echo "-----------------------"
-          ls "${{github.workspace}}/dist/${{inputs.project-to-publish}}-${{env.BUILD_VERSION}}.nupkg"
+          ls "${{github.workspace}}/dist/${{inputs.project-to-publish}}-${{inputs.build-version}}.nupkg"
 
     - if: |
           inputs.npm-signing == 'true' &&
