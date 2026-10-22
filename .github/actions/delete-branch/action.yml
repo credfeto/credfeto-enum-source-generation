@@ -20,11 +20,21 @@ runs:
         github-token: "${{inputs.github-token}}"
         script: |
           const branch = process.env.BRANCH;
-          await github.rest.git.deleteRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: `heads/${branch}`,
-          });
+          try {
+            await github.rest.git.deleteRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `heads/${branch}`,
+            });
+          } catch (err) {
+            if (err.status !== 422) {
+              throw err;
+            }
+
+            core.warning(`Branch ${branch} already deleted - skipping`);
+            return;
+          }
+
           core.info(`Deleted branch: ${branch}`);
       env:
         BRANCH: "${{inputs.branch}}"
