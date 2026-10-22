@@ -1,12 +1,16 @@
---- # Approve the current pull request
+--- # Approve a pull request (defaults to the current pull request)
 # Maintain in repo: funfair-server-template
 name: "Approve PR"
-description: "Approves the current pull request"
+description: "Approves the pull request identified by pr-number, or the current pull request when pr-number is not supplied"
 
 inputs:
   github-token:
     description: "GitHub token with pull-requests write permission"
     required: true
+  pr-number:
+    description: "Pull request number to approve; defaults to the pull request that triggered the workflow"
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -16,11 +20,18 @@ runs:
       with:
         github-token: "${{inputs.github-token}}"
         script: |
+          const prNumber = Number(process.env.PR_NUMBER || context.payload.pull_request?.number);
+          if (!Number.isInteger(prNumber) || prNumber <= 0) {
+            core.setFailed('No pull request number available: supply the pr-number input or run on a pull_request event.');
+            return;
+          }
           await github.rest.pulls.createReview({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            pull_number: context.payload.pull_request.number,
+            pull_number: prNumber,
             event: 'APPROVE',
           });
-          core.info(`✅ Approved PR #${context.payload.pull_request.number}`);
-          core.notice(`Approved PR #${context.payload.pull_request.number}`);
+          core.info(`✅ Approved PR #${prNumber}`);
+          core.notice(`Approved PR #${prNumber}`);
+      env:
+        PR_NUMBER: "${{inputs.pr-number}}"
