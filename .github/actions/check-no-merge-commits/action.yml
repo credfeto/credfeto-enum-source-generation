@@ -1,12 +1,16 @@
 --- # Fail if the pull request contains any merge commits
 # Maintain in repo: funfair-server-template
 name: "Check No Merge Commits"
-description: "Fails if the pull request contains any merge commits"
+description: "Fails if the pull request identified by pr-number, or the current pull request when pr-number is not supplied, contains any merge commits"
 
 inputs:
   github-token:
     description: "GitHub token with pull-requests read permission"
     required: false
+  pr-number:
+    description: "Pull request number to check; defaults to the pull request that triggered the workflow"
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -16,10 +20,15 @@ runs:
       with:
         github-token: "${{inputs.github-token || github.token}}"
         script: |
+          const prNumber = Number(process.env.PR_NUMBER || context.payload.pull_request?.number);
+          if (!Number.isInteger(prNumber) || prNumber <= 0) {
+            core.setFailed('No pull request number available: supply the pr-number input or run on a pull_request event.');
+            return;
+          }
           const commits = await github.paginate(github.rest.pulls.listCommits, {
             owner: context.repo.owner,
             repo: context.repo.repo,
-            pull_number: context.payload.pull_request.number,
+            pull_number: prNumber,
           });
           const mergeCommits = commits.filter(c => c.parents.length > 1);
           if (mergeCommits.length > 0) {
@@ -30,3 +39,5 @@ runs:
           } else {
             core.info('No merge commits found.');
           }
+      env:
+        PR_NUMBER: "${{inputs.pr-number}}"
