@@ -7,7 +7,7 @@ inputs:
     description: "The Cloud Formation stack to deploy as"
     required: true
   cloudformation-sns-arn:
-    description: "SSN Notification ARN"
+    description: "SNS Notification ARN"
     required: false
   cloud-formation-template-file:
     description: "The Cloud Formation file to deploy"
@@ -65,32 +65,22 @@ runs:
     - name: "Build TemplateParameters file"
       shell: bash
       run: |
-        FIRST=1
-        {
-          echo "["
-          jq '.Parameters' "$CLOUD_FORMATION_TEMPLATE_FILE" | \
-                    grep ': {' | \
-                    grep -oEi '([a-z]|_|[1-9])+' | \
-                    sort | \
-                    uniq | while read -r key; do
+        jq -r '.Parameters | keys[]' "$CLOUD_FORMATION_TEMPLATE_FILE" | sort -u | while read -r key; do
+          case "$key" in
+            ApplicationName|ApplicationContainer|ApplicationVersion) ;;
+            ApiPrefix|ApiHost|AwsContainerRegistry) ;;
+            LoadBalancerHostName|LoadBalancerPriority) ;;
+            Direct1LoadBalancerPriority|Direct2LoadBalancerPriority) ;;
+            *) continue ;;
+          esac
 
-            value="${!key}"
+          value="${!key}"
 
-            # only output the keys which have values
-            if [ -n "$value" ]; then
-
-              [ "$FIRST" -eq 0 ] && echo "  ,"
-              FIRST=0
-
-              # TODO: need a better way to do this that allows for escaping of
-              #       characters that need to in json.
-              echo "  {\"ParameterKey\":\"$key\",\"ParameterValue\":\"$value\"}"
-
-            fi
-
-            done
-            echo "]"
-          } > "${{github.workspace}}/TemplateParameters.json"
+          # only output the keys which have values
+          if [ -n "$value" ]; then
+            jq -n --arg k "$key" --arg v "$value" '{ParameterKey:$k,ParameterValue:$v}'
+          fi
+        done | jq -s '.' > "${{github.workspace}}/TemplateParameters.json"
       env:
         CLOUD_FORMATION_TEMPLATE_FILE: "${{inputs.cloud-formation-template-file}}"
         ApplicationName: "${{inputs.cloud-formation-stack}}"
@@ -123,7 +113,7 @@ runs:
       run: |
         NOTIFICATION_ARGS=()
         [ -n "$CLOUDFORMATION_SNS_ARN" ] && NOTIFICATION_ARGS=(--notification-arns "$CLOUDFORMATION_SNS_ARN")
-        /usr/local/aws-cli/v2/current/bin/aws \
+        aws \
                   cloudformation deploy \
                         --template-file \
                               "$CLOUD_FORMATION_TEMPLATE_FILE" \
@@ -141,7 +131,7 @@ runs:
       env:
         CLOUD_FORMATION_STACK: "${{inputs.cloud-formation-stack}}"
       run: |
-        /usr/local/aws-cli/v2/current/bin/aws \
+        aws \
                   cloudformation update-termination-protection \
                           --enable-termination-protection \
                           --stack-name "$CLOUD_FORMATION_STACK"
