@@ -15,7 +15,7 @@ runs:
           let output = '';
 
           try {
-            output = execSync("grep -lr -r --exclude-dir=.git -E -- '^<<<<<<<|^>>>>>>>' .", {
+            output = execSync("git grep -l -E -e '^<<<<<<<' -e '^>>>>>>>' -- .", {
               encoding: 'utf8',
               stdio: ['ignore', 'pipe', 'pipe'],
             });
@@ -25,7 +25,7 @@ runs:
               return;
             }
 
-            core.setFailed('Grep Error.');
+            core.setFailed(`git grep failed (exit ${error.status}): ${error.stderr || error.message}`);
             return;
           }
 
