@@ -24,6 +24,7 @@ When `GH_HOST` is set to a value other than `github.com`, `gh` routes through a 
     --body "..."
   ```
 
+- **`gh pr checkout`:** never use it. It makes the same client-side remote check and `--repo` does not avoid it; check the PR out with git as [Reviewing a PR Locally](git.instructions.md#reviewing-a-pr-locally) describes.
 - **Commit and push operations are always rejected by the proxy; never use `gh` for these, no exceptions.** Use the `git` CLI directly, always against the real `github.com` remote. This includes never running `gh auth setup-git` (see [Authentication](#authentication) below); refuse the request outright rather than trying it and working around the failure.
 - If a `gh` command fails, raise an issue on `credfeto/github-api-proxy` with the exact subcommand and flags, the API method (if visible), and the full error message verbatim.
 - **Every command example in this document already passes `--repo` explicitly** (or, for `gh repo view`/`gh repo list`, the equivalent `[<repository>]`/`[<owner>]` positional argument, which is just as explicit and not subject to the same remote-detection check) for exactly this reason. The only commands without repo scoping are `gh search repos` (searches for repositories themselves; there is no single repo to scope to) and account-level calls (`gh auth status`, `gh api user`). If you add a new example to this doc, keep it proxy-compatible: explicit `--repo`, and `--head` on anything that creates a PR.
@@ -153,10 +154,9 @@ gh pr ready <number> --repo <owner>/<repo>          # mark ready
 gh pr merge --auto --merge <number> --repo <owner>/<repo>
 gh pr merge <number> --repo <owner>/<repo> --disable-auto   # turn auto-merge off
 
-# Close / diff / checkout
+# Close / diff
 gh pr close <number> --repo <owner>/<repo>
 gh pr diff <number> --repo <owner>/<repo>
-gh pr checkout <number> --repo <owner>/<repo>
 ```
 
 ### Available JSON Fields: `gh pr view`/`gh pr list`
@@ -211,7 +211,7 @@ gh run rerun <run-id> --repo <owner>/<repo>
 
 ## REST and GraphQL API (`gh api`)
 
-**`gh api`/`gh api graphql` is the last resort:** see [Choosing Between `cfwf` and `gh`](#choosing-between-cfwf-and-gh-mandatory) for when it applies and the issue to raise (e.g. review-comment threads, collaborator management, releases lookups). Raw GraphQL query strings are more likely to be misread as obfuscated/spam-shaped input by the agent sandbox's bash content filter than an equivalent flat `gh` invocation, and `gh api graphql` mutations are denied outright by the sandbox.
+**`gh api`/`gh api graphql` is the last resort:** see [Choosing Between `cfwf` and `gh`](#choosing-between-cfwf-and-gh-mandatory) for when it applies and the issue to raise (e.g. review-comment threads, collaborator management, releases lookups). Raw GraphQL query strings are more likely than an equivalent flat `gh` invocation to be refused before they run, and `gh api graphql` mutations are refused outright; tell whether a hook or the permission system refused from the denial message, as [A Permission Denial Is Not a Hook Denial](claude-hooks.instructions.md#a-permission-denial-is-not-a-hook-denial-mandatory) describes.
 
 ```bash
 # REST: simple GET
@@ -294,6 +294,6 @@ Check here before assuming a `gh` flag or field exists.
 
 - **`gh api -f`/`-F` are not interchangeable.** `-f`/`--raw-field` always sends a string; `-F`/`--field` sends a typed value (numbers, booleans, `@file`). Fields the API schema declares as a number (e.g. `in_reply_to` when replying to a PR review comment) must use `-F`. Using `-f in_reply_to=<id>` fails with `"in_reply_to" is not a permitted key" / "is not a number"`, because the string form doesn't match any of the schema's `oneOf` variants.
 
-- **The agent sandbox rejects some shell shapes outright**, such as `IFS=` assignments (a `while IFS= read -r` loop) and `env`/`unset` wrappers. Use flat commands, and pass lists in one call (for example `--add-label "a,b"`) instead of looping.
+- **The Claude Code hooks reject some shell shapes outright**, such as `env`/`unset` wrappers and the `xargs` and loop shapes covered by [Ad-Hoc Commands Never Use `xargs` or `while IFS= read` Loops](claude-hooks.instructions.md#ad-hoc-commands-never-use-xargs-or-while-ifs-read-loops-mandatory). Use flat commands instead: run `gh` directly and scope it with its own flags (for example `--repo <owner>/<repo>`) rather than wrapping it to set or clear a variable, and replace the `xargs` and loop shapes as that section describes.
 
 When a `gh` command's exact flags/fields are uncertain, run `gh <command> --help` (or `gh <command> <subcommand> --help`) rather than guessing from memory or from a similar-looking command.
