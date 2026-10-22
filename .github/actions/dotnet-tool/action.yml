@@ -22,7 +22,7 @@ runs:
         TOOL_VERSION: "${{inputs.tool-version}}"
       run: |
         VERSION_ARGS=()
-        [ "$TOOL_VERSION" != 'latest' ] && VERSION_ARGS=(--version "$TOOL_VERSION")
+        [ -n "$TOOL_VERSION" ] && [ "$TOOL_VERSION" != 'latest' ] && VERSION_ARGS=(--version "$TOOL_VERSION")
         r=5
         while ! dotnet tool install --local "$TOOL_NAME" "${VERSION_ARGS[@]}" --create-manifest-if-needed --ignore-failed-sources --verbosity diag; do
           ((--r)) || exit 1
