@@ -6,14 +6,12 @@ inputs:
   working-directory:
     description: "Working directory"
     required: true
-    default: 'latest'
   tool-name:
     description: "Tool to run"
     required: true
   tool-arguments:
     description: "Tool arguments"
     required: false
-    default: 'latest'
 
 runs:
   using: "composite"
