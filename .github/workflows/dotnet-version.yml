@@ -24,7 +24,7 @@ jobs:
       contents: read
 
     outputs:
-      is_template: "${{steps.visibility.outputs.is_template}}"
+      is_template: "${{steps.visibility.outputs.is-template}}"
 
     steps:
       - name: "Initialise Workspace"
