@@ -24,7 +24,7 @@ permissions:
 
 
 jobs:
-  requirements:
+  approve-dependabot:
     if: vars.DEPENDABOT_AUTOMERGE == 'true' && github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -36,16 +36,8 @@ jobs:
             exit 1
           fi
 
-  enable-auto-merge:
-    needs: [requirements]
-    if: |-
-      vars.DEPENDABOT_AUTOMERGE == 'true' &&
-      github.actor == 'dependabot[bot]' &&
-      (startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/'))
-    runs-on: ubuntu-latest
-
-    steps:
       - name: "Auto Merge"
+        if: startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
@@ -74,16 +66,8 @@ jobs:
         env:
           MERGE_METHOD: "MERGE"
 
-  auto-approve-dependabot:
-    needs: [requirements]
-    if: |-
-      vars.DEPENDABOT_AUTOMERGE == 'true' &&
-      github.actor == 'dependabot[bot]' &&
-      (startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/'))
-    runs-on: ubuntu-latest
-
-    steps:
       - name: "Approve"
+        if: startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
