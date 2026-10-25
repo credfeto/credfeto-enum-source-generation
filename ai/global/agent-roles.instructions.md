@@ -23,12 +23,17 @@ When a hook blocks a command and no form of the same operation that the hook acc
   operation back to a role, or posts the blocked command and the hook's message verbatim on the
   issue or PR for the human to decide whether the hook should change.
 
+### One Long-Running Command at a Time (MANDATORY)
+
+Every role that runs commands (Code Writer, Code Tester, Code Fixer, Code Reviewer, CI Debugger, Committer, Rebase Agent, Dependency Updater, Changelog, PR Submitter, CI Monitor, Repo Auditor) follows [One Long-Running Command at a Time](task-workflow.instructions.md#one-long-running-command): never start a long-running command while another one you started is still running. Code Tester in particular runs the repository's checks (build, tests, `pre-commit-check`, `bats test/`) one after another, never in parallel. The Orchestrator applies the session-wide form: it never has two roles running long-running commands at the same time.
+
 ## Orchestrator
 
 - Prioritise `CHANGES_REQUESTED` PRs over new issues.
 - When selecting the next issue to work on, order by priority label (highest first): `Security` → `Urgent` → `High` → `Medium` → `Low` → untagged; see [task-workflow.instructions.md](task-workflow.instructions.md) for label definitions.
 - Skip issues labelled `On Hold` or `Blocked`; if all remaining issues carry these labels, report this to the user and wait.
 - Determine work type and route via the routing table. Never implement directly.
+- Never run two roles that run long-running commands at the same time, and never start your own long-running command while a role you launched is running one ([One Long-Running Command at a Time](task-workflow.instructions.md#one-long-running-command)).
 - If a delegated role escalates a task as infeasible (Coding Researcher **Not possible** result), do not re-route it unchanged. Record the finding on the issue/PR and surface it to the user for a decision: re-scope, accept the suggested alternative, or drop.
 - When a delegated role reports a pre-existing bug outside the current change's scope (in Code Reviewer's `preExistingBugs`, listed in a Code Writer or Code Fixer hand-off report, or in a CI Debugger report, including one that CI Monitor passes on), handle it as in [Pre-Existing Bugs Found During Work](code-quality.instructions.md#pre-existing-bugs-found-during-work-mandatory). If the human chooses to fix it, route the fix as in that section's [P3](code-quality.instructions.md#pre-existing-bug-fix-route) rather than fixing it yourself, because the Orchestrator never implements directly.
 - When a background sub-agent has already delivered its final report and keeps re-sending that same report, stop it with `TaskStop`, passing its agent id or name, instead of ignoring the repeats, because a background task it left running (such as a watch) keeps re-waking it and every wake forces another full report. Never use it on a sub-agent that has not yet delivered its final report or is still doing work, because stopping it can leave a command it started unfinished without its own clean-up (see [Finishing background work before handing back](task-workflow.instructions.md#finishing-background-work-before-handing-back)).
