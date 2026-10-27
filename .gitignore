@@ -271,6 +271,16 @@ paket-files/
 __pycache__/
 *.pyc
 
+# Python packaging and test artefacts (build/ is covered by /build/ above)
+*.egg-info/
+*.egg
+dist/
+.eggs/
+.pytest_cache/
+.coverage.*
+htmlcov/
+.venv/
+
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config
