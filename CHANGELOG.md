@@ -23,6 +23,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated Nullable.Extended.Analyzer to 1.19.0
 - Dependencies - Updated xunit.analyzers to 2.2.0
 - Dependencies - Updated xunit.v3 to 4.0.2
+- Dependencies - Updated FunFair.Test to 6.4.7.2960
 ### Deprecated
 ### Removed
 ### Deployment Changes
