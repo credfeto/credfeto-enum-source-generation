@@ -21,7 +21,98 @@ permissions:
   packages: write
 
 jobs:
+  # Allocates the build number in its own job so that number allocation is serialised
+  # across every branch of the repository, not just per ref
+  allocate-build-number:
+
+    runs-on: >-
+      ${{ startsWith(vars.RELEASE_BUILD_ENVIRONMENT, '[')
+      && fromJSON(vars.RELEASE_BUILD_ENVIRONMENT)
+      || vars.RELEASE_BUILD_ENVIRONMENT
+      || 'ubuntu-latest' }}
+
+    concurrency:
+      group: "${{github.repository}}-build-number"
+      cancel-in-progress: false
+
+    outputs:
+      build-version: "${{steps.build-version.outputs.build-version}}"
+
+    env:
+      # Nuget caching
+      USE_NUGET_CACHE: "${{vars.USE_NUGET_CACHE}}"
+      NUGET_BAGET_CACHE: ''
+      PRERELEASE_BAGET_CACHE: ''
+      RELEASE_BAGET_CACHE: ''
+
+    steps:
+      - name: "Check Required Secrets"
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
+
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+            echo "TEMP=${{runner.temp}}"
+            echo "TMP=${{runner.temp}}"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: "Setup Build Cache"
+        uses: ./.github/actions/setup-build-cache
+        with:
+          use-nuget-cache: "${{vars.USE_NUGET_CACHE}}"
+          nuget-baget-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          prerelease-baget-cache: "${{vars.PRERELEASE_BAGET_CACHE}}"
+          release-baget-cache: "${{vars.RELEASE_BAGET_CACHE}}"
+          npm-cache: "${{vars.NPM_CACHE}}"
+
+      - name: "Install Build tools"
+        uses: ./.github/actions/build-tools
+        with:
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{env.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          nuget-additional-restore-feed-release-cache: "${{env.RELEASE_BAGET_CACHE}}"
+          nuget-additional-restore-feed-release: "${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
+          nuget-additional-restore-feed-prerelease-cache: ""
+          nuget-additional-restore-feed-prerelease: ""
+
+      - name: "Get Unique Build Number"
+        uses: ./.github/actions/build-version
+        with:
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Export Build Number"
+        id: build-version
+        shell: bash
+        run: |
+          echo "build-version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
+        env:
+          BUILD_VERSION: "${{env.BUILD_VERSION}}"
+
   build-release:
+
+    needs: allocate-build-number
 
     runs-on: >-
       ${{ startsWith(vars.RELEASE_BUILD_ENVIRONMENT, '[')
@@ -84,6 +175,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           production-build: "true"
+          build-version: "${{needs.allocate-build-number.outputs.build-version}}"
           npm-production-packager-version: "${{vars.PRODUCTION_PACKAGER_VERSION}}"
           npm-content-package-wallet-password: "${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}"
           npm-package-store-signing-wallet: "${{secrets.PACKAGE_STORE_SIGNING_WALLET}}"
