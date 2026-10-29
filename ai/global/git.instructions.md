@@ -20,6 +20,8 @@ Run `pre-commit-check` only in these cases:
 
 There are no other times to run it. `git commit` runs the same hooks automatically, so running it separately before a commit only repeats work the commit does anyway and wastes time. The re-runs inside the rebase check in P2 are part of that check, not an extra trigger. When a commit fails on a hook, fix the cause and retry the commit: the retry runs the hooks again.
 
+The Code Tester, Code Fixer and Code Writer roles are never a trigger: they never run `pre-commit-check` and never ask another role to run it. A hook failure on `git commit` goes back through the Committer. A role never runs two unbounded commands (build, test suite, `pre-commit-check`, commit) at the same time; it runs them one after another.
+
 ## Pre-Work Baseline Check (MANDATORY before starting any work)
 
 This is trigger [P1](#pre-commit-check-new-branch) of [When to Run pre-commit-check](#when-to-run-pre-commit-check-mandatory).
