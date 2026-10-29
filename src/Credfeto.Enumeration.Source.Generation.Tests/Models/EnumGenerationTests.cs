@@ -9,44 +9,73 @@ using Xunit;
 
 namespace Credfeto.Enumeration.Source.Generation.Tests.Models;
 
-public sealed class EnumGenerationTests : EquatableValueTestBase<EnumGeneration>
+public sealed class EnumGenerationTests : TestBase
 {
-    public EnumGenerationTests()
-        : base(
-            new EnumGeneration(
-                accessType: AccessType.PUBLIC,
-                name: "Different",
-                @namespace: "Bar",
-                members: [],
-                location: Location.None,
-                options: default
-            ),
-            new EnumGeneration(
-                accessType: AccessType.PUBLIC,
-                name: "Foo",
-                @namespace: "Bar",
-                members: [],
-                location: Location.None,
-                options: default
-            ),
-            new EnumGeneration(
-                accessType: AccessType.PUBLIC,
-                name: "Foo",
-                @namespace: "Bar",
-                members: [],
-                location: Location.None,
-                options: default
-            )
-        ) { }
-
-    protected override bool OperatorEquals(in EnumGeneration x, in EnumGeneration y)
+    private static EnumGeneration Create(string name)
     {
-        return x == y;
+        return new(
+            accessType: AccessType.PUBLIC,
+            name: name,
+            @namespace: "Bar",
+            members: [],
+            location: Location.None,
+            options: default
+        );
     }
 
-    protected override bool OperatorNotEquals(in EnumGeneration x, in EnumGeneration y)
+    [Fact]
+    public void EqualsObjectReturnsTrueForEqualValue()
     {
-        return x != y;
+        EnumGeneration a = Create("Foo");
+        object b = Create("Foo");
+
+        Assert.True(a.Equals(b), userMessage: "Value should equal an equal boxed value");
+    }
+
+    [Fact]
+    public void EqualsObjectReturnsFalseForNull()
+    {
+        EnumGeneration a = Create("Foo");
+
+        Assert.False(a.Equals(null), userMessage: "Value should not equal null");
+    }
+
+    [Fact]
+    public void EqualsObjectReturnsFalseForDifferentType()
+    {
+        EnumGeneration a = Create("Foo");
+
+        Assert.False(a.Equals(new object()), userMessage: "Value should not equal an object of a different type");
+    }
+
+    [Fact]
+    public void EqualsReturnsFalseForDifferentValue()
+    {
+        EnumGeneration a = Create("Foo");
+        EnumGeneration b = Create("Different");
+
+        Assert.False(a.Equals(b), userMessage: "Different values should not be equal");
+        Assert.False(a == b, userMessage: "Equality operator should return false for different values");
+        Assert.True(a != b, userMessage: "Inequality operator should return true for different values");
+    }
+
+    [Fact]
+    public void OperatorsReturnTrueForEqualValue()
+    {
+        EnumGeneration a = Create("Foo");
+        EnumGeneration b = Create("Foo");
+
+        Assert.True(a == b, userMessage: "Equality operator should return true for equal values");
+        Assert.False(a != b, userMessage: "Inequality operator should return false for equal values");
+    }
+
+    [Fact]
+    public void GetHashCodeIsSameForEqualValues()
+    {
+        EnumGeneration a = Create("Foo");
+        EnumGeneration b = Create("Foo");
+
+        Assert.Equal(expected: a.GetHashCode(), actual: b.GetHashCode());
     }
 
     [Fact]
@@ -83,7 +112,7 @@ public sealed class EnumGenerationTests : EquatableValueTestBase<EnumGeneration>
         IReadOnlyList<IFieldSymbol> members = [];
         Location location = Location.None;
         GenerationOptions options = new(hasDoesNotReturnAttribute: false, supportsUnreachableException: false);
-        IReadOnlyDictionary<string, string> identifiers = new Dictionary<string, string>(System.StringComparer.Ordinal)
+        IReadOnlyDictionary<string, string> identifiers = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["B"] = "A",
         };
@@ -133,10 +162,10 @@ public sealed class EnumGenerationTests : EquatableValueTestBase<EnumGeneration>
     [Fact]
     public void EqualityReturnsFalseForSameMemberNamesButDifferentConstantValues()
     {
-        CSharpCompilation comp1 = Credfeto.Enumeration.Source.Generation.Tests.CompilationHelpers.CreateCompilation(
+        CSharpCompilation comp1 = CompilationHelpers.CreateCompilation(
             "namespace N { public enum E { A = 0, B = 0 } }"
         );
-        CSharpCompilation comp2 = Credfeto.Enumeration.Source.Generation.Tests.CompilationHelpers.CreateCompilation(
+        CSharpCompilation comp2 = CompilationHelpers.CreateCompilation(
             "namespace N { public enum E { A = 0, B = 1 } }"
         );
 
@@ -203,16 +232,5 @@ public sealed class EnumGenerationTests : EquatableValueTestBase<EnumGeneration>
         );
 
         Assert.Equal(expected: first, actual: second);
-    }
-
-    public static TheoryData<string, Action<EnumGenerationTests>> BaseCaseData() =>
-        BuildDispatcherCases<EnumGenerationTests>().ToTheoryData();
-
-    [Theory]
-    [MemberData(nameof(BaseCaseData))]
-    public void CommonTests(string name, Action<EnumGenerationTests> action)
-    {
-        Assert.NotEmpty(name);
-        action(this);
     }
 }
