@@ -126,7 +126,7 @@
 
 - name: "never-close"
   color: "1d76db"
-  description: "This issue should never be closed — it is a permanent tracking issue"
+  description: "This issue should never be closed; it is a permanent tracking issue"
 
 - name: "no-pr-activity"
   color: "ffff00"
