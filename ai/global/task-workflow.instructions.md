@@ -164,12 +164,12 @@ On every agent run, for every PR being interacted with:
 
   `cfwf closing-issue-labels` prints the labels to sync, one per line, already leaving out `Blocked` and `On Hold` (workflow-control labels are never synced from an issue to its PR). Pass them to one `gh pr edit --add-label` as a comma-separated list. A non-zero exit is a failure to report, not "no labels"; if it exits 0 and prints nothing, there is nothing to add. If the `gh pr edit` call fails because a label does not exist in the PR's repo, repeat it without that label.
 
-- **P4.** Never remove any label from a PR or issue; GitHub workflows add labels automatically and they must not be removed. Sole exception: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5.
+- **P4.** Never remove any label from a PR or issue; GitHub workflows add labels automatically and they must not be removed. Sole exceptions: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5, and `Blocked` on a PR question answered in live chat, see [Blocked Label](agent-roles.instructions.md#blocked-label-live-chat-pr-answer) P6.
 
 ## Label Management (MANDATORY)
 
 - Always use `--add-label` when adding labels; **never** `--label`, which replaces all existing labels and destroys automatically-applied classification labels. See [github-cli.instructions.md](github-cli.instructions.md#labels) for command syntax.
-- Never remove labels from issues or PRs. GitHub workflows add classification labels automatically; removing them breaks automation. Sole exception: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5.
+- Never remove labels from issues or PRs. GitHub workflows add classification labels automatically; removing them breaks automation. Sole exceptions: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5, and `Blocked` on a PR question answered in live chat, see [Blocked Label](agent-roles.instructions.md#blocked-label-live-chat-pr-answer) P6.
 
 ## Missing CLI Tools (MANDATORY)
 
