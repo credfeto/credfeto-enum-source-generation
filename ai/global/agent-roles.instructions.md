@@ -109,7 +109,7 @@ When picking up an **Issue** that has no existing PR:
   gh issue edit <number> --repo <owner/repo> --add-label Blocked
   ```
 
-  **Approval requires an explicit human action; the orchestrator never removes `Blocked` automatically (sole exception: live-chat approval in an interactive session, [P5](#waiting-for-approval-in-an-interactive-session)):**
+  **Approval requires an explicit human action; the orchestrator never removes `Blocked` automatically (sole exceptions in an interactive session: live-chat approval, [P5](#waiting-for-approval-in-an-interactive-session), and live-chat answers to a PR's question, [Blocked Label](#blocked-label-live-chat-pr-answer) P6):**
   - **Board configured**: a human with project write access sets board status to **Approved** and removes `Blocked`.
   - **No board**: a [trusted commenter](#trusted-commenters) posts an approval comment (`approved` / `lgtm`) and removes `Blocked`.
 
@@ -164,14 +164,14 @@ Interactive sessions only; an unattended run stops at Plan First P4 and must not
   - Wait `delaySeconds: 1200` (20 minutes) with `noop: true` while nothing has changed. There is no wait cap: the loop ends when the session does, and the 30-minute deadline in [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory) governs commands, not a wait for a human.
   - On approval, whether found on a tick or given in chat (P5), stop the loop with `ScheduleWakeup` and `stop: true`, check for an existing branch as in Plan First P2, and continue to implementation.
 
-- **P5.** **Live-chat approval ends the wait immediately.** If the human's chat message opens with the literal word `approved` or `lgtm` (case-insensitive) and is otherwise an unconditional approval, do not wait for the next tick. This is the one place the agent acts on a chat message alone. A question ("is this approved yet?"), a negation ("not approved"), a qualified approval or a passing mention does not count; if in doubt, ask:
+- **P5.** **Live-chat approval ends the wait immediately.** If the human's chat message opens with the literal word `approved` or `lgtm` (case-insensitive) and is otherwise an unconditional approval, do not wait for the next tick. This and [Blocked Label](#blocked-label-live-chat-pr-answer) P6 are the only places the agent acts on a chat message alone. A question ("is this approved yet?"), a negation ("not approved"), a qualified approval or a passing mention does not count; if in doubt, ask:
   - Re-run the P2 read and confirm the message refers to this issue, `plan` still equals the baseline, `Blocked` is only the plan-approval block and the plan has no unresolved Open questions; if any check fails, ask instead of acting. `Blocked` counts as only the plan-approval block when no comment posted after the latest plan comment asks a question, reports a failed baseline or a timeout, or carries an environment-block marker (`<!-- orchestrator:env-block`): read the comments after the plan and judge them, as in P2.
   - Post the mirror comment on the issue as in [Blocked Label](#blocked-label) P4.
   - Remove the label: `gh issue edit <number> --repo <owner/repo> --remove-label Blocked`.
   - If the repo has a Workflow board, set the workflow status to **Approved** with `cfwf workflow-status --set --repo <owner/repo> --issue <number> --status Approved` (see [Workflow Board](#workflow-board)).
   - Stop the loop and continue as in P4.
 
-  This is the one documented exception to the rules that only a human clears `Blocked` ([Plan First](#issue-workflow-plan-first-new-issues-only) P4, [Blocked Label](#blocked-label) P2 and P4) and to the never-remove-labels rules in [task-workflow.instructions.md](task-workflow.instructions.md#label-management-mandatory): the human's chat instruction is the explicit action and the agent carries out the label and board changes on their behalf. It covers only the plan-approval `Blocked` of an issue in an interactive session; any other `Blocked` (a question, a failed baseline, an environment block) still waits for the human to clear it.
+  This and [Blocked Label](#blocked-label-live-chat-pr-answer) P6 are the documented exceptions to the rules that only a human clears `Blocked` ([Plan First](#issue-workflow-plan-first-new-issues-only) P4, [Blocked Label](#blocked-label) P2 and P4) and to the never-remove-labels rules in [task-workflow.instructions.md](task-workflow.instructions.md#label-management-mandatory): the human's chat instruction is the explicit action and the agent carries out the label and board changes on their behalf. It covers only the plan-approval `Blocked` of an issue in an interactive session, plus the PR question `Blocked` of [Blocked Label](#blocked-label-live-chat-pr-answer) P6; any other `Blocked` (a failed baseline, an environment block, a round-cap block) still waits for the human to clear it.
 
 ### PR Workflow: AI Review Loop
 
@@ -317,8 +317,15 @@ When asking a question in a PR or issue comment and waiting for an answer before
   - PR: `gh pr edit <number> --repo <owner/repo> --add-label "Blocked"`
 - **P2.** Do **not** continue working on the item until the label is removed.
 - **P3.** Use **only** the `Blocked` label for this purpose; do **not** use labels like `do not merge`, `needs review`, or any other substitute. The orchestrator only recognises `Blocked` when deciding whether to skip an item.
-- **P4.** **Live-chat approval is not sufficient on its own.** If a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work (and before asking for `Blocked` to be removed). The record must survive even if the chat session is lost. Exception (waives only the human-clears-`Blocked` requirement, never the mirror comment): plan-approval `Blocked` in an interactive session; see [Waiting for Approval in an Interactive Session](#waiting-for-approval-in-an-interactive-session) P5.
+- **P4.** **Live-chat approval is not sufficient on its own.** If a human answers or approves in a live chat session rather than posting a GitHub comment directly, post the comment yourself, quoting the live instruction, before resuming work (and before asking for `Blocked` to be removed). The record must survive even if the chat session is lost. Exceptions (each waives only the human-clears-`Blocked` requirement, never the mirror comment): plan-approval `Blocked` on an issue in an interactive session, see [Waiting for Approval in an Interactive Session](#waiting-for-approval-in-an-interactive-session) P5; and a PR's question `Blocked` answered in live chat in an interactive session, see P6.
 - **P5.** <a id="blocked-label-cite-rule"></a>Whenever `Blocked` is added, the accompanying comment (or, for a new issue, its body) must name the specific instruction that requires the stop, as a link to its section; for an issue held under [AI-Initiated Issues](git.instructions.md#ai-initiated-issues-mandatory) that instruction is AI-Initiated Issues itself. A judgement such as "out of scope", "pre-existing" or "also fails on main" is never such an instruction; if no instruction requires the stop, do not add `Blocked` and carry on with the work, because an unjustified `Blocked` stalls the item until a human notices.
+- **P6.** <a id="blocked-label-live-chat-pr-answer"></a>**A live-chat answer clears a PR's question `Blocked` in an interactive session.** When the human answers in live chat every open question that caused a PR's `Blocked`, do not wait for them to remove the label:
+  - Post the mirror comment on the PR quoting the answer, as in P4.
+  - Re-read the PR's live state (labels, comments, checks) and confirm no other open question, failed required check, environment-block marker (`<!-- orchestrator:env-block`) or round-cap `Blocked` remains; otherwise leave `Blocked` and tell the human what is still open.
+  - Remove the label with `gh pr edit <number> --repo <owner/repo> --remove-label Blocked`, then carry on straight away.
+  - A partial answer, a question back or a qualified answer does not clear it; if in doubt, ask.
+  - An unattended run never applies this; `Blocked` there still waits for the human.
+- **P7.** Wherever the human is still the one who has to act (an approval, an answer, a manual step), say so once, plainly, at the top of the message, not only at the end of each status update.
 
 ### Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 
