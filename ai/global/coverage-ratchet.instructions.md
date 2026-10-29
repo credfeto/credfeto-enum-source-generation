@@ -59,6 +59,7 @@ Captured at commit `<sha>` on <ISO-8601 date>.
 - Use `n/a (no code)` for a language with no code/tests in the repo (no table).
 - Use `excluded` for Shell (always; see [Shell](#shell-excluded)), or for another language where every production assembly/package in that language is deliberately marked to exclude it from coverage instrumentation because the repo itself is test-support/test-infrastructure (see [Whole-Repo Test-Infrastructure Exclusion](#whole-repo-test-infrastructure-exclusion)). Record a one-line rationale beneath `excluded` in that case.
 - `<sha>` is the commit the numbers were measured against (the branch tip at the time of a successful AI Coverage phase run).
+- `COVERAGE.md` records **only** the coverage figures (the component rows, the Overall rows and the `<sha>` line). It must never record the command, tools, flags or runner used to measure them, because later rounds would copy that recorded command instead of following the repository's own coverage instructions. When updating the file, remove any such line.
 
 **Bootstrap**: `COVERAGE.md` reaches `main` for the first time via whichever branch's [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work) first finds it missing: that branch commits an initial version in its own commit, before the requested work starts. `origin/main` still won't have the file until that branch merges, so this phase's own comparison ([P2](#coverage-decision-fetch-compare) below) finds nothing to compare against on that same branch too. That is not a regression, so it must not block. Overwrite `COVERAGE.md` again with the branch's live measurements (its second commit on that branch, which is expected and not a conflict), treat the gate as passed, and proceed as in [P5](#coverage-decision-on-success). For any later branch, once `main` has a real `COVERAGE.md`, this bootstrap path only recurs if the Pre-Work Baseline Check step was skipped or the branch predates it.
 
@@ -82,6 +83,8 @@ Skip .NET entirely if the repo has no `*.Tests` project ([Identifying Test Proje
 ### Node
 
 Pinned as **Vitest** with the **`@vitest/coverage-v8`** provider. Adding these packages to a specific repo's `package.json` for the first time still goes through the normal [Third-Party Packages Require Human Approval](packages.instructions.md#third-party-packages-require-human-approval-mandatory) review; this section only fixes which tool to propose, not a blanket pre-approval to install it.
+
+If the repository's `package.json` defines a `test:coverage` script, that script takes precedence over the Vitest default below: run `npm ci` and then `npm run test:coverage` from the repository root with no arguments, `--prefix`, `cd` or redirects, and read `coverage/coverage-summary.json`.
 
 Configure the `json-summary` reporter alongside whatever other reporters the repo already uses, so it is calculated in the ratchet's terms in every language:
 
