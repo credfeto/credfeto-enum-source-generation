@@ -7,6 +7,12 @@ inputs:
   production-build:
     description: "Whether to build a production build"
     required: true
+  build-version:
+    description: >-
+      Build version already allocated by the caller; when empty, a unique build number is
+      allocated here
+    required: false
+    default: ""
 
   # NPM
   npm-production-packager-version:
@@ -285,9 +291,19 @@ runs:
         tool-version: "latest"
 
     - name: "Get Unique Build Number"
+      if: inputs.build-version == ''
       uses: ./.github/actions/build-version
       with:
         github-token: "${{inputs.github-token}}"
+
+    - name: "Use Allocated Build Number"
+      if: inputs.build-version != ''
+      shell: bash
+      run: |
+        echo "BUILD_VERSION=$BUILD_VERSION_INPUT" >> "$GITHUB_ENV"
+        echo "::notice::Using allocated build version: $BUILD_VERSION_INPUT"
+      env:
+        BUILD_VERSION_INPUT: "${{inputs.build-version}}"
 
     - name: "Find Pull Request for branch"
       id: find_pull_request
