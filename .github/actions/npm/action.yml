@@ -50,8 +50,8 @@ runs:
       with:
         node-version-file: .nvmrc
         check-latest: false
-        registry-url: "${{inputs.npm-registry}}"
         package-manager-cache: false
+        ## registry-url: "${{inputs.npm-registry}}"
 
     - if: steps.node_files.outputs.NVMRC_EXIST == 'false'
       name: "NPM: Setup Node.js (node version)"
@@ -61,7 +61,7 @@ runs:
         check-latest: true
         package-manager-cache: false
         ## registry-url: "${{inputs.npm-registry}}"
-        
+
     ####################################################################################################################
     # DO NOT USE NPM CACHE...  As it is SLOWER than pulling the packages down npm!
     ####################################################################################################################
@@ -104,10 +104,13 @@ runs:
     - name: "Npm: Config"
       shell: bash
       run: |
+        npm config set registry "$NPM_REGISTRY"
         npm config set loglevel error
         npm config set fetch-retries 3
         npm config set fetch-retry-mintimeout 15000
         npm config set fetch-retry-maxtimeout 90000
+      env:
+        NPM_REGISTRY: ${{inputs.npm-registry}}
 
     - name: "Npm: Local Cert"
       if: inputs.npm-cache-cert != ''
