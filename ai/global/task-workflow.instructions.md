@@ -43,6 +43,7 @@ A step referring to a **sibling step within its own list** (e.g. "return to P2",
 
 - Assign yourself to the issue before starting: `gh issue edit <number> --add-assignee @me`.
 - Only work on unassigned issues or issues already assigned to you.
+- Create an issue raised for later work (one you are not starting in this session, such as a follow-up, a matching issue in another repo, or a security bug filed from a review) with no assignee, and assign it only when work on it starts. `@me` resolves to whichever account `gh` is logged in as, often the owner's, and the rule above then stops any other agent or person picking it up.
 - Assign yourself to PRs when creating or updating: `gh pr edit <number> --add-assignee @me`.
 
 ## GitHub Issue and PR Labels
