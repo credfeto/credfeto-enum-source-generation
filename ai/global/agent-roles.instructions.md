@@ -453,6 +453,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Loop with Code Writer until build passes, all tests pass, and all new/changed code is covered.
 - Carry any sweep record and any pre-existing bug list in the incoming hand-off through to the outgoing report unchanged, because the next role only sees what this report passes on and the Orchestrator collects each pre-existing bug list from the reports it receives.
 - Do not modify code or tests; report and verify only.
+- Wait for each background build, test, `pre-commit-check` or `git commit` run you start to finish, and never report or hand back while it is still running, as [Finishing background work before handing back](task-workflow.instructions.md#background-command-wait) requires; judge the run by its exit code.
 
 ## Code Reviewer
 
@@ -641,6 +642,7 @@ Runs in two modes; both use `dotnet changelog` (see [changelog.instructions.md](
 - Otherwise: a hand-off holds exactly one change, per [One change at a time](task-workflow.instructions.md#one-change-at-a-time). Commit it as one GPG-signed commit (Conventional Commits). When the hand-off carries its sweep record, stage by whole file: everything except the sweep-only files is the fix commit, then build once, then commit the sweep-only files as the sweep commit per [Pattern Sweep Commits](git-commits.instructions.md#pattern-sweep-commits). When the hand-off is a sweep alone (a Phase A post-convergence sweep), there is only the sweep commit. Commit `CHANGELOG.md` as a separate GPG-signed commit whenever Changelog produced a correction alongside it.
 - If the working tree or the hand-off holds more than one change (for example more than one sweep record or `Construct:` line, or changes the hand-off does not describe), commit nothing: hand it back to Orchestrator to route each change again on its own. Never split a mixed tree into commits by file or by hunk.
 - Push after the commit, or after a run of consecutive commits when pushes are batched, as [One change at a time](task-workflow.instructions.md#one-change-at-a-time) allows; the branch is always pushed before handing back. Do not open the PR; that is PR Submitter's job.
+- Wait for each background build, test, `pre-commit-check` or `git commit` run you start to finish, and never report or hand back while it is still running, as [Finishing background work before handing back](task-workflow.instructions.md#background-command-wait) requires; judge the run by its exit code.
 - Do not use `--no-verify`. If a pre-commit hook fails: capture output, report to the producing agent, re-stage and retry. Escalate to Orchestrator after 3 failed cycles.
 
 ## PR Submitter
