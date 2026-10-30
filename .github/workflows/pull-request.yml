@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -68,14 +68,20 @@ jobs:
         if: steps.findPr.outputs.number == ''
         uses: ./.github/actions/read-file
         with:
-          path: ./.github/PULL_REQUEST_TEMPLATE.md
+          path: "./.github/PULL_REQUEST_TEMPLATE.md"
 
       - name: "Get last commit info"
         id: commit-info
         if: steps.findPr.outputs.number == ''
         shell: bash
         run: |
-          title="$(git log -1 --pretty=%s)"
+          title="$(git log -1 --pretty=%s)" || {
+            echo "::error::Failed to read the last commit title"
+            exit 1
+          }
+          case "$title" in
+            *$'\n'*|*$'\r'*) echo "::error::Commit title must not contain newlines"; exit 1;;
+          esac
           echo "commit-title=$title" >> "$GITHUB_OUTPUT"
 
       - name: "Check Required Secrets"
@@ -115,8 +121,8 @@ jobs:
           secret-value: "${{secrets.PR_CREATE_TOKEN}}"
 
       - name: "Create Pull Request"
-        if: steps.findPr.outputs.number == ''
         id: open-pr
+        if: steps.findPr.outputs.number == ''
         uses: ./.github/actions/create-pull-request
         with:
           github-token: "${{secrets.PR_CREATE_TOKEN}}"
