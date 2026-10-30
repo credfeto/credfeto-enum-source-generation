@@ -36,7 +36,13 @@ runs:
       with:
         working-directory: "${{github.workspace}}"
         tool-name: "sleet"
-        tool-arguments: "push \"${{github.workspace}}/dist\" --config \"${{steps.sleet-config.outputs.file}}\" --source \"${{inputs.sleet-feed}}\""
+        tool-arguments: |
+          push
+          ${{github.workspace}}/dist
+          --config
+          ${{steps.sleet-config.outputs.file}}
+          --source
+          ${{inputs.sleet-feed}}
 
     - name: "Sleet: Clean Up Sleet Config"
       if: always()
