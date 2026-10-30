@@ -15,9 +15,6 @@ inputs:
   sql-password:
     description: "Password for SQL_USER"
     required: true
-  db-folder:
-    description: "Folder where SQL Files live"
-    required: true
 
 runs:
   using: "composite"
@@ -28,7 +25,7 @@ runs:
       working-directory: "${{github.workspace}}/src"
       shell: bash
       run: |
-        echo "Missing SQL Password!"
+        echo "::error::Missing SQL Password!"
         exit 1
 
     - name: "Dotnet: Find Dacpac"
@@ -37,9 +34,15 @@ runs:
       shell: bash
       run: |
         echo "Looking for dacpac"
-        DACPAC="$(find "${{github.workspace}}/src" -type f -iname "*.dacpac" | head -1)"
+        DACPAC="$(find "$GITHUB_WORKSPACE/src" -type f -iname "*.dacpac" | head -1)" || {
+          echo "::error::Failed to search for DACPAC under src"
+          exit 1
+        }
         echo "Found: $DACPAC"
-        [ -z "$DACPAC" ] && echo "Error: DACPAC not found!" && exit 1
+        if [ -z "$DACPAC" ]; then
+          echo "::error::DACPAC not found!"
+          exit 1
+        fi
         echo "DACPAC=$DACPAC" >> "$GITHUB_OUTPUT"
 
     - name: "Install SQLPackage tool"
@@ -52,7 +55,6 @@ runs:
     - name: "Dotnet: Deploy/Live Server"
       working-directory: "${{github.workspace}}/src"
       shell: bash
-      # yamllint disable rule:line-length
       run: |
         dotnet tool run --allow-roll-forward sqlpackage \
             /Action:publish \
@@ -63,19 +65,18 @@ runs:
             /tp:"$SQL_PASSWORD" \
             /tec:false \
             /d:true \
-            /TargetTimeout:${{env.TIMEOUT}} \
-            /p:CommandTimeout=${{env.TIMEOUT}} \
+            /TargetTimeout:"$TIMEOUT" \
+            /p:CommandTimeout="$TIMEOUT" \
             /p:BackupDatabaseBeforeChanges=False \
             /p:BlockOnPossibleDataLoss=True \
             /p:DropObjectsNotInSource=True \
             "/p:DoNotDropObjectTypes=Aggregates;ApplicationRoles;Assemblies;AssemblyFiles;AsymmetricKeys;BrokerPriorities;Certificates;ColumnEncryptionKeys;ColumnMasterKeys;Contracts;DatabaseOptions;DatabaseRoles;Filegroups;Files;FileTables;RoleMembership;Rules;Users;Credentials;CryptographicProviders;DatabaseAuditSpecifications;DatabaseEncryptionKeys;DatabaseScopedCredentials;Endpoints;LinkedServerLogins;LinkedServers;Logins;MasterKeys;Routes;ServerAuditSpecifications;ServerRoleMembership;ServerRoles;ServerTriggers" \
             /p:IncludeCompositeObjects=True
-      # yamllint enable rule:line-length
       env:
         DACPAC_FILE: "${{steps.find_dacpac.outputs.DACPAC}}"
         SQL_SERVER: "${{inputs.sql-server}}"
         SQL_DB: "${{inputs.sql-db}}"
         SQL_USER: "${{inputs.sql-user}}"
         SQL_PASSWORD: "${{inputs.sql-password}}"
-        TIMEOUT: 720
+        TIMEOUT: "720"
 # yamllint enable rule:line-length
