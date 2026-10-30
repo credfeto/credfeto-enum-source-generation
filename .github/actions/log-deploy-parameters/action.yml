@@ -39,6 +39,17 @@ runs:
   steps:
     - name: "Log parameters"
       shell: bash
+      run: |
+        echo "CLOUD_FORMATION_STACK: ${CLOUD_FORMATION_STACK//[$'\r\n']/ }"
+        echo "CLOUD_FORMATION_TEMPLATE_FILE: ${CLOUD_FORMATION_TEMPLATE_FILE//[$'\r\n']/ }"
+        echo "DOCKER_APP_OWNER: ${DOCKER_APP_OWNER//[$'\r\n']/ }"
+        echo "DOCKER_APP_NAME: ${DOCKER_APP_NAME//[$'\r\n']/ }"
+        echo "BUILD_VERSION: ${BUILD_VERSION//[$'\r\n']/ }"
+        echo "API_HOST: ${API_HOST//[$'\r\n']/ }"
+        echo "API_PREFIX: ${API_PREFIX//[$'\r\n']/ }"
+        echo "AWS_LOAD_BALANCER_HOSTNAME: ${AWS_LOAD_BALANCER_HOSTNAME//[$'\r\n']/ }"
+        echo "DOCKER_CONTAINER_REGISTRY: ${DOCKER_CONTAINER_REGISTRY//[$'\r\n']/ }"
+        echo "AWS_LOAD_BALANCER_PRIORITY: ${AWS_LOAD_BALANCER_PRIORITY//[$'\r\n']/ }"
       env:
         CLOUD_FORMATION_STACK: "${{inputs.cloud-formation-stack}}"
         CLOUD_FORMATION_TEMPLATE_FILE: "${{inputs.cloud-formation-template-file}}"
@@ -50,14 +61,3 @@ runs:
         AWS_LOAD_BALANCER_HOSTNAME: "${{inputs.aws-load-balancer-hostname}}"
         DOCKER_CONTAINER_REGISTRY: "${{inputs.docker-container-registry}}"
         AWS_LOAD_BALANCER_PRIORITY: "${{inputs.aws-load-balancer-priority}}"
-      run: |
-        echo "CLOUD_FORMATION_STACK: $CLOUD_FORMATION_STACK"
-        echo "CLOUD_FORMATION_TEMPLATE_FILE: $CLOUD_FORMATION_TEMPLATE_FILE"
-        echo "DOCKER_APP_OWNER: $DOCKER_APP_OWNER"
-        echo "DOCKER_APP_NAME: $DOCKER_APP_NAME"
-        echo "BUILD_VERSION: $BUILD_VERSION"
-        echo "API_HOST: $API_HOST"
-        echo "API_PREFIX: $API_PREFIX"
-        echo "AWS_LOAD_BALANCER_HOSTNAME: $AWS_LOAD_BALANCER_HOSTNAME"
-        echo "DOCKER_CONTAINER_REGISTRY: $DOCKER_CONTAINER_REGISTRY"
-        echo "AWS_LOAD_BALANCER_PRIORITY: $AWS_LOAD_BALANCER_PRIORITY"
