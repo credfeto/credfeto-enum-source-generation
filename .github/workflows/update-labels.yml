@@ -7,8 +7,8 @@ on:
     branches:
       - main
     paths:
-      - '.github/labels.yml'
-      - '.github/workflows/update-labels.yml'
+      - ".github/labels.yml"
+      - ".github/workflows/update-labels.yml"
 
 concurrency:
   group: "${{github.workflow}}-${{github.ref}}"
@@ -28,10 +28,12 @@ jobs:
       - name: "Check Required Secrets"
         shell: bash
         run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+          if [ -z "$SOURCE_PUSH_TOKEN" ]; then
             echo "::error::SOURCE_PUSH_TOKEN is required but not set"
             exit 1
           fi
+        env:
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -42,7 +44,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -57,7 +59,7 @@ jobs:
         uses: crazy-max/ghaction-github-labeler@548a7c3603594ec17c819e1239f281a3b801ab4d # v6.0.0
         with:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
-          yaml-file: .github/labels.yml
+          yaml-file: ".github/labels.yml"
           skip-delete: false
           dry-run: false
           exclude: |
