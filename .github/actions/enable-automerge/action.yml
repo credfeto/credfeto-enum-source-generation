@@ -21,6 +21,9 @@ runs:
   steps:
     - name: "Enable Auto-Merge"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        MERGE_METHOD: "${{inputs.merge-method}}"
+        PR_NUMBER: "${{inputs.pr-number}}"
       with:
         github-token: "${{inputs.github-token}}"
         script: |
@@ -56,6 +59,3 @@ runs:
           });
           core.info(`✅ Enabled auto-merge (${mergeMethod}) on PR #${prNumber}`);
           core.notice(`Enabled auto-merge (${mergeMethod}) on PR #${prNumber}`);
-      env:
-        MERGE_METHOD: "${{inputs.merge-method}}"
-        PR_NUMBER: "${{inputs.pr-number}}"
