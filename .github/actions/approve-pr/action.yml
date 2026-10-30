@@ -17,6 +17,8 @@ runs:
   steps:
     - name: "Approve PR"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        PR_NUMBER: "${{inputs.pr-number}}"
       with:
         github-token: "${{inputs.github-token}}"
         script: |
@@ -33,5 +35,3 @@ runs:
           });
           core.info(`✅ Approved PR #${prNumber}`);
           core.notice(`Approved PR #${prNumber}`);
-      env:
-        PR_NUMBER: "${{inputs.pr-number}}"
