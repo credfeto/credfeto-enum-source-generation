@@ -13,15 +13,20 @@ runs:
           '**/.deleteme.now'
         )
 
+        list=$(mktemp)
+        trap 'rm -f "${list}"' EXIT
+
         found=0
         for pattern in "${patterns[@]}"; do
-          matches=$(git ls-files --cached -- "${pattern}")
-          if [ -n "${matches}" ]; then
-            found=1
-            while IFS= read -r file; do
-              echo "::error file=${file}::Prohibited file found: ${file} (matches ${pattern})"
-            done <<< "${matches}"
+          if ! git ls-files -z --cached -- "${pattern}" > "${list}"; then
+            echo "::error::❌ Failed to list tracked files matching ${pattern}"
+            exit 1
           fi
+
+          while IFS= read -r -d '' file; do
+            found=1
+            echo "::error file=${file}::Prohibited file found: ${file} (matches ${pattern})"
+          done < "${list}"
         done
 
         if [ "${found}" -eq 1 ]; then
