@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -65,7 +65,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -78,11 +78,10 @@ jobs:
             core.info(`Base Branch: ${process.env.BASE_REF}`);
             core.info(`Repo: ${context.repo.owner}/${context.repo.repo}`);
             core.info(`Owner: ${context.repo.owner}`);
-            core.info(`Assigned: ${context.payload.pull_request?.assignee?.login}`);
-            core.info(`Assigned: ${context.payload.pull_request?.assignees?.[0]?.login}`);
-            core.info(`Last Modified By: ${context.payload.pull_request?.head?.user?.login}`);
+            core.info(`Assignee: ${context.payload.pull_request?.assignee?.login}`);
+            core.info(`Assignee (0): ${context.payload.pull_request?.assignees?.[0]?.login}`);
+            core.info(`Head Repo Owner: ${context.payload.pull_request?.head?.user?.login}`);
             core.info(`PR Creator: ${context.payload.pull_request?.user?.login}`);
-            core.info(`PR Owner: ${context.payload.pull_request?.user?.login}`);
             core.info(`Actor: ${context.actor}`);
 
             await core.summary
@@ -95,9 +94,8 @@ jobs:
                 ['Owner', `${context.repo.owner}`],
                 ['Assignee', `${context.payload.pull_request?.assignee?.login}`],
                 ['Assignee (0)', `${context.payload.pull_request?.assignees?.[0]?.login}`],
-                ['Last Modified By', `${context.payload.pull_request?.head?.user?.login}`],
+                ['Head Repo Owner', `${context.payload.pull_request?.head?.user?.login}`],
                 ['PR Creator', `${context.payload.pull_request?.user?.login}`],
-                ['PR Owner', `${context.payload.pull_request?.user?.login}`],
                 ['Actor', `${context.actor}`],
               ])
               .write();
@@ -109,10 +107,12 @@ jobs:
       - name: "Check Required Secrets"
         shell: bash
         run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+          if [ -z "$SOURCE_PUSH_TOKEN" ]; then
             echo "::error::SOURCE_PUSH_TOKEN is required but not set"
             exit 1
           fi
+        env:
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -123,7 +123,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
