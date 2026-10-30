@@ -25,4 +25,10 @@ runs:
       with:
         working-directory: "${{github.workspace}}"
         tool-name: "pushpackages"
-        tool-arguments: "--folder dist --api-key \"${{inputs.nuget-api-key}}\" --source \"${{inputs.nuget-feed}}\""
+        tool-arguments: |
+          --folder
+          dist
+          --api-key
+          ${{inputs.nuget-api-key}}
+          --source
+          ${{inputs.nuget-feed}}
