@@ -29,14 +29,23 @@ runs:
 
     - name: "Dotnet: Build NuGet Config"
       shell: bash
-      env:
-        NUGET_PUBLIC_RESTORE_FEED_CACHE: "${{inputs.nuget-public-restore-feed-cache}}"
-        NUGET_PUBLIC_RESTORE_FEED: "${{inputs.nuget-public-restore-feed}}"
-        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: "${{inputs.nuget-additional-restore-feed-release-cache}}"
-        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: "${{inputs.nuget-additional-restore-feed-release}}"
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: "${{inputs.nuget-additional-restore-feed-prerelease-cache}}"
-        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: "${{inputs.nuget-additional-restore-feed-prerelease}}"
       run: |
+        # Feed URLs are written into XML attributes, so reject anything that could break out of one.
+        feed_url_pattern='^https?://[^[:space:]"'\''<>&]+$'
+        for feed_variable in \
+            NUGET_PUBLIC_RESTORE_FEED_CACHE \
+            NUGET_PUBLIC_RESTORE_FEED \
+            NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE \
+            NUGET_ADDITIONAL_RESTORE_FEED_RELEASE \
+            NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE \
+            NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE; do
+          feed_url="${!feed_variable}"
+          if [ -n "$feed_url" ] && [[ ! "$feed_url" =~ $feed_url_pattern ]]; then
+            echo "::error::$feed_variable must be an http(s) URL without whitespace, quotes, '<', '>' or '&'"
+            exit 1
+          fi
+        done
+
         # Conf settings
         NUGET_CONF_DIR="$HOME/.nuget/NuGet"
         NUGET_CONF_FILE="$HOME/.nuget/NuGet/NuGet.Config"
@@ -71,7 +80,7 @@ runs:
           echo "<configuration>"
           echo "  <packageSources>"
           echo "    <clear />"
-          for index in ${!NAMES[@]}; do
+          for index in "${!NAMES[@]}"; do
             NAME=${NAMES[$index]}
             URL=${URLS[$index]}
             echo "    <add key=\"$NAME\" value=\"$URL\" protocolVersion=\"3\" />"
@@ -81,6 +90,13 @@ runs:
         } > "$NUGET_CONF_FILE"
 
         cat "$NUGET_CONF_FILE"
+      env:
+        NUGET_PUBLIC_RESTORE_FEED_CACHE: "${{inputs.nuget-public-restore-feed-cache}}"
+        NUGET_PUBLIC_RESTORE_FEED: "${{inputs.nuget-public-restore-feed}}"
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE_CACHE: "${{inputs.nuget-additional-restore-feed-release-cache}}"
+        NUGET_ADDITIONAL_RESTORE_FEED_RELEASE: "${{inputs.nuget-additional-restore-feed-release}}"
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE_CACHE: "${{inputs.nuget-additional-restore-feed-prerelease-cache}}"
+        NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE: "${{inputs.nuget-additional-restore-feed-prerelease}}"
 
     - name: "Dotnet: Show sources (After)"
       shell: bash
