@@ -46,4 +46,4 @@ runs:
         output: "${{steps.scan-config.outputs.output}}"
         ignore-unfixed: true
         severity: "HIGH,CRITICAL"
-        cache-dir: "${{github.workspace}}/.trivy-cache"
+        cache-dir: "${{runner.temp}}/trivy-cache"
