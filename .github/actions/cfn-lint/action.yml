@@ -19,17 +19,20 @@ runs:
     - name: "Set cfn-lint venv path"
       shell: bash
       run: |
-        VENV_BASE="$GITHUB_WORKSPACE/.cfn-lint"
-        VENV_RUN="${{github.sha}}-${{github.run_id}}-${{github.run_number}}-${{github.run_attempt}}"
-        echo "CFN_LINT_VENV=$VENV_BASE/$VENV_RUN" >> "$GITHUB_ENV"
+        VENV_BASE="$RUNNER_TEMP/cfn-lint"
+        VENV_RUN="$GITHUB_SHA-$GITHUB_RUN_ID-$GITHUB_RUN_NUMBER-$GITHUB_RUN_ATTEMPT"
+        {
+          echo "CFN_LINT_VENV_BASE=$VENV_BASE"
+          echo "CFN_LINT_VENV=$VENV_BASE/$VENV_RUN"
+        } >> "$GITHUB_ENV"
 
     - name: "Create cfn-lint virtual environment"
       shell: bash
       run: |
         mkdir -p "$(dirname "$CFN_LINT_VENV")"
         python -m venv "$CFN_LINT_VENV"
-        echo "cfn-lint" > "$GITHUB_ACTION_PATH/requirements.txt"
-        "$CFN_LINT_VENV/bin/pip" install --quiet -r "$GITHUB_ACTION_PATH/requirements.txt"
+        echo "cfn-lint==1.59.0" >"$CFN_LINT_VENV/requirements.txt"
+        "$CFN_LINT_VENV/bin/pip" install --quiet -r "$CFN_LINT_VENV/requirements.txt"
 
     - name: "Run Cloud Formation Linter"
       shell: bash
@@ -43,3 +46,4 @@ runs:
       shell: bash
       run: |
         [[ -n "$CFN_LINT_VENV" ]] && rm -rf "$CFN_LINT_VENV" || true
+        [[ -n "$CFN_LINT_VENV_BASE" ]] && rmdir "$CFN_LINT_VENV_BASE" 2>/dev/null || true
