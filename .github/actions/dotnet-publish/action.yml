@@ -12,6 +12,10 @@ inputs:
     description: "Build version"
     required: true
 
+  release:
+    description: "Whether this is a release build (disables Swagger when 'true')"
+    required: true
+
   release-notes:
     description: "Release notes"
     required: false
@@ -30,9 +34,9 @@ runs:
     - name: "Dotnet: Check Variables"
       shell: bash
       run: |
-        echo "Platform: $PLATFORM"
+        echo "Platform: ${PLATFORM//[$'\r\n']/ }"
         if [ -z "$PLATFORM" ]; then
-          echo "Missing Platform";
+          echo "::error::Missing Platform"
           exit 1
         fi
       env:
@@ -47,15 +51,15 @@ runs:
         dotnet publish \
                   --warnaserror  \
                   --configuration:Release \
-                  "-r:${{inputs.platform}}" \
+                  "-r:$PUBLISH_PLATFORM" \
                   --self-contained \
                   --ignore-failed-sources \
                   -nodeReuse:False \
                   "-p:Deterministic=True" \
-                  "-p:DisableSwagger=${{env.RELEASE}}" \
+                  "-p:DisableSwagger=$RELEASE" \
                   "-p:FFPublishing=True" \
                   "-p:IncludeNativeLibrariesForSelfExtract=True" \
-                  "-p:IsProduction=${{inputs.production-build}}" \
+                  "-p:IsProduction=$PRODUCTION_BUILD" \
                   "-p:NoWarn=NETSDK1179" \
                   "-p:Optimize=true" \
                   "-p:PublishReadyToRun=false" \
@@ -64,11 +68,15 @@ runs:
                   "-p:SolutionDir=..\\" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
                   "-p:TreatWarningsAsErrors=True" \
-                  "-p:Version=${{inputs.build-version}}" \
+                  "-p:Version=$BUILD_VERSION" \
                   "-p:ContinuousIntegrationBuild=true" \
-                  --output "${{github.workspace}}/server-dist/${{inputs.platform}}"
+                  --output "$GITHUB_WORKSPACE/server-dist/$PUBLISH_PLATFORM"
       env:
         ReleaseNotes: "${{inputs.release-notes}}"
+        PUBLISH_PLATFORM: "${{inputs.platform}}"
+        PRODUCTION_BUILD: "${{inputs.production-build}}"
+        BUILD_VERSION: "${{inputs.build-version}}"
+        RELEASE: "${{inputs.release}}"
 
     - name: "Report publish output size"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -79,7 +87,7 @@ runs:
         script: |
           const { execSync } = require('child_process');
           const outputDir = process.env.OUTPUT_DIR;
-          const platform = process.env.PLATFORM;
+          const platform = process.env.PLATFORM.replace(/[\r\n]/g, ' ');
           let sizes = '';
           try {
             sizes = execSync(`du -sh "${outputDir}"/*`, { encoding: 'utf8', shell: true }).trim();
