@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -103,7 +103,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -131,7 +131,7 @@ jobs:
               echo "CHANGES=${diff_exit}" >> "$GITHUB_ENV"
               ;;
             *)
-              echo "::error::git diff against origin/${BASE_REF} failed (exit ${diff_exit}): ${diff_output}"
+              echo "::error::git diff against origin/${BASE_REF//[$'\r\n']/ } failed (exit ${diff_exit}): ${diff_output//[$'\r\n']/ }"
               exit "${diff_exit}"
               ;;
           esac
@@ -149,7 +149,6 @@ jobs:
       github.event.pull_request.draft == false &&
       github.actor != 'dependabot[bot]' &&
       !endsWith(github.repository, '-template')
-    # As LibGit2Sharp doesn't work on 20.04
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
@@ -161,7 +160,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -208,7 +207,11 @@ jobs:
         with:
           working-directory: "${{github.workspace}}"
           tool-name: "changelog"
-          tool-arguments: "--changelog \"${{github.workspace}}/CHANGELOG.md\" --check-insert \"origin/${{github.base_ref}}\""
+          tool-arguments: |
+            --changelog
+            ${{github.workspace}}/CHANGELOG.md
+            --check-insert
+            origin/${{github.base_ref}}
 
   # @@required: merge
   does-not-contain-secrets:
@@ -224,7 +227,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -236,13 +239,13 @@ jobs:
           fetch-depth: 0
 
       - name: "Check for leaks"
-        uses: trufflesecurity/trufflehog@31ce31ee1abbcc7dc8eee5764c17121c3044c8b2 # v3.99.7
         id: trufflehog
+        uses: trufflesecurity/trufflehog@31ce31ee1abbcc7dc8eee5764c17121c3044c8b2 # v3.99.7
         with:
-          path: "${{ github.workspace }}"
-          base: "${{ github.event.repository.default_branch }}"
-          head: HEAD
-          extra_args: --debug --only-verified
+          path: "${{github.workspace}}"
+          base: "${{github.event.repository.default_branch}}"
+          head: "HEAD"
+          extra_args: "--debug --only-verified"
 
   # @@required: merge
   has-no-merge-conflicts:
@@ -258,7 +261,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -286,7 +289,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -314,7 +317,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -344,7 +347,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -357,6 +360,35 @@ jobs:
 
       - name: "Check for prohibited files"
         uses: ./.github/actions/check-no-prohibited-files
+
+  # @@required: merge
+  no-expressions-in-scripts:
+    # Check that no workflow expression is used inside a run: or script: body
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 1
+
+      - name: "Check for expressions in scripts"
+        uses: ./.github/actions/check-no-expressions-in-scripts
 
   # @@required: merge
   dependency-review:
@@ -373,7 +405,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -385,8 +417,8 @@ jobs:
           fetch-depth: 1
 
       - name: "Check repo visibility"
-        uses: ./.github/actions/check-repo-visibility
         id: visibility
+        uses: ./.github/actions/check-repo-visibility
 
       - name: "Dependency Review"
         if: steps.visibility.outputs.is-public == 'true'
@@ -410,7 +442,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -438,7 +470,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -477,7 +509,10 @@ jobs:
         with:
           working-directory: "${{github.workspace}}"
           tool-name: "changelog"
-          tool-arguments: "--changelog \"${{github.workspace}}/CHANGELOG.md\" --lint"
+          tool-arguments: |
+            --changelog
+            ${{github.workspace}}/CHANGELOG.md
+            --lint
 
   # @@required: main
   lint-code:
@@ -495,7 +530,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -520,7 +555,7 @@ jobs:
 
   # @@required: main
   poutine:
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-latest"
     permissions:
       security-events: write
       contents: read
@@ -535,19 +570,20 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: "Check repo visibility"
-        uses: ./.github/actions/check-repo-visibility
         id: visibility
+        uses: ./.github/actions/check-repo-visibility
 
       - name: "Ensure Results folder exists"
         working-directory: "${{github.workspace}}"
         shell: bash
         run: |
-          [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
+          mkdir -p "$GITHUB_WORKSPACE/results"
+          echo "✅ Results folder ready: $GITHUB_WORKSPACE/results"
 
       - name: "Poutine"
         uses: boostsecurityio/poutine-action@e240ebd3eff8b2db5a8e5f6b28f58739d7db2247 # v1.1.4
         with:
-          format: 'sarif'
+          format: "sarif"
           output: "${{github.workspace}}/results/poutine.sarif"
 
       - name: "Summarise Poutine findings"
