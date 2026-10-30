@@ -16,11 +16,11 @@ runs:
   steps:
     - name: "Check Required Secret"
       shell: bash
+      run: |
+        if [ -z "$SECRET_VALUE" ]; then
+          echo "::error::${SECRET_NAME//[$'\r\n']/ } is required but not set"
+          exit 1
+        fi
       env:
         SECRET_NAME: "${{inputs.secret-name}}"
         SECRET_VALUE: "${{inputs.secret-value}}"
-      run: |
-        if [ -z "$SECRET_VALUE" ]; then
-          echo "::error::${SECRET_NAME} is required but not set"
-          exit 1
-        fi
