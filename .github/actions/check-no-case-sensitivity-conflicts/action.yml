@@ -10,10 +10,10 @@ runs:
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
         script: |
-          const { execSync } = require('node:child_process');
+          const { execFileSync } = require('node:child_process');
 
-          const files = execSync('git ls-files', { encoding: 'utf8' })
-            .split(/\r?\n/)
+          const files = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 })
+            .split('\0')
             .filter(Boolean);
 
           const grouped = new Map();
