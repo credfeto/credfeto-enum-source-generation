@@ -27,11 +27,11 @@ runs:
           echo "SARIF_HASH=" >> "$GITHUB_ENV"
         fi
 
-    - if: inputs.repo-visibility == 'public' && env.SARIF_HASH != ''
-      name: "Upload SARIF file for diagnostics"
+    - name: "Upload SARIF file for diagnostics"
       id: sarif
+      if: inputs.repo-visibility == 'public' && env.SARIF_HASH != ''
       uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
-      continue-on-error: ${{inputs.repo-fork == 'true'}}
+      continue-on-error: "${{inputs.repo-fork == 'true'}}"
       with:
         sarif_file: "${{github.workspace}}/results"
         token: "${{github.token}}"
@@ -39,10 +39,10 @@ runs:
         # continue-on-error above only tolerates failures on forks (read-only token).
         wait-for-processing: false
 
-    - if: inputs.repo-visibility == 'public' && env.SARIF_HASH != ''
-      name: "Sarif Upload Summary"
+    - name: "Sarif Upload Summary"
+      if: inputs.repo-visibility == 'public' && env.SARIF_HASH != ''
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-      continue-on-error: ${{inputs.repo-fork == 'true'}}
+      continue-on-error: "${{inputs.repo-fork == 'true'}}"
       env:
         SARIF_ID: "${{steps.sarif.outputs.sarif-id}}"
       with:
