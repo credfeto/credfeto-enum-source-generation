@@ -5,7 +5,7 @@ description: "Configures nuget/npm cache env vars"
 
 inputs:
   use-nuget-cache:
-    description: "Whether to use nuget cache (true/false, or empty to disable)"
+    description: "Whether to use nuget cache: true or false (case-insensitive), or empty to disable; any other value fails"
     required: false
     default: ""
   nuget-baget-cache:
@@ -31,25 +31,37 @@ runs:
     - name: "Determine cache status"
       id: cache-status
       shell: bash
-      env:
-        USE_NUGET_CACHE_INPUT: "${{inputs.use-nuget-cache}}"
       run: |
-        use_cache="$USE_NUGET_CACHE_INPUT"
-        if [[ -z "$use_cache" || "${{runner.environment}}" != "self-hosted" ]]; then
+        case "${USE_NUGET_CACHE_INPUT,,}" in
+          ''|'false') use_cache="false";;
+          'true') use_cache="true";;
+          *)
+            echo "::error::use-nuget-cache must be 'true', 'false', or empty/unset"
+            exit 1
+            ;;
+        esac
+        if [[ "$CACHE_RUNNER_ENVIRONMENT" != "self-hosted" ]]; then
           use_cache="false"
         fi
         echo "USE_NUGET_CACHE=${use_cache}" >> "$GITHUB_ENV"
         echo "use-nuget-cache=${use_cache}" >> "$GITHUB_OUTPUT"
+      env:
+        USE_NUGET_CACHE_INPUT: "${{inputs.use-nuget-cache}}"
+        CACHE_RUNNER_ENVIRONMENT: "${{runner.environment}}"
 
     - name: "Enable Local nuget/npm feeds if caching"
       if: steps.cache-status.outputs.use-nuget-cache == 'true'
       shell: bash
-      env:
-        NUGET_BAGET_CACHE: "${{inputs.nuget-baget-cache}}"
-        PRERELEASE_BAGET_CACHE: "${{inputs.prerelease-baget-cache}}"
-        RELEASE_BAGET_CACHE: "${{inputs.release-baget-cache}}"
-        NPM_CACHE: "${{inputs.npm-cache}}"
       run: |
+        reject_newlines() {
+          case "$2" in
+            *$'\n'*|*$'\r'*) echo "::error::$1 must not contain newlines"; exit 1;;
+          esac
+        }
+        reject_newlines "nuget-baget-cache" "$NUGET_BAGET_CACHE"
+        reject_newlines "prerelease-baget-cache" "$PRERELEASE_BAGET_CACHE"
+        reject_newlines "release-baget-cache" "$RELEASE_BAGET_CACHE"
+        reject_newlines "npm-cache" "$NPM_CACHE"
         {
           echo "NUGET_BAGET_CACHE=${NUGET_BAGET_CACHE}"
           echo "PRERELEASE_BAGET_CACHE=${PRERELEASE_BAGET_CACHE}"
@@ -58,3 +70,8 @@ runs:
             echo "NPM_REGISTRY=${NPM_CACHE}"
           fi
         }>> "$GITHUB_ENV"
+      env:
+        NUGET_BAGET_CACHE: "${{inputs.nuget-baget-cache}}"
+        PRERELEASE_BAGET_CACHE: "${{inputs.prerelease-baget-cache}}"
+        RELEASE_BAGET_CACHE: "${{inputs.release-baget-cache}}"
+        NPM_CACHE: "${{inputs.npm-cache}}"
