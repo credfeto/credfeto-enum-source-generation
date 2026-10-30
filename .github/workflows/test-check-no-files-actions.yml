@@ -1,0 +1,155 @@
+--- # Tests the check-no-* file actions against a fixture repo with non-ASCII and quote-containing file names
+# Maintain in repo: funfair-server-template
+name: "Repo: Test check-no file actions"
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/actions/check-no-case-sensitivity-conflicts/**"
+      - ".github/actions/check-no-ignored-files/**"
+      - ".github/actions/check-no-prohibited-files/**"
+      - ".github/workflows/test-check-no-files-actions.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "${{github.workflow}}-${{github.ref}}"
+  cancel-in-progress: true
+
+jobs:
+  repo-info:
+    runs-on: ubuntu-latest
+    outputs:
+      is_template: "${{steps.visibility.outputs.is-template}}"
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 1
+
+      - name: "Check repo visibility"
+        id: visibility
+        uses: ./.github/actions/check-repo-visibility
+
+  test-check-no-file-actions:
+    needs: [repo-info]
+    if: needs.repo-info.outputs.is_template == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      # The actions inspect the repository in the workspace root, so the fixture repo is built there
+      # and the actions under test are checked out alongside it.
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 1
+          path: template
+
+      - name: "Create clean fixture repository"
+        shell: bash
+        run: |
+          find . -mindepth 1 -maxdepth 1 ! -name template -exec rm -rf {} +
+          git init -q
+          printf '*.log\n' > .gitignore
+          mkdir -p 'dír "q"'
+          printf 'x\n' > 'é.txt'
+          printf 'x\n' > 'a"b.txt'
+          printf 'x\n' > 'dír "q"/x.txt'
+          printf 'x\n' > 'ignoré.log'
+          git add -- .gitignore 'é.txt' 'a"b.txt' 'dír "q"/x.txt'
+          git add -f -- 'ignoré.log'
+
+      - name: "Clean fixture: no case sensitivity conflicts"
+        uses: ./template/.github/actions/check-no-case-sensitivity-conflicts
+
+      - name: "Clean fixture: excluded non-ASCII ignored file is allowed"
+        uses: ./template/.github/actions/check-no-ignored-files
+        with:
+          extra-excluded-files: "ignoré.log"
+
+      - name: "Clean fixture: no prohibited files"
+        uses: ./template/.github/actions/check-no-prohibited-files
+
+      - name: "Add offending files to fixture repository"
+        shell: bash
+        run: |
+          printf 'x\n' > 'É.txt'
+          printf 'x\n' > 'a"b.log'
+          printf 'x\n' > 'dír "q"/.deleteme.now'
+          git add -- 'É.txt' 'dír "q"/.deleteme.now'
+          git add -f -- 'a"b.log'
+
+      - name: "Offending fixture: non-ASCII case sensitivity conflict"
+        id: case-conflict
+        continue-on-error: true
+        uses: ./template/.github/actions/check-no-case-sensitivity-conflicts
+
+      - name: "Offending fixture: quote-containing ignored file"
+        id: ignored-file
+        continue-on-error: true
+        uses: ./template/.github/actions/check-no-ignored-files
+        with:
+          extra-excluded-files: "ignoré.log"
+
+      - name: "Offending fixture: prohibited file in oddly named directory"
+        id: prohibited-file
+        continue-on-error: true
+        uses: ./template/.github/actions/check-no-prohibited-files
+
+      - name: "Assert offending files were detected"
+        shell: bash
+        env:
+          CASE_CONFLICT_OUTCOME: "${{steps.case-conflict.outcome}}"
+          IGNORED_FILE_OUTCOME: "${{steps.ignored-file.outcome}}"
+          PROHIBITED_FILE_OUTCOME: "${{steps.prohibited-file.outcome}}"
+        run: |
+          status=0
+
+          if [ "${CASE_CONFLICT_OUTCOME}" != "failure" ]; then
+            echo "::error::❌ Case sensitivity conflict between É.txt and é.txt was not detected (outcome: ${CASE_CONFLICT_OUTCOME})"
+            status=1
+          fi
+
+          if [ "${IGNORED_FILE_OUTCOME}" != "failure" ]; then
+            echo "::error::❌ Ignored file a\"b.log was not detected (outcome: ${IGNORED_FILE_OUTCOME})"
+            status=1
+          fi
+
+          if [ "${PROHIBITED_FILE_OUTCOME}" != "failure" ]; then
+            echo "::error::❌ Prohibited file dír \"q\"/.deleteme.now was not detected (outcome: ${PROHIBITED_FILE_OUTCOME})"
+            status=1
+          fi
+
+          exit "${status}"
