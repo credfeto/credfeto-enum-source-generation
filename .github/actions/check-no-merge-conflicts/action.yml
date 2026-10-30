@@ -10,13 +10,14 @@ runs:
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
         script: |
-          const { execSync } = require('node:child_process');
+          const { execFileSync } = require('node:child_process');
 
           let output = '';
 
           try {
-            output = execSync("git grep -l -E -e '^<<<<<<<' -e '^>>>>>>>' -- .", {
+            output = execFileSync('git', ['grep', '-z', '-l', '-E', '-e', '^<<<<<<<', '-e', '^>>>>>>>', '--', '.'], {
               encoding: 'utf8',
+              maxBuffer: 256 * 1024 * 1024,
               stdio: ['ignore', 'pipe', 'pipe'],
             });
           } catch (error) {
@@ -29,7 +30,7 @@ runs:
             return;
           }
 
-          const files = Array.from(new Set(output.split(/\r?\n/).filter(Boolean)))
+          const files = Array.from(new Set(output.split('\0').filter(Boolean)))
             .sort((left, right) => left.localeCompare(right, undefined, { sensitivity: 'base' }) || left.localeCompare(right));
 
           if (files.length === 0) {
