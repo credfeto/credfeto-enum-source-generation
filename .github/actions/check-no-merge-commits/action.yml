@@ -22,7 +22,7 @@ runs:
         script: |
           const prNumber = Number(process.env.PR_NUMBER || context.payload.pull_request?.number);
           if (!Number.isInteger(prNumber) || prNumber <= 0) {
-            core.setFailed('No pull request number available: supply the pr-number input or run on a pull_request event.');
+            core.setFailed('❌ No pull request number available: supply the pr-number input or run on a pull_request event.');
             return;
           }
           const commits = await github.paginate(github.rest.pulls.listCommits, {
@@ -35,7 +35,7 @@ runs:
             for (const commit of mergeCommits) {
               core.error(`Merge commit: ${commit.sha} - ${commit.commit.message.split('\n')[0]}`);
             }
-            core.setFailed(`Found ${mergeCommits.length} merge commit(s). Please rebase instead of merging.`);
+            core.setFailed(`❌ Found ${mergeCommits.length} merge commit(s). Please rebase instead of merging.`);
           } else {
             core.info('No merge commits found.');
           }
