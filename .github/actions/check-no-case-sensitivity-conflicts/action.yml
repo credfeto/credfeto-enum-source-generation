@@ -50,4 +50,4 @@ runs:
             core.error(`Case sensitivity conflict: ${file}`, { file });
           }
 
-          core.setFailed(`Case sensitivity conflicts found (${offenders.length}).`);
+          core.setFailed(`❌ Case sensitivity conflicts found (${offenders.length}).`);
