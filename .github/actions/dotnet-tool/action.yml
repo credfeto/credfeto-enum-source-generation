@@ -9,22 +9,23 @@ inputs:
   tool-version:
     description: "Tool version to install"
     required: false
-    default: 'latest'
+    default: "latest"
 
 runs:
   using: "composite"
   steps:
     - name: "Install dotnet tool"
       shell: bash
-      working-directory: "${{ github.workspace }}"
-      env:
-        TOOL_NAME: "${{inputs.tool-name}}"
-        TOOL_VERSION: "${{inputs.tool-version}}"
+      working-directory: "${{github.workspace}}"
       run: |
         VERSION_ARGS=()
         [ -n "$TOOL_VERSION" ] && [ "$TOOL_VERSION" != 'latest' ] && VERSION_ARGS=(--version "$TOOL_VERSION")
-        r=5
+        attempts=5
+        r=$attempts
         while ! dotnet tool install --local "$TOOL_NAME" "${VERSION_ARGS[@]}" --create-manifest-if-needed --ignore-failed-sources --verbosity diag; do
-          ((--r)) || exit 1
+          ((--r)) || { echo "::error::Dotnet tool install failed after ${attempts} attempts"; exit 1; }
           sleep 30
         done
+      env:
+        TOOL_NAME: "${{inputs.tool-name}}"
+        TOOL_VERSION: "${{inputs.tool-version}}"
