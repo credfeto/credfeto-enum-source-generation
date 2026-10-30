@@ -18,6 +18,6 @@ runs:
       uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7.0.0
       with:
         repo-token: "${{inputs.github-token}}"
-        configuration-path: .github/labeler.yml
+        configuration-path: ".github/labeler.yml"
         sync-labels: false
         pr-number: "${{inputs.pr-number}}"
