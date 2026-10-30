@@ -17,10 +17,12 @@ jobs:
       - name: "Check Required Secrets"
         shell: bash
         run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+          if [ -z "$SOURCE_PUSH_TOKEN" ]; then
             echo "::error::SOURCE_PUSH_TOKEN is required but not set"
             exit 1
           fi
+        env:
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -31,13 +33,15 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
 
       - name: "Cleanup"
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          BRANCH: "refs/pull/${{github.event.pull_request.number}}/merge"
         with:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           script: |
@@ -50,7 +54,7 @@ jobs:
             core.info(`Found ${caches.length} cache(s) for ${ref}`);
             core.info('Deleting caches...');
             for (const cache of caches) {
-              core.info(`Deleting cache: ${cache.key} (id: ${cache.id})`);
+              core.info(`Deleting cache: ${cache.key.replace(/[\r\n]/g, ' ')} (id: ${cache.id})`);
               try {
                 await github.rest.actions.deleteActionsCacheById({
                   owner: context.repo.owner,
@@ -62,5 +66,3 @@ jobs:
               }
             }
             core.info('Done');
-        env:
-          BRANCH: refs/pull/${{github.event.pull_request.number}}/merge
