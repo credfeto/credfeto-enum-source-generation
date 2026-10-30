@@ -16,7 +16,11 @@ runs:
       with:
         working-directory: "${{github.workspace}}"
         tool-name: "buildversion"
-        tool-arguments: "--GithubToken \"${{inputs.github-token}}\" --TagPrefix \"github\""
+        tool-arguments: |
+          --GithubToken
+          ${{inputs.github-token}}
+          --TagPrefix
+          github
 
     - name: "Log build version"
       shell: bash
@@ -25,6 +29,9 @@ runs:
           echo "::error::BUILD_VERSION was not set by the buildversion tool"
           exit 1
         fi
+        case "$BUILD_VERSION" in
+          *$'\n'*|*$'\r'*) echo "::error::BUILD_VERSION must not contain newlines"; exit 1;;
+        esac
         echo "****************************************************************"
         printf '* Current Build: \033[38;5;6m%s\033[0m\n' "$BUILD_VERSION"
         echo "****************************************************************"
