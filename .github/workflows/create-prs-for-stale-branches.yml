@@ -39,7 +39,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -47,15 +47,15 @@ jobs:
       - name: "Info"
         shell: bash
         run: |
-          echo "Repo: ${{github.repository}}"
-          echo "Owner: ${{github.repository_owner}}"
+          echo "Repo: $GITHUB_REPOSITORY"
+          echo "Owner: $GITHUB_REPOSITORY_OWNER"
 
       - name: "Checkout Source"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           clean: true
           fetch-depth: 0
-          ref: main
+          ref: "main"
           repository: "${{github.repository}}"
 
       - name: "Create matrix of branches"
@@ -66,8 +66,7 @@ jobs:
             const { data: repo } = await github.rest.repos.get({ owner: context.repo.owner, repo: context.repo.repo });
             const defaultBranch = repo.default_branch;
 
-            const [{ stdout: branchList }, { stdout: commitMsgRaw }, { stdout: lastUpdateRaw }] = await Promise.all([
-              exec.getExecOutput('git', ['branch', '--remote', '--format=%(refname:short)']),
+            const [{ stdout: commitMsgRaw }, { stdout: branchRefsRaw }] = await Promise.all([
               exec.getExecOutput('git', ['log', '-1', '--pretty=%s', `origin/${defaultBranch}`]),
               exec.getExecOutput('git', [
                 'for-each-ref',
@@ -76,31 +75,33 @@ jobs:
               ]),
             ]);
 
-            const branches = branchList
+            const branchRefs = branchRefsRaw
               .split('\n')
-              .map(line => line.trim().match(/^origin\/(.+)$/)?.[1])
-              .filter(branch => branch && branch !== 'HEAD' && !branch.startsWith('release/') && !branch.startsWith('hotfix/') && branch !== defaultBranch);
-            const branchSet = new Set(branches);
+              .map(line => line.trim().split(' '))
+              .map(([ref, timestamp]) => ({
+                branch: ref?.match(/^origin\/(.+)$/)?.[1],
+                lastUpdateSeconds: Number(timestamp),
+              }))
+              .filter(({ branch }) =>
+                branch && branch !== 'HEAD' && !branch.startsWith('release/') && !branch.startsWith('hotfix/') && branch !== defaultBranch);
+
+            const undated = branchRefs.filter(({ lastUpdateSeconds }) => !Number.isInteger(lastUpdateSeconds)).map(({ branch }) => branch);
+            if (undated.length > 0) {
+              core.setFailed(`❌ Could not read the last commit date for: ${undated.join(', ')}`);
+              return;
+            }
 
             const commitMsg = commitMsgRaw.trim();
-
-            const lastUpdateByBranch = new Map(
-              lastUpdateRaw
-                .split('\n')
-                .map(line => line.trim().split(' '))
-                .filter(([ref]) => ref && branchSet.has(ref.slice('origin/'.length)))
-                .map(([ref, timestamp]) => [ref.slice('origin/'.length), Number(timestamp)]),
-            );
 
             const nowSeconds = Math.floor(Date.now() / 1000);
 
             const matrix = await Promise.all(
-              branches.map(async branch => {
+              branchRefs.map(async ({ branch, lastUpdateSeconds }) => {
                 const compareRef = `origin/${defaultBranch}...origin/${branch}`;
                 const { stdout: countsRaw } = await exec.getExecOutput('git', ['rev-list', '--left-right', '--count', compareRef]);
                 const [behind, ahead] = countsRaw.trim().split(/\s+/);
 
-                const daysSinceUpdate = Math.floor((nowSeconds - lastUpdateByBranch.get(branch)) / 86400);
+                const daysSinceUpdate = Math.floor((nowSeconds - lastUpdateSeconds) / 86400);
 
                 return { branch, ahead, behind, dayssinceupdate: String(daysSinceUpdate) };
               }),
@@ -117,7 +118,7 @@ jobs:
       commitmsg: "${{steps.set-matrix.outputs.commitmsg}}"
 
   check-branch:
-    needs: build-matrix
+    needs: [build-matrix]
     if: needs.build-matrix.outputs.haschanges == 'true'
     runs-on: ubuntu-latest
 
@@ -145,7 +146,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -154,7 +155,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           clean: true
-          ref: main
+          ref: "main"
           repository: "${{github.repository}}"
 
       - name: "Check Required Secrets"
@@ -164,14 +165,17 @@ jobs:
           secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Find Existing PR"
-        uses: ./.github/actions/find-pull-request
         id: find-pull-request
+        uses: ./.github/actions/find-pull-request
         with:
           branch: "${{env.BRANCH}}"
 
       - name: "Display Found PR"
         shell: bash
-        run: echo "Pull Request ${{steps.find-pull-request.outputs.number}} (${{steps.find-pull-request.outputs.head-sha}})"
+        run: echo "Pull Request $PR_NUMBER ($PR_HEAD_SHA)"
+        env:
+          PR_NUMBER: "${{steps.find-pull-request.outputs.number}}"
+          PR_HEAD_SHA: "${{steps.find-pull-request.outputs.head-sha}}"
 
       - name: "Check Branch Status"
         if: steps.find-pull-request.outputs.number == ''
@@ -182,14 +186,14 @@ jobs:
 
       # Ahead of default branch (the default branch itself is excluded from the matrix above), and no pre-existing PR then create one.
       - name: "Read PR Template"
+        id: pr-template
         if: |-
           steps.find-pull-request.outputs.number == ''
           && matrix.ahead != 0
           && matrix.dayssinceupdate > 7
-        id: pr-template
         uses: ./.github/actions/read-file
         with:
-          path: ./.github/PULL_REQUEST_TEMPLATE.md
+          path: "./.github/PULL_REQUEST_TEMPLATE.md"
 
       - name: "Check Required Secrets"
         if: |-
@@ -202,11 +206,11 @@ jobs:
           secret-value: "${{secrets.PR_CREATE_TOKEN}}"
 
       - name: "Create PR"
+        id: open-pr
         if: |-
           steps.find-pull-request.outputs.number == ''
           && matrix.ahead != 0
           && matrix.dayssinceupdate > 7
-        id: open-pr
         uses: ./.github/actions/create-pull-request
         with:
           github-token: "${{secrets.PR_CREATE_TOKEN}}"
@@ -232,7 +236,7 @@ jobs:
           script: |
             core.info(`URL: ${process.env.PR_URL}`);
             core.info(`PR: ${process.env.PR_NUMBER}`);
-            core.info(`CF: ${process.env.HAS_CHANGED_FILES}`);
+            core.info(`Has Changed Files: ${process.env.HAS_CHANGED_FILES}`);
 
       - name: "Update PR Labels"
         if: steps.open-pr.outputs.pr-number != ''
@@ -241,21 +245,10 @@ jobs:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           pr-number: "${{steps.open-pr.outputs.pr-number}}"
 
-      - name: "Rebase"
-        if: |-
-          steps.find-pull-request.outputs.number == ''
-          && matrix.behind != 0
-          && matrix.ahead != 0
-          && matrix.dayssinceupdate > 7
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          script: |
-            core.info('Rebase?');
-
       - name: "Delete Branch"
         if: |-
           steps.find-pull-request.outputs.number == ''
-          && matrix.ahead == '0'
+          && matrix.ahead == 0
           && matrix.dayssinceupdate > 60
         uses: ./.github/actions/delete-branch
         with:
