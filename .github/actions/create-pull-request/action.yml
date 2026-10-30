@@ -24,7 +24,7 @@ inputs:
     required: false
     default: ""
   draft:
-    description: "Create as draft PR"
+    description: "Create as draft PR: true or false (case-insensitive), or empty for false; any other value fails"
     required: false
     default: "false"
   title:
@@ -52,6 +52,14 @@ runs:
     - name: "Create Pull Request"
       id: create
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        SOURCE_BRANCH: "${{inputs.source-branch}}"
+        DESTINATION_BRANCH: "${{inputs.destination-branch}}"
+        TITLE: "${{inputs.title}}"
+        BODY: "${{inputs.body}}"
+        DRAFT: "${{inputs.draft}}"
+        ASSIGNEES: "${{inputs.assignees}}"
+        LABELS: "${{inputs.labels}}"
       with:
         github-token: "${{inputs.github-token}}"
         script: |
@@ -59,7 +67,12 @@ runs:
           const destinationBranch = process.env.DESTINATION_BRANCH;
           const title = process.env.TITLE;
           const body = process.env.BODY;
-          const draft = process.env.DRAFT === 'true';
+          const draftInput = (process.env.DRAFT || 'false').toLowerCase();
+          if (draftInput !== 'true' && draftInput !== 'false') {
+            core.setFailed('draft must be true or false');
+            return;
+          }
+          const draft = draftInput === 'true';
           const assignees = process.env.ASSIGNEES
             ? process.env.ASSIGNEES.split(',').map(a => a.trim()).filter(Boolean)
             : [];
@@ -154,11 +167,3 @@ runs:
           core.setOutput('pr-number', String(pr.number));
           core.setOutput('pr-url', pr.html_url);
           core.setOutput('has-changed-files', String(pr.changed_files > 0));
-      env:
-        SOURCE_BRANCH: "${{inputs.source-branch}}"
-        DESTINATION_BRANCH: "${{inputs.destination-branch}}"
-        TITLE: "${{inputs.title}}"
-        BODY: "${{inputs.body}}"
-        DRAFT: "${{inputs.draft}}"
-        ASSIGNEES: "${{inputs.assignees}}"
-        LABELS: "${{inputs.labels}}"
