@@ -92,7 +92,8 @@ runs:
       working-directory: "${{github.workspace}}/src"
       shell: bash
       run: |
-        r=5
+        attempts=5
+        r=$attempts
         delay=30
         until dotnet restore \
               --warnaserror \
@@ -100,7 +101,7 @@ runs:
               -p:NoWarn=MSB4241 \
               -p:SuppressNETCoreSdkPreviewMessage=true
         do
-          ((--r)) || exit 1
+          ((--r)) || { echo "::error::Dotnet restore failed after ${attempts} attempts"; exit 1; }
           echo "⚠️ Restore failed, retrying in ${delay}s ($r attempt(s) left)"
           sleep "${delay}"
         done
@@ -115,14 +116,16 @@ runs:
                   --configuration Release \
                   "-p:ContinuousIntegrationBuild=true" \
                   "-p:EnableSarif=True" \
-                  "-p:IsProduction=${{inputs.production-build}}" \
+                  "-p:IsProduction=$PRODUCTION_BUILD" \
                   "-p:NoWarn=MSB4241" \
                   "-p:Optimize=true" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
-                  "-p:Version=${{inputs.build-version}}" \
+                  "-p:Version=$BUILD_VERSION" \
                   -nodeReuse:False
       env:
         ReleaseNotes: "${{inputs.release-notes}}"
+        PRODUCTION_BUILD: "${{inputs.production-build}}"
+        BUILD_VERSION: "${{inputs.build-version}}"
 
     ## RUN TESTS
     - name: "Dotnet: Test"
@@ -141,17 +144,19 @@ runs:
                   --report-github \
                   "-p:ContinuousIntegrationBuild=true" \
                   "-p:EnableSarif=True" \
-                  "-p:IsProduction=${{inputs.production-build}}" \
+                  "-p:IsProduction=$PRODUCTION_BUILD" \
                   "-p:NoWarn=MSB4241" \
                   "-p:Optimize=true" \
                   "-p:SuppressNETCoreSdkPreviewMessage=true" \
-                  "-p:Version=${{inputs.build-version}}"
+                  "-p:Version=$BUILD_VERSION"
       env:
         ReleaseNotes: "${{inputs.release-notes}}"
+        PRODUCTION_BUILD: "${{inputs.production-build}}"
+        BUILD_VERSION: "${{inputs.build-version}}"
 
-    # ############################################################################################################
-    # # DATABASE BUILD
-    # ############################################################################################################
+    ############################################################################################################
+    # DATABASE BUILD
+    ############################################################################################################
     - name: "SQL: Build"
       if: inputs.build-sql == 'true'
       uses: ./.github/actions/sql
@@ -169,6 +174,7 @@ runs:
       with:
         production-build: "${{inputs.production-build}}"
         build-version: "${{inputs.build-version}}"
+        release: "${{inputs.release}}"
         release-notes: "${{inputs.release-notes}}"
         platform: "${{inputs.dotnet-docker-platform}}"
         project-to-publish: "${{inputs.project-to-publish}}"
