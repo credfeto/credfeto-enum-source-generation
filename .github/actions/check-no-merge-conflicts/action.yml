@@ -25,7 +25,7 @@ runs:
               return;
             }
 
-            core.setFailed(`git grep failed (exit ${error.status}): ${error.stderr || error.message}`);
+            core.setFailed(`❌ git grep failed (exit ${error.status}): ${error.stderr || error.message}`);
             return;
           }
 
@@ -41,4 +41,4 @@ runs:
             core.error(`Merge conflict found in ${file}`, { file });
           }
 
-          core.setFailed('Found merge conflicts.');
+          core.setFailed('❌ Found merge conflicts.');
