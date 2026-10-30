@@ -22,4 +22,4 @@ runs:
         ignore-unfixed: true
         vuln-type: "os,library"
         severity: "HIGH,CRITICAL"
-        cache-dir: "${{github.workspace}}/.trivy-cache"
+        cache-dir: "${{runner.temp}}/trivy-cache"
