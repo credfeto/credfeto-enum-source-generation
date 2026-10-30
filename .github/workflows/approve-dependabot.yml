@@ -31,14 +31,18 @@ jobs:
       - name: "Check Required Secrets"
         shell: bash
         run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+          if [ -z "$SOURCE_PUSH_TOKEN" ]; then
             echo "::error::SOURCE_PUSH_TOKEN is required but not set"
             exit 1
           fi
+        env:
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Auto Merge"
         if: startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          MERGE_METHOD: "MERGE"
         with:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           script: |
@@ -63,8 +67,6 @@ jobs:
             });
             core.info(`✅ Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
             core.notice(`Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
-        env:
-          MERGE_METHOD: "MERGE"
 
       - name: "Approve"
         if: startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
