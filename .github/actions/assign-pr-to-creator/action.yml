@@ -17,6 +17,8 @@ runs:
   steps:
     - name: "Assign PR to Creator"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        PR_NUMBER: "${{inputs.pr-number}}"
       with:
         github-token: "${{inputs.github-token}}"
         script: |
@@ -41,5 +43,3 @@ runs:
           });
           core.info(`✅ Assigned PR #${prNumber} to ${creator}`);
           core.notice(`Assigned PR #${prNumber} to ${creator}`);
-      env:
-        PR_NUMBER: "${{inputs.pr-number}}"
