@@ -9,5 +9,5 @@ runs:
     - name: "Move docker build cache"
       shell: bash
       run: |
-        rm -rf "${{runner.temp}}/.buildx-cache"
-        mv "${{runner.temp}}/.buildx-cache-new" "${{runner.temp}}/.buildx-cache"
+        rm -rf "$RUNNER_TEMP/.buildx-cache"
+        mv "$RUNNER_TEMP/.buildx-cache-new" "$RUNNER_TEMP/.buildx-cache"
