@@ -37,16 +37,16 @@ runs:
 
     - name: "Check nuget-feed-type is valid"
       shell: bash
-      env:
-        NUGET_FEED_TYPE: "${{inputs.nuget-feed-type}}"
       run: |
         case "${NUGET_FEED_TYPE}" in
           ''|'NUGET'|'SLEET') ;;
           *)
-            echo "::error::nuget-feed-type must be 'NUGET', 'SLEET', or empty/unset - got '${NUGET_FEED_TYPE}'"
+            echo "::error::nuget-feed-type must be 'NUGET', 'SLEET', or empty/unset"
             exit 1
             ;;
         esac
+      env:
+        NUGET_FEED_TYPE: "${{inputs.nuget-feed-type}}"
 
     - name: "Dotnet: Pack tool"
       working-directory: "${{github.workspace}}/src"
@@ -55,8 +55,8 @@ runs:
         dotnet pack \
                   --warnaserror \
                   --configuration Release \
-                  "-p:Version=${{inputs.build-version}}" \
-                  "-p:IsProduction=${{inputs.production-build}}" \
+                  "-p:Version=$BUILD_VERSION" \
+                  "-p:IsProduction=$PRODUCTION_BUILD" \
                   "-p:IncludeSymbols=False" \
                   --no-restore \
                   -nodeReuse:False \
@@ -64,6 +64,8 @@ runs:
                   "-p:ContinuousIntegrationBuild=true"
       env:
         ReleaseNotes: "${{inputs.release-notes}}"
+        PRODUCTION_BUILD: "${{inputs.production-build}}"
+        BUILD_VERSION: "${{inputs.build-version}}"
 
     - name: "Dotnet: Copy packed to dist"
       shell: bash
@@ -74,7 +76,7 @@ runs:
           echo "::error::No .nupkg files found to copy to dist"
           exit 1
         fi
-        cp "${packages[@]}" "${{github.workspace}}/dist"
+        cp "${packages[@]}" "$GITHUB_WORKSPACE/dist"
       working-directory: "${{github.workspace}}/src"
 
     - name: "Dotnet: Publish Packages to Nuget (Trusted Publishing)"
