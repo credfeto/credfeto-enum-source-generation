@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -68,7 +68,7 @@ jobs:
             exit 1
           fi
         env:
-          SOURCE_PUSH_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -79,7 +79,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -135,13 +135,26 @@ jobs:
               | sort_by(."channel-version" | split(".") | map(tonumber))
               | last
               | ."latest-sdk"
-            ')
+            ') || {
+            echo "::error::Failed to download releases-index.json or read the latest active .NET SDK version from it"
+            exit 1
+          }
           if [[ -z "$LATEST" || "$LATEST" == "null" ]]; then
             echo "::error::Failed to determine latest active .NET SDK version from releases-index.json"
             exit 1
           fi
-          CURRENT_VER=$(jq -r '.sdk.version' src/global.json)
-          echo "Latest available SDK: $LATEST (current: $CURRENT_VER)"
+          CURRENT_VER=$(jq -re '.sdk.version' src/global.json) || {
+            echo "::error::Failed to read sdk.version from src/global.json (file missing, invalid JSON, or sdk.version missing or null)"
+            exit 1
+          }
+          case "$CURRENT_VER" in
+            *$'\n'*|*$'\r'*) echo "::error::src/global.json sdk.version must not contain newlines"; exit 1;;
+          esac
+          echo "Latest available SDK: ${LATEST//[$'\r\n']/ } (current: $CURRENT_VER)"
+          if [[ ! "$LATEST" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$ ]]; then
+            echo "::error::Latest SDK version from releases-index.json must be MAJOR.MINOR.PATCH[-PRERELEASE]"
+            exit 1
+          fi
           {
             echo "LATEST_RELEASE_VERSION=$LATEST"
             echo "CURRENT_VERSION=$CURRENT_VER"
@@ -151,22 +164,24 @@ jobs:
         id: upgrade_check
         shell: bash
         run: |
-          CURRENT_VER="${{steps.latest-dotnet-version.outputs.CURRENT_VERSION}}"
-          LATEST_RELEASE_VER="${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          echo "Current: $CURRENT_VER, Latest: $LATEST_RELEASE_VER"
-          HIGHEST=$(printf '%s\n' "$CURRENT_VER" "$LATEST_RELEASE_VER" | sort -V | tail -1)
-          if [[ "$CURRENT_VER" != "$LATEST_RELEASE_VER" && "$HIGHEST" == "$LATEST_RELEASE_VER" ]]; then
+          echo "Current: $CURRENT_VERSION, Latest: $LATEST_RELEASE_VERSION"
+          HIGHEST=$(printf '%s\n' "$CURRENT_VERSION" "$LATEST_RELEASE_VERSION" | sort -V | tail -1)
+          if [[ "$CURRENT_VERSION" != "$LATEST_RELEASE_VERSION" && "$HIGHEST" == "$LATEST_RELEASE_VERSION" ]]; then
             echo "NEW_VERSION=true" >> "$GITHUB_OUTPUT"
           else
             echo "NEW_VERSION=false" >> "$GITHUB_OUTPUT"
           fi
+        env:
+          CURRENT_VERSION: "${{steps.latest-dotnet-version.outputs.CURRENT_VERSION}}"
+          LATEST_RELEASE_VERSION: "${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
 
       - name: "Update global.json"
         if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
         shell: bash
         run: |
-          VERSION="${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          jq --arg ver "$VERSION" '.sdk.version = $ver' src/global.json > src/global.json.tmp && mv src/global.json.tmp src/global.json
+          jq --arg ver "$LATEST_RELEASE_VERSION" '.sdk.version = $ver' src/global.json > src/global.json.tmp && mv src/global.json.tmp src/global.json
+        env:
+          LATEST_RELEASE_VERSION: "${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
 
       - name: "Commit changes to new branch"
         if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
@@ -174,7 +189,7 @@ jobs:
         with:
           commit_message: "SDK - Update DotNet SDK to ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
           branch: "depends/dotnet/${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          file_pattern: src/global.json
+          file_pattern: "src/global.json"
           commit_user_name: "fun-version[bot]"
           commit_user_email: "credfeto@users.noreply.github.com"
           commit_author: "fun-version[bot] <credfeto@users.noreply.github.com>"
