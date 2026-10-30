@@ -11,7 +11,7 @@ inputs:
   dotnet-sdk-channels:
     description: "Newline-separated list of dotnet SDK channels to install (e.g. \"9\" and \"10\"), in addition to any version pinned by src/global.json"
     required: false
-    default: '10'
+    default: "10"
 
   # NUGET
   nuget-public-restore-feed-cache:
@@ -47,6 +47,10 @@ runs:
           const { existsSync, readFileSync } = require('fs');
           const path = require('path');
 
+          // Versions become a directory name under $GITHUB_WORKSPACE/.dotnet that is later deleted, so only accept SDK version shapes
+          const sdkVersionPattern = /^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$/;
+          const isSdkVersion = (version) => typeof version === 'string' && sdkVersionPattern.test(version);
+
           const globalJsonPath = path.join(process.env.GITHUB_WORKSPACE, 'src', 'global.json');
           let globalVersion = null;
           let globalChannel = null;
@@ -54,6 +58,10 @@ runs:
             const globalJson = JSON.parse(readFileSync(globalJsonPath, 'utf8'));
             if (!globalJson.sdk || !globalJson.sdk.version) {
               core.setFailed('❌ src/global.json exists but has no sdk.version field');
+              return;
+            }
+            if (!isSdkVersion(globalJson.sdk.version)) {
+              core.setFailed('❌ src/global.json sdk.version is not a valid dotnet SDK version (expected MAJOR.MINOR.PATCH[-PRERELEASE])');
               return;
             }
             globalVersion = globalJson.sdk.version;
@@ -115,6 +123,10 @@ runs:
                 core.setFailed(`❌ No release channel found matching '${requested}'`);
                 return;
               }
+              if (!isSdkVersion(match['latest-sdk'])) {
+                core.setFailed(`❌ releases-index.json latest-sdk for channel '${requested}' is not a valid dotnet SDK version`);
+                return;
+              }
               core.info(`✅ Channel ${requested} resolved to latest SDK ${match['latest-sdk']}`);
               resolved.add(match['latest-sdk']);
             }
@@ -133,8 +145,19 @@ runs:
     - name: "Set dotnet environment"
       shell: bash
       run: |
-        DOTNET_DIR="${{github.workspace}}/.dotnet/${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions-key}}"
-        NUGET_PKGS="${{github.workspace}}/.nuget/packages"
+        SDK_VERSION_PATTERN='^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$'
+        while IFS= read -r VERSION; do
+          if [[ ! "$VERSION" =~ $SDK_VERSION_PATTERN ]]; then
+            echo "::error::Resolved dotnet SDK versions must be MAJOR.MINOR.PATCH[-PRERELEASE]"
+            exit 1
+          fi
+        done <<< "$SDK_VERSIONS"
+        if [ "$SDK_VERSIONS_KEY" != "${SDK_VERSIONS//$'\n'/-}" ]; then
+          echo "::error::Resolved dotnet SDK versions key does not match the resolved SDK versions"
+          exit 1
+        fi
+        DOTNET_DIR="$GITHUB_WORKSPACE/.dotnet/$SDK_VERSIONS_KEY"
+        NUGET_PKGS="$GITHUB_WORKSPACE/.nuget/packages"
         {
           echo "DOTNET_ROOT=$DOTNET_DIR"
           echo "DOTNET_INSTALL_DIR=$DOTNET_DIR"
@@ -150,11 +173,14 @@ runs:
           echo "MSBUILDTERMINALLOGGER=auto"
         } >> "$GITHUB_ENV"
         echo "$DOTNET_DIR" >> "$GITHUB_PATH"
+      env:
+        SDK_VERSIONS: "${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions}}"
+        SDK_VERSIONS_KEY: "${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions-key}}"
 
     # Workaround for https://github.com/dotnet/sdk/issues/11432
     - name: "Reset users dotnet state"
       shell: bash
-      working-directory: "${{ github.workspace }}"
+      working-directory: "${{github.workspace}}"
       run: |
         [ -d "$HOME/.dotnet" ] && rm -fr "$HOME/.dotnet"
         mkdir "$HOME/.dotnet"
@@ -162,26 +188,26 @@ runs:
     # Workaround for https://github.com/dotnet/sdk/issues/11432
     - name: "Re-map users nuget package feed to temp folder"
       shell: bash
-      working-directory: "${{ github.workspace }}"
+      working-directory: "${{github.workspace}}"
       run: |
         echo "Ensure ~/.nuget folder exists"
         [ -d "$HOME/.nuget" ] || mkdir -p "$HOME/.nuget"
-        echo "Ensure NUGET_PACKAGES folder exists at ${{env.NUGET_PACKAGES}}"
-        [ -d "${{env.NUGET_PACKAGES}}" ] || mkdir -p "${{env.NUGET_PACKAGES}}"
+        echo "Ensure NUGET_PACKAGES folder exists at $NUGET_PACKAGES"
+        [ -d "$NUGET_PACKAGES" ] || mkdir -p "$NUGET_PACKAGES"
         echo "Ensure ~/.nuget/packages doesn't exist"
         rm -fr "$HOME/.nuget/packages"
-        echo "Link ~/.nuget/packages to ${{env.NUGET_PACKAGES}}"
-        ln -sf "${{env.NUGET_PACKAGES}}" "$HOME/.nuget/packages"
+        echo "Link ~/.nuget/packages to $NUGET_PACKAGES"
+        ln -sf "$NUGET_PACKAGES" "$HOME/.nuget/packages"
         echo "Check ~/.nuget/packages"
         ls -la "$HOME/.nuget/packages"
 
     - name: "Check for existing dotnet install"
       id: check_dotnet_install
       shell: bash
-      working-directory: "${{ github.workspace }}"
+      working-directory: "${{github.workspace}}"
       run: |
         INSTALL_NEEDED="false"
-        DOTNET_BIN="${{env.DOTNET_ROOT}}/dotnet"
+        DOTNET_BIN="$DOTNET_ROOT/dotnet"
         if [ ! -x "$DOTNET_BIN" ]; then
           INSTALL_NEEDED="true"
         else
@@ -191,15 +217,26 @@ runs:
             if ! grep -qxF "$VERSION" <<< "$INSTALLED_SDKS"; then
               INSTALL_NEEDED="true"
             fi
-          done <<< "${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions}}"
+          done <<< "$SDK_VERSIONS"
         fi
         if [ "$INSTALL_NEEDED" = "true" ]; then
-          echo "⚠️ Existing dotnet install at ${{env.DOTNET_ROOT}} missing or unverified - wiping for a clean install"
-          rm -fr "${{env.DOTNET_ROOT}}"
+          DOTNET_KEY="${DOTNET_ROOT#"$GITHUB_WORKSPACE/.dotnet/"}"
+          if [ -z "$GITHUB_WORKSPACE" ] || [ "$DOTNET_KEY" = "$DOTNET_ROOT" ] || [[ ! "$DOTNET_KEY" =~ ^[0-9][0-9A-Za-z.-]*$ ]]; then
+            echo "::error::DOTNET_ROOT must be a single version-named directory directly under \$GITHUB_WORKSPACE/.dotnet"
+            exit 1
+          fi
+          if [[ -L "$GITHUB_WORKSPACE/.dotnet" || -L "$DOTNET_ROOT" ]]; then
+            echo "::error::\$GITHUB_WORKSPACE/.dotnet and DOTNET_ROOT must not be symlinks"
+            exit 1
+          fi
+          echo "⚠️ Existing dotnet install at $DOTNET_ROOT missing or unverified - wiping for a clean install"
+          rm -fr "$DOTNET_ROOT"
         else
-          echo "✅ All resolved SDK versions already installed and verified at ${{env.DOTNET_ROOT}}"
+          echo "✅ All resolved SDK versions already installed and verified at $DOTNET_ROOT"
         fi
         echo "install-needed=$INSTALL_NEEDED" >> "$GITHUB_OUTPUT"
+      env:
+        SDK_VERSIONS: "${{steps.resolve_dotnet_sdk_versions.outputs.sdk-versions}}"
 
     - name: "Install dotnet"
       if: steps.check_dotnet_install.outputs.install-needed == 'true'
@@ -274,6 +311,11 @@ runs:
             const dotnetRoot = path.join(process.env.GITHUB_WORKSPACE, '.dotnet');
             const currentName = path.basename(process.env.DOTNET_ROOT);
             const currentVersions = process.env.CURRENT_SDK_VERSIONS.split('\n').map(v => v.trim()).filter(Boolean);
+
+            if (fs.lstatSync(dotnetRoot).isSymbolicLink()) {
+              core.setFailed('❌ $GITHUB_WORKSPACE/.dotnet must not be a symlink');
+              return;
+            }
 
             const directories = fs.readdirSync(dotnetRoot, { withFileTypes: true })
               .filter(entry => entry.isDirectory())
@@ -367,7 +409,7 @@ runs:
 
     - name: "Enable dotnet tools"
       shell: bash
-      working-directory: "${{ github.workspace }}"
+      working-directory: "${{github.workspace}}"
       run: |
         rm -f dotnet-tools.json
         rm -f .config/dotnet-tools.json
