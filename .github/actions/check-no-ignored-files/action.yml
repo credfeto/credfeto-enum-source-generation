@@ -47,4 +47,4 @@ runs:
             core.error(`Ignored file found: ${file}`, { file });
           }
 
-          core.setFailed(`Found ignored files (${ignoredFiles.length}).`);
+          core.setFailed(`❌ Found ignored files (${ignoredFiles.length}).`);
