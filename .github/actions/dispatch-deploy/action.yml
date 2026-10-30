@@ -60,7 +60,7 @@ runs:
         DOCKER_APP_NAME: "${{inputs.docker-app-name}}"
         BUILD_VERSION: "${{inputs.build-version}}"
       with:
-        github-token: "${{ inputs.github-token }}"
+        github-token: "${{inputs.github-token}}"
         script: |
           const tag = `${process.env.DOCKER_APP_NAME}/v${process.env.BUILD_VERSION}`;
           try {
@@ -72,7 +72,7 @@ runs:
             });
           } catch (e) {
             if (e.status !== 422) throw e;
-            core.info(`* Tag ${tag} already exists - skipping`);
+            core.info(`* Tag ${tag.replace(/[\r\n]/g, ' ')} already exists - skipping`);
           }
 
     - name: "Trigger Deployment Workflow"
@@ -89,7 +89,7 @@ runs:
         DOCKER_CONTAINER_REGISTRY: "${{inputs.docker-container-registry}}"
         AWS_LOAD_BALANCER_PRIORITY: "${{inputs.aws-load-balancer-priority}}"
       with:
-        github-token: "${{ inputs.github-token }}"
+        github-token: "${{inputs.github-token}}"
         script: |
           const id = await github.rest.actions.createWorkflowDispatch({
             owner: context.repo.owner,
