@@ -5,8 +5,8 @@ name: "Build: Pre-Release"
 on:
   push:
     branches-ignore:
-      - 'release/*'
-      - 'hotfix/*'
+      - "release/*"
+      - "hotfix/*"
   pull_request:
     types: [ready_for_review]
     branches:
@@ -30,10 +30,10 @@ jobs:
   allocate-build-number:
 
     runs-on: >-
-      ${{ startsWith(vars.PRE_RELEASE_BUILD_ENVIRONMENT, '[')
+      ${{startsWith(vars.PRE_RELEASE_BUILD_ENVIRONMENT, '[')
       && fromJSON(vars.PRE_RELEASE_BUILD_ENVIRONMENT)
       || vars.PRE_RELEASE_BUILD_ENVIRONMENT
-      || 'ubuntu-latest' }}
+      || 'ubuntu-latest'}}
 
     concurrency:
       group: "${{github.repository}}-build-number"
@@ -45,18 +45,20 @@ jobs:
     env:
       # Nuget caching
       USE_NUGET_CACHE: "${{vars.USE_NUGET_CACHE}}"
-      NUGET_BAGET_CACHE: ''
-      PRERELEASE_BAGET_CACHE: ''
-      RELEASE_BAGET_CACHE: ''
+      NUGET_BAGET_CACHE: ""
+      PRERELEASE_BAGET_CACHE: ""
+      RELEASE_BAGET_CACHE: ""
 
     steps:
       - name: "Check Required Secrets"
         shell: bash
         run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+          if [ -z "$SOURCE_PUSH_TOKEN" ]; then
             echo "::error::SOURCE_PUSH_TOKEN is required but not set"
             exit 1
           fi
+        env:
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -67,11 +69,11 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
-            echo "TEMP=${{runner.temp}}"
-            echo "TMP=${{runner.temp}}"
+            echo "TEMP=$RUNNER_TEMP"
+            echo "TMP=$RUNNER_TEMP"
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
@@ -112,19 +114,17 @@ jobs:
         shell: bash
         run: |
           echo "build-version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
-        env:
-          BUILD_VERSION: "${{env.BUILD_VERSION}}"
 
   # @@required: main
   build-pre-release:
 
-    needs: allocate-build-number
+    needs: [allocate-build-number]
 
     runs-on: >-
-      ${{ startsWith(vars.PRE_RELEASE_BUILD_ENVIRONMENT, '[')
+      ${{startsWith(vars.PRE_RELEASE_BUILD_ENVIRONMENT, '[')
       && fromJSON(vars.PRE_RELEASE_BUILD_ENVIRONMENT)
       || vars.PRE_RELEASE_BUILD_ENVIRONMENT
-      || 'ubuntu-latest' }}
+      || 'ubuntu-latest'}}
 
     env:
       # Which NPM Registry to use
@@ -132,18 +132,20 @@ jobs:
       NPM_CACHE_CERT: "${{vars.NPM_CACHE_CERT}}"
       # Nuget caching
       USE_NUGET_CACHE: "${{vars.USE_NUGET_CACHE}}"
-      NUGET_BAGET_CACHE: ''
-      PRERELEASE_BAGET_CACHE: ''
-      RELEASE_BAGET_CACHE: ''
+      NUGET_BAGET_CACHE: ""
+      PRERELEASE_BAGET_CACHE: ""
+      RELEASE_BAGET_CACHE: ""
 
     steps:
       - name: "Check Required Secrets"
         shell: bash
         run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+          if [ -z "$SOURCE_PUSH_TOKEN" ]; then
             echo "::error::SOURCE_PUSH_TOKEN is required but not set"
             exit 1
           fi
+        env:
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -154,11 +156,11 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
-            echo "TEMP=${{runner.temp}}"
-            echo "TMP=${{runner.temp}}"
+            echo "TEMP=$RUNNER_TEMP"
+            echo "TMP=$RUNNER_TEMP"
           } >> "$GITHUB_ENV"
 
       - name: "Checkout Source"
@@ -204,7 +206,7 @@ jobs:
           project-to-publish: "${{vars.PROJECT_TO_PUBLISH}}"
           docker-app-owner: "${{vars.DOCKER_APP_OWNER}}"
           docker-app-name: "${{vars.DOCKER_APP_NAME}}"
-          build-tag: latest
+          build-tag: "latest"
           cloud-formation-deploy: "${{vars.CLOUD_FORMATION_DEPLOY}}"
           cloud-formation-stack: "${{vars.CLOUD_FORMATION_STACK}}"
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
@@ -228,7 +230,5 @@ jobs:
 
       - name: "Build Version"
         shell: bash
-        env:
-          BUILD_VERSION: "${{env.BUILD_VERSION}}"
         run: |
-          echo "::notice::Version: $BUILD_VERSION"
+          echo "::notice::Version: ${BUILD_VERSION//[$'\r\n']/ }"
