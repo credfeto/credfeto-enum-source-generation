@@ -224,18 +224,44 @@ runs:
         CHECK_FILES_OUTPUTS: "${{ toJSON(steps.check_files.outputs) }}"
       run: echo "$CHECK_FILES_OUTPUTS"
 
-    - name: "Validate CloudFormation template"
+    - name: "Check AWS credentials for CloudFormation validation"
+      id: cfn_credentials
       if: |-
         steps.check_files.outputs.DOTNET_EXIST == 'true' &&
         steps.check_files.outputs.CLOUDFORMATION_EXIST == 'true' &&
         inputs.cloud-formation-deploy == 'true' &&
         inputs.docker-app-name != ''
-      uses: ./.github/actions/cloudformation-validate
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        AWS_KEY_ID: ${{inputs.aws-access-key-id}}
+        AWS_SECRET_KEY: ${{inputs.aws-secret-access-key}}
+        ACTOR: ${{github.actor}}
+        IS_FORK: ${{github.event.pull_request.head.repo.fork}}
       with:
-        template: "cloudformation.json"
+        script: |
+          if (process.env.AWS_KEY_ID && process.env.AWS_SECRET_KEY) {
+            core.info('AWS key for CloudFormation template validation is set');
+            core.setOutput('validate', 'true');
+          } else if (process.env.ACTOR === 'dependabot[bot]' || process.env.IS_FORK === 'true') {
+            core.info('AWS key for CloudFormation template validation is not available; skipping validation');
+            core.setOutput('validate', 'false');
+          } else {
+            core.setFailed('AWS key needed for CloudFormation template validation is not set');
+          }
+
+    - name: "Configure AWS Credentials"
+      if: steps.cfn_credentials.outputs.validate == 'true'
+      uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+      with:
         aws-access-key-id: ${{inputs.aws-access-key-id}}
         aws-secret-access-key: ${{inputs.aws-secret-access-key}}
         aws-region: ${{inputs.aws-region}}
+
+    - name: "Validate CloudFormation template"
+      if: steps.cfn_credentials.outputs.validate == 'true'
+      uses: ./.github/actions/cloudformation-validate
+      with:
+        template: "cloudformation.json"
 
     - name: "Prepare results and dist folders"
       working-directory: "${{github.workspace}}"
