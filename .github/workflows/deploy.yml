@@ -3,7 +3,7 @@
 name: "!!Deploy: Using Cloudformation"
 on:
   workflow_dispatch:
-    # note MAX inputs = 10
+    # note: workflow_dispatch allows at most 25 inputs
     inputs:
       CLOUD_FORMATION_STACK:
         description: "1. The Cloud Formation stack to deploy as"
@@ -59,7 +59,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -122,9 +122,9 @@ jobs:
             const appName = process.env.APP_NAME;
             const buildVersion = process.env.BUILD_VERSION;
             const stack = process.env.CLOUD_FORMATION_STACK;
-            core.info(`Application: \u001b[38;5;6m${appOwner}\\${appName}`);
-            core.info(`Version: \u001b[38;5;6m${buildVersion}`);
-            core.info(`Stack: \u001b[38;5;6m${stack}`);
+            core.info(`Application: \u001b[38;5;6m${appOwner.replace(/[\r\n]/g, ' ')}\\${appName.replace(/[\r\n]/g, ' ')}`);
+            core.info(`Version: \u001b[38;5;6m${buildVersion.replace(/[\r\n]/g, ' ')}`);
+            core.info(`Stack: \u001b[38;5;6m${stack.replace(/[\r\n]/g, ' ')}`);
             core.notice(`Application: ${appOwner}\\${appName}`);
             core.notice(`Version: ${buildVersion}`);
             core.notice(`Stack: ${stack}`);
