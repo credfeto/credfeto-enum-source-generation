@@ -17,4 +17,4 @@ runs:
       shell: bash
       run: /usr/local/aws-cli/v2/current/bin/aws cloudformation validate-template --template-body "file://$TEMPLATE"
       env:
-        TEMPLATE: ${{inputs.template}}
+        TEMPLATE: "${{inputs.template}}"
