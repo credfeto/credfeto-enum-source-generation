@@ -1,0 +1,100 @@
+--- # Fail if any workflow expression is used inside a run or github-script script body
+# Maintain in repo: funfair-server-template
+name: "Check No Expressions In Scripts"
+description: "Fails if a workflow expression appears inside a run: or script: body in any workflow or local composite action"
+
+runs:
+  using: composite
+  steps:
+    - name: "Check for expressions in scripts"
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+
+          // Built from two parts so this script body does not contain the sequence it searches for.
+          const needle = '$' + '{{';
+          const mappingKey = /^(\s*)(-\s+)?([^\s#:'"][^:]*?|"[^"]*"|'[^']*')\s*:(?:\s+(.*))?$/s;
+          const blockScalarHeader = /^[|>](?:[+-][1-9]?|[1-9][+-]?)?(?:\s+#.*)?$/;
+          const valueWithoutContent = /^(?:#.*|[&!]\S*)?$/;
+          const scriptKeys = new Set(['run', 'script']);
+
+          const listFiles = () => {
+            const workflowsDir = path.join('.github', 'workflows');
+            const actionsDir = path.join('.github', 'actions');
+            const workflows = fs.existsSync(workflowsDir)
+              ? fs.readdirSync(workflowsDir).filter(name => name.endsWith('.yml')).map(name => path.join(workflowsDir, name))
+              : [];
+            const actions = fs.existsSync(actionsDir)
+              ? fs.readdirSync(actionsDir, { withFileTypes: true })
+                .filter(entry => entry.isDirectory())
+                .map(entry => path.join(actionsDir, entry.name, 'action.yml'))
+                .filter(file => fs.existsSync(file))
+              : [];
+            return [...workflows, ...actions].sort();
+          };
+
+          const indentOf = line => line.length - line.trimStart().length;
+
+          // Returns the value state that follows a mapping key: lines indented deeper than the key belong to its value
+          // when it is a block scalar or a scalar continued over several lines, and must never be read as keys.
+          // Values of run: and script: are always scalars, so an empty one still continues on the next lines.
+          const valueStateFor = (match, lineNumber, hits) => {
+            const indent = match[1].length + (match[2] ? match[2].length : 0);
+            const value = match[4] ?? '';
+            const checking = scriptKeys.has(match[3].replace(/^(["'])(.*)\1$/s, '$2'));
+            if (blockScalarHeader.test(value.trim())) {
+              return { indent, checking };
+            }
+            if (valueWithoutContent.test(value.trim())) {
+              return checking ? { indent, checking } : null;
+            }
+            if (checking && value.includes(needle)) {
+              hits.push(lineNumber);
+            }
+            return { indent, checking };
+          };
+
+          const findHits = content => {
+            const hits = [];
+            let valueState = null;
+            content.split('\n').forEach((line, index) => {
+              const lineNumber = index + 1;
+              if (valueState) {
+                if (line.trim() === '') {
+                  return;
+                }
+                if (indentOf(line) > valueState.indent) {
+                  if (valueState.checking && line.includes(needle)) {
+                    hits.push(lineNumber);
+                  }
+                  return;
+                }
+                valueState = null;
+              }
+              // Only checked outside a value: inside a run: or script: body a # line is script text that still gets expanded.
+              if (line.trimStart().startsWith('#')) {
+                return;
+              }
+              const match = mappingKey.exec(line);
+              if (match) {
+                valueState = valueStateFor(match, lineNumber, hits);
+              }
+            });
+            return hits;
+          };
+
+          let total = 0;
+          for (const file of listFiles()) {
+            for (const startLine of findHits(fs.readFileSync(file, 'utf8'))) {
+              core.error('Workflow expression inside a run: or script: body; pass the value through env: instead.', { file, startLine });
+              total++;
+            }
+          }
+
+          if (total > 0) {
+            core.setFailed(`❌ Found ${total} workflow expression(s) inside run: or script: bodies.`);
+          } else {
+            core.info('✅ No workflow expressions found inside run: or script: bodies.');
+          }
