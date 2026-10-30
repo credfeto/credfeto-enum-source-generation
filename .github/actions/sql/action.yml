@@ -25,7 +25,8 @@ runs:
       uses: ./.github/actions/dotnet-tool-run
       with:
         tool-name: "tsqllint"
-        tool-arguments: "${{inputs.db-folder}}"
+        tool-arguments: |
+          ${{inputs.db-folder}}
         working-directory: "${{github.workspace}}"
 
     - name: "SQL: Lint SQL Files (SQLFluff)"
