@@ -36,6 +36,7 @@ runs:
 
           const title = process.env.TITLE;
           const globPattern = process.env.GLOB_PATTERN;
+          const logTitle = title.replace(/[\r\n]/g, ' ');
           const resultsDir = path.join(process.env.GITHUB_WORKSPACE, 'results');
 
           const toRegExp = glob => new RegExp(`^${glob.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.')}$`);
@@ -62,7 +63,7 @@ runs:
           // same as they would for "files present, zero results" below.
           const files = entries.filter(f => pattern.test(f)).sort();
           if (files.length === 0) {
-            core.info(`ℹ️ ${title}: no SARIF files matched '${globPattern}' in results/; treating as no findings`);
+            core.info(`ℹ️ ${logTitle}: no SARIF files matched '${globPattern.replace(/[\r\n]/g, ' ')}' in results/; treating as no findings`);
           }
 
           const rows = [];
@@ -119,10 +120,10 @@ runs:
           core.setOutput('table-file', tableFile);
           core.setOutput('row-count', String(rows.length));
           core.setOutput('error-count', String(errorCount));
-          core.info(`✅ ${title}: ${rows.length} finding(s), ${errorCount} error-level`);
+          core.info(`✅ ${logTitle}: ${rows.length} finding(s), ${errorCount} error-level`);
 
     - name: "Post job summary"
-      if: "${{ !cancelled() && steps.build-table.outputs.table-file != '' }}"
+      if: "${{!cancelled() && steps.build-table.outputs.table-file != ''}}"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
         TABLE_FILE: "${{steps.build-table.outputs.table-file}}"
@@ -138,8 +139,8 @@ runs:
     - name: "Find pull request for branch"
       id: find-pr
       if: >-
-        ${{ !cancelled() && github.event_name == 'push' &&
-        steps.build-table.outputs.table-file != '' && inputs.pr-lookup-done != 'true' }}
+        ${{!cancelled() && github.event_name == 'push' &&
+        steps.build-table.outputs.table-file != '' && inputs.pr-lookup-done != 'true'}}
       # A lookup failure (transient API error, missing pull-requests permission in a
       # not-yet-synced consuming repo) must degrade to "no comment", not fail the build.
       continue-on-error: true
@@ -150,18 +151,22 @@ runs:
 
     - name: "Resolve pull request number"
       id: resolve-pr
-      if: "${{ !cancelled() && steps.build-table.outputs.table-file != '' }}"
+      if: "${{!cancelled() && steps.build-table.outputs.table-file != ''}}"
       shell: bash
-      run: echo "number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+      run: |
+        case "$PR_NUMBER" in
+          *$'\n'*|*$'\r'*) echo "::error::pr-number must not contain newlines"; exit 1;;
+        esac
+        echo "number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
       env:
         PR_NUMBER: >-
-          ${{ inputs.pr-number != '' && inputs.pr-number ||
-          (github.event_name == 'pull_request' && github.event.pull_request.number || steps.find-pr.outputs.number) }}
+          ${{inputs.pr-number != '' && inputs.pr-number ||
+          (github.event_name == 'pull_request' && github.event.pull_request.number || steps.find-pr.outputs.number)}}
 
     - name: "Comment on pull request"
       if: >-
-        ${{ !cancelled() && steps.build-table.outputs.table-file != '' &&
-        steps.resolve-pr.outputs.number != '' }}
+        ${{!cancelled() && steps.build-table.outputs.table-file != '' &&
+        steps.resolve-pr.outputs.number != ''}}
       # PRs from forks/Dependabot get a read-only GITHUB_TOKEN regardless of the permissions
       # block above; commenting is a nice-to-have on top of the (already enforced) job summary
       # and step failure, so it must never be what fails the job.
@@ -181,8 +186,13 @@ runs:
 
           const title = process.env.TITLE;
           const rowCount = Number(process.env.ROW_COUNT);
+          const logTitle = title.replace(/[\r\n]/g, ' ');
           const marker = `<!-- sarif-summary: ${title} -->`;
           const prNumber = Number(process.env.PR_NUMBER);
+          if (!Number.isInteger(prNumber) || prNumber <= 0) {
+            core.warning(`⚠️ Invalid pull request number "${process.env.PR_NUMBER}"; skipping PR comment for "${logTitle}"`);
+            return;
+          }
 
           const comments = await github.paginate(github.rest.issues.listComments, {
             owner: context.repo.owner,
@@ -192,7 +202,7 @@ runs:
           const existing = comments.find(c => c.body && c.body.includes(marker));
 
           if (rowCount === 0 && !existing) {
-            core.info(`✅ No findings for "${title}"; skipping PR comment`);
+            core.info(`✅ No findings for "${logTitle}"; skipping PR comment`);
             return;
           }
 
@@ -210,7 +220,7 @@ runs:
               comment_id: existing.id,
               body: commentBody,
             });
-            core.info(`✅ Updated existing PR comment for "${title}"`);
+            core.info(`✅ Updated existing PR comment for "${logTitle}"`);
           } else {
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -218,11 +228,11 @@ runs:
               issue_number: prNumber,
               body: commentBody,
             });
-            core.info(`✅ Created PR comment for "${title}"`);
+            core.info(`✅ Created PR comment for "${logTitle}"`);
           }
 
     - name: "Report error-level findings"
-      if: "${{ !cancelled() && steps.build-table.outputs.table-file != '' && steps.build-table.outputs.error-count != '0' }}"
+      if: "${{!cancelled() && steps.build-table.outputs.table-file != '' && steps.build-table.outputs.error-count != '0'}}"
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
         TITLE: "${{inputs.title}}"
