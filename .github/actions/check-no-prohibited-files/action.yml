@@ -25,7 +25,7 @@ runs:
 
           while IFS= read -r -d '' file; do
             found=1
-            echo "::error file=${file}::Prohibited file found: ${file} (matches ${pattern})"
+            echo "::error file=${file//[$'\r\n']/ }::Prohibited file found: ${file//[$'\r\n']/ } (matches ${pattern})"
           done < "${list}"
         done
 
