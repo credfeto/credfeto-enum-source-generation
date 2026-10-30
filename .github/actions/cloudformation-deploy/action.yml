@@ -119,6 +119,8 @@ runs:
                               "$CLOUD_FORMATION_TEMPLATE_FILE" \
                         --stack-name \
                               "$CLOUD_FORMATION_STACK" \
+                        --capabilities \
+                              CAPABILITY_IAM \
                         --parameter-overrides \
                               file://TemplateParameters.json \
                         "${NOTIFICATION_ARGS[@]}" \
