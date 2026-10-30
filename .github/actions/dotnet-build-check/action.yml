@@ -23,8 +23,16 @@ runs:
       shell: bash
       run: |
         echo "Looking for solution"
-        SOLUTION="$(find . -type f -iname "*.sln" | head -1)"
-        [ -z "$SOLUTION" ] && SOLUTION="$(find . -type f -iname "*.slnx" | head -1)"
+        SOLUTION="$(find . -type f -iname "*.sln" | head -1)" || {
+          echo "::error::Failed to search for .sln files under src"
+          exit 1
+        }
+        if [ -z "$SOLUTION" ]; then
+          SOLUTION="$(find . -type f -iname "*.slnx" | head -1)" || {
+            echo "::error::Failed to search for .slnx files under src"
+            exit 1
+          }
+        fi
         echo "Found: $SOLUTION"
         echo "SOLUTION=$SOLUTION" >> "$GITHUB_OUTPUT"
 
@@ -39,6 +47,10 @@ runs:
       with:
         working-directory: "${{github.workspace}}/src"
         tool-name: "buildcheck"
-        tool-arguments: >-
-          -Solution "${{steps.find_solution.outputs.SOLUTION}}" -WarningAsErrors true
-          -PreReleaseBuild ${{inputs.pre-release-build}}
+        tool-arguments: |
+          -Solution
+          ${{steps.find_solution.outputs.SOLUTION}}
+          -WarningAsErrors
+          true
+          -PreReleaseBuild
+          ${{inputs.pre-release-build}}
