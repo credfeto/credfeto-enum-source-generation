@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -138,17 +138,17 @@ jobs:
           status=0
 
           if [ "${CASE_CONFLICT_OUTCOME}" != "failure" ]; then
-            echo "::error::❌ Case sensitivity conflict between É.txt and é.txt was not detected (outcome: ${CASE_CONFLICT_OUTCOME})"
+            echo "::error::❌ Case sensitivity conflict between É.txt and é.txt was not detected (outcome: ${CASE_CONFLICT_OUTCOME//[$'\r\n']/ })"
             status=1
           fi
 
           if [ "${IGNORED_FILE_OUTCOME}" != "failure" ]; then
-            echo "::error::❌ Ignored file a\"b.log was not detected (outcome: ${IGNORED_FILE_OUTCOME})"
+            echo "::error::❌ Ignored file a\"b.log was not detected (outcome: ${IGNORED_FILE_OUTCOME//[$'\r\n']/ })"
             status=1
           fi
 
           if [ "${PROHIBITED_FILE_OUTCOME}" != "failure" ]; then
-            echo "::error::❌ Prohibited file dír \"q\"/.deleteme.now was not detected (outcome: ${PROHIBITED_FILE_OUTCOME})"
+            echo "::error::❌ Prohibited file dír \"q\"/.deleteme.now was not detected (outcome: ${PROHIBITED_FILE_OUTCOME//[$'\r\n']/ })"
             status=1
           fi
 
