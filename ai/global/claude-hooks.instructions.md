@@ -8,7 +8,7 @@ tool call; a couple also match a specific non-Bash tool call (see the reference 
 file covers how to interpret a hook **denial** correctly, how to
 tell one apart from a denial coming from Claude Code's separate permission system, and what a
 permission denial does and does not stop; for how to
-background and poll long-running commands once a call has actually been accepted, see
+background and wait for long-running commands once a call has actually been accepted, see
 [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory)
 and [Never Truncate Test/Commit Commands](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory).
 
