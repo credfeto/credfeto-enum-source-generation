@@ -18,7 +18,7 @@ runs:
         EXTRA_EXCLUDED_FILES: "${{inputs.extra-excluded-files}}"
       with:
         script: |
-          const { execSync } = require('node:child_process');
+          const { execFileSync } = require('node:child_process');
           const path = require('node:path');
 
           const extraExcludedFiles = (process.env.EXTRA_EXCLUDED_FILES || '')
@@ -31,8 +31,11 @@ runs:
 
           // git ls-files -i correctly honours negation patterns in nested .gitignore files,
           // unlike `git check-ignore --no-index` which ignores them.
-          const ignoredFiles = execSync('git ls-files --cached -i --exclude-standard', { encoding: 'utf8' })
-            .split(/\r?\n/)
+          const ignoredFiles = execFileSync('git', ['ls-files', '-z', '--cached', '-i', '--exclude-standard'], {
+            encoding: 'utf8',
+            maxBuffer: 256 * 1024 * 1024,
+          })
+            .split('\0')
             .filter(Boolean)
             .filter((file) => !isExcludedFile(file));
 
