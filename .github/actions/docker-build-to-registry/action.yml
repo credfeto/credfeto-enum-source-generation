@@ -1,7 +1,7 @@
---- # Build Docker container and optionally deploy to ACR
+--- # Build Docker container and optionally push to a container registry
 # Maintain in repo: funfair-server-template
-name: "Build Docker container and optionally deploy to ACR"
-description: "Builds a docker image and optionally pushes it to AWS ECR"
+name: "Build Docker container and optionally push to a container registry"
+description: "Builds a docker image and optionally pushes it to a container registry"
 inputs:
   deploy:
     description: "Whether to deploy"
@@ -19,7 +19,7 @@ inputs:
     description: "docker app name"
     required: true
   docker-container-registry:
-    description: "AWS Elastic Container Registry"
+    description: "Container registry to push the image to"
     required: true
   container-source:
     description: "Location of app container source"
@@ -38,10 +38,13 @@ runs:
         secret-value: "${{inputs.docker-container-registry}}"
 
     - name: "Docker Trust Enable"
+      id: docker-trust-enable
       shell: bash
       run: |
-        echo "DOCKER_CONTENT_TRUST_ORIGINAL=${{env.DOCKER_CONTENT_TRUST}}" >> "$GITHUB_ENV"
+        echo "DOCKER_CONTENT_TRUST_ORIGINAL=$CONTENT_TRUST_ORIGINAL" >> "$GITHUB_ENV"
         echo "DOCKER_CONTENT_TRUST=1" >> "$GITHUB_ENV"
+      env:
+        CONTENT_TRUST_ORIGINAL: "${{env.DOCKER_CONTENT_TRUST}}"
 
     - name: "Build and export docker container"
       id: build-test
@@ -50,8 +53,8 @@ runs:
         context: "${{inputs.container-source}}"
         load: true
         tags: "${{inputs.app-owner}}/${{inputs.app-name}}:test"
-        cache-from: type=local,src=${{runner.temp}}/.buildx-cache
-        cache-to: type=local,dest=${{runner.temp}}/.buildx-cache-new,mode=max
+        cache-from: "type=local,src=${{runner.temp}}/.buildx-cache"
+        cache-to: "type=local,dest=${{runner.temp}}/.buildx-cache-new,mode=max"
 
     - name: "Move docker build cache (test)"
       if: steps.build-test.outcome == 'success'
@@ -75,8 +78,8 @@ runs:
         tags: |
           ${{inputs.docker-container-registry}}/${{inputs.app-owner}}/${{inputs.app-name}}:${{inputs.build-tag}}
           ${{inputs.docker-container-registry}}/${{inputs.app-owner}}/${{inputs.app-name}}:${{inputs.build-version}}
-        cache-from: type=local,src=${{runner.temp}}/.buildx-cache
-        cache-to: type=local,dest=${{runner.temp}}/.buildx-cache-new,mode=max
+        cache-from: "type=local,src=${{runner.temp}}/.buildx-cache"
+        cache-to: "type=local,dest=${{runner.temp}}/.buildx-cache-new,mode=max"
         provenance: false
 
     - name: "Move docker build cache (deploy)"
@@ -84,6 +87,6 @@ runs:
       uses: ./.github/actions/move-docker-build-cache
 
     - name: "Docker Trust Restore"
-      if: always()
+      if: always() && steps.docker-trust-enable.outcome == 'success'
       shell: bash
-      run: echo "DOCKER_CONTENT_TRUST=${{env.DOCKER_CONTENT_TRUST_ORIGINAL}}" >> "$GITHUB_ENV"
+      run: echo "DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST_ORIGINAL" >> "$GITHUB_ENV"
