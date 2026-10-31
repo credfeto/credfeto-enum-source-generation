@@ -52,6 +52,23 @@ Reach for these in this order:
 - **One issue per distinct use.** Search `credfeto/credfeto-orchestrator` first, using plain output so the search does not itself need `--json`: `gh issue list --repo credfeto/credfeto-orchestrator --state all --search "cfwf <keywords>"`. If an open or closed issue already covers the use, do not raise another; if a closed one was declined, follow its outcome. The uses these instructions themselves prescribe are already covered this way, so the search finds them and nothing more is needed.
 - **Say what is needed.** Title the issue `tool(cfwf): <What is needed>`: always the `tool(cfwf)` prefix, never a Conventional Commits type, with the first word after the prefix capitalised (e.g. `tool(cfwf): Command to list a PR's closing issues`), unless a local title rule takes precedence (see [Issue Titles](#issue-titles-mandatory)). Give the exact `gh` command (with placeholders for the values), what it is for, and where in these instructions or the current task it is used. Add the new issue to the "Workflow" project as for any issue ([Adding an Issue to the Workflow Project](#adding-an-issue-to-the-workflow-project)).
 
+Never hand-assemble a complex or multi-step operation from raw `gh` or `git` commands, such as a wait loop around `gh pr checks` or `cfwf pr checks`, or `gh pr checks --watch`, because each hand-built version behaves differently and fails in its own way. If `cfwf` has no command for the operation, raise a `tool(cfwf):` issue as above, and until it is added do one safe, read-only check of the current state and report it instead of building the operation yourself.
+
+<a id="waiting-for-pr-checks"></a>To wait for a PR's checks, which only [CI Monitor](agent-roles.instructions.md#ci-monitor) does, run this with `run_in_background: true` and wait for its completion notification, as [Finishing background work before handing back](task-workflow.instructions.md#background-command-wait) describes:
+
+```bash
+cfwf pr checks-wait --repo <owner/repo> --pr <n> [--timeout-minutes <m>]
+```
+
+It judges the PR's required checks (every check when the base branch requires none), re-reading them every 30 seconds until they settle or its time limit (default 30 minutes, at most 120) is reached. It reports a failure at once, accepts an all-pass only when two reads in a row of the same head commit agree, and keeps waiting while checks are pending or none have reported yet. It only reads, so it never needs stopping. Judge it by its exit code, never its printed text, which is its last read in the format `cfwf pr checks` prints:
+
+- **0** every required check passed, confirmed on two reads of the same head.
+- **3** a required check failed (a cancelled one counts as failed).
+- **4** the time limit was reached with required checks still pending.
+- **5** the time limit was reached with no checks reported at all.
+- **6** a gh, API or network error, or the PR was not found: retry later; never treat it as a failed check.
+- **1** `gh` is not installed; **2** a usage error: fix the command or report it, as [Missing CLI Tools](task-workflow.instructions.md#missing-cli-tools-mandatory) describes.
+
 ## Issues
 
 ```bash
