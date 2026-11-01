@@ -65,13 +65,13 @@ Build must pass and all tests must pass before committing or pushing. If they fa
 - Never commit if the current branch is `main`.
 - If the branch has switched to `main` and the upstream no longer exists (merged and deleted), create a new branch before continuing.
 
-## GitHub CLI Comment Bodies (MANDATORY)
+## GitHub Comment Bodies (MANDATORY)
 
-For the HEREDOC rule for any `gh` `--body` argument that contains or may contain newlines, see [github-cli.instructions.md](github-cli.instructions.md#comment-and-body-text-mandatory-heredoc-never-n).
+For the HEREDOC rule for any body that contains or may contain newlines, see [github-cli.instructions.md](github-cli.instructions.md#comment-and-body-text-mandatory-heredoc-never-n).
 
 ## GitHub Issues
 
-- If `gh` is available, use it to manage issues for every piece of work.
+- If `cfwf` is available and authenticated (`cfwf auth status`), use it to manage issues for every piece of work.
 - Before starting, either find a **100% matching** existing issue (confirm with user before linking) or create a new one with the original prompt and a clear description.
 - The search itself is a normal, automatic part of this workflow: do not ask permission before running it. Any question is about what a match means once found (confirming a candidate before linking, as required above), never about whether to run the search itself.
 - For complex or multi-component tasks, see [task-workflow.instructions.md](task-workflow.instructions.md).
@@ -90,9 +90,9 @@ When raising a GitHub issue autonomously (not directly requested by a human):
 - A human explicitly asked you to raise the issue: ask for the priority label instead, then apply it.
 - The issue is raised by the dependency security detection rule (e.g. flagged during `npm install` or from a Dependabot advisory): use only the labels specified by that rule.
 
-## GitHub CLI (`gh`) Proxy Behavior
+## GitHub API Proxy
 
-For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [github-cli.instructions.md](github-cli.instructions.md#gh_host-proxy-behavior-mandatory-when-set). In short: commit and push operations are always rejected by the proxy; use `git` CLI directly for those.
+For full proxy behaviour, see [github-cli.instructions.md](github-cli.instructions.md#github-api-proxy-mandatory). In short: commit and push never go through the proxy or the GitHub API; use `git` CLI directly for those.
 
 ## Running Git Commands in a Specific Directory
 
@@ -114,7 +114,7 @@ Before any command that can discard uncommitted work (`git reset --hard`, `git c
 
 ## Reviewing a PR Locally
 
-Check a PR out with git, never with `gh pr checkout`, because that command checks the local git remotes against `GH_HOST` and refuses when `gh` runs through the proxy, even with `--repo` (see [`GH_HOST` Proxy Behavior](github-cli.instructions.md#gh_host-proxy-behavior-mandatory-when-set)). Run each step as its own command:
+Check a PR out with git, because commit, push and fetch always go through the `git` CLI against the real `github.com` remote (see [GitHub API Proxy](github-cli.instructions.md#github-api-proxy-mandatory)). Run each step as its own command:
 
 - For a review that makes no commits: `git -C <dir> fetch origin pull/<number>/head`, then `git -C <dir> switch --detach FETCH_HEAD`, run back to back so that no other fetch rewrites `FETCH_HEAD` in between. This checks out the PR head with no local branch, so nothing is left to delete, and it works for a fork PR too. When the review is done, switch back to the branch being worked on (`git -C <dir> switch <branch>`), so that later commits are not made on a detached HEAD.
 - To add commits to a same-repository PR: `git -C <dir> fetch origin <headRefName>`, then `git -C <dir> switch <headRefName>`, using the head branch name shown on the PR, then `git -C <dir> merge --ff-only origin/<headRefName>`. The merge is needed because a local branch that already exists can be behind the PR's current head; if it cannot fast-forward, stop and report it. Never create a separate review branch, because the head branch already exists and a copy only leaves a branch that later needs cleaning up.
@@ -172,12 +172,11 @@ When any git command fails (push, rebase, fetch, etc.), you **must** quote the e
 Run the failing command as its own call, then paste its output, unchanged, into the comment body as a separate call. Quote the heredoc delimiter (`'COMMENT'`) so the shell does not expand `$` or backticks that appear in the pasted output:
 
 ```bash
-gh pr comment NUMBER --repo OWNER/REPO --body "$(cat <<'COMMENT'
+cfwf comment add --repo OWNER/REPO --pr NUMBER --body-file - <<'COMMENT'
 git push failed with:
 
 <exact stdout and stderr of the failed command>
 COMMENT
-)"
 ```
 
 This rule exists because AI-generated diagnoses of command failures are frequently wrong. The verbatim output is always correct; the explanation is not.
@@ -203,7 +202,7 @@ See [git-commits.instructions.md](git-commits.instructions.md); load when about 
 
 After any push, if the remote reports vulnerabilities:
 
-- Check for open Dependabot PRs covering them (`gh pr list --label dependencies`).
+- Check for open Dependabot PRs covering them (`cfwf pr list --repo <owner/repo>`, looking for Dependabot's branches; filtering by the `dependencies` label is not available yet, see [Operations Not Yet Available](github-cli.instructions.md#operations-not-yet-available-mandatory)), and for the advisories themselves (`cfwf repo advisories --repo <owner/repo>`).
 - If none exist, visit the repo's Dependabot page and for any manually fixable advisory create a GitHub issue labelled `Security` and `AI-Work`, naming the package, severity, and fix steps.
 
 ## Pre-Commit Hook Known Incompatibilities
