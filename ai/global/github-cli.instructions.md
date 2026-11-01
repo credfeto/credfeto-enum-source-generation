@@ -34,7 +34,7 @@ Reach for these in this order:
 - **P0.** **The `cfwf` MCP server's tools** (the managed `cfwf` MCP server, whose tools appear as `mcp__cfwf__*`) when one of them covers the operation. They take the same inputs as the matching `cfwf` command and return structured results, with no shell quoting, command allowlist or output parsing. Check the server's tool list once per session; use the CLI only for an operation that has no MCP tool yet, or when the server is not connected.
 - **P1.** **The `cfwf` command line** for anything it supports, for reads and writes. Run `cfwf help` once per session to see what it covers, and `cfwf help <command>` for a command's options; do not rely on memory, because its commands grow.
 
-Run **one `cfwf` command per Bash call**, on its own: no `;`, `&&`, `|` or `echo exit=$?` around it. Read its exit code from the tool result. A compound command that contains `cfwf` is refused in unattended runs and stalls the session.
+Run **one `cfwf` command per Bash call**, on its own: no `;`, `&&`, `|` or `echo exit=$?` around it. Read its exit code from the tool result. A compound command that contains `cfwf` is refused in unattended runs and stalls the session. When you need several facts about a PR at once (its metadata, board status, check verdict, when it was marked ready, recent comment activity), run `cfwf pr status` once instead of several commands: it exists so you never need to chain them.
 
 There is no other route to GitHub for agents. An operation that neither covers is not available to agents yet: follow [Operations Not Yet Available](#operations-not-yet-available-mandatory). `cfwf` (in the `credfeto/credfeto-orchestrator` agent image) is where every GitHub operation an agent needs is provided as a standardised, pre-canned command. If `cfwf` is not installed or a command fails, follow [Missing CLI Tools](task-workflow.instructions.md#missing-cli-tools-mandatory) and report it.
 
@@ -145,6 +145,11 @@ The other `cfwf` board commands are in [agent-roles.instructions.md](agent-roles
 cfwf pr create --repo <owner>/<repo> --head <branch-name> --title "<title>" --body-file - [--base main] <<'BODY'
 <body>
 BODY
+
+# Whole state in one call: metadata, Workflow board status, ready-at, the required-check verdict with the failing and pending
+# check names, the changed-file count and comment activity since ready; exit codes as pr checks (0 pass, 3 failed, 4 pending, 5 none).
+# Start every PR phase with this, and use the single-purpose commands below only for detail it does not print.
+cfwf pr status --repo <owner>/<repo> --pr <number>
 
 # View: state and metadata, one key and value a line; name the fields you need
 cfwf pr view --repo <owner>/<repo> --pr <number>
