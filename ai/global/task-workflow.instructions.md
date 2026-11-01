@@ -42,10 +42,10 @@ A step referring to a **sibling step within its own list** (e.g. "return to P2",
 
 ## Assignment
 
-- Assign yourself to the issue before starting: `gh issue edit <number> --add-assignee @me`.
+- Assign yourself to the issue before starting: `cfwf issue edit --repo <owner/repo> --issue <number> --assign-self`.
 - Only work on unassigned issues or issues already assigned to you.
-- Create an issue raised for later work (one you are not starting in this session, such as a follow-up, a matching issue in another repo, or a security bug filed from a review) with no assignee, and assign it only when work on it starts. `@me` resolves to whichever account `gh` is logged in as, often the owner's, and the rule above then stops any other agent or person picking it up.
-- Assign yourself to PRs when creating or updating: `gh pr edit <number> --add-assignee @me`.
+- Create an issue raised for later work (one you are not starting in this session, such as a follow-up, a matching issue in another repo, or a security bug filed from a review) with no assignee, and assign it only when work on it starts. `--assign-self` assigns whichever account `cfwf` is logged in as, often the owner's, and the rule above then stops any other agent or person picking it up.
+- Assign yourself to PRs when creating or updating: `cfwf pr edit --repo <owner/repo> --pr <number> --assign-self`.
 
 ## GitHub Issue and PR Labels
 
@@ -125,8 +125,8 @@ This is stricter than an unresolved `Qn.` alone: an Open Question already blocks
 ## PR Lifecycle
 
 - Only one active branch or open PR **per user** per repository at a time; do not create another until the current one is merged and closed.
-- **Before blocking new work** because of an existing PR: always verify its current state with `gh pr view <number> --repo <owner/repo> --json state,mergedAt`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
-- When adding work to an open PR (review comments, missing coverage, CI fixes), turn auto-merge off if it is on, then convert to draft, as [Code Fixer](agent-roles.instructions.md#code-fixer) describes, because otherwise GitHub could merge the new change as soon as its checks pass, before it is reviewed. Keep it in draft until the [AI Review Loop](agent-roles.instructions.md#pr-workflow-ai-review-loop) has reviewed every new commit: only its [Phase E](agent-roles.instructions.md#phase-e-mark-ready) marks the PR ready, because PR Submitter always leaves the PR as draft, and it enables auto-merge only once every required check has a result completed at or after the time the PR was last marked ready and none of them failed ([P4](agent-roles.instructions.md#phase-e-enable-auto-merge)), because GitHub counts a check skipped on a draft as passed.
+- **Before blocking new work** because of an existing PR: always verify its current state with `cfwf pr view --repo <owner/repo> --pr <number> --field state --field merged-at`; never rely on conversation memory. A PR that was open earlier in the session may have since been merged.
+- When adding work to an open PR (review comments, missing coverage, CI fixes), take it back with `cfwf pr take-back` (auto-merge off, then draft), as [Code Fixer](agent-roles.instructions.md#code-fixer) describes, because otherwise GitHub could merge the new change as soon as its checks pass, before it is reviewed. Keep it in draft until the [AI Review Loop](agent-roles.instructions.md#pr-workflow-ai-review-loop) has reviewed every new commit: only its [Phase E](agent-roles.instructions.md#phase-e-mark-ready) marks the PR ready, because PR Submitter always leaves the PR as draft, and its `cfwf pr hand-off` enables auto-merge only once every required check has a result completed at or after the time the PR was last marked ready and none of them failed ([P3](agent-roles.instructions.md#phase-e-enable-auto-merge)), because GitHub counts a check skipped on a draft as passed.
 
 ## Bot-Created PRs (MANDATORY, treat as your own)
 
@@ -134,8 +134,8 @@ github is configured to automatically create PRs from pushed branches. These PRs
 
 **Before starting any work in a repository:**
 
-- **P1.** Run `gh pr list --state open --repo <owner/repo> --json number,title,author,headRefName,url`, no `--author @me` filter.
-- **P2.** For any PR authored by `app/github-actions`, check the commit authors: `gh pr view <n> --repo <owner/repo> --json commits --jq '.commits[].authors[].login'`.
+- **P1.** Run `cfwf pr list --repo <owner/repo>`, which lists every open PR, whoever authored it.
+- **P2.** For any PR authored by `app/github-actions`, check the commit authors: `cfwf pr view --repo <owner/repo> --pr <n> --field commit-authors`.
 - **P3.** If **all commits** are from your account (you are the sole committer), **take ownership**: update the PR title and body to match the proper format (summary, `Closes #<n>`, test plan), add yourself as assignee, and treat it as your active PR for that repo.
 - **P4.** If commits are from multiple authors (e.g. you plus a human or Copilot), do **not** take over; leave the PR as-is and do not claim it as yours.
 - **P5.** Do **not** create a new branch or PR for the same issue; that would be duplicate work.
@@ -160,16 +160,15 @@ On every agent run, for every PR being interacted with:
 
   ```bash
   cfwf closing-issue-labels --repo <owner/repo> --pr <pr>
-  gh pr edit <pr> --repo <owner/repo> --add-label "<label-1>,<label-2>"
   ```
 
-  `cfwf closing-issue-labels` prints the labels to sync, one per line, already leaving out `Blocked` and `On Hold` (workflow-control labels are never synced from an issue to its PR). Pass them to one `gh pr edit --add-label` as a comma-separated list. A non-zero exit is a failure to report, not "no labels"; if it exits 0 and prints nothing, there is nothing to add. If the `gh pr edit` call fails because a label does not exist in the PR's repo, repeat it without that label.
+  `cfwf closing-issue-labels` prints the labels to sync, one per line, already leaving out `Blocked` and `On Hold` (workflow-control labels are never synced from an issue to its PR). A non-zero exit is a failure to report, not "no labels"; if it exits 0 and prints nothing, there is nothing to add. Adding them to the PR is not available yet ([Operations Not Yet Available](github-cli.instructions.md#operations-not-yet-available-mandatory)); list any the PR is missing (compare with `cfwf pr view --field labels`) in your report.
 
 - **P4.** Never remove any label from a PR or issue; GitHub workflows add labels automatically and they must not be removed. Sole exceptions: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5, and `Blocked` on a PR question answered in live chat, see [Blocked Label](agent-roles.instructions.md#blocked-label-live-chat-pr-answer) P6.
 
 ## Label Management (MANDATORY)
 
-- Always use `--add-label` when adding labels; **never** `--label`, which replaces all existing labels and destroys automatically-applied classification labels. See [github-cli.instructions.md](github-cli.instructions.md#labels) for command syntax.
+- Only ever add labels; never replace an item's whole label set, which destroys automatically-applied classification labels. Label changes are not available to agents yet; see [github-cli.instructions.md](github-cli.instructions.md#labels).
 - Never remove labels from issues or PRs. GitHub workflows add classification labels automatically; removing them breaks automation. Sole exceptions: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5, and `Blocked` on a PR question answered in live chat, see [Blocked Label](agent-roles.instructions.md#blocked-label-live-chat-pr-answer) P6.
 
 ## Missing CLI Tools (MANDATORY)
@@ -202,7 +201,7 @@ Whenever an instruction file is added or updated, re-evaluate all open branches 
 
 ## Issue Tracking
 
-- Only update issues if `gh` is installed and authenticated (`gh auth status`); otherwise read code and git log for state.
+- Only update issues if `cfwf` is installed and authenticated (`cfwf auth status`); otherwise read code and git log for state.
 - Each sub-issue must list files with status: `❌ Not started` / `🔄 In progress` / `✅ Done`; update after each commit+push.
 - The top-level issue tracks only handler/app-level status (sub-issues open/closed, branches merged).
 - Update the sub-issue after each significant commit+push; update the top-level issue when overall status changes.
@@ -257,11 +256,12 @@ A long command runs with `run_in_background: true`. The role then waits for the 
   - In an unattended run, post the same as a comment on the work item, without the `Blocked` label, because the work is still in progress rather than waiting on a human:
 
     ```bash
-    gh issue comment <number> --repo <owner/repo> \
-        --body "Still running after 30 minutes: <what>; stopping it at the deadline."
+    cfwf comment add --repo <owner/repo> --issue <number> --body-file - <<'COMMENT'
+    Still running after 30 minutes: <what>; stopping it at the deadline.
+    COMMENT
     ```
 
-    Use `gh pr comment` instead if the work item is a PR.
+    Use `--pr <number>` instead of `--issue` if the work item is a PR.
 
   Then the main session stops the overrunning command with `TaskStop`, never the role that started it. The role wakes with the command's non-zero exit code and reports that the command was stopped at the deadline, so the failure is handled like any other.
 
