@@ -79,7 +79,7 @@ Wrong (either form): `@latest`, `@v6`, branch refs
 
 This preference is opportunistic: switch a `uses:` line to SHA pinning when you are already touching that line for another reason; it is not a mandate to mass-migrate every workflow in one pass.
 
-Resolve a tag to its commit SHA with `gh api repos/<owner>/<action>/commits/<tag> --jq '.sha'`.
+Resolve a tag to its commit SHA with `cfwf tag view --repo <owner>/<action> --tag <tag>`.
 
 When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate; see [git-rebasing.instructions.md](git-rebasing.instructions.md#resolving-version-conflicts-when-merging-or-rebasing).
 
@@ -87,7 +87,7 @@ When a merge or rebase produces conflicting pins for the same action (or for run
 
 Whenever you add or modify a `uses:` reference, check all actions in that file are on the latest released version:
 
-- **P1.** For each `uses:`, run `gh api repos/<owner>/<action>/releases/latest --jq '.tag_name'`.
+- **P1.** For each `uses:`, run `cfwf release view --repo <owner>/<action>` and read its tag.
 - **P2.** If behind, update in the same commit: for a SHA-pinned action, resolve the new tag to its commit SHA (see above) and update both the SHA and the trailing version comment; for a tag-pinned action, update the tag directly.
 - **P3.** Never leave a file with a mix of updated and stale versions after touching it.
 
@@ -101,7 +101,7 @@ Take the following steps:
 
 - **P1.** **Identify the action** named in the warning (e.g. `azure/sql-action@v2.3`).
 - **P2.** **Locate the workflow file** that references it; it could live in `funfair-tech/funfair-server-template`, `credfeto/cs-template`, or the current repo. Search `.github/workflows/` in each.
-- **P3.** **Find the minimum compliant version**: enumerate candidate releases with `gh api --paginate repos/<owner>/<action>/releases --jq '.[].tag_name'` (or browse the action's releases), then inspect tagged `action.yml`/`action.yaml` `runs.using` values to confirm the earliest release that ships a Node.js 24 runtime.
+- **P3.** **Find the minimum compliant version**: enumerate candidate releases with `cfwf release list --repo <owner>/<action>` (or browse the action's releases), then inspect tagged `action.yml`/`action.yaml` `runs.using` values to confirm the earliest release that ships a Node.js 24 runtime.
 - **P4.** **Raise an issue in the repo that owns the workflow file**, with:
   - **Title**: `chore: update <action> to a Node.js 24 compatible version`, unless the owning repo's local title rule says otherwise, which takes precedence (see [Issue Titles](github-cli.instructions.md#issue-titles-mandatory))
   - **Labels**: `AI-Work`, `dependencies`, `github-actions`, `High`
