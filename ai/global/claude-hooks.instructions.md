@@ -159,11 +159,13 @@ A rule-compliant command that the permission system still denies needs a new all
 the owner can add. Record it where the owner collects these requests, so the need is not lost when
 the session ends:
 
-- **P1.** Read the comments on credfeto/credfeto-orchestrator#1167
-  (`gh issue view 1167 --repo credfeto/credfeto-orchestrator --comments`) and check whether the
-  same command, or an allow rule that would cover it, is already listed. If it is, add nothing.
-- **P2.** Otherwise, comment on credfeto/credfeto-orchestrator#1167 with the exact denied command,
-  why the task needs it, and the repository the session is working in, building the body as
+- **P1.** Check whether credfeto/credfeto-orchestrator#1167 already lists the same command, or an
+  allow rule that would cover it. Reading comment bodies is not available yet
+  ([Operations Not Yet Available](github-cli.instructions.md#operations-not-yet-available-mandatory)),
+  so until it is, go straight to P2; a duplicate request is harmless.
+- **P2.** Otherwise, comment on credfeto/credfeto-orchestrator#1167
+  (`cfwf comment add --repo credfeto/credfeto-orchestrator --issue 1167 --body-file <file|->`)
+  with the exact denied command, why the task needs it, and the repository the session is working in, building the body as
   [Comment and Body Text](github-cli.instructions.md#comment-and-body-text-mandatory-heredoc-never-n)
   requires.
 - **P3.** Continue with the rest of the task. The request is for the owner to act on later; it
@@ -189,7 +191,7 @@ refuses both before the command runs:
 
 Instead, write one flat command per call: name the paths directly, or pass the whole list in one
 call (for example `shellcheck a.sh b.sh`, or
-`gh issue edit <n> --repo <owner/repo> --add-label "a,b"`).
+`cfwf pr view --repo <owner/repo> --pr <n> --field state --field labels`).
 
 Committed scripts and workflow steps do not pass through these hooks, so a fixed per-file command
 there may still use `xargs -0r`; see
@@ -215,7 +217,6 @@ are listed directly after it rather than at their own position, since they have 
 | `block-dotnet-tool-install` | `dotnet tool install` (local or global) and `dotnet new tool-manifest` | This container's .NET global tools are pinned and baked into the image at build time; installing an unpinned tool at runtime would bypass the dependency-selection review the pinned set went through. |
 | `enforce-ssh-host-and-key` | Any `ssh` call other than exactly `ssh user@host command...` with no flags, and one when no usable key is loaded in the forwarded ssh-agent | `ssh` has a blanket allow entry; the danger is in the destination, not the verb, which a permission-rule prefix pattern cannot scope. Restricts the host to a private-network suffix and requires the agent to hold a working key first, since this container never mounts raw private key files. |
 | `enforce-background-for-long-running-commands` | `git commit`, `pre-commit` (direct invocation), `pre-commit-check` (this template's wrapper around it), `dotnet build`, `dotnet test`, `npm test`, and `bun test` unless the call sets `run_in_background: true` | See [Never Truncate Test/Commit Commands](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory) for why none of these have a safe foreground timeout. |
-| `cache-gh-lookups` | Nothing; it never blocks | Rewrites a bare `gh api user --jq '.login'` call to read a cached copy instead of hitting the API every time, falling through unchanged on any parse failure. |
 
 If a command is blocked by a hook not listed here, or this table no longer matches
 `$HOME/.claude/hooks` on a given container, treat the table as stale rather than the denial as
