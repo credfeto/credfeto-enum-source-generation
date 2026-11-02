@@ -2,7 +2,7 @@
 
 [Back to Global Instructions Index](index.md)
 
-Reference for every GitHub operation used across this instruction set: the `cfwf` MCP tools and `cfwf` commands that cover them, and the operations that are not available to agents yet. Other files describe **when**/**why** to call them (see [task-workflow.instructions.md](task-workflow.instructions.md) and [agent-roles.instructions.md](agent-roles.instructions.md)); this file is the single source of truth for **exact command syntax**. `cfwf help <command>` is authoritative for a `cfwf` command's options and exit codes.
+Reference for every GitHub operation used across this instruction set: the `cfwf` MCP tools and `cfwf` commands that cover them. Other files describe **when**/**why** to call them (see [task-workflow.instructions.md](task-workflow.instructions.md) and [agent-roles.instructions.md](agent-roles.instructions.md)); this file is the single source of truth for **exact command syntax**. `cfwf help <command>` is authoritative for a `cfwf` command's options and exit codes.
 
 Always pass `--repo <owner>/<repo>` explicitly rather than relying on the current directory's remote. `cfwf` always requires it, and it keeps every command proxy-compatible (see below).
 
@@ -36,9 +36,9 @@ Reach for these in this order:
 
 Run **one `cfwf` command per Bash call**, on its own: no `;`, `&&`, `|` or `echo exit=$?` around it. Read its exit code from the tool result. A compound command that contains `cfwf` is refused in unattended runs and stalls the session. When you need several facts about a PR at once (its metadata, board status, check verdict, when it was marked ready, recent comment activity), run `cfwf pr status` once instead of several commands: it exists so you never need to chain them.
 
-There is no other route to GitHub for agents. An operation that neither covers is not available to agents yet: follow [Operations Not Yet Available](#operations-not-yet-available-mandatory). `cfwf` (in the `credfeto/credfeto-orchestrator` agent image) is where every GitHub operation an agent needs is provided as a standardised, pre-canned command. If `cfwf` is not installed or a command fails, follow [Missing CLI Tools](task-workflow.instructions.md#missing-cli-tools-mandatory) and report it.
+There is no other route to GitHub for agents. `cfwf` (in the `credfeto/credfeto-orchestrator` agent image) is where every GitHub operation an agent needs is provided as a standardised, pre-canned command. If `cfwf` is not installed or a command fails, follow [Missing CLI Tools](task-workflow.instructions.md#missing-cli-tools-mandatory) and report it.
 
-When no `cfwf` command or MCP tool covers an operation you need, and it is not already listed in [Operations Not Yet Available](#operations-not-yet-available-mandatory), raise an issue on `credfeto/credfeto-orchestrator` asking for it:
+When no `cfwf` command or MCP tool covers an operation you need, raise an issue on `credfeto/credfeto-orchestrator` asking for it:
 
 - **One issue per distinct need.** Search `credfeto/credfeto-orchestrator` first: `cfwf issue search --repo credfeto/credfeto-orchestrator --text "cfwf <keywords>" --state all`. If an open or closed issue already covers the need, do not raise another; if a closed one was declined, follow its outcome.
 - **Say what is needed.** Title the issue `tool(cfwf): <What is needed>`: always the `tool(cfwf)` prefix, never a Conventional Commits type, with the first word after the prefix capitalised (e.g. `tool(cfwf): Command to list a PR's closing issues`), unless a local title rule takes precedence (see [Issue Titles](#issue-titles-mandatory)). Say what the operation is, what it is for, and where in these instructions or the current task it is needed. Add the new issue to the "Workflow" project as for any issue ([Adding an Issue to the Workflow Project](#adding-an-issue-to-the-workflow-project)).
@@ -59,34 +59,6 @@ It judges the PR's required checks (every check when the base branch requires no
 - **5** the time limit was reached with no checks reported at all.
 - **6** an API or network error, or the PR was not found: retry later; never treat it as a failed check.
 - **1** a required client tool is missing; **2** a usage error: fix the command or report it, as [Missing CLI Tools](task-workflow.instructions.md#missing-cli-tools-mandatory) describes.
-
-## Operations Not Yet Available (MANDATORY)
-
-These GitHub operations have no `cfwf` command or MCP tool yet, so they are not available to agents. Never perform one by any other route. Each has an issue asking for it:
-
-| Operation | Issue |
-| --------- | ----- |
-| Add or remove a label on an issue or PR (including `Blocked`) | credfeto/credfeto-orchestrator#1593 |
-| List a repository's labels | credfeto/credfeto-orchestrator#1595 |
-| Create a label | credfeto/credfeto-orchestrator#1769 |
-| Close an issue | credfeto/credfeto-orchestrator#1597 |
-| Reopen an issue or PR, or close a PR | credfeto/credfeto-orchestrator#1762 |
-| Link a sub-issue to a parent issue | credfeto/credfeto-orchestrator#1763 |
-| Read an issue's or PR's comment bodies | credfeto/credfeto-orchestrator#1764 |
-| Search PRs, code or repositories | credfeto/credfeto-orchestrator#1765 |
-| List an owner's repositories, or a repository's workflows | credfeto/credfeto-orchestrator#1766 |
-| List PRs filtered by label | credfeto/credfeto-orchestrator#1767 |
-| Post a new inline review comment on a PR | credfeto/credfeto-orchestrator#1631 |
-| Read when auto-merge was last enabled on a PR | credfeto/credfeto-orchestrator#1768 |
-
-When a step needs one of them:
-
-- **P1.** Do every other part of the step, in its usual order, then stop at that operation; never build it from other commands.
-- **P2.** State exactly what is needed (the operation, the item and the value, for example "add `Blocked` to PR #12") in the comment the step posts, if it posts one, and in your hand-off or final report, citing the issue above, so a human can do it.
-- **P3.** Where the step adds `Blocked` to stop work, still post the comment that explains the stop and still move the Workflow board as the step says, then STOP as the step says, exactly as if the label had been added.
-- **P4.** Where the step only reads (comment bodies, search, the auto-merge time), carry on without the information only if the step says how; otherwise stop and report what you could not read.
-
-When `cfwf help` lists a command for one of these, use it and stop following this section for it.
 
 ## Issues
 
@@ -111,13 +83,38 @@ cfwf issue search --repo <owner>/<repo> --text "<words>" [--state open|closed|al
 cfwf issue edit --repo <owner>/<repo> --issue <number> --assign-self
 cfwf issue edit --repo <owner>/<repo> --issue <number> [--title "<title>"] [--body-file <file|->]
 
-# Comment (see HEREDOC rule below for multi-line bodies)
+# Comment (see HEREDOC rule below for multi-line bodies) / correct one of your own comments by its id
 cfwf comment add --repo <owner>/<repo> --issue <number> --body-file - <<'COMMENT'
 <text>
 COMMENT
+cfwf comment edit --repo <owner>/<repo> --comment-id <id> --issue-comment --body-file <file|->
+
+# Read the top-level comments with their bodies, oldest first (also works for a PR's conversation comments)
+cfwf issue comments --repo <owner>/<repo> --issue <number> [--since <YYYY-MM-DDTHH:MM:SSZ>] [--author <login>]
+
+# Post the implementation plan: comment, then Blocked, then the board to Planning
+cfwf issue post-plan --repo <owner>/<repo> --issue <number> --body-file - <<'PLAN'
+## Implementation Plan
+<plan>
+PLAN
+
+# Ask a blocking question: comment, then Blocked; the board is left as it is
+cfwf issue block --repo <owner>/<repo> --issue <number> --body-file - <<'QUESTION'
+<question, citing the instruction that requires the stop>
+QUESTION
+
+# Close with a reason (optional comment first) / reopen
+cfwf issue close --repo <owner>/<repo> --issue <number> --reason <completed|not-planned> [--body-file <file|->]
+cfwf issue reopen --repo <owner>/<repo> --issue <number> [--body-file <file|->]
+
+# Link a sub-issue to its parent (both in the same repository)
+cfwf issue add-sub-issue --repo <owner>/<repo> --issue <parent> --sub-issue <child>
+
+# When each label was added or removed, and by whom
+cfwf issue label-history --repo <owner>/<repo> (--issue <n> | --pr <n>) [--label <name>]
 ```
 
-Labels, sub-issues, closing and reopening, and reading comment bodies are not available yet; see [Operations Not Yet Available](#operations-not-yet-available-mandatory). `cfwf issue plan-status` lists who commented after the plan, without the bodies.
+Labels are in [Labels](#labels). `cfwf issue plan-status` lists who commented after the plan, without the bodies; read the bodies with `cfwf issue comments --since <plan-at>`.
 
 ### Issue Titles (MANDATORY)
 
@@ -156,11 +153,12 @@ cfwf pr view --repo <owner>/<repo> --pr <number>
 cfwf pr view --repo <owner>/<repo> --pr <number> --field state --field merged-at
 cfwf pr view --repo <owner>/<repo> --pr <number> --field head-sha
 
-# Labels of the issues the PR closes (Blocked and On Hold left out)
+# Labels of the issues the PR closes (Blocked and On Hold left out) / add them to the PR, never removing one
 cfwf closing-issue-labels --repo <owner>/<repo> --pr <number>
+cfwf pr sync-labels --repo <owner>/<repo> --pr <number> [--assign-self]
 
-# List open PRs (optionally those for an issue or a head branch)
-cfwf pr list --repo <owner>/<repo> [--issue <n>] [--head <branch-name>]
+# List open PRs (optionally those for an issue, a head branch, or carrying every --label given)
+cfwf pr list --repo <owner>/<repo> [--issue <n>] [--head <branch-name>] [--label <name> ...]
 
 # Edit: title, body (replaces the whole body), assign yourself
 cfwf pr edit --repo <owner>/<repo> --pr <number> --assign-self
@@ -169,8 +167,12 @@ cfwf pr edit --repo <owner>/<repo> --pr <number> [--title "<title>"] [--body-fil
 # Checks: judge the required checks on the head once (exit 0 pass, 3 failed, 4 pending, 5 none at all)
 cfwf pr checks --repo <owner>/<repo> --pr <number> [--all]
 
-# When the PR was last marked ready
+# When the PR was last marked ready / when auto-merge was last enabled on it (enabled-at, "-" if never)
 cfwf pr ready-at --repo <owner>/<repo> --pr <number>
+cfwf pr auto-merge-at --repo <owner>/<repo> --pr <number>
+
+# After merge: judge the Actions runs on the merge commit, on the base branch (exit codes as pr checks-wait)
+cfwf pr post-merge-runs --repo <owner>/<repo> --pr <number>
 
 # Comment / read every comment, review and review thread / reply to an inline review comment
 cfwf comment add --repo <owner>/<repo> --pr <number> --body-file - <<'COMMENT'
@@ -180,6 +182,15 @@ cfwf pr comments --repo <owner>/<repo> --pr <number>
 cfwf pr reply --repo <owner>/<repo> --pr <number> --comment-id <inline id> --body-file - <<'REPLY'
 <reply text>
 REPLY
+# Start a new inline review comment on a file and line (the head commit is read for you)
+cfwf pr review-comment --repo <owner>/<repo> --pr <number> --path <file> --line <n> --body-file - <<'COMMENT'
+<comment>
+COMMENT
+
+# Ask a blocking question: comment, then Blocked; the board is left as it is
+cfwf pr block --repo <owner>/<repo> --pr <number> --body-file - <<'QUESTION'
+<question or diagnosis, citing the instruction that requires the stop>
+QUESTION
 
 # Hand off to human review: title and description, Human Review, ready, review record, then auto-merge
 cfwf pr hand-off --repo <owner>/<repo> --pr <number> --title "<type>: <title>" \
@@ -194,22 +205,46 @@ COMMENT
 
 # Diff, changed files or a per-file line count
 cfwf pr diff --repo <owner>/<repo> --pr <number> [--name-only | --stat]
+
+# Close your own PR without merging it (optional comment first; the branch is kept) / reopen it
+cfwf pr close --repo <owner>/<repo> --pr <number> [--body-file <file|->]
+cfwf pr reopen --repo <owner>/<repo> --pr <number> [--body-file <file|->]
 ```
 
-Labels and closing a PR are not available yet; see [Operations Not Yet Available](#operations-not-yet-available-mandatory). Never mark a PR ready, convert it to draft, or turn auto-merge on or off by any route other than `cfwf pr hand-off` and `cfwf pr take-back`: they and `cfwf pr take-back` do those steps, in the safe order, together with the board and the review record. Judge each `cfwf` command by its exit code, as `cfwf help <command>` documents it.
+Labels are in [Labels](#labels). Never mark a PR ready, convert it to draft, or turn auto-merge on or off by any route other than `cfwf pr hand-off` and `cfwf pr take-back`: they and `cfwf pr take-back` do those steps, in the safe order, together with the board and the review record. Judge each `cfwf` command by its exit code, as `cfwf help <command>` documents it.
 
 ## Labels
 
-Adding, removing, listing and creating labels are not available yet; see [Operations Not Yet Available](#operations-not-yet-available-mandatory). Set labels at creation time with `cfwf issue create --label`, and read an item's labels with `cfwf issue view` or `cfwf pr view --field labels`. When label commands arrive, never replace an item's whole label set: only add labels, and never remove automation-applied labels (see [task-workflow.instructions.md](task-workflow.instructions.md#label-management-mandatory)).
+```bash
+# Add or remove standard labels on an issue or PR: one --label per label, never a comma-joined list
+cfwf label add --repo <owner>/<repo> (--issue <n> | --pr <n>) --label "<name>" [--label "<name>" ...]
+cfwf label remove --repo <owner>/<repo> (--issue <n> | --pr <n>) --label "<name>" [--label "<name>" ...]
+
+# List a repository's labels / create one of the standard labels in it
+cfwf label list --repo <owner>/<repo>
+cfwf label create --repo <owner>/<repo> --name "<name>" [--color <hex>] [--description "<text>"]
+```
+
+Set labels at creation time with `cfwf issue create --label`, and read an item's labels with `cfwf issue view` or `cfwf pr view --field labels`. Add `Blocked` with the command that posts its explanation (`cfwf issue post-plan`, `cfwf issue block` or `cfwf pr block`) rather than with `cfwf label add`, so `Blocked` is never set without the comment that explains it. Copy a PR's closing issues' labels with `cfwf pr sync-labels`. Never replace an item's whole label set: only add labels, and never remove automation-applied labels (see [task-workflow.instructions.md](task-workflow.instructions.md#label-management-mandatory)).
+
+- `cfwf label add` and `cfwf label remove` accept only the standard labels, and refuse priority labels (`Security`, `Urgent`, `High`, `Medium`, `Low`); change a priority with `cfwf issue edit --priority` or `cfwf pr edit --priority`.
+- `cfwf label remove` never removes `On Hold`, and removes `Blocked` only when the agent's own login added it last; a `Blocked` a human added is lifted by that human. Exit 8 means refused, with nothing changed.
 
 ## Search
 
 ```bash
-# One repository's issues: cfwf
+# One repository's issues / pull requests, by words in the title or body
 cfwf issue search --repo <owner>/<repo> --text "<words>" [--state open|closed|all]
+cfwf pr search --repo <owner>/<repo> --text "<words>" [--state open|closed|merged|all] [--limit <n>]
+
+# One repository's code (its default branch, as GitHub indexes it): prints matching paths, never content
+cfwf code search --repo <owner>/<repo> --text "<words>" [--limit <n>]
+
+# One owner's repositories, by words in the name or description
+cfwf repo search --owner <owner> --text "<words>" [--include-archived] [--limit <n>]
 ```
 
-Searching PRs, code and repositories is not available yet; see [Operations Not Yet Available](#operations-not-yet-available-mandatory).
+`--text` takes plain words only: no qualifiers, quoted phrases or `AND`/`OR`/`NOT`, as `cfwf help <command>` describes.
 
 ## Repos, Workflows, Runs
 
@@ -236,17 +271,19 @@ cfwf run list --repo <owner>/<repo> --sha <commit> [--workflow <name>] [--limit 
 cfwf run view --repo <owner>/<repo> --run <run-id>
 cfwf run log --repo <owner>/<repo> --run <run-id> [--job <id>] [--lines <n>]
 cfwf run rerun --repo <owner>/<repo> --run <run-id>
-```
 
-Listing an owner's repositories or a repository's workflows is not available yet; see [Operations Not Yet Available](#operations-not-yet-available-mandatory).
+# An owner's repositories (archived ones left out unless asked for) / a repository's Actions workflows
+cfwf repo list --owner <owner> [--include-archived]
+cfwf workflow list --repo <owner>/<repo>
+```
 
 ## Raw API Calls
 
-Agents never call the GitHub REST or GraphQL API directly. Comments, collaborators, the authenticated login, releases and tags, review threads and replies, run logs and the board all have `cfwf` commands (above). For anything else, follow [Operations Not Yet Available](#operations-not-yet-available-mandatory) or raise a `tool(cfwf):` issue as [Choosing a GitHub Tool](#choosing-a-github-tool-mandatory) describes.
+Agents never call the GitHub REST or GraphQL API directly. Comments, labels, search, collaborators, the authenticated login, releases and tags, review threads, replies and new inline review comments, run logs and the board all have `cfwf` commands (above). For anything else, raise a `tool(cfwf):` issue as [Choosing a GitHub Tool](#choosing-a-github-tool-mandatory) describes.
 
 ### Inline PR Review Comments
 
-To reply to an existing review comment thread, use `cfwf pr reply --repo <owner>/<repo> --pr <number> --comment-id <inline id> --body-file <file|->`, taking the `inline` id from `cfwf pr comments`. Starting a new inline review comment is not available yet (see [Operations Not Yet Available](#operations-not-yet-available-mandatory)); put the finding in a PR comment instead, naming the file and line.
+To reply to an existing review comment thread, use `cfwf pr reply --repo <owner>/<repo> --pr <number> --comment-id <inline id> --body-file <file|->`, taking the `inline` id from `cfwf pr comments`. To start a new inline review comment on a file and line, use `cfwf pr review-comment --repo <owner>/<repo> --pr <number> --path <file> --line <n> [--start-line <n>] [--side RIGHT|LEFT] --body-file <file|->`: it reads the PR's head commit itself (never pass a commit SHA), prints the same `inline` and `url` lines as `cfwf pr reply`, and exits 1 with a clear message when the line is not part of the diff; post once and check `cfwf pr comments` before posting again.
 
 ## GitHub State Lags Behind Writes (MANDATORY)
 
