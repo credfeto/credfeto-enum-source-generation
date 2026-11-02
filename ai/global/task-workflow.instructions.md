@@ -159,16 +159,16 @@ On every agent run, for every PR being interacted with:
 - **P3.** Sync labels from all linked closing issues to the PR:
 
   ```bash
-  cfwf closing-issue-labels --repo <owner/repo> --pr <pr>
+  cfwf pr sync-labels --repo <owner/repo> --pr <pr> [--assign-self]
   ```
 
-  `cfwf closing-issue-labels` prints the labels to sync, one per line, already leaving out `Blocked` and `On Hold` (workflow-control labels are never synced from an issue to its PR). A non-zero exit is a failure to report, not "no labels"; if it exits 0 and prints nothing, there is nothing to add. Adding them to the PR is not available yet ([Operations Not Yet Available](github-cli.instructions.md#operations-not-yet-available-mandatory)); list any the PR is missing (compare with `cfwf pr view --field labels`) in your report.
+  `cfwf pr sync-labels` adds the labels of every issue the PR closes to the PR, one label at a time, never removing one and never adding `Blocked` or `On Hold` (workflow-control labels are never synced from an issue to its PR). It prints each label it added, then `<url> synced`; exit 0 means synced, nothing to add included. A label the PR's repository does not have is skipped with a warning; mention it in your report. A non-zero exit is a failure to report, not "no labels": exit 1 can mean a closing issue could not be read after the others' labels were added. `--assign-self` also assigns the agent to the PR. `cfwf closing-issue-labels --repo <owner/repo> --pr <pr>` only prints the labels it would sync.
 
 - **P4.** Never remove any label from a PR or issue; GitHub workflows add labels automatically and they must not be removed. Sole exceptions: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5, and `Blocked` on a PR question answered in live chat, see [Blocked Label](agent-roles.instructions.md#blocked-label-live-chat-pr-answer) P6.
 
 ## Label Management (MANDATORY)
 
-- Only ever add labels; never replace an item's whole label set, which destroys automatically-applied classification labels. Label changes are not available to agents yet; see [github-cli.instructions.md](github-cli.instructions.md#labels).
+- Only ever add labels; never replace an item's whole label set, which destroys automatically-applied classification labels. Add labels with `cfwf label add --repo <owner/repo> (--issue <n> | --pr <n>) --label <name>`, which only ever adds; see [github-cli.instructions.md](github-cli.instructions.md#labels).
 - Never remove labels from issues or PRs. GitHub workflows add classification labels automatically; removing them breaks automation. Sole exceptions: `Blocked` on live-chat plan approval, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session) P5, and `Blocked` on a PR question answered in live chat, see [Blocked Label](agent-roles.instructions.md#blocked-label-live-chat-pr-answer) P6.
 
 ## Missing CLI Tools (MANDATORY)
