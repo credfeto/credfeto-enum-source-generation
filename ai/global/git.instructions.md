@@ -202,7 +202,7 @@ See [git-commits.instructions.md](git-commits.instructions.md); load when about 
 
 After any push, if the remote reports vulnerabilities:
 
-- Check for open Dependabot PRs covering them (`cfwf pr list --repo <owner/repo>`, looking for Dependabot's branches; filtering by the `dependencies` label is not available yet, see [Operations Not Yet Available](github-cli.instructions.md#operations-not-yet-available-mandatory)), and for the advisories themselves (`cfwf repo advisories --repo <owner/repo>`).
+- Check for open Dependabot PRs covering them (`cfwf pr list --repo <owner/repo> --label dependencies`, which lists only the open PRs carrying the `dependencies` label), and for the advisories themselves (`cfwf repo advisories --repo <owner/repo>`).
 - If none exist, visit the repo's Dependabot page and for any manually fixable advisory create a GitHub issue labelled `Security` and `AI-Work`, naming the package, severity, and fix steps.
 
 ## Pre-Commit Hook Known Incompatibilities
