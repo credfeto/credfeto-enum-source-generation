@@ -14,15 +14,36 @@
 - Always invoke dotnet tools via `dotnet <toolname>` (e.g. `dotnet changelog`, `dotnet buildcheck`).
 - Never search for the tool binary, add it to `PATH`, or invoke it directly as `~/.dotnet/tools/toolname` or similar.
 
+## build-dotnet MCP Tools (MANDATORY)
+
+When a `build-dotnet` MCP server is connected, it runs the repository's .NET builds, tests and checks as jobs. Its tool list follows the repository: it lists a tool only when the repository has something for it to run (for example `test` and `coverage` only when there is a unit test project), and it updates the list when projects are added or removed.
+
+- **P1.** **Use the MCP tools by default.** Whenever the server lists the tool for a task, use that tool instead of the raw command:
+
+  | Task | MCP tool | Raw fallback |
+  | ---- | -------- | ------------ |
+  | Build the solution | `build` | `dotnet build` |
+  | Run the unit tests | `test` | `dotnet test` |
+  | Collect coverage | `coverage` | `dotnet test ... -- --coverage` and `dotnet reportgenerator` ([Code Coverage](#code-coverage-mandatory), [Coverage Reporting with reportgenerator](#coverage-reporting-with-reportgenerator)) |
+  | Run `FunFair.BuildCheck` | `buildcheck` | `dotnet buildcheck` |
+  | Format changed files | `cleanup` | `dotnet cscleanup` |
+  | Lint `CHANGELOG.md` | `changelog_lint` | `dotnet changelog --lint` |
+  | Full pre-commit build and test | `buildtest` | the repository's `buildtest` script |
+
+- **P2.** **Use the raw command only when the server shows no tool for the task**: the server is not connected, or it does not list that tool. The raw commands follow every rule in this file and in [Never Truncate Test/Commit Commands](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory).
+- **P3.** **Never run the same build or test both ways.** A job's `job_result` is the result: do not repeat a build, test, coverage or check run with the raw command to confirm it, and do not run the raw command while an MCP job is running. An MCP job is a long-running command for [One Long-Running Command at a Time](task-workflow.instructions.md#one-long-running-command), and the server itself runs only one job at a time.
+- **P4.** **Wait for a job by polling `job_status` at a steady pace.** Every tool except `detect`, `job_status` and `job_result` starts a job and returns its id at once. Call `job_status` once, then wait about 30 to 60 seconds between calls, judging the gap from the step the job reports and how long it has run (a restore or a short step needs a shorter gap; a long test step or `buildtest` a longer one). Never call `job_status` in a tight loop, and never wrap it in a shell wait loop. When the state is no longer running, read `job_result` and judge the job by its per-step exit codes, test counts and failing tests. A job is not a background shell command: do not wait for it with `cfwf task wait` or a completion notification.
+- **P5.** Before handing back, wait for every job you started to finish, as [Finishing background work before handing back](task-workflow.instructions.md#background-command-wait) requires for background commands.
+
 ## Pre-Work Repository Health Check (MANDATORY)
 
 Before starting any work on an issue or PR in a .NET repository:
 
 - **P1.** Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
-- **P2.** Run: `dotnet buildcheck -solution <solutionfilename>`
+- **P2.** Run the `buildcheck` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory) when the server lists it; otherwise run: `dotnet buildcheck -solution <solutionfilename>`
 - **P3.** If it fails:
   - Fix all reported issues. If a fix is a package change (adding, changing, or removing a package reference), follow [Conflict Resolution: Pre-Commit/Component-Tool-Mandated Package Changes](packages.instructions.md#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory) instead of automatically treating it as a new package request requiring approval-and-wait; that section still falls back to approval-and-wait if its own security review finds a genuine blocker.
-  - Verify with `dotnet build` and `dotnet test`.
+  - Verify with the `build` and `test` MCP tools, or `dotnet build` and `dotnet test` when the server lists no tool for them.
   - Commit the fixes with a conventional commit message and push.
   - Only proceed with the original work once buildcheck passes cleanly.
 - **P4.** If buildcheck still fails after all fixing attempts:
@@ -31,7 +52,7 @@ Before starting any work on an issue or PR in a .NET repository:
 
 ## Build and Test Before Commit (MANDATORY)
 
-Run `dotnet build` and `dotnet test` before every commit; see [git.instructions.md](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push).
+Build and test before every commit, with the `build` and `test` [build-dotnet MCP tools](#build-dotnet-mcp-tools-mandatory) when the server lists them and with `dotnet build` and `dotnet test` only when it does not; see [git.instructions.md](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push).
 
 ## Identifying Test Projects (MANDATORY)
 
@@ -79,6 +100,8 @@ These projects keep `OutputType=Library`.
 
 ## Code Coverage (MANDATORY)
 
+When the server lists the `coverage` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory), collect coverage with it and read the figures from its `job_result`; the commands below are the fallback for when it does not.
+
 Testing uses **Microsoft.Testing.Platform** (not VSTest). To collect coverage, run **one unit test project at a time**: this gives a clear picture of how well each assembly is covered by its own tests.
 
 **Two working invocation patterns** (the `cd` step is required for both):
@@ -117,7 +140,7 @@ Do not install `coverlet.collector`, `coverlet.msbuild`, or any VSTest data coll
 
 ## Coverage Reporting with reportgenerator
 
-After collecting `.cobertura.xml` files, generate reports using `dotnet reportgenerator`.
+After collecting `.cobertura.xml` files, generate reports using `dotnet reportgenerator`. This is part of the raw fallback: when the `coverage` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory) is listed, use its figures instead.
 
 **Always generate one report per assembly**: pass only that assembly's `.cobertura.xml` as input:
 
@@ -183,7 +206,7 @@ See [code-quality.instructions.md](code-quality.instructions.md) for general asy
 `FunFair.BuildCheck` is an org-owned package; see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) for the GitHub source repository.
 
 - All projects must be added to the solution file (`.slnx` or `.sln`).
-- All projects must pass `FunFair.BuildCheck` before committing: `dotnet buildcheck` (run from solution root; `dotnet buildcheck --help` for options).
+- All projects must pass `FunFair.BuildCheck` before committing: use the `buildcheck` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory) when the server lists it, otherwise `dotnet buildcheck` (run from solution root; `dotnet buildcheck --help` for options).
 - If a build fails because `$(SolutionDir)` is undefined (e.g. imports guarded by `Exists('$(SolutionDir)...')` are silently skipped, leading to errors such as `NU5017`), fix it by ensuring the solution's `src/` directory has a `Directory.Build.props` that sets a fallback:
 
   ```xml
