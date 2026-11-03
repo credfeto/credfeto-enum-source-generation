@@ -57,7 +57,7 @@ Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is
 
 ## Build and Test Verification (MANDATORY before any commit or push)
 
-Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask. For pre-commit-specific failures (including ones requiring a fix to pre-commit itself or a component tool), see [Fixing Pre-Commit Failures](code-quality.instructions.md#fixing-pre-commit-failures-mandatory); new/unexpected failures there are your responsibility to fix, not a reason to stop.
+Build must pass and all tests must pass before committing or pushing. In a .NET repository, run them through the [build-dotnet MCP tools](dotnet.instructions.md#build-dotnet-mcp-tools-mandatory) when the server lists them. If they fail and cannot be resolved, stop and ask. For pre-commit-specific failures (including ones requiring a fix to pre-commit itself or a component tool), see [Fixing Pre-Commit Failures](code-quality.instructions.md#fixing-pre-commit-failures-mandatory); new/unexpected failures there are your responsibility to fix, not a reason to stop.
 
 ## Pre-Commit Branch Check
 
