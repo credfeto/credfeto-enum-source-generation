@@ -25,7 +25,7 @@ When a hook blocks a command and no form of the same operation that the hook acc
 
 ### One Long-Running Command at a Time (MANDATORY)
 
-Every role that runs commands (Code Writer, Code Tester, Code Fixer, Code Reviewer, CI Debugger, Committer, Rebase Agent, Dependency Updater, Changelog, PR Submitter, CI Monitor, Repo Auditor) follows [One Long-Running Command at a Time](task-workflow.instructions.md#one-long-running-command): never start a long-running command while another one you started is still running. Code Tester in particular runs the repository's checks (build, tests, `pre-commit-check`, `bats test/`) one after another, never in parallel. The Orchestrator applies the session-wide form: it never has two roles running long-running commands at the same time.
+Every role that runs commands (Code Writer, Code Tester, Code Fixer, Code Reviewer, CI Debugger, Committer, Rebase Agent, Dependency Updater, Changelog, PR Submitter, CI Monitor, Repo Auditor) follows [One Long-Running Command at a Time](task-workflow.instructions.md#one-long-running-command): never start a long-running command while another one you started is still running. Code Tester in particular runs the repository's checks (build, tests, `pre-commit-check`, `bats test/`) one after another, never in parallel. A job started through a [build-dotnet MCP tool](dotnet.instructions.md#build-dotnet-mcp-tools-mandatory) counts as a long-running command too. The Orchestrator applies the session-wide form: it never has two roles running long-running commands at the same time.
 
 ## Orchestrator
 
@@ -440,6 +440,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 ## Code Tester
 
 - Run build and all tests after Code Writer or Code Fixer finishes.
+- In a .NET repository, run the build, tests, coverage and checks through the [build-dotnet MCP tools](dotnet.instructions.md#build-dotnet-mcp-tools-mandatory) whenever the server lists them, using the raw `dotnet` commands only for a task it lists no tool for, never running the same build or test both ways, and polling each job's `job_status` about every 30 to 60 seconds. The same applies to every other role that builds, tests or measures coverage in a .NET repository (Code Writer, Code Fixer, Code Reviewer, CI Debugger, Committer, Rebase Agent, Dependency Updater, Repo Auditor).
 - Check coverage against `git -C <dir> diff origin/main...HEAD`.
 - Apply [IDE MCP Code Analysis](code-quality.instructions.md#ide-mcp-code-analysis-mandatory) to the changed files.
 - On build failure, test failure, or uncovered code: report file paths/line ranges to the calling agent; stop, do not proceed.
