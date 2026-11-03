@@ -78,6 +78,8 @@ git -C <repodir> add COVERAGE.md
 
 Components are assemblies (one row per `<AssemblyName>.Tests` project's target assembly). Collect each unit test project's `.cobertura.xml` as normal ([Code Coverage](dotnet.instructions.md#code-coverage-mandatory)), generate the **per-assembly** reports for the [Committed Coverage File](#committed-coverage-file-mandatory)'s component rows, then generate the combined report and read its `summary.linecoverage` field for the gated Overall (.NET) figure, all as described in [Coverage Reporting with reportgenerator](dotnet.instructions.md#coverage-reporting-with-reportgenerator).
 
+When the `build-dotnet` MCP server lists its `coverage` tool, run that tool instead and take the coverage figures from its `job_result`, as [build-dotnet MCP Tools](dotnet.instructions.md#build-dotnet-mcp-tools-mandatory) requires; when `job_result` does not give a figure the table needs (a per-assembly row), read it from the job's full log, whose path `job_result` gives, rather than re-running coverage. The commands above are only the fallback for when the tool is not listed. Never measure the same branch both ways.
+
 Skip .NET entirely if the repo has no `*.Tests` project ([Identifying Test Projects](dotnet.instructions.md#identifying-test-projects-mandatory)).
 
 ### Node
