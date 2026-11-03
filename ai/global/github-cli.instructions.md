@@ -69,8 +69,9 @@ cfwf issue create --repo <owner>/<repo> --priority <Security|Urgent|High|Medium|
 <description>
 BODY
 
-# View: title, state, labels, assignees, then the body
-cfwf issue view --repo <owner>/<repo> --issue <number>
+# View: title, state, labels, assignees, then the body; --comments adds the comments after a
+# `section<TAB>comments` line (the last such line is the real separator)
+cfwf issue view --repo <owner>/<repo> --issue <number> [--comments]
 
 # Whether it has a plan, whether it is Blocked, and who commented since the plan
 cfwf issue plan-status --repo <owner>/<repo> --issue <number>
@@ -91,6 +92,9 @@ cfwf comment edit --repo <owner>/<repo> --comment-id <id> --issue-comment --body
 
 # Read the top-level comments with their bodies, oldest first (also works for a PR's conversation comments)
 cfwf issue comments --repo <owner>/<repo> --issue <number> [--since <YYYY-MM-DDTHH:MM:SSZ>] [--author <login>]
+
+# Read one issue or PR conversation comment by its id (header lines, then the `|`-prefixed body)
+cfwf comment view --repo <owner>/<repo> --comment-id <id>
 
 # Post the implementation plan: comment, then Blocked, then the board to Planning
 cfwf issue post-plan --repo <owner>/<repo> --issue <number> --body-file - <<'PLAN'
