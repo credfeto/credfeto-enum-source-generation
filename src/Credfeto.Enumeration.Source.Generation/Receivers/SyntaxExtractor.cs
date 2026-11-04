@@ -236,7 +236,7 @@ public static class SyntaxExtractor
                 continue;
             }
 
-            result ??= new(StringComparer.Ordinal);
+            result ??= [with(StringComparer.Ordinal)];
             result[member.Identifier.ValueText] = identifierName.Identifier.ValueText;
         }
 
