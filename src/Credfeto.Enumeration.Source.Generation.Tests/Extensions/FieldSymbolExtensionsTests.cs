@@ -44,7 +44,7 @@ public sealed class FieldSymbolExtensionsTests : TestBase
     public void IsSkipEnumValueReturnsFalseForFirstUniqueValue()
     {
         IFieldSymbol field = MakeField("A", constantValue: 0);
-        HashSet<string> names = new(System.StringComparer.Ordinal);
+        HashSet<string> names = [with(System.StringComparer.Ordinal)];
 
         bool result = field.IsSkipEnumValue(names: names, equalsValueIdentifiers: null);
 
@@ -57,7 +57,7 @@ public sealed class FieldSymbolExtensionsTests : TestBase
     {
         IFieldSymbol fieldA = MakeField("A", constantValue: 0);
         IFieldSymbol fieldB = MakeField("B", constantValue: 0);
-        HashSet<string> names = new(System.StringComparer.Ordinal);
+        HashSet<string> names = [with(System.StringComparer.Ordinal)];
 
         bool firstResult = fieldA.IsSkipEnumValue(names: names, equalsValueIdentifiers: null);
         bool secondResult = fieldB.IsSkipEnumValue(names: names, equalsValueIdentifiers: null);
@@ -73,7 +73,7 @@ public sealed class FieldSymbolExtensionsTests : TestBase
         IFieldSymbol fieldB = MakeField("B", constantValue: 0);
 
         // Pre-populate names with "A" — simulating that A was already resolved as a member name
-        HashSet<string> names = new(System.StringComparer.Ordinal) { "A" };
+        HashSet<string> names = [with(System.StringComparer.Ordinal), "A"];
         Dictionary<string, string> equalsIdentifiers = new(System.StringComparer.Ordinal) { ["B"] = "A" };
 
         bool result = fieldB.IsSkipEnumValue(names: names, equalsValueIdentifiers: equalsIdentifiers);
@@ -85,7 +85,7 @@ public sealed class FieldSymbolExtensionsTests : TestBase
     public void IsSkipEnumValueReturnsFalseWhenEqualsValueIdentifierPointsToUnseenName()
     {
         IFieldSymbol fieldB = MakeField("B", constantValue: 1);
-        HashSet<string> names = new(System.StringComparer.Ordinal);
+        HashSet<string> names = [with(System.StringComparer.Ordinal)];
         Dictionary<string, string> equalsIdentifiers = new(System.StringComparer.Ordinal) { ["B"] = "UnknownName" };
 
         // "UnknownName" has never been added to names, so it's not skipped via identifier
@@ -100,7 +100,7 @@ public sealed class FieldSymbolExtensionsTests : TestBase
     public void IsSkipEnumValueReturnsFalseWhenNullConstantValue()
     {
         IFieldSymbol field = MakeField("A", constantValue: null);
-        HashSet<string> names = new(System.StringComparer.Ordinal);
+        HashSet<string> names = [with(System.StringComparer.Ordinal)];
 
         bool result = field.IsSkipEnumValue(names: names, equalsValueIdentifiers: null);
 

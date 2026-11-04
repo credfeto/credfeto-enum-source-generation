@@ -14,7 +14,7 @@ internal static class CompilationHelpers
         IEnumerable<MetadataReference>? additionalReferences = null
     )
     {
-        HashSet<string> addedPaths = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> addedPaths = [with(StringComparer.OrdinalIgnoreCase)];
         List<MetadataReference> references = [];
 
         AddReference(references, addedPaths, typeof(object));
