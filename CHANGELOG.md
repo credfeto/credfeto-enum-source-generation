@@ -15,6 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Changed
 - Dependencies - Updated FunFair.CodeAnalysis to 7.2.25.2636
 - SDK - Updated DotNet SDK to 11.0.100-rc.3.26522.148
+- Target .NET 11 and enable runtime-async
 ### Deprecated
 ### Removed
 ### Deployment Changes
