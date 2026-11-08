@@ -13,7 +13,7 @@
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
-    <Features>strict;flow-analysis</Features>
+    <Features>strict;flow-analysis;runtime-async=on</Features>
     <GenerateNeutralResourcesLanguageAttribute>true</GenerateNeutralResourcesLanguageAttribute>
     <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
@@ -34,7 +34,7 @@
     <PackageReleaseNotes>$(ReleaseNotes)</PackageReleaseNotes>
     <Product>Source Generation</Product>
     <RunAOTCompilation>false</RunAOTCompilation>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
     <TieredPGO>true</TieredPGO>
     <TreatSpecificWarningsAsErrors />

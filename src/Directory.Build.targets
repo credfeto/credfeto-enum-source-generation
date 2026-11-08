@@ -3,7 +3,7 @@
 
     <!-- Sarif -->
     <PropertyGroup Condition="$(EnableSarif)=='True' And !$(MSBuildProjectName.EndsWith('.Tests'))">
-        <ErrorLog>$(SolutionDir)\..\results\$(MSBuildProjectName).$(TargetFramework).sarif,version=2.1</ErrorLog>
+        <ErrorLog>$(SolutionDir)../results/$(MSBuildProjectName).$(TargetFramework).sarif,version=2.1</ErrorLog>
     </PropertyGroup>
 
     <!-- Code analysis analyzer - report timings -->
