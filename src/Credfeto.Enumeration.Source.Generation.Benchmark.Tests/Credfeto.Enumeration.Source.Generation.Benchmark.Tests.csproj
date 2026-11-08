@@ -13,7 +13,7 @@
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
-    <Features>strict;flow-analysis</Features>
+    <Features>strict;flow-analysis;runtime-async=on</Features>
     <GenerateNeutralResourcesLanguageAttribute>true</GenerateNeutralResourcesLanguageAttribute>
     <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
@@ -34,7 +34,7 @@
     <PackageReleaseNotes>$(ReleaseNotes)</PackageReleaseNotes>
     <Product>Source Generation</Product>
     <RunAOTCompilation>false</RunAOTCompilation>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     <TieredCompilation>true</TieredCompilation>
     <TieredPGO>true</TieredPGO>
@@ -44,7 +44,7 @@
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
     <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
     <WarningsAsErrors />
-    <_NetStandardCompatFacadeAssemblyNames>;System.Buffers;System.Memory;System.Numerics.Vectors;System.Runtime.CompilerServices.Unsafe;System.Text.Encoding.CodePages;System.Threading.Tasks.Extensions;</_NetStandardCompatFacadeAssemblyNames>
+    <_NetStandardCompatFacadeAssemblyNames>;System.Buffers;System.Collections.Immutable;System.Memory;System.Numerics.Vectors;System.Reflection.Metadata;System.Runtime.CompilerServices.Unsafe;System.Text.Encoding.CodePages;System.Threading.Tasks.Extensions;</_NetStandardCompatFacadeAssemblyNames>
   </PropertyGroup>
   <ItemGroup>
     <!-- error NU1903: Warning As Error: Package 'System.Private.Uri' 4.3.0 has a known high severity vulnerability -->
@@ -58,18 +58,21 @@
   <!-- Credfeto.Enumeration.Source.Generation targets netstandard2.0 (required for Roslyn generator host compatibility).
        This project references it as a normal ProjectReference (ReferenceOutputAssembly="true", the default), which
        pulls its netstandard2.0 compile-time reference-assembly facades (part of the netstandard2.0 contract, not
-       normal transitive NuGet packages) into this net10.0 project's compile-reference closure. net10.0 already
-       provides all of these in-box at a higher version, so MSBuild logs an MSB3243 "no way to resolve conflict" for
-       each one, and one of them (System.Threading.Tasks.Extensions, whose netstandard2.0 ValueTask collides with
-       net10.0's own in System.Runtime) additionally fails compilation outright (CS0433) inside xunit's AOT-generated
-       code. ResolveAssemblyReferences (RAR) logs the MSB3243 conflict warning as a side effect of its own internal
-       resolution algorithm the moment it runs, so removing items afterwards (even BeforeTargets="CoreCompile", which
-       runs after RAR) does not stop the warning from being logged - only from reaching Csc. Strip all of them from
-       the candidate reference items before RAR itself runs, so it never sees the conflict at all; net10.0 doesn't
-       need any of them. -->
+       normal transitive NuGet packages) into this net11.0 project's compile-reference closure. SourceGenerator.props
+       also exposes the generator's own package compile assets, including the netstandard2.0 builds of
+       System.Collections.Immutable and System.Reflection.Metadata pulled in by Microsoft.CodeAnalysis. net11.0
+       already provides all of these in-box at a higher version, so MSBuild logs an MSB3243 "no way to resolve
+       conflict" for each one, and some of them (System.Threading.Tasks.Extensions, whose netstandard2.0 ValueTask
+       collides with net11.0's own in System.Runtime, and System.Collections.Immutable, whose ImmutableArray<T>
+       collides with net11.0's) additionally fail compilation outright (CS0433). ResolveAssemblyReferences (RAR) logs
+       the MSB3243 conflict warning as a side effect of its own internal resolution algorithm the moment it runs, so
+       removing items afterwards (even BeforeTargets="CoreCompile", which runs after RAR) does not stop the warning
+       from being logged - only from reaching Csc. Strip all of them from the candidate reference items before RAR
+       itself runs, so it never sees the conflict at all; net11.0 doesn't need any of them. Only non-framework Reference
+       items are removed, so net11.0's own in-box assemblies of the same name stay referenced. -->
   <Target Name="RemoveNetStandardCompatFacades" BeforeTargets="ResolveAssemblyReferences">
     <ItemGroup>
-      <Reference Remove="@(Reference)" Condition="$(_NetStandardCompatFacadeAssemblyNames.Contains(';%(Reference.FileName);'))" />
+      <Reference Remove="@(Reference)" Condition="'%(Reference.FrameworkReferenceName)' == '' And $(_NetStandardCompatFacadeAssemblyNames.Contains(';%(Reference.FileName);'))" />
       <_ResolvedProjectReferencePaths Remove="@(_ResolvedProjectReferencePaths)" Condition="$(_NetStandardCompatFacadeAssemblyNames.Contains(';%(_ResolvedProjectReferencePaths.FileName);'))" />
     </ItemGroup>
   </Target>
