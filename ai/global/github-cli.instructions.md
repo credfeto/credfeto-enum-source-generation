@@ -171,9 +171,8 @@ cfwf pr edit --repo <owner>/<repo> --pr <number> [--title "<title>"] [--body-fil
 # Checks: judge the required checks on the head once (exit 0 pass, 3 failed, 4 pending, 5 none at all)
 cfwf pr checks --repo <owner>/<repo> --pr <number> [--all]
 
-# When the PR was last marked ready / when auto-merge was last enabled on it (enabled-at, "-" if never)
+# When the PR was last marked ready
 cfwf pr ready-at --repo <owner>/<repo> --pr <number>
-cfwf pr auto-merge-at --repo <owner>/<repo> --pr <number>
 
 # After merge: judge the Actions runs on the merge commit, on the base branch (exit codes as pr checks-wait)
 cfwf pr post-merge-runs --repo <owner>/<repo> --pr <number>
