@@ -8,7 +8,7 @@ If already on the correct, existing work branch for this task (i.e. resuming wor
 
 - **P1.** **Fetch**: `git -C <repodir> fetch origin main`; always fetch first, regardless of whether a rebase turns out to be needed.
 - **P2.** **Check**: `git -C <repodir> rev-list --count HEAD..origin/main`; a non-zero count means `origin/main` has advanced and a rebase is needed.
-- **P3.** **Rebase**: only if P2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below, then run the [After Every Rebase](#after-every-rebase-mandatory) check.
+- **P3.** **Rebase**: only if P2 found new commits, rebase onto `origin/main` now, following [Resolving Version Conflicts When Merging or Rebasing](#resolving-version-conflicts-when-merging-or-rebasing) below and, when the branch has already been pushed, [Force-Pushing a Rebased Branch](#force-pushing-a-rebased-branch-mandatory), then run the [After Every Rebase](#after-every-rebase-mandatory) check.
 
 A branch just created fresh from an up-to-date `main` doesn't need this; it starts current by construction.
 
@@ -21,6 +21,15 @@ A rebase pulls in unknown content from `origin/main` (other people's commits, pl
 - **P3.** Commit each fix as its own commit on the current branch, separate from the rebase and from fixes to other constructs, per [git-commits.instructions.md](git-commits.instructions.md). If the check only auto-fixes files (for example trailing whitespace) with everything else passing, commit those fixes on the current branch in their own commit, as the Pre-Work Baseline Check's [P1](git.instructions.md#baseline-autofix-own-commit) does.
 - **P4.** Only for an issue that meets the [stop condition](code-quality.instructions.md#pre-commit-stop-condition) in Fixing Pre-Commit Failures: comment on the issue/PR with the verbatim output and label it `Blocked`, as the Pre-Work Baseline Check's [P3](git.instructions.md#baseline-still-fails-escalate) does. Difficulty is not a reason to escalate.
 - **P5.** No coverage re-baseline step is needed: the AI Coverage phase always reads `COVERAGE.md` live from `origin/main`, so a rebase alone cannot make it stale. If the rebase itself produces a conflict in `COVERAGE.md`, do not hand-merge the numbers; see [Committed Coverage File](coverage-ratchet.instructions.md#committed-coverage-file-mandatory) in [coverage-ratchet.instructions.md](coverage-ratchet.instructions.md).
+
+## Force-Pushing a Rebased Branch (MANDATORY)
+
+Rebasing a pushed branch rewrites its history, so pushing it needs a force-push. That is allowed only for a pure rebase that passes every check below, because a force-push to a shared branch, or over commits someone else pushed, destroys their work. This applies to every role that rebases a pushed branch, including the [Rebase Agent](agent-roles.instructions.md#rebase-agent).
+
+- **P1.** Before rebasing, refuse `main`, `master`, `develop`, `release/*` and any other shared branch: only a personal feature or topic branch may be rebased and force-pushed.
+- **P2.** Before rebasing, fetch the branch (`git -C <repodir> fetch origin <branch>`) and confirm that local HEAD equals remote HEAD: `git -C <repodir> rev-parse refs/heads/<branch>` must print the same SHA as `git -C <repodir> rev-parse refs/remotes/origin/<branch>`, because a difference means the local branch is not what was pushed, so the force-push would not be a pure rebase of the remote branch and could drop commits pushed from elsewhere.
+- **P3.** Push with `git -C <repodir> push --force-with-lease origin <branch>` only. Never use plain `--force` (or `-f`), because only the lease refuses to overwrite commits pushed since the fetch.
+- **P4.** If any check above fails, or the push is rejected, stop and ask the human, quoting the output verbatim as [Command Failure Reporting](git.instructions.md#command-failure-reporting-mandatory) requires. Do not retry the push and do not fall back to plain `--force`.
 
 ## Resolving Version Conflicts When Merging or Rebasing
 
