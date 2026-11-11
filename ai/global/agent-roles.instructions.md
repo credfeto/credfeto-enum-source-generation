@@ -227,7 +227,7 @@ Only once all four phases have completed without a `Blocked` outcome (each phase
    ```bash
    cfwf pr hand-off --repo <owner/repo> --pr <number> --title "<type>(<scope>): <description>" \
      --description-file - <<'DESCRIPTION'
-   <what the change does and why; keep every Closes #N line>
+   <what the change does and why; keep every Closes #N line, including those for completed sub-issues>
    DESCRIPTION
    ```
 
@@ -642,7 +642,7 @@ Runs in two modes; both use `dotnet changelog` (see [changelog.instructions.md](
 
 - Run after Committer has pushed.
 - Wait up to 1 minute for GitHub to auto-create a PR (`cfwf pr list --repo <owner/repo> --head <branch>`); create one if absent with `cfwf pr create --repo <owner/repo> --head <branch> --title "<title>" --body-file <file|->`, which opens it as a draft on the Workflow board as **Development**, or prints the existing PR's URL if the branch already has one.
-- Title: Conventional Commits format matching the primary commit; for the placeholder-only commit that opens the PR before any code exists, take the Conventional Commits type from the expected change or from the issue's labels instead (e.g. `bug` gives `fix`, `enhancement` gives `feat`), and correct it once the primary code commit lands if it differs. Never take the PR title or its type from the issue title, because issue titles follow [Issue Titles](github-cli.instructions.md#issue-titles-mandatory), whose prefixes (e.g. `learning:`, `audit:`, `tool(cfwf):`) are not Conventional Commits types. Body: summary + `Closes #<n>` (or `Related to #<n>`).
+- Title: Conventional Commits format matching the primary commit; for the placeholder-only commit that opens the PR before any code exists, take the Conventional Commits type from the expected change or from the issue's labels instead (e.g. `bug` gives `fix`, `enhancement` gives `feat`), and correct it once the primary code commit lands if it differs. Never take the PR title or its type from the issue title, because issue titles follow [Issue Titles](github-cli.instructions.md#issue-titles-mandatory), whose prefixes (e.g. `learning:`, `audit:`, `tool(cfwf):`) are not Conventional Commits types. Body: summary + `Closes #<n>` (or `Related to #<n>`), plus a `Closes #<sub-issue>` line for every sub-issue the PR completes (kept on every update).
 - Update body if PR already exists (`cfwf pr edit --repo <owner/repo> --pr <number> --body-file <file|->`). Add yourself as assignee (`cfwf pr edit --repo <owner/repo> --pr <number> --assign-self`).
 - Do **not** mark ready or enable auto-merge here; that is the Orchestrator's job after the AI review loop (see [PR Workflow: AI Review Loop](#pr-workflow-ai-review-loop)). Leave the PR as draft.
 
