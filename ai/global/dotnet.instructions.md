@@ -37,7 +37,7 @@ When a `build-dotnet` MCP server is connected, it runs the repository's .NET bui
 
 ## Pre-Work Repository Health Check (MANDATORY)
 
-Before starting any work on an issue or PR in a .NET repository:
+The [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work) applies to every language and says when it runs (a fresh branch from `main`, or as the final step after a rebase; never when resuming an existing branch that needed no rebase). In a .NET repository, run it as follows:
 
 - **P1.** Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
 - **P2.** Run the `buildcheck` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory) when the server lists it; otherwise run: `dotnet buildcheck -solution <solutionfilename>`
