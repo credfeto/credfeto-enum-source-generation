@@ -198,7 +198,7 @@ QUESTION
 # Hand off to human review: title and description, Human Review, ready, review record, then auto-merge
 cfwf pr hand-off --repo <owner>/<repo> --pr <number> --title "<type>: <title>" \
   --description-file - <<'DESCRIPTION'
-<description; keep every Closes #N line>
+<description; keep every Closes #N line, including sub-issue lines; never close sub-issues with `cfwf issue close`>
 DESCRIPTION
 
 # Take back from human review: auto-merge off, draft, Development, then a comment saying why
