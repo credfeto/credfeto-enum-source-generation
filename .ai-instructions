@@ -34,3 +34,4 @@ Precedence is given to local instructions over global instructions.
 * Whenever starting work - re-read all these files and use this as a basis for how the work is performed.
 * If work requires a missing CLI tool, see the **Missing CLI Tools** section in `ai/global/task-workflow.instructions.md`.
 * This file (.ai-instructions) should only be edited in [git@github.com:credfeto/cs-template.git](https://github.com/credfeto/cs-template).
+* When building, just build and use your best judgment. Make any call that's reversible yourself, and check in later with the calls you made.
