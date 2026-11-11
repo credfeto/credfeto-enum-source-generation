@@ -155,7 +155,7 @@ github is configured to automatically create PRs from pushed branches. These PRs
 On every agent run, for every PR being interacted with:
 
 - **P1.** Ensure the **title** accurately reflects all changes in the PR; update it if the scope has changed.
-- **P2.** Ensure the **body** summarises all changes and includes `Closes #<n>` for each linked issue, if any.
+- **P2.** Ensure the **body** summarises all changes and includes `Closes #<n>` for each linked issue and each sub-issue the PR completes, if any; sub-issues are closed by merging, never by hand.
 - **P3.** Sync labels from all linked closing issues to the PR:
 
   ```bash
@@ -197,13 +197,13 @@ Whenever an instruction file is added or updated, re-evaluate all open branches 
 - **P2.** Comment findings on the issue before starting (handlers found, current state, etc.).
 - **P3.** For each handler/app/component, create a sub-issue referencing the top-level issue; use the sub-issue number in branch names and commit messages.
 - **P4.** Work on one handler/component at a time; commit and push before starting the next.
-- **P5.** Close the sub-issue as soon as the relevant commits are pushed.
+- **P5.** Never close a sub-issue by hand. The PR description carries a `Closes #<sub-issue>` line for every sub-issue the PR completes, so merging the PR closes them.
 
 ## Issue Tracking
 
 - Only update issues if `cfwf` is installed and authenticated (`cfwf auth status`); otherwise read code and git log for state.
 - Each sub-issue must list files with status: `❌ Not started` / `🔄 In progress` / `✅ Done`; update after each commit+push.
-- The top-level issue tracks only handler/app-level status (sub-issues open/closed, branches merged).
+- The top-level issue tracks only handler/app-level status (which sub-issues are open or closed by merged PRs, branches merged).
 - Update the sub-issue after each significant commit+push; update the top-level issue when overall status changes.
 - When resuming, update the issue with current state before continuing.
 
