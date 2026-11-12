@@ -21,6 +21,7 @@
 - This covers installing from an existing lockfile; regenerating or updating `package-lock.json` follows [Fixed Package Versions](#fixed-package-versions).
 - Install with exactly `npm ci --ignore-scripts`, plus `--prefix` where [Running npm Commands](#running-npm-commands-mandatory) requires it.
 - Never install without `--ignore-scripts`, and never run `npm rebuild`: CI installs without scripts too, so builds must not depend on them.
+- When `node_modules` is missing (it is absent at the start of every session), run `npm ci --ignore-scripts` before committing: the lint and test pre-commit hooks load packages from it and fail without it.
 
 ## Fixed Package Versions
 
@@ -31,4 +32,5 @@
 - Do not use `*`, `latest`, or any semver range expressions.
 - Updates to existing packages must be **explicit and intentional**: specify the target version directly rather than relying on range resolution.
 - When updating a package, update only that package (and its required peer dependencies); do not allow transitive upgrades to pull in unreviewed version changes.
+- To move a transitive dependency (one not listed in `package.json`, for example for a security fix) to a newer version, run exactly `npm update <package> --package-lock-only --ignore-scripts`, plus `--prefix` after the subcommand where [Running npm Commands](#running-npm-commands-mandatory) requires it, then check `package-lock.json` resolves the intended version. Never hand-edit `package-lock.json`: the integrity hash can only come from the registry.
 - When a merge or rebase produces conflicting versions of the same package, take the latest secure candidate and regenerate `package-lock.json` rather than hand-merging it; see [git-rebasing.instructions.md](git-rebasing.instructions.md#resolving-version-conflicts-when-merging-or-rebasing).
