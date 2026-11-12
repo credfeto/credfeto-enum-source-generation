@@ -67,7 +67,7 @@ When selecting the next issue to work on, prefer issues with higher-priority lab
 | Label | Meaning |
 | --- | --- |
 | `On Hold` | Needs further thought or cannot be implemented yet; do not start work |
-| `Blocked` | Needs human input before work can continue; see the Orchestrator section in [agent-roles.instructions.md](agent-roles.instructions.md) |
+| `Blocked` | Needs human input before work can continue; see [Blocked Label](agent-roles.instructions.md#blocked-label), and [Ask in Chat First](communication.instructions.md#ask-in-chat-first-mandatory) for when an interactive session adds it |
 
 ## Workflow Project Board (MANDATORY)
 
@@ -97,7 +97,7 @@ A question is not a request to do something, so this flow never applies to it: a
   - Body: the prompt, verbatim, as the starting point.
   - Labels: `AI-Work` and `Blocked` (minimum), always, regardless of who initiated the underlying task; add other relevant labels (e.g. priority) as appropriate.
 - **P2.** Use Plan Mode to work out scope, affected files, and approach, and post it as an `## Implementation Plan` issue comment per the format in [agent-roles.instructions.md](agent-roles.instructions.md#issue-workflow-plan-first-new-issues-only).
-- **P3.** As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end.
+- **P3.** As open questions are identified, add each as an issue comment as soon as it's identified; do not batch them all until the end. In an interactive session, also raise each in chat, in the [NEEDS YOU block](communication.instructions.md#needs-you-block-mandatory).
 - **P4.** Do not proceed until an explicit human approval comment exists (`approved` / `lgtm`) and `Blocked` is removed; if approval came via live chat, mirror it as a GitHub comment first (see [Blocked Label](agent-roles.instructions.md#blocked-label)). In an interactive session, see [Waiting for Approval in an Interactive Session](agent-roles.instructions.md#waiting-for-approval-in-an-interactive-session), which applies to these tracking issues too.
 - **P5.** Once approved and `Blocked` is removed, proceed via the routing table below and open a PR referencing the issue when ready.
 - **P6.** See [Prompt Traceability](#prompt-traceability-mandatory) below for further prompts once an issue or PR already exists for the work.
