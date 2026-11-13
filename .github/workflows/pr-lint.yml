@@ -147,8 +147,7 @@ jobs:
   change-log-entry-is-in-unreleased:
     if: |-
       github.event.pull_request.draft == false &&
-      github.actor != 'dependabot[bot]' &&
-      !endsWith(github.repository, '-template')
+      github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
@@ -212,6 +211,191 @@ jobs:
             ${{github.workspace}}/CHANGELOG.md
             --check-insert
             origin/${{github.base_ref}}
+          untrusted-output: "true"
+
+  # @@required: merge
+  changelog-template-unreleased-is-empty:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 1
+
+      - name: "Check repo visibility"
+        id: visibility
+        uses: ./.github/actions/check-repo-visibility
+
+      - name: "Check Required Secrets"
+        if: steps.visibility.outputs.is-template == 'true'
+        uses: ./.github/actions/check-required-secret
+        with:
+          secret-name: "SOURCE_PUSH_TOKEN"
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Install dotnet"
+        if: steps.visibility.outputs.is-template == 'true'
+        uses: ./.github/actions/dotnet-install
+        with:
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          nuget-additional-restore-feed-release-cache: ""
+          nuget-additional-restore-feed-prerelease-cache: ""
+          nuget-additional-restore-feed-release: ""
+          nuget-additional-restore-feed-prerelease: ""
+
+      - name: "Install Changelog tool"
+        if: steps.visibility.outputs.is-template == 'true'
+        uses: ./.github/actions/dotnet-tool
+        with:
+          tool-name: "Credfeto.ChangeLog.Cmd"
+          tool-version: "latest"
+
+      - name: "Check Unreleased is headings only"
+        if: steps.visibility.outputs.is-template == 'true'
+        shell: bash
+        run: |
+          # Untrusted text is printed between stop-commands markers so it cannot issue workflow commands.
+          print_untrusted() {
+            local token
+            token=$(head -c 32 /dev/urandom | base64 -w0 | tr -dc 'A-Za-z0-9')
+            echo "::stop-commands::$token"
+            printf '%s\n' "$1"
+            echo "::$token::"
+          }
+
+          output=$(timeout 10m dotnet tool run --allow-roll-forward changelog --changelog "$CHANGELOG_FILE" --un-released 2>"$CHANGELOG_STDERR_FILE") || {
+            print_untrusted "$output"$'\n'"$(cat "$CHANGELOG_STDERR_FILE")"
+            echo "::error::❌ Changelog tool failed to read the [Unreleased] section"
+            exit 1
+          }
+
+          if ! grep -qxF 'Unreleased Content:' <<< "$output"; then
+            print_untrusted "$output"
+            echo "::error::❌ Changelog tool output has no 'Unreleased Content:' line"
+            exit 1
+          fi
+
+          content=$(sed '0,/^Unreleased Content:$/d' <<< "$output" | grep -v '^[[:space:]]*$' || true)
+          if [ -n "$content" ]; then
+            print_untrusted "$content"
+            echo "::error::❌ Template changelog [Unreleased] section must contain headings only"
+            exit 1
+          fi
+
+          echo "✅ Template changelog [Unreleased] section contains headings only"
+        env:
+          CHANGELOG_FILE: "${{github.workspace}}/CHANGELOG.md"
+          CHANGELOG_STDERR_FILE: "${{runner.temp}}/changelog-unreleased-stderr.txt"
+          TMP: "${{runner.temp}}"
+
+  # @@required: merge
+  changelog-has-no-placeholders:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 1
+
+      - name: "Check Required Secrets"
+        uses: ./.github/actions/check-required-secret
+        with:
+          secret-name: "SOURCE_PUSH_TOKEN"
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Install dotnet"
+        uses: ./.github/actions/dotnet-install
+        with:
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          nuget-additional-restore-feed-release-cache: ""
+          nuget-additional-restore-feed-prerelease-cache: ""
+          nuget-additional-restore-feed-release: ""
+          nuget-additional-restore-feed-prerelease: ""
+
+      - name: "Install Changelog tool"
+        uses: ./.github/actions/dotnet-tool
+        with:
+          tool-name: "Credfeto.ChangeLog.Cmd"
+          tool-version: "latest"
+
+      - name: "Check Unreleased has no placeholders"
+        shell: bash
+        run: |
+          # Untrusted text is printed between stop-commands markers so it cannot issue workflow commands.
+          print_untrusted() {
+            local token
+            token=$(head -c 32 /dev/urandom | base64 -w0 | tr -dc 'A-Za-z0-9')
+            echo "::stop-commands::$token"
+            printf '%s\n' "$1"
+            echo "::$token::"
+          }
+
+          output=$(timeout 10m dotnet tool run --allow-roll-forward changelog --changelog "$CHANGELOG_FILE" --un-released 2>"$CHANGELOG_STDERR_FILE") || {
+            print_untrusted "$output"$'\n'"$(cat "$CHANGELOG_STDERR_FILE")"
+            echo "::error::❌ Changelog tool failed to read the [Unreleased] section"
+            exit 1
+          }
+
+          if ! grep -qxF 'Unreleased Content:' <<< "$output"; then
+            print_untrusted "$output"
+            echo "::error::❌ Changelog tool output has no 'Unreleased Content:' line"
+            exit 1
+          fi
+
+          # A bullet (-, *, +, 1. or 1)) whose first word is TBD, optionally wrapped in emphasis, backticks, brackets or parentheses.
+          bullet_tbd="^[[:space:]]*([-*+]|[0-9]+[.)])[[:space:]]*[*_\`[(]*TBD[]*_\`)]*([^[:alnum:]_]|\$)"
+          # A bullet that is only TODO or WIP (same wrappers), or that word followed by ':' or ' - ', so real entries such as
+          # 'TODO list support' or 'WIP-limit setting' are not placeholders.
+          bullet_todo_wip="^[[:space:]]*([-*+]|[0-9]+[.)])[[:space:]]*[*_\`[(]*(TODO|WIP)[]*_\`)]*([[:space:]]*\$|:| - )"
+          finalize_tbd='TBD - to be finalized after review'
+          placeholders=$(sed '0,/^Unreleased Content:$/d' <<< "$output" | grep -iE -e "$bullet_tbd" -e "$bullet_todo_wip" -e "$finalize_tbd" || true)
+          if [ -n "$placeholders" ]; then
+            print_untrusted "$placeholders"
+            echo "::error::❌ Contains placeholder content"
+            exit 1
+          fi
+
+          echo "✅ Changelog [Unreleased] section contains no placeholder content"
+        env:
+          CHANGELOG_FILE: "${{github.workspace}}/CHANGELOG.md"
+          CHANGELOG_STDERR_FILE: "${{runner.temp}}/changelog-unreleased-stderr.txt"
+          TMP: "${{runner.temp}}"
 
   # @@required: merge
   does-not-contain-secrets:
@@ -513,6 +697,7 @@ jobs:
             --changelog
             ${{github.workspace}}/CHANGELOG.md
             --lint
+          untrusted-output: "true"
 
   # @@required: main
   lint-code:
