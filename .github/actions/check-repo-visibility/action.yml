@@ -1,7 +1,7 @@
 --- # Check repository visibility, template, and fork status
 # Maintain in repo: funfair-server-template
 name: "Check Repository Visibility"
-description: "Checks whether the current repository is public, a template, and/or a fork"
+description: "Checks whether the current repository is public, a template, and/or a fork; fails if the lookup fails"
 
 outputs:
   is-public:
@@ -16,9 +16,6 @@ outputs:
   fork-parent:
     description: "Full name (owner/repo) of the parent repository if this is a fork, otherwise empty"
     value: "${{steps.check.outputs.fork-parent}}"
-  lookup-error:
-    description: "Error message if the lookup failed, otherwise empty. On failure other outputs default to the most restrictive values (false/empty)"
-    value: "${{steps.check.outputs.lookup-error}}"
 
 runs:
   using: composite
@@ -36,12 +33,7 @@ runs:
               repo: context.repo.repo,
             }));
           } catch (err) {
-            core.warning(`⚠️ Could not retrieve repository info - defaulting to restrictive values: ${err.message}`);
-            core.setOutput('is-public', 'false');
-            core.setOutput('is-template', 'false');
-            core.setOutput('is-fork', 'false');
-            core.setOutput('fork-parent', '');
-            core.setOutput('lookup-error', err.message);
+            core.setFailed(`Could not determine repository visibility, template, and fork status: ${err.message}`);
             return;
           }
 
@@ -58,4 +50,3 @@ runs:
           core.setOutput('is-template', isTemplate ? 'true' : 'false');
           core.setOutput('is-fork', isFork ? 'true' : 'false');
           core.setOutput('fork-parent', forkParent);
-          core.setOutput('lookup-error', '');
