@@ -16,6 +16,12 @@ inputs:
       An empty line becomes an empty-string argument; a single trailing newline is ignored.
       A value containing a newline is split into several arguments.
     required: false
+  untrusted-output:
+    description: >-
+      Whether the tool prints text controlled by the pull request, such as CHANGELOG.md lines;
+      when 'true' its output cannot issue workflow commands.
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
@@ -30,7 +36,17 @@ runs:
           mapfile -t TOOL_ARGS <<< "$TOOL_ARGUMENTS_TEXT"
         fi
         EXIT_CODE=0
-        timeout 10m dotnet tool run --allow-roll-forward "$TOOL_NAME" "${TOOL_ARGS[@]}" || EXIT_CODE=$?
+        if [ "$UNTRUSTED_OUTPUT" = "true" ]; then
+          # Untrusted tool output is printed between stop-commands markers so it cannot issue workflow commands;
+          # the action's own annotations come after the closing marker.
+          STOP_TOKEN=$(head -c 32 /dev/urandom | base64 -w0 | tr -dc 'A-Za-z0-9')
+          echo "::stop-commands::$STOP_TOKEN"
+          timeout 10m dotnet tool run --allow-roll-forward "$TOOL_NAME" "${TOOL_ARGS[@]}" || EXIT_CODE=$?
+          # Leading newline so the closing marker starts its own line even if the output lacks a final newline.
+          printf '\n::%s::\n' "$STOP_TOKEN"
+        else
+          timeout 10m dotnet tool run --allow-roll-forward "$TOOL_NAME" "${TOOL_ARGS[@]}" || EXIT_CODE=$?
+        fi
         if [ "$EXIT_CODE" -eq 124 ]; then
           echo "::error::❌ ${TOOL_NAME//[$'\r\n']/ } timed out after 10 minutes"
         fi
@@ -39,3 +55,4 @@ runs:
         TMP: "${{runner.temp}}"
         TOOL_NAME: "${{inputs.tool-name}}"
         TOOL_ARGUMENTS: "${{inputs.tool-arguments}}"
+        UNTRUSTED_OUTPUT: "${{inputs.untrusted-output}}"
