@@ -164,9 +164,39 @@ jobs:
         id: upgrade_check
         shell: bash
         run: |
+          export LC_ALL=C
+          # semver precedence: sort -V ranks a prerelease (11.0.100-rc.3) above its release (11.0.100)
+          semver_gt() {
+            local a="$1" b="$2" a_core b_core a_pre="" b_pre="" x y i
+            local -a ap bp
+            a_core="${a%%-*}"
+            b_core="${b%%-*}"
+            [[ "$a" == *-* ]] && a_pre="${a#*-}"
+            [[ "$b" == *-* ]] && b_pre="${b#*-}"
+            if [[ "$a_core" != "$b_core" ]]; then
+              [[ "$(printf '%s\n' "$a_core" "$b_core" | sort -V | tail -1)" == "$a_core" ]]
+              return
+            fi
+            [[ "$a_pre" == "$b_pre" ]] && return 1
+            [[ -z "$a_pre" ]] && return 0
+            [[ -z "$b_pre" ]] && return 1
+            IFS='.' read -ra ap <<< "$a_pre"
+            IFS='.' read -ra bp <<< "$b_pre"
+            for ((i = 0; i < ${#ap[@]} && i < ${#bp[@]}; i++)); do
+              x="${ap[i]}"
+              y="${bp[i]}"
+              [[ "$x" == "$y" ]] && continue
+              if [[ "$x" =~ ^[0-9]+$ && "$y" =~ ^[0-9]+$ ]]; then
+                if ((10#$x > 10#$y)); then return 0; else return 1; fi
+              fi
+              [[ "$x" =~ ^[0-9]+$ ]] && return 1
+              [[ "$y" =~ ^[0-9]+$ ]] && return 0
+              if [[ "$x" > "$y" ]]; then return 0; else return 1; fi
+            done
+            if ((${#ap[@]} > ${#bp[@]})); then return 0; else return 1; fi
+          }
           echo "Current: $CURRENT_VERSION, Latest: $LATEST_RELEASE_VERSION"
-          HIGHEST=$(printf '%s\n' "$CURRENT_VERSION" "$LATEST_RELEASE_VERSION" | sort -V | tail -1)
-          if [[ "$CURRENT_VERSION" != "$LATEST_RELEASE_VERSION" && "$HIGHEST" == "$LATEST_RELEASE_VERSION" ]]; then
+          if semver_gt "$LATEST_RELEASE_VERSION" "$CURRENT_VERSION"; then
             echo "NEW_VERSION=true" >> "$GITHUB_OUTPUT"
           else
             echo "NEW_VERSION=false" >> "$GITHUB_OUTPUT"
