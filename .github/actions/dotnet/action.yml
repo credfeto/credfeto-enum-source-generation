@@ -47,6 +47,10 @@ inputs:
     description: "Whether pre-release NuGet packages are allowed"
     required: true
 
+  is-template:
+    description: "Whether the repository is a template repository ('true' or 'false')"
+    required: true
+
   release-notes:
     description: "Release notes"
     required: false
@@ -77,13 +81,13 @@ runs:
     ############################################################################################################
 
     - name: "Dotnet: Run build check"
-      if: (!endsWith(github.repository, 'funfair-dotnet-build-check')) && (!endsWith(github.repository, '-template'))
+      if: (!endsWith(github.repository, 'funfair-dotnet-build-check')) && inputs.is-template != 'true'
       uses: ./.github/actions/dotnet-build-check
       with:
         pre-release-build: "${{inputs.pre-release-build}}"
 
     - name: "Dotnet: Override code analysis rules"
-      if: "!endsWith(github.repository, '-template')"
+      if: inputs.is-template != 'true'
       uses: ./.github/actions/dotnet-code-analysis-override
       with:
         release: "${{inputs.release}}"
