@@ -11,7 +11,7 @@ indent_size=4
 max_line_length=200
 spaces_around_operators=true
 indent_brace_style=K&R
-end_of_line=crlf
+end_of_line=lf
 
 [*.csproj]
 charset=utf-8
@@ -19,7 +19,7 @@ trim_trailing_whitespace=true
 indent_style=space
 max_line_length=200
 indent_size=2
-end_of_line=crlf
+end_of_line=lf
 insert_final_newline=true
 
 [*.xml]
@@ -29,7 +29,7 @@ insert_final_newline=false
 indent_style=space
 max_line_length=200
 indent_size=2
-end_of_line=crlf
+end_of_line=lf
 
 [*.sql]
 charset=utf-8
@@ -38,7 +38,7 @@ insert_final_newline=false
 indent_style=space
 max_line_length=200
 indent_size=2
-end_of_line=crlf
+end_of_line=lf
 
 [*.ruleset]
 charset=utf-8
@@ -72,7 +72,7 @@ trim_trailing_whitespace=True
 insert_final_newline=false
 indent_style=space
 indent_size=4
-end_of_line=crlf
+end_of_line=lf
 
 [*.{appxmanifest,asax,ascx,aspx,build,cshtml,dtd,fs,fsi,fsscript,fsx,master,ml,mli,nuspec,razor,resw,resx,skin,vb,xaml,xamlx,xoml,xsd}]
 indent_style=space
