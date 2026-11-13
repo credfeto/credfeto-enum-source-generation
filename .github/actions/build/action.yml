@@ -418,6 +418,7 @@ runs:
         working-directory: "${{github.workspace}}"
         tool-name: "changelog"
         tool-arguments: |
+          --changelog
           ${{github.workspace}}/CHANGELOG.md
           --extract
           RELEASE_NOTES.md
@@ -452,6 +453,7 @@ runs:
         release-notes: "${{steps.release_notes.outputs.RELEASE_NOTES}}"
         release: "${{env.RELEASE}}"
         pre-release-build: "${{steps.find_pull_request.outputs.pre-release-build || 'false'}}"
+        is-template: "${{steps.visibility.outputs.is-template}}"
         build-sql: "${{steps.check_files.outputs.SQL_EXIST}}"
         db-folder: "${{github.workspace}}/db"
         nuget-pack: "${{inputs.nuget-pack}}"
