@@ -12,9 +12,15 @@ An entry in this table is the repo owner's explicit written permission for the s
 
 | Diagnostic A | Diagnostic B | Affected code | Resolution | Justification |
 | --- | --- | --- | --- | --- |
-| `IDE0028` (Collection initialization can be simplified) | `MA0002` (IEqualityComparer/IComparer is missing) | A collection constructed with an explicit `IEqualityComparer` or `IComparer` (for example `new Dictionary<string, int>(StringComparer.Ordinal)`) | Suppress `IDE0028` with `[SuppressMessage]` and the justification in the last column; keep the comparer | A collection expression cannot pass a comparer to the collection's constructor, so simplifying would silently drop it (for example `Ordinal`) and change lookup semantics |
+| `IDE0028` (Collection initialization can be simplified) | `MA0002` (IEqualityComparer/IComparer is missing) | A collection constructed with an explicit `IEqualityComparer` or `IComparer` (for example `new Dictionary<string, int>(StringComparer.Ordinal)`) | Where the project's C# language version supports collection-expression arguments (.NET 11 SDK or later), use a collection expression that passes the comparer with `[with(comparer)]` and do not suppress anything. Only where collection-expression arguments are unsupported, suppress `IDE0028` with `[SuppressMessage]` and the justification in the last column; keep the comparer | A collection expression cannot pass a comparer to the collection's constructor, so simplifying would silently drop it (for example `Ordinal`) and change lookup semantics |
 
-The `IDE0028` entry is applied as:
+Where collection-expression arguments are supported, the `IDE0028` entry is applied by passing the comparer inside the collection expression, with no suppression:
+
+```csharp
+private readonly HashSet<string> _caseNames = [with(StringComparer.Ordinal)];
+```
+
+Only where collection-expression arguments are unsupported, the `IDE0028` entry is applied as:
 
 ```csharp
 [SuppressMessage(
