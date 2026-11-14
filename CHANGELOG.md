@@ -16,6 +16,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated FunFair.CodeAnalysis to 7.2.25.2636
 - Target .NET 11 (net11.0) with runtime-async enabled, retarget the Attributes project to multi-target net11.0, fix MSBuild path separators to use forward slashes, and adjust netstandard facade handling in the Tests and Benchmark.Tests projects
 - SDK - Updated DotNet SDK to 11.0.100
+- Dependencies - Updated Meziantou.Analyzer to 3.0.339
 ### Deprecated
 ### Removed
 ### Deployment Changes
