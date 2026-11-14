@@ -13,6 +13,16 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
+### Deprecated
+### Removed
+### Deployment Changes
+
+<!--
+Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
+-->
+
+## [1.2.159] - 2026-11-14
+### Changed
 - Dependencies - Updated FunFair.CodeAnalysis to 7.2.25.2636
 - Target .NET 11 (net11.0) with runtime-async enabled, retarget the Attributes project to multi-target net11.0, fix MSBuild path separators to use forward slashes, and adjust netstandard facade handling in the Tests and Benchmark.Tests projects
 - SDK - Updated DotNet SDK to 11.0.100
@@ -22,13 +32,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Dependencies - Updated SonarAnalyzer.CSharp to 10.36.0.15337
 - Dependencies - Updated xunit.analyzers to 2.3.0
 - Dependencies - Updated xunit.v3 to 4.0.3
-### Deprecated
-### Removed
-### Deployment Changes
-
-<!--
-Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
--->
 
 ## [1.2.158] - 2026-11-04
 ### Changed
