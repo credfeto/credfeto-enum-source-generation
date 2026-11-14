@@ -313,7 +313,7 @@ When asking a question in a PR or issue comment and waiting for an answer before
 
 ### Environment/Infrastructure Block Marker (MANDATORY, PRs only)
 
-When a Blocked-ing failure is diagnosed as an environment/infrastructure problem, such as a bug in the container image, a missing tool, or a transient infra issue, rather than a bug in the PR's own code, add a machine-readable marker alongside the diagnosis so `oneshot` can auto-clear `Blocked` once the fix has actually shipped, instead of the PR sitting blocked until a human happens to notice:
+A NuGet restore error such as `NU1603` or `NU1605` is a dependency problem in the repository, not an environment/infrastructure problem, so fix it in the PR as [NuGet Restore Dependency Errors](dotnet.instructions.md#nuget-restore-dependency-errors-mandatory) describes instead of blocking. When a Blocked-ing failure is diagnosed as an environment/infrastructure problem, such as a bug in the container image, a missing tool, or a transient infra issue, rather than a bug in the PR's own code, add a machine-readable marker alongside the diagnosis so `oneshot` can auto-clear `Blocked` once the fix has actually shipped, instead of the PR sitting blocked until a human happens to notice:
 
 - **P1.** Post the full human-readable diagnosis as normal: root cause, evidence, and (if known) the fix needed.
 - **P2.** Append a single trailer line to that same comment:
