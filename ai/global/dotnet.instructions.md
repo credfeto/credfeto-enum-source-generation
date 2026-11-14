@@ -9,6 +9,14 @@
 - Never modify `nuget.config`; it is managed by the repo owner, not by AI.
 - Before searching for or adding a package, check which sources are actually configured: `dotnet nuget list source`. Use those sources for lookups rather than assuming nuget.org, since they may include a private feed, proxy, or mirror.
 
+## NuGet Restore Dependency Errors (MANDATORY)
+
+Restore errors `NU1603` and `NU1605` are dependency problems in the repository, not package-feed or infrastructure failures: fix them in your own PR and never add `Blocked` for them. Search the knowledge base for the error code first, as [Tooling Problems](learnings.instructions.md#tooling-problems-read-before-blocking-write-after-solving-mandatory) requires, because fixes for them are recorded there.
+
+- `NU1603` (`<Pkg> X depends on <Dep> (>= A) but <Dep> A was not found ... B was resolved instead`): update `<Pkg>` to its latest version, whose dependency on `<Dep>` the feed normally has. If no newer `<Pkg>` clears it, add a direct `PackageReference` to `<Dep>` at the resolved version B.
+- `NU1605` (`Detected package downgrade: <Dep> from <newer> to <older>`): a direct reference to `<Dep>` is lower than the version a dependency now needs. Raise the direct reference to `<newer>`. A direct reference to a package that is also a transitive dependency (such as `System.Security.Cryptography.Pkcs`) is usually a security pin over a vulnerable transitive version: raise it, never remove it, because removing it brings the vulnerable version back.
+- After the fix, restore and build again and confirm the error is gone and no new `NU1901` to `NU1904` warning appears.
+
 ## Running .NET Tools (MANDATORY)
 
 - Always invoke dotnet tools via `dotnet <toolname>` (e.g. `dotnet changelog`, `dotnet buildcheck`).
