@@ -464,6 +464,11 @@ Use `Credfeto.Exceptions.SourceGenerator` to define exception types; it generate
   public sealed partial class MyException : Exception;
   ```
 
+- When code raises an exception, throw a project-defined exception type generated with `Credfeto.Exceptions.SourceGenerator`, named for the specific failure (for example `DatabaseConfigurationIncompleteException`).
+- Do not force a failure into a framework exception whose meaning does not match it (for example `InvalidOperationException`, `ArgumentException` or `Exception`).
+- Throw a framework exception only where it genuinely matches the contract, for example `ArgumentNullException` or `ArgumentOutOfRangeException` for argument validation at a public API boundary, or `NotSupportedException` for an unsupported operation.
+- Adding `Credfeto.Exceptions.SourceGenerator` to a project to follow this rule needs no separate package approval.
+- Existing code that throws an ill-fitting framework exception need not be changed opportunistically, but code review flags any new code that does.
 - Always use the **latest stable release** of `Credfeto.Exceptions.SourceGenerator`.
 - Never hand-write exception constructors when this generator is available.
 - Apply the same rule to any project that already defines exceptions: add the package and convert existing hand-written exception classes to `partial`.
