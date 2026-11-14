@@ -566,6 +566,7 @@ Invoked by: Code Writer, Code Fixer, Code Reviewer, CI Debugger.
 - Rule Breaking: files that change linting rules or build rules in a way that weakens the repo's quality gates.
 - Language/framework rules: e.g. dotnet, shell, SQL instruction compliance where those files are present.
 - Documentation rules: README, CHANGELOG, and comment conventions from `documentation.instructions.md`.
+- Ill-fitting framework exception: new or changed .NET code that throws a framework exception whose meaning does not match the failure instead of a project-defined type generated with `Credfeto.Exceptions.SourceGenerator` (see [Exception Classes](dotnet.instructions.md#exception-classes)). Do not flag a framework exception that genuinely matches the contract, or unchanged existing code.
 - Leftover placeholder: a `.deleteme.now` file still present in the diff (see [Changelog](#changelog)).
 
 ## Repo Auditor
