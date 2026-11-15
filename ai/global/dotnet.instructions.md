@@ -209,6 +209,11 @@ See [code-quality.instructions.md](code-quality.instructions.md) for general asy
 - Prefer overloads that accept a `CancellationToken`.
 - Do not pass `CancellationToken.None` without explicit documented reason.
 
+## HTTP Clients (MANDATORY)
+
+- Production code obtains `HttpClient` only through `IHttpClientFactory`: register a typed or named client with `AddHttpClient` and attach retry and resilience behaviour as policies on that registration. Never write `new HttpClient(...)` or keep a static or shared `HttpClient` instance, because the factory pools and recycles handlers (avoiding socket exhaustion and stale DNS), configures handlers in one place, and adds request logging and policies to every client it creates.
+- Tests may construct an `HttpClient` around a fake `HttpMessageHandler` and return it from a mocked `IHttpClientFactory`; see [FunFair.Test.Infrastructure](#funfairtestinfrastructure) for `MockCreateClientWithResponse`.
+
 ## Project and Solution Structure
 
 `FunFair.BuildCheck` is an org-owned package; see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) for the GitHub source repository.
