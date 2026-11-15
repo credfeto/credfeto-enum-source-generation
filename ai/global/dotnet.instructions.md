@@ -8,6 +8,8 @@
 
 - Never modify `nuget.config`; it is managed by the repo owner, not by AI.
 - Before searching for or adding a package, check which sources are actually configured: `dotnet nuget list source`. Use those sources for lookups rather than assuming nuget.org, since they may include a private feed, proxy, or mirror.
+- Look up a package's available versions with the `package_versions` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory) when the server lists it; otherwise run `dotnet package search <PackageId> --exact-match --format json` from the solution directory with no `--source` option, so it queries the configured sources. This applies to MSBuild SDK packages in `global.json` too. Ask for pre-release versions (the tool's pre-release option, or `--prerelease`) only when the task explicitly needs a pre-release, because release versions are the default choice.
+- Never fetch nuget.org URLs (`curl`, `WebFetch` or any HTTP call to `api.nuget.org`) and never pass `--source` pointing at nuget.org, because that skips the configured feeds: packages that exist only on the private feed look missing, and the versions shown may not be the ones restore can use.
 
 ## NuGet Restore Dependency Errors (MANDATORY)
 
