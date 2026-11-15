@@ -13,10 +13,10 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated Meziantou.Analyzer to 3.0.340
 - Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 2.2.0
 - Dependencies - Updated FunFair.CodeAnalysis to 7.2.28.2699
 - Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.143.1843
+- Dependencies - Updated Meziantou.Analyzer to 3.0.341
 ### Deprecated
 ### Removed
 ### Deployment Changes
