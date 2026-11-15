@@ -4,7 +4,7 @@
 
 ## Learning Capture: Knowledge-Base Note
 
-Add it with the knowledge-base MCP server's (`kb_orchestrator`) note tool, using this title and body:
+Add it with the knowledge-base MCP server's (`kb`, tools `mcp__kb__*`) note tool, using this title and body:
 
 ```text
 Title: learning: <short, human-readable description of what was learned>
@@ -18,7 +18,7 @@ Title: learning: <short, human-readable description of what was learned>
 
 ## Tooling Fix: Knowledge-Base Note
 
-Add it with the knowledge-base MCP server's (`kb_orchestrator`) note tool, using this title and body:
+Add it with the knowledge-base MCP server's (`kb`, tools `mcp__kb__*`) note tool, using this title and body:
 
 ```text
 Title: tooling: <short description of the symptom>
