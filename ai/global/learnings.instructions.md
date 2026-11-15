@@ -6,7 +6,7 @@ Load this file whenever a memory file (`ai/global` or `ai/local`) is created or 
 
 ## Learning Capture (Human Notes)
 
-MANDATORY: Memory files are AI-rule text: terse, procedural, written for a model to follow. They are not written for people. Whenever one is created or updated to record something learned, also record a human-readable note summarising it for people in the knowledge-base MCP (the `kb_orchestrator` server). Never copy rule wording verbatim into that note.
+MANDATORY: Memory files are AI-rule text: terse, procedural, written for a model to follow. They are not written for people. Whenever one is created or updated to record something learned, also record a human-readable note summarising it for people in the knowledge-base MCP (the `kb` server, tools `mcp__kb__*`). Never copy rule wording verbatim into that note.
 
 - **P1.** Write the note in plain prose: what was learned, why it mattered, and what prompted it.
 - **P2.** Explain it as you would to a person unfamiliar with the AI rule files; do not restate instruction-file rule syntax.
@@ -16,7 +16,7 @@ MANDATORY: Memory files are AI-rule text: terse, procedural, written for a model
 
 ## Tooling Problems: Read Before Blocking, Write After Solving (MANDATORY)
 
-Tooling and build fixes are recorded in the knowledge-base MCP (the `kb_orchestrator` server) so that every agent finds them without searching other repositories' code. A tooling problem is a build, SDK, analyzer, hook or similar problem that is not specific to one repository, not a genuine design question.
+Tooling and build fixes are recorded in the knowledge-base MCP (the `kb` server, tools `mcp__kb__*`) so that every agent finds them without searching other repositories' code. A tooling problem is a build, SDK, analyzer, hook or similar problem that is not specific to one repository, not a genuine design question.
 
 - **P1.** Before blocking for a human on a tooling problem, search the knowledge base for the error text, the project type and the setting involved. If a recorded fix applies, use it and cite the note in the PR, because a fix that already exists makes a human block needless.
 - **P2.** When you work around a tooling problem that is not specific to one repository (an SDK incompatibility, an analyzer conflict, a hook quirk), add a short knowledge-base note with the symptom, the exact fix and why it works, using the template in [learnings.examples.md](learnings.examples.md), after searching for an existing note on the same thing and updating that one instead if there is one, so the next agent finds the fix without looking at other repositories. If the server is not connected, put the note text in your hand-off or final report instead.
