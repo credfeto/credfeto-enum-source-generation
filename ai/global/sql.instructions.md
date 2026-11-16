@@ -85,13 +85,7 @@ When adding or modifying a schema object, update **both**:
 
 ### Validation
 
-After adding any `db/` files, build the DACPAC project to verify there are no SQL compilation errors:
-
-```bash
-dotnet build src/<AssemblyName>.Storage.Database/<AssemblyName>.Storage.Database.csproj -c Release
-```
-
-A clean build confirms the DACPAC SQL is syntactically valid and all object references resolve.
+After adding any `db/` files, build the solution with the `build` [build-dotnet MCP tool](dotnet.instructions.md#build-dotnet-mcp-tools-mandatory), which builds the `<AssemblyName>.Storage.Database` DACPAC project with the rest of the solution, to verify there are no SQL compilation errors. A clean build confirms the DACPAC SQL is syntactically valid and all object references resolve.
 
 ### `.sqlfluffignore` (MANDATORY)
 
