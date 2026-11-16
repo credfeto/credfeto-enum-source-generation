@@ -13,10 +13,6 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 ### Changed
-- Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 2.2.0
-- Dependencies - Updated FunFair.CodeAnalysis to 7.2.28.2699
-- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.143.1843
-- Dependencies - Updated Meziantou.Analyzer to 3.0.341
 ### Deprecated
 ### Removed
 ### Deployment Changes
@@ -24,6 +20,13 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 <!--
 Releases that have at least been deployed to staging, BUT NOT necessarily released to live.  Changes should be moved from [Unreleased] into here as they are merged into the appropriate release branch
 -->
+
+## [1.2.160] - 2026-11-16
+### Changed
+- Dependencies - Updated Philips.CodeAnalysis.MaintainabilityAnalyzers to 2.2.0
+- Dependencies - Updated FunFair.CodeAnalysis to 7.2.28.2699
+- Dependencies - Updated Credfeto.Version.Information.Generator to 1.0.143.1843
+- Dependencies - Updated Meziantou.Analyzer to 3.0.341
 
 ## [1.2.159] - 2026-11-14
 ### Changed
