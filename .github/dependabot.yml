@@ -42,7 +42,6 @@ updates:
       - dependency-name: "Credfeto.Extensions.Linq"
       - dependency-name: "Credfeto.ImageLoader"
       - dependency-name: "Credfeto.Package.*"
-      - dependency-name: "Credfeto.Random"
       - dependency-name: "Credfeto.Services.Startup.*"
       - dependency-name: "Credfeto.Tsql.Formatter.*"
       - dependency-name: "Credfeto.Version.Information.Generator"
