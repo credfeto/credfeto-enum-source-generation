@@ -45,7 +45,8 @@ A step referring to a **sibling step within its own list** (e.g. "return to P2",
 - Assign yourself to the issue before starting work: `cfwf issue edit --repo <owner/repo> --issue <number> --assign-self`.  Do not assign it to yourself if you are ONLY raising the issue!
 - Only work on unassigned issues or issues already assigned to you.
 - Create an issue raised for later work (one you are not starting in this session, such as a follow-up, a matching issue in another repo, or a security bug filed from a review) with no assignee, and assign it only when work on it starts. `--assign-self` assigns whichever account `cfwf` is logged in as, often the owner's, and the rule above then stops any other agent or person picking it up.
-- Assign yourself to PRs when creating or updating: `cfwf pr edit --repo <owner/repo> --pr <number> --assign-self`.
+- Assign yourself to a PR you created or have committed to: `cfwf pr edit --repo <owner/repo> --pr <number> --assign-self`. Do not try it on a PR with no commit of yours (someone else's PR): `cfwf` refuses it, and that refusal is expected and needs no comment.
+- Never assign yourself to a dependency-update PR (branch `depends/…` or `dependabot/…`), and never change its assignees, even when it carries your commit. A maintainer adopts it by being its assignee, which already makes it yours to work; changing the assignees drops it from the work queue.
 
 ## GitHub Issue and PR Labels
 
