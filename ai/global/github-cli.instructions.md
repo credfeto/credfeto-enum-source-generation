@@ -320,7 +320,7 @@ Only one input of a command can be `-`. For `cfwf pr hand-off`, pass the descrip
 
 Check here before assuming a `cfwf` flag or field exists.
 
-- **Assigning yourself is `cfwf issue edit`/`cfwf pr edit --assign-self`.** There is no separate assign command.
+- **Assigning yourself is `cfwf issue edit`/`cfwf pr edit --assign-self`.** There is no separate assign command. On a PR, use it only when you created the PR or have committed to it, and never on a dependency-update PR (`depends/…` or `dependabot/…` branch); see [Assignment](task-workflow.instructions.md#assignment).
 
 - **`cfwf` has no `--json`/`--jq`.** Its output has one fixed format per command, so name what you need with its own options (for example `cfwf pr view --field`), as `cfwf help <command>` lists them.
 
