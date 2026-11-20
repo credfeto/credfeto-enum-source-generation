@@ -7,14 +7,25 @@ on:
     branches-ignore:
       - "release/*"
       - "hotfix/*"
+  # In-repo pull requests already build on push (apart from release/* and hotfix/* branches, which
+  # build only on ready_for_review), so opened/reopened/synchronize only build pull requests from
+  # forks; ready_for_review still builds every pull request.
   pull_request:
-    types: [ready_for_review]
+    types: [opened, reopened, synchronize, ready_for_review]
     branches:
       - main
 
-# Don't cancel anything in progress
+# Don't cancel anything in progress.
+# An in-repo pull request run that does not build gets its own group, so it never replaces a
+# pending ready_for_review build of the same pull request.
 concurrency:
-  group: "${{github.workflow}}-${{github.ref}}-pre-release"
+  group: >-
+    ${{github.workflow}}-${{github.ref}}-pre-release${{
+    github.event_name == 'pull_request'
+    && github.event.action != 'ready_for_review'
+    && github.event.pull_request.head.repo.full_name == github.repository
+    && format('-skip-{0}', github.run_id)
+    || ''}}
   cancel-in-progress: false
 
 permissions:
@@ -27,7 +38,13 @@ permissions:
 jobs:
   # Allocates the build number in its own job so that number allocation is serialised
   # across every branch of the repository, not just per ref
+  # Pull requests from forks cannot allocate a build number: their token is read-only.
   allocate-build-number:
+
+    if: >-
+      github.event_name != 'pull_request'
+      || (github.event.action == 'ready_for_review'
+      && github.event.pull_request.head.repo.full_name == github.repository)
 
     runs-on: >-
       ${{startsWith(vars.PRE_RELEASE_BUILD_ENVIRONMENT, '[')
@@ -115,18 +132,61 @@ jobs:
         run: |
           echo "build-version=$BUILD_VERSION" >> "$GITHUB_OUTPUT"
 
-  # @@required: main
+  # @@required: merge
   build-pre-release:
+
+    # An in-repo pull request run (opened/reopened/synchronize) does not build: the push run
+    # builds the same commit, except for release/* and hotfix/* head branches, which the push
+    # trigger ignores and which build only when marked ready for review. It runs with every build
+    # step skipped, not as a skipped job, because GitHub does not evaluate the name of a skipped
+    # job; the distinct name stops that no-op success satisfying the required build-pre-release check.
+    name: >-
+      ${{github.event_name == 'pull_request'
+      && github.event.action != 'ready_for_review'
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && ((startsWith(github.head_ref, 'release/') || startsWith(github.head_ref, 'hotfix/'))
+      && 'build-pre-release (builds when ready for review)'
+      || 'build-pre-release (built by push)')
+      || 'build-pre-release'}}
 
     needs: [allocate-build-number]
 
+    # Allocation is skipped only for pull request runs that cannot or need not allocate:
+    # fork pull requests (which build with a local version) and in-repo runs that do not build.
+    # A failed or cancelled allocation still runs the job, so that it fails the required check
+    # instead of skipping it. This relies on cancelled() being true only for a cancelled workflow
+    # run, not for a cancelled allocation job alone, which GitHub implies but does not document.
+    if: "${{!cancelled()}}"
+
+    # Only a run that allocated a build number builds on the configured runner. Every other run
+    # (a fork pull request, an in-repo run that does not build, or a failed or cancelled allocation) uses
+    # ubuntu-latest, so this relies on the allocation job's if: skipping exactly the first two.
+    # Keeping a fork pull request on ubuntu-latest is best effort, not an enforced boundary: a
+    # pull_request run uses the workflow files from the pull request's merge ref, so a fork can
+    # edit it. The enforced controls are the repository or organisation settings that require
+    # approval for fork pull request workflows and that stop self-hosted runner groups being used
+    # by public repositories or fork pull requests.
     runs-on: >-
-      ${{startsWith(vars.PRE_RELEASE_BUILD_ENVIRONMENT, '[')
+      ${{needs.allocate-build-number.result != 'success'
+      && 'ubuntu-latest'
+      || (startsWith(vars.PRE_RELEASE_BUILD_ENVIRONMENT, '[')
       && fromJSON(vars.PRE_RELEASE_BUILD_ENVIRONMENT)
       || vars.PRE_RELEASE_BUILD_ENVIRONMENT
-      || 'ubuntu-latest'}}
+      || 'ubuntu-latest')}}
 
     env:
+      ALLOCATION_RESULT: "${{needs.allocate-build-number.result}}"
+      IS_FORK_PR: >-
+        ${{github.event_name == 'pull_request'
+        && github.event.pull_request.head.repo.full_name != github.repository}}
+      SKIP_BUILD: >-
+        ${{github.event_name == 'pull_request'
+        && github.event.action != 'ready_for_review'
+        && github.event.pull_request.head.repo.full_name == github.repository}}
+      # Only picks the message for a skipped build: the push trigger ignores these branches.
+      RELEASE_OR_HOTFIX_HEAD: >-
+        ${{startsWith(github.head_ref, 'release/')
+        || startsWith(github.head_ref, 'hotfix/')}}
       # Which NPM Registry to use
       NPM_REGISTRY: "${{vars.NPM_REGISTRY}}"
       NPM_CACHE_CERT: "${{vars.NPM_CACHE_CERT}}"
@@ -137,7 +197,30 @@ jobs:
       RELEASE_BAGET_CACHE: ""
 
     steps:
+      # Failing here, rather than skipping the job, stops a run with no build number satisfying
+      # the required build-pre-release check. No later step has a status check function in its
+      # if:, so none of them runs after this one fails.
+      - name: "Check Build Number Allocated"
+        if: env.ALLOCATION_RESULT == 'failure' || env.ALLOCATION_RESULT == 'cancelled'
+        shell: bash
+        run: |
+          echo "::error::❌ Not building: allocate-build-number finished with result '$ALLOCATION_RESULT', so there is no build number."
+          exit 1
+
+      - name: "Built by Push"
+        if: env.SKIP_BUILD == 'true' && env.RELEASE_OR_HOTFIX_HEAD != 'true'
+        shell: bash
+        run: |
+          echo "ℹ️ Not building: the push run builds this commit."
+
+      - name: "Builds When Ready for Review"
+        if: env.SKIP_BUILD == 'true' && env.RELEASE_OR_HOTFIX_HEAD == 'true'
+        shell: bash
+        run: |
+          echo "ℹ️ Not building: no push run builds release or hotfix branches, so this pull request builds when marked ready for review."
+
       - name: "Check Required Secrets"
+        if: env.IS_FORK_PR != 'true' && env.SKIP_BUILD != 'true'
         shell: bash
         run: |
           if [ -z "$SOURCE_PUSH_TOKEN" ]; then
@@ -148,11 +231,12 @@ jobs:
           SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Initialise Workspace"
-        if: runner.environment == 'self-hosted'
+        if: runner.environment == 'self-hosted' && env.SKIP_BUILD != 'true'
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
       - name: "Set Active Environment"
+        if: env.SKIP_BUILD != 'true'
         shell: bash
         run: |
           {
@@ -163,15 +247,22 @@ jobs:
             echo "TMP=$RUNNER_TEMP"
           } >> "$GITHUB_ENV"
 
+      # A fork pull request's checkout does not keep github.token in the git config: nothing later in
+      # the job uses git credentials, and the token would be writable if the repository sends write
+      # tokens to fork pull request workflows. This is defence in depth, not a boundary: a fork can
+      # edit its own copy of this workflow, so that repository setting must stay off.
       - name: "Checkout Source"
+        if: env.SKIP_BUILD != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: "${{github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref}}"
           clean: true
           fetch-depth: 0
           fetch-tags: true
+          persist-credentials: "${{env.IS_FORK_PR != 'true'}}"
 
       - name: "Setup Build Cache"
+        if: env.SKIP_BUILD != 'true'
         uses: ./.github/actions/setup-build-cache
         with:
           use-nuget-cache: "${{vars.USE_NUGET_CACHE}}"
@@ -180,28 +271,39 @@ jobs:
           release-baget-cache: "${{vars.RELEASE_BAGET_CACHE}}"
           npm-cache: "${{vars.NPM_CACHE}}"
 
+      # Pull requests from forks are never passed a secret, even where the repository sends secrets
+      # to fork pull request workflows: every secret input below is blank for them and github-token
+      # is github.token, read-only unless the repository sends write tokens to fork pull request
+      # workflows, so they build and test with a local version and never publish.
       - name: "Build and deploy"
+        if: env.SKIP_BUILD != 'true'
         uses: ./.github/actions/build
         with:
           production-build: "false"
-          build-version: "${{needs.allocate-build-number.outputs.build-version}}"
+          publish: "${{env.IS_FORK_PR != 'true'}}"
+          build-version: >-
+            ${{env.IS_FORK_PR == 'true'
+            && format('0.0.0-pr{0}.{1}', github.event.pull_request.number, github.run_number)
+            || needs.allocate-build-number.outputs.build-version}}
           npm-production-packager-version: "${{vars.PRODUCTION_PACKAGER_VERSION}}"
-          npm-content-package-wallet-password: "${{secrets.CONTENT_PACKAGE_WALLET_PASSWORD}}"
-          npm-package-store-signing-wallet: "${{secrets.PACKAGE_STORE_SIGNING_WALLET}}"
-          npm-package-store-signing-wallet-password: "${{secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD}}"
-          npm-registry: "${{env.NPM_REGISTRY}}"
-          npm-cache-cert: "${{env.NPM_CACHE_CERT}}"
+          npm-content-package-wallet-password: "${{env.IS_FORK_PR != 'true' && secrets.CONTENT_PACKAGE_WALLET_PASSWORD || ''}}"
+          npm-package-store-signing-wallet: "${{env.IS_FORK_PR != 'true' && secrets.PACKAGE_STORE_SIGNING_WALLET || ''}}"
+          npm-package-store-signing-wallet-password: "${{env.IS_FORK_PR != 'true' && secrets.PACKAGE_STORE_SIGNING_WALLET_PASSWORD || ''}}"
+          # Fork code must not get the internal NPM registry or its cert, or the additional NuGet
+          # restore feeds and their caches, so a fork PR restores only from the public registry and feed.
+          npm-registry: "${{env.IS_FORK_PR != 'true' && env.NPM_REGISTRY || ''}}"
+          npm-cache-cert: "${{env.IS_FORK_PR != 'true' && env.NPM_CACHE_CERT || ''}}"
           nuget-public-restore-feed-cache: "${{env.NUGET_BAGET_CACHE}}"
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
-          nuget-additional-restore-feed-release-cache: "${{env.RELEASE_BAGET_CACHE}}"
-          nuget-additional-restore-feed-release: "${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
-          nuget-additional-restore-feed-prerelease-cache: "${{env.PRERELEASE_BAGET_CACHE}}"
-          nuget-additional-restore-feed-prerelease: "${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}"
+          nuget-additional-restore-feed-release-cache: "${{env.IS_FORK_PR != 'true' && env.RELEASE_BAGET_CACHE || ''}}"
+          nuget-additional-restore-feed-release: "${{env.IS_FORK_PR != 'true' && vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE || ''}}"
+          nuget-additional-restore-feed-prerelease-cache: "${{env.IS_FORK_PR != 'true' && env.PRERELEASE_BAGET_CACHE || ''}}"
+          nuget-additional-restore-feed-prerelease: "${{env.IS_FORK_PR != 'true' && vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE || ''}}"
           nuget-pack: "${{vars.NUGET_PACK}}"
-          nuget-feed: "${{secrets.NUGET_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          nuget-feed: "${{env.IS_FORK_PR != 'true' && secrets.NUGET_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-feed-type: "${{vars.NUGET_FEED_TYPE}}"
-          nuget-username: "${{secrets.NUGET_USER_NAME}}"
-          sleet-config: "${{secrets.SLEET_CONFIG}}"
+          nuget-username: "${{env.IS_FORK_PR != 'true' && secrets.NUGET_USER_NAME || ''}}"
+          sleet-config: "${{env.IS_FORK_PR != 'true' && secrets.SLEET_CONFIG || ''}}"
           sleet-feed: "${{vars.PRE_RELEASE_SLEET_FEED}}"
           project-to-publish: "${{vars.PROJECT_TO_PUBLISH}}"
           docker-app-owner: "${{vars.DOCKER_APP_OWNER}}"
@@ -209,26 +311,27 @@ jobs:
           build-tag: "latest"
           cloud-formation-deploy: "${{vars.CLOUD_FORMATION_DEPLOY}}"
           cloud-formation-stack: "${{vars.CLOUD_FORMATION_STACK}}"
-          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
-          aws-access-key-id: "${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID}}"
-          aws-secret-access-key: "${{secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY}}"
+          github-token: "${{env.IS_FORK_PR == 'true' && github.token || secrets.SOURCE_PUSH_TOKEN}}"
+          aws-access-key-id: "${{env.IS_FORK_PR != 'true' && secrets.AWS_DOCKER_CONTAINER_REGISTRY_ACCESS_KEY_ID || ''}}"
+          aws-secret-access-key: "${{env.IS_FORK_PR != 'true' && secrets.AWS_DOCKER_CONTAINER_REGISTRY_SECRET_ACCESS_KEY || ''}}"
           aws-region: "${{vars.AWS_REGION}}"
           docker-container-registry: "${{vars.DOCKER_CONTAINER_REGISTRY_PRE_RELEASE}}"
           aws-load-balancer-hostname: "${{vars.AWS_LOAD_BALANCER_HOSTNAME_DEV}}"
           aws-load-balancer-priority: "${{vars.AWS_LOAD_BALANCER_PRIORITY_DEV}}"
           api-host: "${{vars.AWS_LOAD_BALANCER_HOSTNAME_DEV}}"
           api-prefix: "${{vars.API_PREFIX}}"
-          docker-username: "${{secrets.DOCKER_USERNAME}}"
-          docker-access-token: "${{secrets.DOCKER_ACCESS_TOKEN}}"
+          docker-username: "${{env.IS_FORK_PR != 'true' && secrets.DOCKER_USERNAME || ''}}"
+          docker-access-token: "${{env.IS_FORK_PR != 'true' && secrets.DOCKER_ACCESS_TOKEN || ''}}"
           dotnet-docker-platform: "${{vars.DOTNET_DOCKER_PLATFORM}}"
           dotnet-container-platform: "${{vars.DOTNET_CONTAINER_PLATFORM}}"
           sql-server: "${{vars.SQL_SERVER}}"
           sql-db: "${{vars.SQL_DB}}"
           sql-user: "${{vars.SQL_USER}}"
-          sql-password: "${{secrets.SQL_PASSWORD}}"
+          sql-password: "${{env.IS_FORK_PR != 'true' && secrets.SQL_PASSWORD || ''}}"
           create-release: false
 
       - name: "Build Version"
+        if: env.SKIP_BUILD != 'true'
         shell: bash
         run: |
           echo "::notice::Version: ${BUILD_VERSION//[$'\r\n']/ }"
