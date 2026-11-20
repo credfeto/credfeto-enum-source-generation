@@ -13,6 +13,13 @@ inputs:
       allocated here
     required: false
     default: ""
+  publish:
+    description: >-
+      Whether to publish/deploy build outputs: 'true' or 'false' (case-insensitive); any other
+      value fails. 'false' builds, tests and analyses only, for untrusted runs such as pull
+      requests from forks, which are passed no secrets
+    required: false
+    default: "true"
 
   # NPM
   npm-production-packager-version:
@@ -176,6 +183,27 @@ runs:
       env:
         PRODUCTION_BUILD: "${{inputs.production-build}}"
 
+    - name: "Check publish is valid"
+      shell: bash
+      run: |
+        case "${PUBLISH,,}" in
+          'true') ;;
+          'false')
+            # Allocating a build number needs a write token, which an unpublished run must not use.
+            if [ -z "$BUILD_VERSION_INPUT" ]; then
+              echo "::error::build-version must be supplied when publish is 'false'"
+              exit 1
+            fi
+            ;;
+          *)
+            echo "::error::publish must be 'true' or 'false'"
+            exit 1
+            ;;
+        esac
+      env:
+        PUBLISH: "${{inputs.publish}}"
+        BUILD_VERSION_INPUT: "${{inputs.build-version}}"
+
     - name: "Check Repo Visibility"
       id: visibility
       uses: ./.github/actions/check-repo-visibility
@@ -246,13 +274,65 @@ runs:
       env:
         CHECK_FILES_OUTPUTS: "${{toJSON(steps.check_files.outputs)}}"
 
+    # Unpublished builds (pull requests from forks) may run without repository variables, so they
+    # fall back to values derived from the repository: whether an image is built must depend on
+    # the repository containing a Dockerfile, never on which variables reached the run. Published
+    # builds keep the given values unchanged.
+    - name: "Resolve Docker image settings"
+      id: docker_image
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      env:
+        PUBLISH: "${{inputs.publish}}"
+        DOTNET_EXIST: "${{steps.check_files.outputs.DOTNET_EXIST}}"
+        DOCKERFILE_EXIST: "${{steps.check_files.outputs.DOCKERFILE_EXIST}}"
+        PROJECT_TO_PUBLISH: "${{inputs.project-to-publish}}"
+        APP_OWNER: "${{inputs.docker-app-owner}}"
+        APP_NAME: "${{inputs.docker-app-name}}"
+        DOCKER_PLATFORM: "${{inputs.dotnet-docker-platform}}"
+        CONTAINER_PLATFORM: "${{inputs.dotnet-container-platform}}"
+      with:
+        script: |
+          const derive = process.env.PUBLISH.toLowerCase() === 'false';
+          const resolve = (value, fallback) => value || (derive ? fallback : '');
+          const settings = {
+            'app-owner': resolve(process.env.APP_OWNER, context.repo.owner.toLowerCase()),
+            'app-name': resolve(process.env.APP_NAME, context.repo.repo.toLowerCase()),
+            'docker-platform': resolve(process.env.DOCKER_PLATFORM, 'linux-x64'),
+            'container-platform': resolve(process.env.CONTAINER_PLATFORM, 'linux/amd64'),
+          };
+          for (const [name, value] of Object.entries(settings)) {
+            core.setOutput(name, value);
+            core.info(`${name}: ${value.replace(/[\r\n]/g, ' ')}`);
+          }
+
+          const imageExpected = process.env.DOTNET_EXIST === 'true' && process.env.DOCKERFILE_EXIST === 'true';
+          if (!imageExpected) {
+            core.info('ℹ️ No Dockerfile for a dotnet build: no Docker image expected');
+            return;
+          }
+
+          const gateMissing = Object.entries({
+            'docker-app-owner': settings['app-owner'],
+            'docker-app-name': settings['app-name'],
+            'dotnet-docker-platform': settings['docker-platform'],
+          }).filter(([, value]) => !value).map(([name]) => name);
+          // When deriving, every gate setting has a fallback, so project-to-publish is the only one that can be missing.
+          if (derive && !process.env.PROJECT_TO_PUBLISH) {
+            core.setFailed('❌ A Docker image is expected, but project-to-publish is not set and cannot be derived from the repository');
+          } else if (gateMissing.length > 0) {
+            core.warning(`⚠️ A Docker image is expected, but ${gateMissing.join(', ')} is not set: the image will not be built`);
+          } else {
+            core.info('✅ Docker image settings resolved');
+          }
+
     - name: "Check AWS credentials for CloudFormation validation"
       id: cfn_credentials
       if: |-
         steps.check_files.outputs.DOTNET_EXIST == 'true' &&
         steps.check_files.outputs.CLOUDFORMATION_EXIST == 'true' &&
         inputs.cloud-formation-deploy == 'true' &&
-        inputs.docker-app-name != ''
+        steps.docker_image.outputs.app-name != '' &&
+        inputs.publish == 'true'
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
         AWS_KEY_ID: "${{inputs.aws-access-key-id}}"
@@ -306,16 +386,20 @@ runs:
       if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
       uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
 
+    # A run that does not publish, such as a pull request from a fork, never gets the registry
+    # credentials, so its image must build from public base images; docker-setup skips the Docker Hub
+    # and AWS logins when their credentials are empty. The ghcr.io login always uses github.token,
+    # which is read-only on fork pull requests unless the repository sends write tokens to forks.
     - name: "Configure Docker"
       if: steps.check_files.outputs.DOCKERFILE_EXIST == 'true'
       uses: ./.github/actions/docker-setup
       with:
-        aws-access-key-id: "${{inputs.aws-access-key-id}}"
-        aws-secret-access-key: "${{inputs.aws-secret-access-key}}"
+        aws-access-key-id: "${{inputs.publish == 'true' && inputs.aws-access-key-id || ''}}"
+        aws-secret-access-key: "${{inputs.publish == 'true' && inputs.aws-secret-access-key || ''}}"
         aws-region: "${{inputs.aws-region}}"
         docker-container-registry: "${{inputs.docker-container-registry}}"
-        docker-username: "${{inputs.docker-username}}"
-        docker-access-token: "${{inputs.docker-access-token}}"
+        docker-username: "${{inputs.publish == 'true' && inputs.docker-username || ''}}"
+        docker-access-token: "${{inputs.publish == 'true' && inputs.docker-access-token || ''}}"
 
 # yamllint disable rule:line-length
     - name: "Check Build Tools Requirements"
@@ -332,7 +416,8 @@ runs:
     - name: "Install Multi-push tool"
       if: |-
         steps.build_tools.outputs.BUILD_ENV == 'true' &&
-        inputs.nuget-pack == 'true'
+        inputs.nuget-pack == 'true' &&
+        inputs.publish == 'true'
       uses: ./.github/actions/dotnet-tool
       with:
         tool-name: "Credfeto.Package.Push"
@@ -391,14 +476,20 @@ runs:
         { echo "DEPLOY=false";  } >> "$GITHUB_ENV"
 
     - name: "Install Package Builder"
-      if: steps.check_files.outputs.NPM_EXIST_SRC == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'
+      if: |-
+        steps.check_files.outputs.NPM_EXIST_SRC == 'true' &&
+        steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' &&
+        inputs.publish == 'true'
       uses: ./.github/actions/dotnet-tool
       with:
         tool-name: "FunFair.Content.Packager.Cmd"
         tool-version: "${{inputs.npm-production-packager-version}}"
 
     - name: "Install Package Store Signer"
-      if: steps.check_files.outputs.NPM_EXIST_SRC == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST == 'true'
+      if: |-
+        steps.check_files.outputs.NPM_EXIST_SRC == 'true' &&
+        steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' &&
+        inputs.publish == 'true'
       uses: ./.github/actions/dotnet-tool
       with:
         tool-name: "FunFair.Content.PackageSigner.Cmd"
@@ -458,13 +549,13 @@ runs:
         db-folder: "${{github.workspace}}/db"
         nuget-pack: "${{inputs.nuget-pack}}"
         nuget-feed: "${{inputs.nuget-feed}}"
-        nuget-feed-type: "${{inputs.nuget-feed-type}}"
+        nuget-feed-type: "${{inputs.publish == 'true' && inputs.nuget-feed-type || ''}}"
         nuget-username: "${{inputs.nuget-username}}"
         sleet-config: "${{inputs.sleet-config}}"
         sleet-feed: "${{inputs.sleet-feed}}"
         github-token: "${{inputs.github-token}}"
         project-to-publish: "${{inputs.project-to-publish}}"
-        dotnet-docker-platform: "${{inputs.dotnet-docker-platform}}"
+        dotnet-docker-platform: "${{steps.docker_image.outputs.docker-platform}}"
 
     ############################################################################################################
     # Merge and summarise Roslyn analyzer SARIF files
@@ -505,7 +596,7 @@ runs:
         npm-content-package-wallet-password: "${{inputs.npm-content-package-wallet-password}}"
         npm-package-store-signing-wallet: "${{inputs.npm-package-store-signing-wallet}}"
         npm-package-store-signing-wallet-password: "${{inputs.npm-package-store-signing-wallet-password}}"
-        npm-signing: "${{steps.check_files.outputs.NPM_SIGNING_EXIST}}"
+        npm-signing: "${{inputs.publish == 'true' && steps.check_files.outputs.NPM_SIGNING_EXIST || 'false'}}"
         npm-registry: "${{inputs.npm-registry}}"
         npm-cache-cert: "${{inputs.npm-cache-cert}}"
         project-to-publish: "${{inputs.project-to-publish}}"
@@ -530,61 +621,62 @@ runs:
         SLN_EXIST: "${{steps.check_files.outputs.SLN_EXIST}}"
         DOCKERFILE_EXIST: "${{steps.check_files.outputs.DOCKERFILE_EXIST}}"
         HEALTHCHECK_EXIST: "${{steps.check_files.outputs.HEALTHCHECK_EXIST}}"
-        DOCKER_APP_OWNER: "${{inputs.docker-app-owner}}"
-        DOCKER_APP_NAME: "${{inputs.docker-app-name}}"
+        DOCKER_APP_OWNER: "${{steps.docker_image.outputs.app-owner}}"
+        DOCKER_APP_NAME: "${{steps.docker_image.outputs.app-name}}"
         DOCKER_CONTAINER_REGISTRY: "${{inputs.docker-container-registry}}"
 
     - name: "Copy docker: Dockerfile"
       if: |-
         steps.check_files.outputs.DOTNET_EXIST == 'true' &&
         steps.check_files.outputs.DOCKERFILE_EXIST == 'true' &&
-        inputs.docker-app-name != '' &&
-        inputs.dotnet-docker-platform != ''
+        steps.docker_image.outputs.app-name != '' &&
+        steps.docker_image.outputs.docker-platform != ''
       shell: bash
       run: cp "$GITHUB_WORKSPACE/Dockerfile" "$GITHUB_WORKSPACE/server-dist/$DOTNET_DOCKER_PLATFORM"
       env:
-        DOTNET_DOCKER_PLATFORM: "${{inputs.dotnet-docker-platform}}"
+        DOTNET_DOCKER_PLATFORM: "${{steps.docker_image.outputs.docker-platform}}"
 
     - name: "Copy docker: healthcheck"
       if: |-
         steps.check_files.outputs.DOTNET_EXIST == 'true' &&
         steps.check_files.outputs.HEALTHCHECK_EXIST == 'true' &&
-        inputs.docker-app-name != '' &&
-        inputs.dotnet-docker-platform != ''
+        steps.docker_image.outputs.app-name != '' &&
+        steps.docker_image.outputs.docker-platform != ''
       shell: bash
       run: cp "$GITHUB_WORKSPACE/healthcheck" "$GITHUB_WORKSPACE/server-dist/$DOTNET_DOCKER_PLATFORM"
       env:
-        DOTNET_DOCKER_PLATFORM: "${{inputs.dotnet-docker-platform}}"
+        DOTNET_DOCKER_PLATFORM: "${{steps.docker_image.outputs.docker-platform}}"
 
     - name: "Dotnet: Build Docker Container"
       if: |-
         steps.check_files.outputs.DOTNET_EXIST == 'true' &&
         steps.check_files.outputs.DOCKERFILE_EXIST == 'true' &&
-        inputs.docker-app-owner != '' &&
-        inputs.docker-app-name != '' &&
-        inputs.dotnet-docker-platform != ''
+        steps.docker_image.outputs.app-owner != '' &&
+        steps.docker_image.outputs.app-name != '' &&
+        steps.docker_image.outputs.docker-platform != ''
       uses: ./.github/actions/docker-build-to-registry
       with:
-        deploy: "${{env.DEPLOY}}"
+        deploy: "${{inputs.publish == 'true' && env.DEPLOY || 'false'}}"
         build-version: "${{env.BUILD_VERSION}}"
         build-tag: "${{inputs.build-tag}}"
-        app-owner: "${{inputs.docker-app-owner}}"
-        app-name: "${{inputs.docker-app-name}}"
+        app-owner: "${{steps.docker_image.outputs.app-owner}}"
+        app-name: "${{steps.docker_image.outputs.app-name}}"
         docker-container-registry: "${{inputs.docker-container-registry}}"
-        container-source: "${{github.workspace}}/server-dist/${{inputs.dotnet-docker-platform}}"
-        container-platform: "${{inputs.dotnet-container-platform}}"
+        container-source: "${{github.workspace}}/server-dist/${{steps.docker_image.outputs.docker-platform}}"
+        container-platform: "${{steps.docker_image.outputs.container-platform}}"
 
     - name: "Dotnet: SQL Deploy"
       if: |-
         steps.check_files.outputs.DOTNET_EXIST == 'true' &&
         steps.check_files.outputs.SQL_EXIST == 'true' &&
         inputs.cloud-formation-deploy == 'true' &&
-        inputs.docker-app-name != '' &&
+        steps.docker_image.outputs.app-name != '' &&
         inputs.sql-server != '' &&
         inputs.sql-db != '' &&
         inputs.sql-user != '' &&
         inputs.sql-password != '' &&
-        env.DEPLOY == 'true'
+        env.DEPLOY == 'true' &&
+        inputs.publish == 'true'
       uses: ./.github/actions/database-deploy
       with:
         sql-server: "${{inputs.sql-server}}"
@@ -608,7 +700,7 @@ runs:
         SLN_EXIST: "${{steps.check_files.outputs.SLN_EXIST}}"
         CLOUDFORMATION_EXIST: "${{steps.check_files.outputs.CLOUDFORMATION_EXIST}}"
         CLOUD_FORMATION_DEPLOY: "${{inputs.cloud-formation-deploy}}"
-        DOCKER_APP_NAME: "${{inputs.docker-app-name}}"
+        DOCKER_APP_NAME: "${{steps.docker_image.outputs.app-name}}"
         NPM_SIGNING_EXIST: "${{steps.check_files.outputs.NPM_SIGNING_EXIST}}"
 
     - name: "Dotnet: Cloudformation Deploy"
@@ -616,15 +708,16 @@ runs:
         steps.check_files.outputs.DOTNET_EXIST == 'true' &&
         steps.check_files.outputs.CLOUDFORMATION_EXIST == 'true' &&
         inputs.cloud-formation-deploy == 'true' &&
-        inputs.docker-app-name != '' &&
-        env.DEPLOY == 'true'
+        steps.docker_image.outputs.app-name != '' &&
+        env.DEPLOY == 'true' &&
+        inputs.publish == 'true'
       uses: ./.github/actions/dispatch-deploy
       with:
         cloud-formation-stack: "${{inputs.cloud-formation-stack}}"
         cloud-formation-template-file: "cloudformation.json"
         build-version: "${{env.BUILD_VERSION}}"
-        docker-app-owner: "${{inputs.docker-app-owner}}"
-        docker-app-name: "${{inputs.docker-app-name}}"
+        docker-app-owner: "${{steps.docker_image.outputs.app-owner}}"
+        docker-app-name: "${{steps.docker_image.outputs.app-name}}"
         api-host: "${{inputs.api-host}}"
         api-prefix: "${{inputs.api-prefix}}"
         aws-load-balancer-hostname: "${{inputs.aws-load-balancer-hostname}}"
@@ -636,7 +729,8 @@ runs:
       if: |-
         (steps.check_files.outputs.NPM_EXIST_SRC == 'true' || steps.check_files.outputs.NPM_EXIST_ROOT == 'true') &&
         steps.check_files.outputs.NPM_SIGNING_EXIST == 'true' &&
-        env.DEPLOY == 'true'
+        env.DEPLOY == 'true' &&
+        inputs.publish == 'true'
       uses: ./.github/actions/sleet
       with:
         sleet-config: "${{inputs.sleet-config}}"
@@ -646,7 +740,10 @@ runs:
     # Create GitHub Release
     ############################################################################################################
     - name: "Create Release"
-      if: steps.build_tools.outputs.BUILD_ENV == 'true' && inputs.create-release == 'true'
+      if: |-
+        steps.build_tools.outputs.BUILD_ENV == 'true' &&
+        inputs.create-release == 'true' &&
+        inputs.publish == 'true'
       uses: ./.github/actions/create-release
       with:
         github-token: "${{inputs.github-token}}"
@@ -669,4 +766,7 @@ runs:
       uses: ./.github/actions/sarif
       with:
         repo-visibility: "${{steps.repo-visibility.outputs.value}}"
-        repo-fork: "${{steps.visibility.outputs.is-fork}}"
+        repo-fork: >-
+          ${{steps.visibility.outputs.is-fork == 'true'
+          || (github.event_name == 'pull_request'
+          && github.event.pull_request.head.repo.full_name != github.repository)}}
