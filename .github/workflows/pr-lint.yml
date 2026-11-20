@@ -15,13 +15,32 @@ concurrency:
   group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: true
 
+# Pull requests from forks are never passed a secret, even where the repository sends secrets to fork
+# pull request workflows, and should not run on self-hosted runners, so they run every check on
+# GitHub-hosted runners with the read-only github.token in place of SOURCE_PUSH_TOKEN.
+# The env context is not available to runs-on, so the fork test there is the check-runner anchor on the first job,
+# which every other job reuses as *check-runner.
+# The runs-on guard is best effort, not an enforced boundary: a pull_request run uses the workflow
+# files from the pull request's merge ref, so a fork can edit it. The enforced controls are the
+# repository or organisation settings that require approval for fork pull request workflows and
+# that stop self-hosted runner groups being used by public repositories or fork pull requests.
 env:
   HEAD_REF: "${{github.head_ref}}"
   BASE_REF: "${{github.base_ref}}"
+  IS_FORK_PR: >-
+    ${{github.event_name == 'pull_request'
+    && github.event.pull_request.head.repo.full_name != github.repository}}
 
 jobs:
   repo-info:
-    runs-on: ubuntu-latest
+    runs-on: &check-runner >-
+      ${{github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name != github.repository
+      && 'ubuntu-latest'
+      || (startsWith(vars.CHECK_ENVIRONMENT, '[')
+      && fromJSON(vars.CHECK_ENVIRONMENT)
+      || vars.CHECK_ENVIRONMENT
+      || 'ubuntu-latest')}}
     outputs:
       is_template: "${{steps.visibility.outputs.is-template}}"
     steps:
@@ -52,7 +71,7 @@ jobs:
   info:
     needs: [repo-info]
     if: needs.repo-info.outputs.is_template == 'true'
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -92,7 +111,7 @@ jobs:
     if: |-
       github.event.pull_request.draft == false &&
       !contains(github.event.pull_request.labels.*.name, 'Changelog Not Required')
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -148,7 +167,7 @@ jobs:
     if: |-
       github.event.pull_request.draft == false &&
       github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -175,7 +194,7 @@ jobs:
         uses: ./.github/actions/check-repo-visibility
 
       - name: "Check Required Secrets"
-        if: steps.visibility.outputs.is-template != 'true'
+        if: steps.visibility.outputs.is-template != 'true' && env.IS_FORK_PR != 'true'
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
@@ -185,7 +204,7 @@ jobs:
         if: steps.visibility.outputs.is-template != 'true'
         uses: ./.github/actions/dotnet-install
         with:
-          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          github-token: "${{env.IS_FORK_PR == 'true' && github.token || secrets.SOURCE_PUSH_TOKEN}}"
           nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-additional-restore-feed-release-cache: ""
@@ -216,7 +235,7 @@ jobs:
   # @@required: merge
   changelog-template-unreleased-is-empty:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -243,7 +262,7 @@ jobs:
         uses: ./.github/actions/check-repo-visibility
 
       - name: "Check Required Secrets"
-        if: steps.visibility.outputs.is-template == 'true'
+        if: steps.visibility.outputs.is-template == 'true' && env.IS_FORK_PR != 'true'
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
@@ -253,7 +272,7 @@ jobs:
         if: steps.visibility.outputs.is-template == 'true'
         uses: ./.github/actions/dotnet-install
         with:
-          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          github-token: "${{env.IS_FORK_PR == 'true' && github.token || secrets.SOURCE_PUSH_TOKEN}}"
           nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-additional-restore-feed-release-cache: ""
@@ -309,7 +328,7 @@ jobs:
   # @@required: merge
   changelog-has-no-placeholders:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -332,6 +351,7 @@ jobs:
           fetch-depth: 1
 
       - name: "Check Required Secrets"
+        if: env.IS_FORK_PR != 'true'
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
@@ -340,7 +360,7 @@ jobs:
       - name: "Install dotnet"
         uses: ./.github/actions/dotnet-install
         with:
-          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          github-token: "${{env.IS_FORK_PR == 'true' && github.token || secrets.SOURCE_PUSH_TOKEN}}"
           nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-additional-restore-feed-release-cache: ""
@@ -400,7 +420,7 @@ jobs:
   # @@required: merge
   does-not-contain-secrets:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -434,7 +454,7 @@ jobs:
   # @@required: merge
   has-no-merge-conflicts:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -462,7 +482,7 @@ jobs:
   # @@required: merge
   has-no-file-or-folder-case-sensitivity-issues:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -490,7 +510,7 @@ jobs:
   # @@required: merge
   no-ignored-files:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -520,7 +540,7 @@ jobs:
   # @@required: merge
   no-prohibited-files:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -549,7 +569,7 @@ jobs:
   no-expressions-in-scripts:
     # Check that no workflow expression is used inside a run: or script: body
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -578,7 +598,7 @@ jobs:
   dependency-review:
     # Check that there are no dependencies with security problems in the PR
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -612,7 +632,7 @@ jobs:
   no-merge-commits:
     # Check that there are no merge commits in the PR
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     permissions:
       contents: read
       pull-requests: read
@@ -643,7 +663,7 @@ jobs:
   # @@required: merge
   valid-changelog:
     if: github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -666,6 +686,7 @@ jobs:
           fetch-depth: 1
 
       - name: "Check Required Secrets"
+        if: env.IS_FORK_PR != 'true'
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
@@ -674,7 +695,7 @@ jobs:
       - name: "Install dotnet"
         uses: ./.github/actions/dotnet-install
         with:
-          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          github-token: "${{env.IS_FORK_PR == 'true' && github.token || secrets.SOURCE_PUSH_TOKEN}}"
           nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-additional-restore-feed-release-cache: ""
@@ -699,12 +720,12 @@ jobs:
             --lint
           untrusted-output: "true"
 
-  # @@required: main
+  # @@required: merge
   lint-code:
     if: |-
       github.event.pull_request.draft == false &&
       ( !startsWith(github.head_ref, 'release/') && !startsWith(github.head_ref, 'hotfix/') )
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -727,6 +748,7 @@ jobs:
           fetch-depth: 0
 
       - name: "Check Required Secrets"
+        if: env.IS_FORK_PR != 'true'
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
@@ -736,11 +758,11 @@ jobs:
         uses: ./.github/actions/super-linter
         with:
           mode: "pr"
-          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          github-token: "${{env.IS_FORK_PR == 'true' && github.token || secrets.SOURCE_PUSH_TOKEN}}"
 
-  # @@required: main
+  # @@required: merge
   poutine:
-    runs-on: "ubuntu-latest"
+    runs-on: *check-runner
     permissions:
       security-events: write
       contents: read
@@ -751,8 +773,12 @@ jobs:
         shell: bash
         run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
 
+      # This job's token has write scopes, so a fork pull request's checkout does not keep it in the
+      # git config; nothing later in the job uses git credentials.
       - name: "Checkout Source"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: "${{env.IS_FORK_PR != 'true'}}"
 
       - name: "Check repo visibility"
         id: visibility
@@ -785,4 +811,4 @@ jobs:
         uses: ./.github/actions/sarif
         with:
           repo-visibility: "${{steps.visibility.outputs.is-public == 'true' && 'public' || 'private'}}"
-          repo-fork: "${{steps.visibility.outputs.is-fork}}"
+          repo-fork: "${{steps.visibility.outputs.is-fork == 'true' || env.IS_FORK_PR == 'true'}}"
