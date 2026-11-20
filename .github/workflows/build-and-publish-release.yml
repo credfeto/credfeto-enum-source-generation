@@ -25,7 +25,7 @@ jobs:
   # across every branch of the repository, not just per ref
   allocate-build-number:
 
-    runs-on: >-
+    runs-on: &release-build-runner >-
       ${{startsWith(vars.RELEASE_BUILD_ENVIRONMENT, '[')
       && fromJSON(vars.RELEASE_BUILD_ENVIRONMENT)
       || vars.RELEASE_BUILD_ENVIRONMENT
@@ -114,11 +114,7 @@ jobs:
 
     needs: [allocate-build-number]
 
-    runs-on: >-
-      ${{startsWith(vars.RELEASE_BUILD_ENVIRONMENT, '[')
-      && fromJSON(vars.RELEASE_BUILD_ENVIRONMENT)
-      || vars.RELEASE_BUILD_ENVIRONMENT
-      || 'ubuntu-latest'}}
+    runs-on: *release-build-runner
 
     env:
       # Which NPM Registry to use
