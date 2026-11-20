@@ -17,7 +17,11 @@ permissions:
 
 jobs:
   auto-rebase:
-    runs-on: ubuntu-latest
+    runs-on: >-
+      ${{startsWith(vars.MAINTENANCE_ENVIRONMENT, '[')
+      && fromJSON(vars.MAINTENANCE_ENVIRONMENT)
+      || vars.MAINTENANCE_ENVIRONMENT
+      || 'ubuntu-latest'}}
 
     if: github.ref == 'refs/heads/main' || github.event_name == 'release'
     timeout-minutes: 5
