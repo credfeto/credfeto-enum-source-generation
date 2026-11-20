@@ -19,9 +19,24 @@ concurrency:
   group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: true
 
+# Pull requests from forks should not run on self-hosted runners, so they run every job on GitHub-hosted
+# runners instead. No job here needs a secret or write access, so they run unchanged otherwise.
+# The env context is not available to runs-on, so the fork test there is the check-runner anchor on the first job,
+# which every other job reuses as *check-runner.
+# The runs-on guard is best effort, not an enforced boundary: a pull_request run uses the workflow
+# files from the pull request's merge ref, so a fork can edit it. The enforced controls are the
+# repository or organisation settings that require approval for fork pull request workflows and
+# that stop self-hosted runner groups being used by public repositories or fork pull requests.
 jobs:
   repo-info:
-    runs-on: ubuntu-latest
+    runs-on: &check-runner >-
+      ${{github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name != github.repository
+      && 'ubuntu-latest'
+      || (startsWith(vars.CHECK_ENVIRONMENT, '[')
+      && fromJSON(vars.CHECK_ENVIRONMENT)
+      || vars.CHECK_ENVIRONMENT
+      || 'ubuntu-latest')}}
     outputs:
       is_template: "${{steps.visibility.outputs.is-template}}"
     steps:
@@ -52,7 +67,7 @@ jobs:
   test-check-no-file-actions:
     needs: [repo-info]
     if: needs.repo-info.outputs.is_template == 'true'
-    runs-on: ubuntu-latest
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
