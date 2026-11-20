@@ -1,0 +1,56 @@
+--- # PR: update pull request metadata for pull requests from forks
+# Maintain in repo: funfair-server-template
+name: "PR: Update (fork)"
+on:
+  # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
+  # pull_request_target gives a fork PR a writable github.token, which pull_request never does.
+  # That token is only safe because nothing from the PR head is checked out, built or run here:
+  # the checkout takes the default branch, labeler reads its configuration from that checkout and
+  # the changed files from the API, and no PR-controlled field is interpolated into a script.
+  # It reads no secret: github.token is the only credential, so a fork PR is never passed a secret.
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches:
+      - main
+
+concurrency:
+  group: "${{github.workflow}}-${{github.event.pull_request.number}}"
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  update-pull-request:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    # Never a runner variable: this job holds a writable token for an untrusted fork PR, so it must
+    # not run on a self-hosted runner whatever the repository configures.
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: "Checkout Source"
+        # No ref: under pull_request_target this is the default branch, never the PR head.
+        # poutine's untrusted_checkout_exec rule flags any expression in ref, even the base SHA.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: "Add Labels"
+        uses: ./.github/actions/sync-labels
+        with:
+          github-token: "${{github.token}}"
+          pr-number: "${{github.event.pull_request.number}}"
+
+      - name: "Assign PR to the creator"
+        if: |-
+          !github.event.pull_request.assignee.login
+          && ( github.event.action == 'opened' || github.event.action == 'reopened')
+        uses: ./.github/actions/assign-pr-to-creator
+        with:
+          github-token: "${{github.token}}"
