@@ -18,7 +18,11 @@ concurrency:
 
 jobs:
   repo-info:
-    runs-on: ubuntu-latest
+    runs-on: &maintenance-runner >-
+      ${{startsWith(vars.MAINTENANCE_ENVIRONMENT, '[')
+      && fromJSON(vars.MAINTENANCE_ENVIRONMENT)
+      || vars.MAINTENANCE_ENVIRONMENT
+      || 'ubuntu-latest'}}
 
     permissions:
       contents: read
@@ -54,7 +58,7 @@ jobs:
   bump-dotnet-sdk-version:
     needs: [repo-info]
     if: needs.repo-info.outputs.is_template == 'true'
-    runs-on: ubuntu-latest
+    runs-on: *maintenance-runner
 
     permissions:
       contents: write
@@ -93,28 +97,15 @@ jobs:
           persist-credentials: true
 
       - name: "Install dotnet"
-        if: runner.environment == 'self-hosted'
         uses: ./.github/actions/dotnet-install
         with:
           github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
           nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
-          nuget-additional-restore-feed-release-cache: "${{vars.RELEASE_BAGET_CACHE}}"
-          nuget-additional-restore-feed-prerelease-cache: ""
-          nuget-additional-restore-feed-release: "${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
-          nuget-additional-restore-feed-prerelease: ""
-
-      - name: "Install dotnet"
-        if: runner.environment != 'self-hosted'
-        uses: ./.github/actions/dotnet-install
-        with:
-          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
-          nuget-public-restore-feed-cache: ""
-          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-additional-restore-feed-release-cache: ""
           nuget-additional-restore-feed-prerelease-cache: ""
-          nuget-additional-restore-feed-release: "${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
-          nuget-additional-restore-feed-prerelease: "${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}"
+          nuget-additional-restore-feed-release: ""
+          nuget-additional-restore-feed-prerelease: ""
 
       - name: "Get latest available dotnet version"
         id: latest-dotnet-version
