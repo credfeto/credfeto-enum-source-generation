@@ -3,12 +3,13 @@
 name: "Dependabot: Approve updates"
 on:
   # https://securitylab.github.com/research/github-actions-preventing-pwn-requests
-  # pull_request_target is required here to grant the workflow write permissions on Dependabot PRs.
-  # NOTE: pull_request_target resolves local composite actions from the filesystem rather than git
-  # storage, and since the workspace is empty at job initialisation (before any steps run), local
-  # uses: ./.github/actions/... references will always fail - even with an actions/checkout step,
-  # because step execution happens after action path resolution. As a result, any steps in this
-  # workflow that would otherwise use local composite actions must inline their logic directly.
+  # pull_request_target is required here so the job can read the SOURCE_PUSH_TOKEN secret, which has
+  # write access and is used to approve and auto-merge Dependabot PRs; pull_request runs triggered by
+  # Dependabot cannot read Actions secrets. GITHUB_TOKEN itself stays at contents: read.
+  # NOTE: this job deliberately has no actions/checkout step, so no repository code is present in
+  # the workspace. That keeps pull request code out of a job that holds the SOURCE_PUSH_TOKEN
+  # secret, but it also means local uses: ./.github/actions/... references have nothing to load,
+  # so any logic that would otherwise live in a local composite action is inlined here instead.
   pull_request_target:
     types:
       - opened
@@ -25,8 +26,19 @@ permissions:
 
 jobs:
   approve-dependabot:
-    if: vars.DEPENDABOT_AUTOMERGE == 'true' && github.actor == 'dependabot[bot]'
-    runs-on: ubuntu-latest
+    # github.actor alone is not enough: an event Dependabot causes in a fork can make it the actor on a
+    # fork PR, and this job must never approve or auto-merge a fork PR, so the PR head must also be in
+    # this repository. A PR whose head repository was deleted has a null head.repo, so the comparison
+    # is false and the job is skipped.
+    if: |-
+      vars.DEPENDABOT_AUTOMERGE == 'true'
+      && github.actor == 'dependabot[bot]'
+      && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: >-
+      ${{startsWith(vars.MAINTENANCE_ENVIRONMENT, '[')
+      && fromJSON(vars.MAINTENANCE_ENVIRONMENT)
+      || vars.MAINTENANCE_ENVIRONMENT
+      || 'ubuntu-latest'}}
     steps:
       - name: "Check Required Secrets"
         shell: bash
