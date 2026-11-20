@@ -52,6 +52,11 @@ runs:
         ecr: true
 
     - name: "Docker: Login to GitHub Container Registry"
+      # A pull request from a fork only has a read-only token; pulling public images needs no
+      # login, so a failed login must not fail its build.
+      continue-on-error: >-
+        ${{github.event_name == 'pull_request'
+        && github.event.pull_request.head.repo.full_name != github.repository}}
       uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
       with:
         registry: "ghcr.io"
