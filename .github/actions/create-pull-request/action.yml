@@ -58,7 +58,6 @@ runs:
         TITLE: "${{inputs.title}}"
         BODY: "${{inputs.body}}"
         DRAFT: "${{inputs.draft}}"
-        ASSIGNEES: "${{inputs.assignees}}"
         LABELS: "${{inputs.labels}}"
       with:
         github-token: "${{inputs.github-token}}"
@@ -73,9 +72,6 @@ runs:
             return;
           }
           const draft = draftInput === 'true';
-          const assignees = process.env.ASSIGNEES
-            ? process.env.ASSIGNEES.split(',').map(a => a.trim()).filter(Boolean)
-            : [];
           const labels = process.env.LABELS
             ? process.env.LABELS.split(',').map(l => l.trim()).filter(Boolean)
             : [];
@@ -140,30 +136,23 @@ runs:
             }
           }
 
-          const followUps = [];
-          if (assignees.length > 0) {
-            followUps.push(
-              github.rest.issues.addAssignees({
-                ...ownerRepo,
-                issue_number: pr.number,
-                assignees: assignees,
-              })
-            );
-          }
-
           if (labels.length > 0) {
-            followUps.push(
-              github.rest.issues.addLabels({
-                ...ownerRepo,
-                issue_number: pr.number,
-                labels: labels,
-              })
-            );
+            await github.rest.issues.addLabels({
+              ...ownerRepo,
+              issue_number: pr.number,
+              labels: labels,
+            });
           }
-
-          await Promise.all(followUps);
 
           core.info(`Pull request #${pr.number}: ${pr.html_url}`);
           core.setOutput('pr-number', String(pr.number));
           core.setOutput('pr-url', pr.html_url);
           core.setOutput('has-changed-files', String(pr.changed_files > 0));
+
+    - name: "Assign PR"
+      if: inputs.assignees != ''
+      uses: ./.github/actions/assign-pr
+      with:
+        github-token: "${{inputs.github-token}}"
+        pr-number: "${{steps.create.outputs.pr-number}}"
+        assignees: "${{inputs.assignees}}"
