@@ -19,8 +19,9 @@ inputs:
     description: "docker app name"
     required: true
   docker-container-registry:
-    description: "Container registry to push the image to"
-    required: true
+    description: "Container registry to push the image to; required only when deploy is 'true'"
+    required: false
+    default: ""
   container-source:
     description: "Location of app container source"
     required: true
@@ -32,6 +33,7 @@ runs:
   using: "composite"
   steps:
     - name: "Check Required Secrets: docker-container-registry"
+      if: inputs.deploy == 'true'
       uses: ./.github/actions/check-required-secret
       with:
         secret-name: "docker-container-registry"
