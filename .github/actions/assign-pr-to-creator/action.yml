@@ -15,7 +15,8 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: "Assign PR to Creator"
+    - name: "Find PR Creator"
+      id: creator
       uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       env:
         PR_NUMBER: "${{inputs.pr-number}}"
@@ -34,12 +35,12 @@ runs:
                 pull_number: prNumber,
               })).data
             : context.payload.pull_request;
-          const creator = pullRequest.user.login;
-          await github.rest.issues.addAssignees({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: prNumber,
-            assignees: [creator],
-          });
-          core.info(`✅ Assigned PR #${prNumber} to ${creator}`);
-          core.notice(`Assigned PR #${prNumber} to ${creator}`);
+          core.setOutput('pr-number', String(prNumber));
+          core.setOutput('login', pullRequest.user.login);
+
+    - name: "Assign PR to Creator"
+      uses: ./.github/actions/assign-pr
+      with:
+        github-token: "${{inputs.github-token}}"
+        pr-number: "${{steps.creator.outputs.pr-number}}"
+        assignees: "${{steps.creator.outputs.login}}"
