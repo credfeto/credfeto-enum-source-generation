@@ -157,11 +157,15 @@ runs:
         case "$PR_NUMBER" in
           *$'\n'*|*$'\r'*) echo "::error::pr-number must not contain newlines"; exit 1;;
         esac
+        if [ -z "$PR_NUMBER" ]; then
+          echo "ℹ️ ${TITLE//[$'\r\n']/ }: no pull request found for this run; the summary is in the job summary only"
+        fi
         echo "number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
       env:
-        PR_NUMBER: >-
-          ${{inputs.pr-number != '' && inputs.pr-number ||
-          (github.event_name == 'pull_request' && github.event.pull_request.number || steps.find-pr.outputs.number)}}
+        TITLE: "${{inputs.title}}"
+        # github.event.pull_request is set on pull_request and pull_request_target (and the review
+        # events) and empty on push, so this needs no event-name test.
+        PR_NUMBER: "${{inputs.pr-number || github.event.pull_request.number || steps.find-pr.outputs.number}}"
 
     - name: "Comment on pull request"
       if: >-
