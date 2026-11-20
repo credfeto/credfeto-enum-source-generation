@@ -22,7 +22,11 @@ jobs:
   sync-branch-protection:
     # Repos can opt out by setting the BRANCH_PROTECTION_SYNC_DISABLED repo variable to 'true'
     if: vars.BRANCH_PROTECTION_SYNC_DISABLED != 'true'
-    runs-on: ubuntu-latest
+    runs-on: >-
+      ${{startsWith(vars.MAINTENANCE_ENVIRONMENT, '[')
+      && fromJSON(vars.MAINTENANCE_ENVIRONMENT)
+      || vars.MAINTENANCE_ENVIRONMENT
+      || 'ubuntu-latest'}}
 
     steps:
       - name: "Check Required Secrets"
