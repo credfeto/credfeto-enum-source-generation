@@ -20,7 +20,11 @@ permissions:
 
 jobs:
   missing-releases:
-    runs-on: ubuntu-latest
+    runs-on: >-
+      ${{startsWith(vars.MAINTENANCE_ENVIRONMENT, '[')
+      && fromJSON(vars.MAINTENANCE_ENVIRONMENT)
+      || vars.MAINTENANCE_ENVIRONMENT
+      || 'ubuntu-latest'}}
 
     steps:
       - name: "Check Required Secrets"
