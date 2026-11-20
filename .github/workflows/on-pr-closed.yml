@@ -10,8 +10,21 @@ permissions:
   contents: read
 
 jobs:
+  # A pull request from a fork is never passed a secret and gets a read-only token, so it cannot delete
+  # caches, and it should not run on self-hosted runners: the job skips it and its caches are left to expire.
+  # The skip is best effort, not an enforced boundary: a pull_request run uses the workflow files
+  # from the pull request's merge ref, so a fork can edit it. The enforced controls are the
+  # repository or organisation settings that require approval for fork pull request workflows and
+  # that stop self-hosted runner groups being used by public repositories or fork pull requests.
   cleanup-cache:
-    runs-on: ubuntu-latest
+    if: |-
+      !(github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name != github.repository)
+    runs-on: >-
+      ${{startsWith(vars.MAINTENANCE_ENVIRONMENT, '[')
+      && fromJSON(vars.MAINTENANCE_ENVIRONMENT)
+      || vars.MAINTENANCE_ENVIRONMENT
+      || 'ubuntu-latest'}}
 
     steps:
       - name: "Check Required Secrets"
