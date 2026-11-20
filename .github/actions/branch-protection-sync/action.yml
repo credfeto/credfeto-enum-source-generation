@@ -25,38 +25,55 @@ runs:
           const GITHUB_ACTIONS_APP_ID = 'MDM6QXBwMTUzNjg=';
 
           const WORKFLOWS_DIR = '.github/workflows';
-          const TAG_RE = /^\s*#\s*@@required:\s*(\S+)\s*$/;
+          const TAG_MARKER_RE = /^\s*#\s*@@required\b(.*)$/;
+          const TAG_SCOPE_RE = /^:\s*(\S+)\s*$/;
           const JOB_RE = /^  ([A-Za-z0-9_.-]+):\s*$/;
+          const MERGE_SCOPE = 'merge';
 
-          const scopes = { main: new Set(), merge: new Set() };
+          const requiredJobs = new Set();
+          const tagErrors = [];
 
           const files = fs.readdirSync(WORKFLOWS_DIR).filter(f => f.endsWith('.yml') || f.endsWith('.yaml'));
           for (const file of files) {
-            const lines = fs.readFileSync(path.join(WORKFLOWS_DIR, file), 'utf8').split('\n');
-            for (let i = 0; i < lines.length - 1; i++) {
-              const tagMatch = lines[i].match(TAG_RE);
-              if (!tagMatch) continue;
+            const lines = fs.readFileSync(path.join(WORKFLOWS_DIR, file), 'utf8').split(/\r?\n/);
+            for (let i = 0; i < lines.length; i++) {
+              const markerMatch = lines[i].match(TAG_MARKER_RE);
+              if (!markerMatch) continue;
 
-              const scope = tagMatch[1];
-              const jobMatch = lines[i + 1].match(JOB_RE);
+              const tagLine = i + 1;
+              const scopeMatch = markerMatch[1].match(TAG_SCOPE_RE);
+              if (!scopeMatch) {
+                tagErrors.push(`${file}:${tagLine}: malformed @@required tag '${lines[i].trim()}'; expected '# @@required: ${MERGE_SCOPE}'`);
+                continue;
+              }
+
+              const scope = scopeMatch[1];
+              const jobMatch = (lines[i + 1] ?? '').match(JOB_RE);
               if (!jobMatch) {
-                core.warning(`${file}:${i + 2}: @@required tag not immediately followed by a job key - skipped`);
+                tagErrors.push(`${file}:${tagLine}: @@required tag (scope '${scope}') not immediately followed by a job key`);
                 continue;
               }
-              if (scope !== 'main' && scope !== 'merge') {
-                core.warning(`${file}: unknown @@required scope '${scope}' on job '${jobMatch[1]}' - skipped`);
+              if (scope !== MERGE_SCOPE) {
+                tagErrors.push(`${file}:${tagLine}: job '${jobMatch[1]}' has @@required scope '${scope}'; the only valid scope is '${MERGE_SCOPE}'`);
                 continue;
               }
-              scopes[scope].add(jobMatch[1]);
+              requiredJobs.add(jobMatch[1]);
             }
           }
 
-          const mainContexts = [...new Set([...scopes.main, ...scopes.merge])].sort();
+          // Any bad tag would silently drop a required check, so nothing is applied until every tag is valid.
+          if (tagErrors.length > 0) {
+            core.setFailed(`❌ ${tagErrors.length} invalid @@required tag(s); branch protection not changed:\n${tagErrors.join('\n')}`);
+            return;
+          }
+
+          const mainContexts = [...requiredJobs].sort();
 
           // release/* and hotfix/* intentionally get no required status checks: every workflow
           // that reports a @@required-tagged context today only triggers for PRs targeting main
-          // (or, for build-pre-release, only on push), so requiring any of them here would leave
-          // release/hotfix PRs permanently stuck on "Expected" with no way to merge a patch.
+          // (build-pre-release also runs on push, but never for release/* or hotfix/* branches),
+          // so requiring any of them here would leave release/hotfix PRs permanently stuck on
+          // "Expected" with no way to merge a patch.
           const releaseContexts = [];
 
           core.info(`main required checks: ${mainContexts.join(', ') || '(none)'}`);
