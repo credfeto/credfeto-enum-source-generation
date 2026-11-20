@@ -11,6 +11,7 @@ on:
       - ".github/actions/check-required-secret/**"
       - ".github/actions/find-pull-request/**"
       - ".github/actions/read-file/**"
+      - ".github/actions/assign-pr/**"
       - ".github/actions/create-pull-request/**"
       - ".github/actions/sync-labels/**"
       - ".github/actions/delete-branch/**"
@@ -27,7 +28,11 @@ permissions:
 
 jobs:
   build-matrix:
-    runs-on: ubuntu-latest
+    runs-on: &maintenance-runner >-
+      ${{startsWith(vars.MAINTENANCE_ENVIRONMENT, '[')
+      && fromJSON(vars.MAINTENANCE_ENVIRONMENT)
+      || vars.MAINTENANCE_ENVIRONMENT
+      || 'ubuntu-latest'}}
 
     steps:
       - name: "Initialise Workspace"
@@ -120,7 +125,7 @@ jobs:
   check-branch:
     needs: [build-matrix]
     if: needs.build-matrix.outputs.haschanges == 'true'
-    runs-on: ubuntu-latest
+    runs-on: *maintenance-runner
 
     permissions:
       contents: write
