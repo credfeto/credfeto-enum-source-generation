@@ -1,11 +1,13 @@
 --- # Find an open pull request for a given branch
 # Maintain in repo: funfair-server-template
 name: "Find Pull Request"
-description: "Finds an open pull request for a given branch and returns its number and head SHA"
+description: >-
+  Returns the number and head SHA of the triggering pull request on a pull_request or pull_request_target
+  event, otherwise finds an open pull request whose head is the given branch in this repository
 
 inputs:
   branch:
-    description: "Branch name to search for"
+    description: "Branch name to search for; ignored on pull_request and pull_request_target events"
     required: true
   base:
     description: "Base branch the pull request must target; when empty, open pull requests to any base are considered"
@@ -40,15 +42,36 @@ runs:
         script: |
           const branch = process.env.BRANCH;
           const base = process.env.BASE;
-          const { data: pulls } = await github.rest.pulls.list({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            state: 'open',
-            head: `${context.repo.owner}:${branch}`,
-            ...(base ? { base } : {}),
-          });
-          if (pulls.length > 0) {
-            const pr = pulls[0];
+
+          // A pull request event names its own PR; a branch-name lookup could instead match an
+          // unrelated in-repo PR when a fork's branch shares that name.
+          // Only the number is taken from the payload: its draft, state and head SHA are frozen when the
+          // event fired, so a re-run of an older run would otherwise report out-of-date state.
+          // context.payload.pull_request is set only on pull request events, so it needs no event-name test.
+          async function findPullRequest() {
+            const number = context.payload.pull_request?.number;
+            if (number) {
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: number,
+              });
+              return pr.state === 'open' && (!base || pr.base.ref === base) ? pr : undefined;
+            }
+
+            // Outside a pull request event the branch was pushed to this repository, so its owner is the head owner.
+            const { data: pulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:${branch}`,
+              ...(base ? { base } : {}),
+            });
+            return pulls[0];
+          }
+
+          const pr = await findPullRequest();
+          if (pr) {
             core.setOutput('number', String(pr.number));
             core.setOutput('head-sha', pr.head.sha);
             core.setOutput('pre-release-build', String(pr.draft === true && pr.base.ref === 'main'));
