@@ -17,13 +17,28 @@ concurrency:
 permissions:
   contents: read
 
+# Pull requests from forks are never passed a secret and get a read-only token here, so no job can update
+# them and none should run on self-hosted runners: every job skips them, and pr-update-fork.yml updates them
+# instead with github.token alone.
+# The env context is not available to a job-level if, so each job repeats the fork test there.
+# The skip is best effort, not an enforced boundary: a pull_request run uses the workflow files
+# from the pull request's merge ref, so a fork can edit it. The enforced controls are the
+# repository or organisation settings that require approval for fork pull request workflows and
+# that stop self-hosted runner groups being used by public repositories or fork pull requests.
 env:
   HEAD_REF: "${{github.head_ref}}"
   BASE_REF: "${{github.base_ref}}"
 
 jobs:
   repo-info:
-    runs-on: ubuntu-latest
+    if: |-
+      !(github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name != github.repository)
+    runs-on: &check-runner >-
+      ${{startsWith(vars.CHECK_ENVIRONMENT, '[')
+      && fromJSON(vars.CHECK_ENVIRONMENT)
+      || vars.CHECK_ENVIRONMENT
+      || 'ubuntu-latest'}}
     outputs:
       is_template: "${{steps.visibility.outputs.is-template}}"
     steps:
@@ -53,8 +68,11 @@ jobs:
 
   info:
     needs: [repo-info]
-    if: needs.repo-info.outputs.is_template == 'true'
-    runs-on: ubuntu-latest
+    if: |-
+      needs.repo-info.outputs.is_template == 'true'
+      && !(github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name != github.repository)
+    runs-on: *check-runner
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -101,8 +119,11 @@ jobs:
               .write();
 
   update-pull-request:
-    if: github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
+    if: |-
+      github.actor != 'dependabot[bot]'
+      && !(github.event_name == 'pull_request'
+      && github.event.pull_request.head.repo.full_name != github.repository)
+    runs-on: *check-runner
     steps:
       - name: "Check Required Secrets"
         shell: bash
