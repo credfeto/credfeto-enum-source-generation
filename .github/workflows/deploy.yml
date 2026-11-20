@@ -47,7 +47,11 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: >-
+      ${{startsWith(vars.DEPLOY_ENVIRONMENT, '[')
+      && fromJSON(vars.DEPLOY_ENVIRONMENT)
+      || vars.DEPLOY_ENVIRONMENT
+      || 'ubuntu-latest'}}
 
     steps:
       - name: "Initialise Workspace"
