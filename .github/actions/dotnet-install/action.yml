@@ -400,10 +400,13 @@ runs:
     - name: "Configure nuget feeds"
       uses: ./.github/actions/nuget
       with:
-        nuget-public-restore-feed-cache: "${{inputs.nuget-public-restore-feed-cache}}"
+        # Only self-hosted runners can reach the local caches, so the public, release and pre-release caches are all dropped elsewhere.
+        nuget-public-restore-feed-cache: "${{runner.environment == 'self-hosted' && inputs.nuget-public-restore-feed-cache || ''}}"
         nuget-public-restore-feed: "${{inputs.nuget-public-restore-feed}}"
-        nuget-additional-restore-feed-release-cache: "${{inputs.nuget-additional-restore-feed-release-cache}}"
-        nuget-additional-restore-feed-prerelease-cache: "${{inputs.nuget-additional-restore-feed-prerelease-cache}}"
+        nuget-additional-restore-feed-release-cache: >-
+          ${{runner.environment == 'self-hosted' && inputs.nuget-additional-restore-feed-release-cache || ''}}
+        nuget-additional-restore-feed-prerelease-cache: >-
+          ${{runner.environment == 'self-hosted' && inputs.nuget-additional-restore-feed-prerelease-cache || ''}}
         nuget-additional-restore-feed-release: "${{inputs.nuget-additional-restore-feed-release}}"
         nuget-additional-restore-feed-prerelease: "${{inputs.nuget-additional-restore-feed-prerelease}}"
 
