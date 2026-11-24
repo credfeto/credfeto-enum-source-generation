@@ -174,6 +174,14 @@ After all code changes are pushed and all required CI checks pass (a required ch
 - The Orchestrator runs each review and judges convergence and thrash, but hands every file change, commit and push to the [review-fix route](task-workflow.instructions.md#review-fix-route), because the Orchestrator never implements directly.
 - In an [interactive session](#waiting-for-approval-in-an-interactive-session), after each push the loop makes, hand CI to [CI Monitor](#ci-monitor), stating the run mode and the phase and step to resume at, and pause the loop until CI Monitor returns, because nothing else would watch that run or return control to the loop. CI Monitor's all-pass rule then decides whether the loop resumes there or restarts at Phase A. An unattended run carries on within the loop without waiting, because the PR stays in draft with auto-merge off until Phase E, and [Code Fixer](#code-fixer) and [CI Debugger](#ci-debugger) turn auto-merge off and convert to draft before any later fix, so GitHub cannot merge a fix the loop has not reviewed.
 
+Round caps: use these values unless the run sets its own (the orchestrator passes them in the prompt), and never invent a lower one, because a cap that is too low blocks a PR that a few more rounds would have finished:
+
+- `MAX_SIMPLIFY_ITERATIONS`: 10
+- `SIMPLIFY_THRASH_LIMIT`: 3
+- `MAX_CODE_REVIEW_ITERATIONS`: 15
+- `MAX_SECURITY_REVIEW_ITERATIONS`: 15
+- `MAX_COVERAGE_ITERATIONS`: 6
+
 #### Phase A: Simplify (up to `MAX_SIMPLIFY_ITERATIONS` rounds)
 
 - **P1.** Update Workflow board to **AI Simplify** (if the repo has a Workflow board).
