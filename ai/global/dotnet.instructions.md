@@ -116,7 +116,7 @@ These projects keep `OutputType=Library`.
 
 ## Code Coverage (MANDATORY)
 
-Collect coverage with the `coverage` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory) and read the figures from its `job_result`. It measures one unit test project at a time with Microsoft.Testing.Platform's code coverage extension, writes each project's Cobertura file to `coverage/<AssemblyName>.coverage.cobertura.xml`, and reports per-assembly and Overall line coverage, so each assembly's figure comes from its own tests only.
+Collect coverage with the `coverage` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory) and read the figures from its `job_result`. It measures one unit test project at a time with Microsoft.Testing.Platform's code coverage extension, writes each project's Cobertura file to `coverage/<AssemblyName>.coverage.cobertura.xml`, and reports per-assembly and Overall line coverage, so each assembly's figure comes from its own tests only. A successful run also writes `COVERAGE.md`: with `project: all` the whole .NET section, with one project only that assembly's row and the Overall (.NET) row. Only the [coverage ratchet](coverage-ratchet.instructions.md#committed-coverage-file-mandatory) commits that file; restore it after any other run.
 
 **Only unit test projects (`<AssemblyName>.Tests`) are measured for coverage**; see [Identifying Test Projects](#identifying-test-projects-mandatory) for the authoritative definition. These are never measured:
 
