@@ -1,0 +1,60 @@
+--- # Fail if an AI instruction file writes a NEEDS YOU marker as a GitHub shortcode
+# Maintain in repo: cs-template
+name: "Check Instructions NEEDS YOU Markers"
+description: "Fails if a line under ai/ or in .ai-instructions contains NEEDS YOU together with a :stop_sign:, :warning: or :white_check_mark: shortcode"
+
+runs:
+  using: composite
+  steps:
+    - name: "Check NEEDS YOU markers"
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      with:
+        script: |
+          // NEEDS YOU markers must be literal emoji characters because a terminal shows a
+          // shortcode as plain text. Only lines that mention NEEDS YOU are checked, so shortcodes
+          // elsewhere (which GitHub renders) are left alone.
+
+          const { execFileSync } = require('node:child_process');
+          const { readFileSync } = require('node:fs');
+          const path = require('node:path');
+
+          const NEEDS_YOU = 'NEEDS YOU';
+          const MARKER_SHORTCODES = [':stop_sign:', ':warning:', ':white_check_mark:'];
+
+          function trackedInstructionFiles(root) {
+              return execFileSync('git', ['ls-files', '-z', '--', 'ai', '.ai-instructions'], { cwd: root, encoding: 'utf8' })
+                  .split('\0')
+                  .filter(Boolean);
+          }
+
+          function shortcodesOnLine(text) {
+              return text.includes(NEEDS_YOU) ? MARKER_SHORTCODES.filter((shortcode) => text.includes(shortcode)) : [];
+          }
+
+          function findProblems(root, files) {
+              return files.flatMap((file) =>
+                  readFileSync(path.join(root, file), 'utf8')
+                      .split('\n')
+                      .flatMap((text, index) =>
+                          shortcodesOnLine(text).map((shortcode) => ({
+                              file,
+                              line: index + 1,
+                              message: `NEEDS YOU marker written as the shortcode ${shortcode}; use the emoji character instead`,
+                          })),
+                      ),
+              );
+          }
+
+          const root = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
+          const problems = findProblems(root, trackedInstructionFiles(root));
+
+          if (problems.length > 0) {
+              for (const problem of problems) {
+                  core.error(problem.message, { file: problem.file, startLine: problem.line });
+              }
+
+              core.setFailed('❌ Found NEEDS YOU markers written as GitHub shortcodes.');
+              return;
+          }
+
+          core.info('✅ All NEEDS YOU markers use emoji characters.');
