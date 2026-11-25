@@ -1,4 +1,4 @@
---- # AI instructions: enforce numbering and cross-reference anchor conventions
+--- # AI instructions: enforce numbering, cross-reference anchor and NEEDS YOU marker conventions
 # Maintain in repo: cs-template
 name: "PR: AI Instructions Lint"
 on:
@@ -12,6 +12,7 @@ on:
       - ".ai-instructions"
       - ".github/workflows/ai-instructions-lint.yml"
       - ".github/actions/check-instructions-anchors/**"
+      - ".github/actions/check-instructions-needs-you-markers/**"
       - ".github/actions/check-instructions-numbering/**"
 
 permissions:
@@ -42,3 +43,7 @@ jobs:
       - name: "Check instruction anchors"
         if: success() || failure()
         uses: ./.github/actions/check-instructions-anchors
+
+      - name: "Check NEEDS YOU markers"
+        if: success() || failure()
+        uses: ./.github/actions/check-instructions-needs-you-markers
