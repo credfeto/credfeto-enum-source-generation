@@ -12,7 +12,7 @@
 
 | NuGet Package | GitHub Repository | Notes |
 | --- | --- | --- |
-| `Credfeto.Changelog.Cmd` | [credfeto-changelog-manager](https://github.com/credfeto/credfeto-changelog-manager) | `dotnet changelog` CLI tool |
+| `Credfeto.Changelog.Cmd` | [credfeto-changelog-manager](https://github.com/credfeto/credfeto-changelog-manager) | `dotnet changelog` CLI tool; the same repository provides the `changelog` MCP server (`Credfeto.ChangeLog.Mcp`, command `changelog-mcp`), which is preferred over the CLI (see [changelog.instructions.md](changelog.instructions.md#changelog-mcp-tools)) |
 | `Credfeto.Database.Source.Generation` | [credfeto-database-source-generator](https://github.com/credfeto/credfeto-database-source-generator) | Source generator for database access |
 | `Credfeto.Enum.Source.Generator` | [credfeto-enum-source-generation](https://github.com/credfeto/credfeto-enum-source-generation) | Source generator for enum helpers |
 | `Credfeto.Exceptions.SourceGenerator` | [credfeto-exception-source-generator](https://github.com/credfeto/credfeto-exception-source-generator) | Source generator for exception constructors |
