@@ -21,7 +21,8 @@ Restore errors `NU1603` and `NU1605` are dependency problems in the repository, 
 
 ## Running .NET Tools (MANDATORY)
 
-- Invoke the dotnet tools no build-dotnet MCP tool covers via `dotnet <toolname>` (e.g. `dotnet changelog`, `dotnet buildversion`).
+- Invoke the dotnet tools no MCP tool covers via `dotnet <toolname>` (e.g. `dotnet buildversion`).
+- Change `CHANGELOG.md` with the [`changelog` MCP tools](changelog.instructions.md#changelog-mcp-tools) when the server lists them; run `dotnet changelog` only as their fallback, never both ways for one operation.
 - Run `FunFair.BuildCheck`, `cscleanup` and `reportgenerator` only through the [build-dotnet MCP tools](#build-dotnet-mcp-tools-mandatory), never as `dotnet <toolname>`, `dotnet tool run <toolname>` or a bare `buildcheck`, because the agent container denies those commands.
 - Never search for the tool binary, add it to `PATH`, or invoke it directly as `~/.dotnet/tools/toolname` or similar.
 
@@ -40,10 +41,9 @@ The `build-dotnet` MCP server runs the repository's .NET builds, tests, coverage
   | Run `FunFair.BuildCheck` | `buildcheck` | `dotnet buildcheck` |
   | Format changed files | `cleanup` | `dotnet cscleanup`, `dotnet format` |
   | Look up package versions | `package_versions` | `dotnet package search` |
-  | Lint `CHANGELOG.md` | `changelog_lint` | none: `dotnet changelog --lint` stays available |
   | Full pre-commit build and test | `buildtest` | none, but run the repository's `buildtest` script through this tool |
 
-  `dotnet tool run` of `buildcheck`, `cscleanup`, `reportgenerator`, `dotnet-format` or `csharpier` is denied too. The dotnet commands no MCP tool covers stay available: `dotnet changelog`, `dotnet buildversion`, `dotnet pack`, `dotnet publish`, `dotnet run`, `dotnet nuget list source` and the other `dotnet nuget` commands. They follow every rule in this file and in [Never Truncate Test/Commit Commands](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory).
+  `dotnet tool run` of `buildcheck`, `cscleanup`, `reportgenerator`, `dotnet-format` or `csharpier` is denied too. Changelog work, linting included, goes through the separate `changelog` MCP server's tools, with `dotnet changelog` available only as their fallback (see [changelog.instructions.md](changelog.instructions.md#changelog-mcp-tools)). The dotnet commands no MCP tool covers stay available: `dotnet buildversion`, `dotnet pack`, `dotnet publish`, `dotnet run`, `dotnet nuget list source` and the other `dotnet nuget` commands. They follow every rule in this file and in [Never Truncate Test/Commit Commands](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory).
 - **P2.** **A role without the build-dotnet tools delegates the task.** A session that has no build-dotnet tools because its role is not granted them (the Orchestrator) hands the build, test, coverage or check to the role that has them (Code Tester for tests and coverage), because the raw commands are denied there too.
 - **P3.** **When the server is not connected, stop and report it.** If no build-dotnet tools are available in a role that is granted them, the server failed to start or connect: stop the task, comment on the issue or PR that the build-dotnet MCP server is not connected, and add `Blocked`. Never work around it with a raw command or a script that runs one, because the raw commands are denied and a workaround hides the broken setup.
 - **P4.** **A tool the server does not list has nothing to run.** When the server is connected but does not list the tool for a task, the repository has nothing for that tool (for example no unit test project means no `test` or `coverage` tool); say so in your report instead of composing a command.
