@@ -1,4 +1,4 @@
---- # Build and deploy packages
+--- # Push packages in dist to a NuGet feed
 # Maintain in repo: funfair-server-template
 name: "Publish to nuget"
 description: "Publishes Nuget packages"
@@ -20,15 +20,24 @@ runs:
         secret-name: "nuget-api-key"
         secret-value: "${{inputs.nuget-api-key}}"
 
-    - name: "NuGet Push"
-      uses: ./.github/actions/dotnet-tool-run
+    - name: "Check Packages Exist"
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
-        working-directory: "${{github.workspace}}"
-        tool-name: "pushpackages"
-        tool-arguments: |
-          --folder
-          dist
-          --api-key
-          ${{inputs.nuget-api-key}}
-          --source
-          ${{inputs.nuget-feed}}
+        script: |
+          const dist = `${process.env.GITHUB_WORKSPACE}/dist`;
+          const globber = await glob.create(`${dist}/*.nupkg`);
+          const packages = await globber.glob();
+          if (packages.length === 0) {
+            core.setFailed(`❌ No .nupkg files found in ${dist}`);
+          } else {
+            core.info(`✅ Found ${packages.length} .nupkg file(s) to push`);
+          }
+
+    - name: "NuGet Push"
+      working-directory: "${{github.workspace}}"
+      shell: bash
+      run: |
+        timeout 10m dotnet nuget push "dist/*.nupkg" --source "$NUGET_FEED" --api-key "$NUGET_API_KEY" --skip-duplicate
+      env:
+        NUGET_FEED: "${{inputs.nuget-feed}}"
+        NUGET_API_KEY: "${{inputs.nuget-api-key}}"
