@@ -413,16 +413,6 @@ runs:
         NPM_EXIST_ROOT: "${{steps.check_files.outputs.NPM_EXIST_ROOT}}"
 # yamllint enable rule:line-length
 
-    - name: "Install Multi-push tool"
-      if: |-
-        steps.build_tools.outputs.BUILD_ENV == 'true' &&
-        inputs.nuget-pack == 'true' &&
-        inputs.publish == 'true'
-      uses: ./.github/actions/dotnet-tool
-      with:
-        tool-name: "Credfeto.Package.Push"
-        tool-version: "latest"
-
     - name: "Get Unique Build Number"
       if: inputs.build-version == ''
       uses: ./.github/actions/build-version
